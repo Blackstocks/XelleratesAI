@@ -28,7 +28,7 @@ const Footer = ({ className = 'custom-class' }) => {
               className='text-primary-500 font-semibold'
             >
               {' '}
-              Terms and Conditions
+              Terms and Conditions | Privacy Policy
             </a>
           </div>
         </div>
