@@ -69,7 +69,7 @@ const Header = ({ className = 'custom-class' }) => {
           {/* For Vertical  */}
 
           {menuType === 'vertical' && (
-            <div className='flex items-center md:space-x-4 space-x-2 rtl:space-x-reverse'>
+            <div className='flex items-center md:mr-6 md:space-x-4 space-x-2 rtl:space-x-reverse'>
               {collapsed && width >= breakpoints.xl && (
                 <button
                   className='text-xl text-slate-900 dark:text-white'
