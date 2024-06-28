@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
@@ -17,8 +18,9 @@ import {
   updateBusinessDetails,
   updateFundingInfo,
   updateInvestorDetails,
-  updateProfile, // Import the new action
+  updateProfile,
 } from '@/lib/actions/insertformdetails';
+import FormCompletionBanner from '@/components/FormCompletionBanner'; // Import the new banner component
 
 const Profile = () => {
   const { user, details, loading, updateUserLocally, updateDetailsLocally } =
@@ -27,14 +29,12 @@ const Profile = () => {
   const { register, handleSubmit, reset } = useForm();
 
   const handleSave = async (data, section) => {
-    console.log('Updated Data:', data);
-
     try {
       let result;
       switch (section) {
         case 'general_info':
-          result = await updateProfile(user.id, data); // Update profiles table
-          updateUserLocally(data); // Update local state with the updated data
+          result = await updateProfile(user.id, data);
+          updateUserLocally(data);
           break;
         case 'startup_details':
           result = await updateStartupDetails(details.profile_id, data);
@@ -49,15 +49,14 @@ const Profile = () => {
           result = await updateFundingInfo(details.id, data);
           break;
         case 'investor_details':
-          result = await updateInvestorDetails(user.id, data); // Update investor_signup table
-          updateDetailsLocally(data); // Update local state with the updated data
+          result = await updateInvestorDetails(user.id, data);
+          updateDetailsLocally(data);
           break;
         default:
           console.error('Unknown section:', section);
           return;
       }
 
-      console.log('Profile updated:', result);
       reset();
       setEditingSection(null);
     } catch (error) {
@@ -71,6 +70,8 @@ const Profile = () => {
 
   return (
     <div className='space-y-5 profile-page'>
+      <FormCompletionBanner profileId={details?.profile_id} />{' '}
+      {/* Add the banner component */}
       <div className='profiel-wrap px-[35px] pb-10 md:pt-[84px] pt-10 rounded-lg bg-white dark:bg-slate-800 lg:flex lg:space-y-0 space-y-6 justify-between items-end relative z-[1]'>
         <div className='bg-slate-900 dark:bg-slate-700 absolute left-0 top-0 md:h-1/2 h-[150px] w-full z-[-1] rounded-t-lg'></div>
         <div className='profile-box flex-none md:text-start text-center'>
@@ -97,7 +98,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-
       <div className='grid grid-cols-12 gap-6'>
         {details?.type === 'investor' && (
           <>
