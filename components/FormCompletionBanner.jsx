@@ -101,7 +101,7 @@ const FormCompletionBanner = ({ profileId }) => {
   }
 
   return (
-    <div className='completion-banner bg-blue-100 text-blue-800 py-4 px-6 flex items-center justify-between shadow-md rounded-md'>
+    <div className='completion-banner bg-grey-100 text-black  py-4 px-6 flex items-center justify-between shadow-md rounded-md'>
       <div>
         <p className='font-medium text-lg'>
           {completionPercentage === 100
@@ -112,7 +112,7 @@ const FormCompletionBanner = ({ profileId }) => {
       </div>
       <button
         onClick={handleCloseBanner}
-        className='ml-4 text-red-500 text-xl font-bold'
+        className='ml-4 text-black red-500 text-xl font-bold'
         aria-label='Close Banner'
       >
         &#x2716;
