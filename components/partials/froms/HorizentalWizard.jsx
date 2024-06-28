@@ -19,7 +19,6 @@ import {
   insertContactInformation,
   insertFounderInformation,
   insertCofounderInformation,
-  checkProfileIdExists,
 } from '@/lib/actions/insertformdetails';
 import {
   contactSchema,
@@ -83,20 +82,13 @@ const FormWizard = () => {
       return;
     }
     const formData = { ...data, profile_id: profileId }; // Include profile_id in the form data
-    console.log('Form Data:', formData);
-    console.log('Current Step:', stepNumber);
 
     const isCofounderStep = hasCofounder && stepNumber === 3;
     const isLastStep = stepNumber === stepsWithCofounder.length - 1;
 
-    console.log('Is Co-Founder Step:', isCofounderStep);
-    console.log('Is Last Step:', isLastStep);
-
     if (isLastStep) {
       setIsLoading(true);
       try {
-        console.log('Form data:', formData);
-
         // Upload files and store their URLs
         const uploadedFiles = {};
         const fileFields = {
@@ -114,19 +106,12 @@ const FormWizard = () => {
 
         for (const field in fileFields) {
           if (data[field] && data[field][0]) {
-            console.log(`Uploading ${field}:`, data[field][0]);
-            try {
-              uploadedFiles[field] = await handleFileUpload(
-                data[field][0],
-                'documents',
-                data.companyName,
-                fileFields[field]
-              );
-            } catch (uploadError) {
-              console.error(`Error uploading ${field}:`, uploadError);
-            }
-          } else {
-            console.log(`${field} is not provided.`);
+            uploadedFiles[field] = await handleFileUpload(
+              data[field][0],
+              'documents',
+              data.companyName,
+              fileFields[field]
+            );
           }
         }
 
@@ -149,14 +134,12 @@ const FormWizard = () => {
         setIsLoading(false);
       }
     } else {
-      console.log('Going to next step');
       setStepNumber(stepNumber + 1);
     }
   };
 
   useEffect(() => {
     if (cofounderName && cofounderName.length > 0 && !hasCofounder) {
-      console.log('Adding co-founder step');
       setStepsWithCofounder([
         ...steps.slice(0, 3),
         { id: 4, title: 'Co-Founder Information' },
@@ -164,14 +147,12 @@ const FormWizard = () => {
       ]);
       setHasCofounder(true);
     } else if (!cofounderName && hasCofounder) {
-      console.log('Removing co-founder step');
       setStepsWithCofounder(steps);
       setHasCofounder(false);
     }
   }, [cofounderName, hasCofounder]);
 
   const handlePrev = () => {
-    console.log('Going to previous step');
     setStepNumber(stepNumber - 1);
   };
 

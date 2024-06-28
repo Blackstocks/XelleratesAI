@@ -1,8 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/ui/Button';
-import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
+import { supabase } from '@/lib/supabaseclient';
 import useUserDetails from '@/hooks/useUserDetails';
 
 const FormCompletionBanner = ({ profileId }) => {
@@ -10,21 +9,18 @@ const FormCompletionBanner = ({ profileId }) => {
   const [isBannerVisible, setIsBannerVisible] = useState(true);
   const [userType, setUserType] = useState(null);
   const router = useRouter();
-  const { user, loading } = useUserDetails(); // Ensure loading state is handled
+  const { user, loading } = useUserDetails();
 
   useEffect(() => {
-    if (loading) return; // Wait for user data to load
-    if (!user) return; // Ensure user is defined
-    console.log(user); // Debugging
+    if (loading || !user) return;
 
     const fetchCompletionData = async () => {
-      // Fetch profile details
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
-      console.log(profile.user_type); // Debugging
+
       if (profileError) {
         console.error('Error fetching user profile:', profileError);
         return;
@@ -96,16 +92,6 @@ const FormCompletionBanner = ({ profileId }) => {
     fetchCompletionData();
   }, [profileId, user, loading]);
 
-  // const handleButtonClick = ({ profileId }) => {
-  //   console.log('Profile ID:', profileId); // Debugging
-  //   console.log('User type:', userType); // Debugging
-  //   if (userType === 'investor') {
-  //     router.push(`investor-form?profile_id=${profileId}`);
-  //   } else if (userType === 'startup') {
-  //     router.push(`startup-form?profile_id=${profileId}`);
-  //   }
-  // };
-
   const handleCloseBanner = () => {
     setIsBannerVisible(false);
   };
@@ -124,15 +110,12 @@ const FormCompletionBanner = ({ profileId }) => {
         </p>
         <p className='text-sm'>Form Completion: {completionPercentage}%</p>
       </div>
-      {/* {completionPercentage < 100 && (
-        <Button onClick={handleButtonClick} text='Complete Your Profile' />
-      )} */}
       <button
         onClick={handleCloseBanner}
         className='ml-4 text-red-500 text-xl font-bold'
         aria-label='Close Banner'
       >
-        &#x2716; {/* This is the Unicode for the cross mark */}
+        &#x2716;
       </button>
     </div>
   );
