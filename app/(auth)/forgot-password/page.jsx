@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import ForgotPass from '@/components/partials/auth/forgot-pass';
 import useDarkMode from '@/hooks/useDarkMode';
+import Globe from '@/components/globe'; 
 
 const ForgotPassPage = () => {
   const [isDark] = useDarkMode();
