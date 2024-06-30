@@ -45,15 +45,15 @@ const SidebarLogo = ({ menuHover }) => {
 
       {(!collapsed || menuHover) && (
         <div
+          className='text-2xl font-bold'
           onClick={() => setMenuCollapsed(!collapsed)}
-          className={`h-4 w-4 border-[1.5px] border-slate-900 dark:border-slate-700 rounded-full transition-all duration-150
-          ${
-            collapsed
-              ? ''
-              : 'ring-2 ring-inset ring-offset-4 ring-black-900 dark:ring-slate-400 bg-slate-900 dark:bg-slate-400 dark:ring-offset-slate-700'
-          }
-          `}
-        ></div>
+        >
+          {!collapsed ? (
+            <Icon icon='heroicons:arrow-left-end-on-rectangle' />
+          ) : (
+            <Icon icon='heroicons:arrow-right-end-on-rectangle' />
+          )}
+        </div>
       )}
     </div>
   );
