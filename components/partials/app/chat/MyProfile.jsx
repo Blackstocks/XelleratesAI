@@ -45,9 +45,7 @@ const MyProfile = () => {
               <div className='flex-none'>
                 <div className='h-10 w-10 rounded-full'>
                   <img
-                    src={
-                      user?.profile_image || '/assets/images/users/user-1.jpg'
-                    }
+                    src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                     alt=''
                     className='w-full h-full object-cover rounded-full'
                   />

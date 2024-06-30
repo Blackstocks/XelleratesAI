@@ -12,7 +12,7 @@ const ProfileLabel = ({ user }) => {
       <div className='flex-1 ltr:mr-[10px] rtl:ml-[10px]'>
         <div className='lg:h-8 lg:w-8 h-7 w-7 rounded-full'>
           <img
-            src={user?.profile_image || '/assets/images/all-img/user.png'}
+            src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
             alt=''
             className='block w-full h-full object-cover rounded-full'
           />
