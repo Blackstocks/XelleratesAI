@@ -1,0 +1,62 @@
+.dot-container {
+  display: inline-block;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
+}
+
+.dot {
+  position: absolute;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+.dot:nth-child(1) {
+  left: 0;
+  animation: dot1 0.6s infinite;
+}
+
+.dot:nth-child(2) {
+  left: 8px;
+  animation: dot2 0.6s infinite;
+}
+
+.dot:nth-child(3) {
+  left: 16px;
+  animation: dot2 0.6s infinite;
+}
+
+.dot:nth-child(4) {
+  left: 24px;
+  animation: dot3 0.6s infinite;
+}
+
+@keyframes dot1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes dot3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes dot2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(8px, 0);
+  }
+}/*# sourceMappingURL=searchmodal.css.map */

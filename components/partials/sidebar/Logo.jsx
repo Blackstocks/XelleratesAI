@@ -45,7 +45,7 @@ const SidebarLogo = ({ menuHover }) => {
 
           {collapsed && !menuHover ? (
             <img
-              src='assets/images/logo/L3.svg'
+              src='assets/images/icon/X (8) (1).png'
               alt=''
               style={{ margin: '0 auto', height: '3rem' }}
             />

@@ -102,9 +102,9 @@ const LoginForm = () => {
         router.push('/profile');
       } else {
         if (profile.user_type === 'investor') {
-          router.push(`register/investor-form?profile_id=${profile.id}`);
+          router.push(`investor-form?profile_id=${profile.id}`);
         } else if (profile.user_type === 'startup') {
-          router.push(`register/startup-form?profile_id=${profile.id}`);
+          router.push(`startup-form?profile_id=${profile.id}`);
         } else {
           router.push('/profile'); // Redirect to a general dashboard or another appropriate page
         }
