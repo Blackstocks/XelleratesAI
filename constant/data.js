@@ -29,9 +29,9 @@ export const menuItems = [
     link: 'vault',
   },
   {
-    title: 'Terms and Conditions',
+    title: 'Startup Evaluation Report',
     icon: 'heroicons-outline:document-check',
-    link: 'tc',
+    link: 'report',
   },
 ];
 

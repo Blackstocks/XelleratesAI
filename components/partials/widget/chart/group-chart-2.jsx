@@ -238,34 +238,7 @@ const GroupChart2 = () => {
     <>
       {statistics.map((item, i) => (
         <div key={i}>
-          <Card bodyClass="pt-4 pb-3 px-4">
-            <div className="flex space-x-3 rtl:space-x-reverse">
-              <div className="flex-none">
-                <div
-                  className={`${item.bg} ${item.text} h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl`}
-                >
-                  <Icon icon={item.icon} />
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium">
-                  {item.title}
-                </div>
-                <div className="text-slate-900 dark:text-white text-lg font-medium">
-                  {item.count}
-                </div>
-              </div>
-            </div>
-            <div className="ltr:ml-auto rtl:mr-auto max-w-[124px]">
-              <Chart
-                options={item.name.options}
-                series={item.name.series}
-                type="area"
-                height="41"
-                width="124"
-              />
-            </div>
-          </Card>
+          
         </div>
       ))}
     </>
