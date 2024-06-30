@@ -45,7 +45,7 @@ const SidebarLogo = ({ menuHover }) => {
 
       {(!collapsed || menuHover) && (
         <div
-          className='text-2xl font-bold'
+          className='cursor-pointer text-2xl font-bold'
           onClick={() => setMenuCollapsed(!collapsed)}
         >
           {!collapsed ? (
