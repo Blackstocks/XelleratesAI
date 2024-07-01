@@ -24,7 +24,7 @@ const DownloadReportButton = () => {
 
   return (
     <button onClick={handleDownload}>
-      Startup Evaluation Report
+      Evaluate my startup
     </button>
   );
 };

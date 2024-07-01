@@ -13,7 +13,7 @@ const ImageBlock4 = () => {
         <h4 className='text-xl font-medium text-white mb-2'>
           <span className='block font-normal'>Partnership</span>
         </h4>
-        <p className='text-sm text-white font-normal'>Partner with top Companies and Academia to enrich your services</p>
+        <p className='text-sm text-white font-normal'>Get stratergic partnership support to enrich your products and services</p>
       </div>
     </div>
   );

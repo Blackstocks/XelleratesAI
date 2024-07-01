@@ -11,7 +11,7 @@ const ImageBlock3 = () => {
     >
       <div>
         <h4 className='text-xl font-medium text-white mb-2'>
-          <span className='block font-normal'>Valuate your business</span>
+          <span className='block font-normal'>Evaluate your business</span>
         </h4>
         <p className='text-sm text-white font-normal'>In only 3 min you can evaluate your company and recieve a report within 24 hours</p>
       </div>

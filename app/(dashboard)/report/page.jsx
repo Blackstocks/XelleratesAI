@@ -2,10 +2,11 @@
 
 import React from 'react';
 import DownloadReportButton from '@/components/DownloadReportButton'; // Adjust the import path as necessary
+import { FaRobot } from 'react-icons/fa'; // Importing a chatbot icon from react-icons
 
 const Page = () => {
   return (
-    <div className="min-h-screen bg-gray-100 py-10">
+    <div className="relative min-h-screen bg-gray-100 py-10">
       <div className="container mx-auto px-6">
         <div className="bg-white p-8 rounded-lg shadow-lg">
           <h1 className="text-3xl font-bold text-slate-900 mb-6">Startup Evaluation Report</h1>
@@ -25,9 +26,9 @@ const Page = () => {
           <p className="text-slate-600 mb-6">
             By leveraging our startup evaluation report, you can attract potential investors, make informed strategic decisions, and plan for sustainable growth.
           </p>
-          <div className="bg-gradient-to-r from-gray-800 to-gray-500 p-3 rounded-lg shadow-lg text-white w-1/4 mx-auto flex justify-center">
-          <DownloadReportButton />
-            </div>
+          <div className="bg-gradient-to-r from-gray-800 to-gray-500 p-3 rounded-lg shadow-lg text-white w-full sm:w-1/2 lg:w-1/4 mx-auto flex justify-center">
+            <DownloadReportButton />
+          </div>
         </div>
       </div>
     </div>

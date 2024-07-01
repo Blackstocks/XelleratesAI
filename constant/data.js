@@ -14,6 +14,11 @@ export const menuItems = [
     link: 'profile',
   },
   {
+    title: 'Startup Evaluation',
+    icon: 'heroicons-outline:document-check',
+    link: 'report',
+  },
+  {
     title: 'Resources',
     icon: 'heroicons-outline:folder',
     link: 'resources',
@@ -27,11 +32,6 @@ export const menuItems = [
     title: 'Vault',
     icon: 'heroicons-outline:shield-check',
     link: 'vault',
-  },
-  {
-    title: 'Startup Evaluation Report',
-    icon: 'heroicons-outline:document-check',
-    link: 'report',
   },
 ];
 
