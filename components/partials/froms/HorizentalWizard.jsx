@@ -81,7 +81,7 @@ const FormWizard = () => {
       console.error('Profile ID is missing');
       return;
     }
-    const formData = { ...data, profile_id: profileId }; // Include profile_id in the form data
+    const formData = { ...data, profile_id: profileId };
 
     const isCofounderStep = hasCofounder && stepNumber === 3;
     const isLastStep = stepNumber === stepsWithCofounder.length - 1;
@@ -89,7 +89,6 @@ const FormWizard = () => {
     if (isLastStep) {
       setIsLoading(true);
       try {
-        // Upload files and store their URLs
         const uploadedFiles = {};
         const fileFields = {
           companyLogo: 'logo',
@@ -112,10 +111,12 @@ const FormWizard = () => {
               data.companyName,
               fileFields[field]
             );
+            console.log(
+              `${field} uploaded successfully: ${uploadedFiles[field]}`
+            );
           }
         }
 
-        // Insert data into the database
         const companyId = await insertCompanyProfile(formData, uploadedFiles);
         await insertBusinessDetails(companyId, formData, uploadedFiles);
         await insertFundingInformation(companyId, formData, uploadedFiles);

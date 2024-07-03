@@ -9,7 +9,6 @@ const useUserDetails = () => {
   const fetchUserDetails = async () => {
     setLoading(true);
     try {
-      // Fetch authenticated user
       const {
         data: { user },
         error,
@@ -17,7 +16,6 @@ const useUserDetails = () => {
       if (error) throw error;
 
       if (user) {
-        // Fetch user profile
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -28,7 +26,6 @@ const useUserDetails = () => {
         setUser(profile);
 
         if (profile.user_type === 'investor') {
-          // Fetch investor details
           const { data: investor, error: investorError } = await supabase
             .from('investor_signup')
             .select('*')
@@ -38,7 +35,6 @@ const useUserDetails = () => {
 
           setDetails({ ...investor, type: 'investor' });
         } else if (profile.user_type === 'startup') {
-          // Fetch startup details
           await fetchStartupDetails(user.id);
         }
       }
@@ -51,7 +47,6 @@ const useUserDetails = () => {
 
   const fetchStartupDetails = async (profileId) => {
     try {
-      // Fetch company profile
       const { data: startup, error: startupError } = await supabase
         .from('company_profile')
         .select('*')
@@ -61,7 +56,6 @@ const useUserDetails = () => {
 
       const companyId = startup.id;
 
-      // Helper function to fetch details from a specific table
       const fetchDetails = async (table) => {
         const { data, error } = await supabase
           .from(table)
@@ -72,7 +66,6 @@ const useUserDetails = () => {
         return data;
       };
 
-      // Fetch details from related tables
       const [
         businessDetails,
         founderInformation,
@@ -85,7 +78,6 @@ const useUserDetails = () => {
         fetchDetails('funding_information'),
       ]);
 
-      // Aggregate all details
       setDetails({
         ...startup,
         businessDetails,
@@ -103,7 +95,6 @@ const useUserDetails = () => {
     fetchUserDetails();
   }, []);
 
-  // Update details locally
   const updateDetailsLocally = (updatedData) => {
     setDetails((prevDetails) => ({
       ...prevDetails,

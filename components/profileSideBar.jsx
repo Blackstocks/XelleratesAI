@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { Tab } from '@headlessui/react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import Icon from '@/components/ui/Icon';
 import Card from '@/components/ui/Card';
 import Textinput from '@/components/ui/Textinput';
@@ -8,6 +8,9 @@ import Textarea from '@/components/ui/Textarea';
 import Button from '@/components/ui/Button';
 import useUserDetails from '@/hooks/useUserDetails';
 import Loading from '@/components/Loading';
+import { updateFile } from '@/lib/actions/insertformdetails';
+
+import Fileinput from '@/components/ui/Fileinput';
 import {
   updateGeneralInfo,
   updateStartupDetails,
@@ -43,8 +46,22 @@ const sections = [
     key: 'funding_info',
   },
 ];
+const fileFields = [
+  {
+    name: 'certificate_of_incorporation',
+    label: 'Certificate of Incorporation',
+  },
+  { name: 'gst_certificate', label: 'GST Certificate' },
+  { name: 'startup_india_certificate', label: 'Startup India Certificate' },
+  { name: 'due_diligence_report', label: 'Due Diligence Report' },
+  { name: 'business_valuation_report', label: 'Business Valuation Report' },
+  { name: 'mis', label: 'MIS' },
+  { name: 'pitch_deck', label: 'Pitch Deck' },
+  { name: 'video_pitch', label: 'Video Pitch' },
+];
 
 const VerticalNavTabs = () => {
+  const { control } = useForm();
   const { user, details, loading, updateDetailsLocally, updateUserLocally } =
     useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
@@ -55,24 +72,24 @@ const VerticalNavTabs = () => {
       let updatedData;
       console.log('Saving data for section:', section, 'with data:', data);
 
-      // Filter only the relevant fields for the current section
-      let changedData;
+      let changedData = {};
+      const uploadedFiles = {};
+
       switch (section) {
         case 'general_info':
           changedData = {
             email: data.email,
             mobile: data.mobile,
           };
-          console.log('General info data to be updated:', changedData);
           const generalInfoResponse = await updateGeneralInfo(
             user.id,
             changedData
           );
           if (generalInfoResponse.error) throw generalInfoResponse.error;
           updatedData = generalInfoResponse.data;
-          console.log('Updated general info data:', updatedData);
-          updateUserLocally(updatedData); // Update user state
+          updateUserLocally(updatedData);
           break;
+
         case 'startup_details':
           changedData = {
             company_name: data.company_name,
@@ -84,16 +101,15 @@ const VerticalNavTabs = () => {
             linkedin_profile: data.linkedin_profile,
             short_description: data.short_description,
           };
-          console.log('Startup details data to be updated:', changedData);
           const startupDetailsResponse = await updateStartupDetails(
             details.profile_id,
             changedData
           );
           if (startupDetailsResponse.error) throw startupDetailsResponse.error;
           updatedData = startupDetailsResponse.data;
-          console.log('Updated startup details data:', updatedData);
           updateDetailsLocally({ ...details, ...updatedData });
           break;
+
         case 'founder_info':
           changedData = {
             founder_name: data.founder_name,
@@ -104,17 +120,33 @@ const VerticalNavTabs = () => {
             college_name: data.college_name,
             graduation_year: data.graduation_year,
           };
-          console.log('Founder info data to be updated:', changedData);
           const founderInfoResponse = await updateFounderInfo(
             details.id,
             changedData
           );
           if (founderInfoResponse.error) throw founderInfoResponse.error;
           updatedData = founderInfoResponse.data;
-          console.log('Updated founder info data:', updatedData);
           updateDetailsLocally({ ...details, founderInformation: updatedData });
           break;
+
         case 'business_details':
+          for (const { name } of fileFields) {
+            if (data[name]) {
+              console.log(`Uploading file for ${name}:`, data[name]);
+              try {
+                const uploadedUrl = await updateFile(
+                  data[name],
+                  'documents',
+                  details.company_name,
+                  name
+                );
+                console.log(`Uploaded file URL for ${name}: ${uploadedUrl}`);
+                uploadedFiles[name] = uploadedUrl;
+              } catch (error) {
+                console.error(`Error uploading file for ${name}:`, error);
+              }
+            }
+          }
           changedData = {
             industry_sector: data.industry_sector,
             current_stage: data.current_stage,
@@ -122,8 +154,8 @@ const VerticalNavTabs = () => {
             target_audience: data.target_audience,
             team_size: data.team_size,
             usp_moat: data.usp_moat,
+            ...uploadedFiles,
           };
-          console.log('Business details data to be updated:', changedData);
           const businessDetailsResponse = await updateBusinessDetails(
             details.id,
             changedData
@@ -131,9 +163,9 @@ const VerticalNavTabs = () => {
           if (businessDetailsResponse.error)
             throw businessDetailsResponse.error;
           updatedData = businessDetailsResponse.data;
-          console.log('Updated business details data:', updatedData);
           updateDetailsLocally({ ...details, businessDetails: updatedData });
           break;
+
         case 'funding_info':
           changedData = {
             total_funding_ask: data.total_funding_ask,
@@ -144,16 +176,15 @@ const VerticalNavTabs = () => {
             arr: data.arr,
             mrr: data.mrr,
           };
-          console.log('Funding info data to be updated:', changedData);
           const fundingInfoResponse = await updateFundingInfo(
             details.id,
             changedData
           );
           if (fundingInfoResponse.error) throw fundingInfoResponse.error;
           updatedData = fundingInfoResponse.data;
-          console.log('Updated funding info data:', updatedData);
           updateDetailsLocally({ ...details, fundingInformation: updatedData });
           break;
+
         default:
           return;
       }
@@ -385,6 +416,25 @@ const VerticalNavTabs = () => {
                               defaultValue={details?.businessDetails?.usp_moat}
                               register={register}
                             />
+
+                            {fileFields.map(({ name, label }) => (
+                              <Controller
+                                key={name}
+                                name={name}
+                                control={control}
+                                defaultValue={details?.businessDetails?.[name]}
+                                render={({ field: { onChange, value } }) => (
+                                  <Fileinput
+                                    name={name}
+                                    selectedFile={value}
+                                    onChange={(e) =>
+                                      onChange(e.target.files[0])
+                                    }
+                                    label={label}
+                                  />
+                                )}
+                              />
+                            ))}
                           </>
                         )}
                         {section.key === 'funding_info' && (
@@ -775,6 +825,191 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </div>
                               </li>
+                              {details?.businessDetails
+                                ?.certificate_of_incorporation && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      Certificate of Incorporation
+                                    </div>
+                                    <a
+                                      href={
+                                        details.businessDetails
+                                          .certificate_of_incorporation
+                                      }
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      View Certificate
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+
+                              {details?.businessDetails?.gst_certificate && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      GST Certificate
+                                    </div>
+                                    <a
+                                      href={
+                                        details.businessDetails.gst_certificate
+                                      }
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      View GST Certificate
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+
+                              {details?.businessDetails
+                                ?.startup_india_certificate && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      Startup India Certificate
+                                    </div>
+                                    <a
+                                      href={
+                                        details.businessDetails
+                                          .startup_india_certificate
+                                      }
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      View Startup India Certificate
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+
+                              {details?.businessDetails
+                                ?.due_diligence_report && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      Due Diligence Report
+                                    </div>
+                                    <a
+                                      href={
+                                        details.businessDetails
+                                          .due_diligence_report
+                                      }
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      View Due Diligence Report
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+
+                              {details?.businessDetails
+                                ?.business_valuation_report && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      Business Valuation Report
+                                    </div>
+                                    <a
+                                      href={
+                                        details.businessDetails
+                                          .business_valuation_report
+                                      }
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      View Business Valuation Report
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+
+                              {details?.businessDetails?.mis && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      MIS
+                                    </div>
+                                    <a
+                                      href={details.businessDetails.mis}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      View MIS
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+
+                              {details?.businessDetails?.pitch_deck && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      Pitch Deck
+                                    </div>
+                                    <a
+                                      href={details.businessDetails.pitch_deck}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      View Pitch Deck
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
+
+                              {details?.businessDetails?.video_pitch && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      Video Pitch
+                                    </div>
+                                    <a
+                                      href={details.businessDetails.video_pitch}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      View Video Pitch
+                                    </a>
+                                  </div>
+                                </li>
+                              )}
                             </>
                           )}
                           {section.key === 'funding_info' && (

@@ -57,7 +57,7 @@ const FormCompletionBanner = ({ profileId }) => {
           ];
         } else if (profile.user_type === 'startup') {
           const { data: startupDetails, error: startupError } = await supabase
-            .from('startup_signup')
+            .from('company_profile')
             .select('*')
             .eq('profile_id', profileId)
             .single();
