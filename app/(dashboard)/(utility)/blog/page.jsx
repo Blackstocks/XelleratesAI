@@ -33,7 +33,7 @@ const BlogPage = () => {
                       icon='heroicons-outline:calendar'
                       className='text-slate-400 dark:text-slate-400 ltr:mr-2 rtl:ml-2 text-lg'
                     />
-                    10/02/2021
+                    10/05/2024
                   </span>
                 </Link>
                 <div className='flex space-x-4 rtl:space-x-reverse'>
@@ -59,21 +59,24 @@ const BlogPage = () => {
               </div>
               <h5 className='card-title text-slate-900'>
                 <Link href='blog/1'>
-                  At Healthcare you will be treated by caring
+                  Unlocking Potential: Why Now is the Ideal Time to Invest in
+                  Startups
                 </Link>
               </h5>
               <div className='card-text dark:text-slate-300 mt-4 space-y-4'>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip.Lorem ipsum dolor sit amet,
-                  consectetur adipiscing eli.
+                  In the ever-evolving landscape of investments, the allure of
+                  startups continues to captivate seasoned investors and novices
+                  alike. While the allure of startups is perennial, the timing
+                  of investment plays a pivotal role in reaping optimal returns.
+                  In this article, we delve into why now presents an opportune
+                  moment to channel your investments into the startup ecosystem
+                  and discern the sectors primed for exponential growth.
                 </p>
                 <Button
                   className='btn-outline-dark'
                   text='Read more'
-                  link='#'
+                  link='blog/1'
                 />
               </div>
             </Card>
