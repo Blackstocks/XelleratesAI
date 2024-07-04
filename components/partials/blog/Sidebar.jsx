@@ -29,13 +29,22 @@ const category = [
 ];
 const posts = [
   {
-    img: '/assets/images/post/t-1.png',
+    img: '/assets/images/videos/Blog 1.mp4',
+    title:
+      'Unlocking Potential: Why Now Is The Ideal Time To Invest In Startups',
+    date: '10/05/2024',
   },
   {
-    img: '/assets/images/post/t-2.png',
+    img: '/assets/images/videos/Blog 2.mp4',
+    title:
+      'The Crucial Role Of Due Diligence In Startup Funding: A Comprehensive Guide',
+    date: '10/03/2024',
   },
   {
-    img: '/assets/images/post/t-3.png',
+    img: '/assets/images/videos/Blog 3.mp4',
+    title:
+      'Empowering Startups: The Role Of Purchase Order (PO) Financing In Fulfilling Orders And Driving Revenue',
+    date: '10/02/2024',
   },
 ];
 const tags = [
@@ -93,22 +102,26 @@ const Sidebar = () => {
               <div className='flex space-x-4 rtl:space-x-reverse'>
                 <div className='flex-none'>
                   <div className='h-20 w-20'>
-                    <img
+                    {/* <img
                       src={item.img}
                       alt=''
                       className='block w-full h-full'
-                    />
+                    /> */}
+                    <video
+                      src={item.img}
+                      alt=''
+                      className='w-full h-full object-cover'
+                      controls
+                    ></video>
                   </div>
                 </div>
+
                 <div className='flex-1 flex flex-col'>
                   <h4 className='text-sm text-slate-600 font-regular leading-5 mb-4'>
-                    <Link href='#'>
-                      Lorem ipsum dolor sit amet consectetur adipiscing
-                    </Link>
-                    .
+                    <Link href='#'>{item.title}</Link>.
                   </h4>
                   <span className='text-xs text-slate-400'>
-                    <Link href='#'>Oct 09, 2021</Link>
+                    <Link href='#'>{item.date}</Link>
                   </span>
                 </div>
               </div>

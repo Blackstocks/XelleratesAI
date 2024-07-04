@@ -20,11 +20,14 @@ const BlogPage = () => {
           <div className='xl:col-span-2 col-span-1'>
             <Card>
               <div className=' h-[248px] w-full mb-6 '>
-                <img
-                  src='/assets/images/all-img/post-1.png'
+                <video
+                  src='/assets/images/videos/Blog 1.mp4'
                   alt=''
-                  className=' w-full h-full  object-cover'
-                />
+                  className='w-full h-full object-cover'
+                  controls
+                >
+                  Your browser does not support the video tag.
+                </video>
               </div>
               <div className='flex justify-between mb-4'>
                 <Link href='blog/1'>
@@ -83,11 +86,19 @@ const BlogPage = () => {
           </div>
           <Card bodyClass='p-0'>
             <div className=' h-[248px] w-full mb-6 '>
-              <img
-                src='/assets/images/all-img/post-1.png'
+              <video
+                src='/assets/images/videos/Blog 2.mp4'
+                alt=''
+                className='w-full h-full object-cover'
+                controls
+              >
+                Your browser does not support the video tag.
+              </video>
+              {/* <img
+                src='/assets/images/videos/Blog 2.mp4'
                 alt=''
                 className=' w-full h-full  object-cover'
-              />
+              /> */}
             </div>
             <div className='px-6 pb-6'>
               <div className='flex justify-between mb-4'>
@@ -127,11 +138,17 @@ const BlogPage = () => {
           </Card>
           <Card bodyClass='p-0'>
             <div className=' h-[248px] w-full  '>
-              <img
+              {/* <img
                 src='/assets/images/all-img/post-1.png'
                 alt=''
                 className=' w-full h-full  object-cover'
-              />
+              /> */}
+              <video
+                src='/assets/images/videos/Blog 3.mp4'
+                alt=''
+                className='w-full h-full object-cover'
+                controls
+              ></video>
             </div>
             <div className='p-6'>
               <div className='flex justify-between mb-4'>
@@ -170,11 +187,17 @@ const BlogPage = () => {
           </Card>
           <Card bodyClass='p-0'>
             <div className=' h-[248px] w-full mb-6 '>
-              <img
+              <video
+                src='/assets/images/videos/Blog 4.mp4'
+                alt=''
+                className='w-full h-full object-cover'
+                controls
+              ></video>
+              {/* <img
                 src='/assets/images/all-img/post-1.png'
                 alt=''
                 className=' w-full h-full  object-cover'
-              />
+              /> */}
             </div>
             <div className='px-6 pb-6'>
               <div className='flex justify-between mb-4'>
@@ -213,11 +236,17 @@ const BlogPage = () => {
           </Card>
           <Card bodyClass='p-0'>
             <div className=' h-[248px] w-full  '>
-              <img
+              <video
+                src='/assets/images/videos/Blog 5.mp4'
+                alt=''
+                className='w-full h-full object-cover'
+                controls
+              ></video>
+              {/* <img
                 src='/assets/images/all-img/post-1.png'
                 alt=''
                 className=' w-full h-full  object-cover'
-              />
+              /> */}
             </div>
             <div className='p-6'>
               <div className='flex justify-between mb-4'>
