@@ -92,8 +92,11 @@ const BlogPage = () => {
             <div className='px-6 pb-6'>
               <div className='flex justify-between mb-4'>
                 <div>
-                  <h5 className='card-title text-slate-900'>
-                    <Link href='#'>Lorem ipsum</Link>
+                  <h5 className='text-base card-title text-black'>
+                    <Link href='#'>
+                      The Crucial Role of Due Diligence in Startup Funding: A
+                      Comprehensive Guide
+                    </Link>
                   </h5>
                 </div>
                 <Link href='#'>
@@ -107,8 +110,13 @@ const BlogPage = () => {
                 </Link>
               </div>
 
-              <div className='card-text dark:text-slate-300 mt-4'>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <div className='text-sm card-text dark:text-slate-300 mt-4'>
+                <p>
+                  In the fast-paced startup world, securing funding is crucial
+                  for growth, with investors scrutinizing every aspect before
+                  committing capital. Due diligence provides investors the
+                  confidence and assurance needed to invest in a startup.
+                </p>
                 <div className='mt-4 space-x-4 rtl:space-x-reverse'>
                   <Link href='#' className='btn-link'>
                     Learn more
@@ -128,8 +136,11 @@ const BlogPage = () => {
             <div className='p-6'>
               <div className='flex justify-between mb-4'>
                 <div>
-                  <h5 className='card-title text-slate-900'>
-                    <Link href='#'>Lorem ipsum</Link>
+                  <h5 className='text-base card-title text-black'>
+                    <Link href='#'>
+                      Empowering Startups: The Role of Purchase Order (PO)
+                      Financing in Fulfilling Orders and Driving Revenue
+                    </Link>
                   </h5>
                 </div>
                 <Link href='#'>
@@ -143,8 +154,12 @@ const BlogPage = () => {
                 </Link>
               </div>
 
-              <div className='card-text dark:text-slate-300 mt-4'>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <div className='text-sm card-text dark:text-slate-300 mt-4'>
+                <p>
+                  This article delves into the concept of PO financing, its
+                  benefits for startups, and its role in accelerating revenue
+                  generation amidst the challenges of cash constraints.
+                </p>
                 <div className='mt-4 space-x-4 rtl:space-x-reverse'>
                   <Link href='#' className='btn-link'>
                     Learn more
@@ -164,8 +179,11 @@ const BlogPage = () => {
             <div className='px-6 pb-6'>
               <div className='flex justify-between mb-4'>
                 <div>
-                  <h5 className='card-title text-slate-900'>
-                    <Link href='#'>Lorem ipsum</Link>
+                  <h5 className='text-base card-title text-black'>
+                    <Link href='#'>
+                      Unlocking Growth: The Case for Debt Financing for Startups
+                      in India in FY24
+                    </Link>
                   </h5>
                 </div>
                 <Link href='#'>
@@ -174,13 +192,17 @@ const BlogPage = () => {
                       icon='heroicons-outline:calendar'
                       className='text-slate-400 dark:text-slate-400 ltr:mr-2 rtl:ml-2 text-lg'
                     />
-                    10/02/2021
+                    24/03/2024
                   </span>
                 </Link>
               </div>
 
-              <div className='card-text dark:text-slate-300 mt-4'>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <div className='text-sm card-text dark:text-slate-300 mt-4'>
+                <p>
+                  This article delves into the advantages of debt financing for
+                  startups in India, elucidating why it stands out as the
+                  optimal option for fueling growth and innovation.
+                </p>
                 <div className='mt-4 space-x-4 rtl:space-x-reverse'>
                   <Link href='#' className='btn-link'>
                     Learn more
@@ -200,8 +222,8 @@ const BlogPage = () => {
             <div className='p-6'>
               <div className='flex justify-between mb-4'>
                 <div>
-                  <h5 className='card-title text-slate-900'>
-                    <Link href='#'>Lorem ipsum</Link>
+                  <h5 className='text-base card-title text-black'>
+                    <Link href='#'>Essentials Of Securing Startup Funding</Link>
                   </h5>
                 </div>
                 <Link href='#'>
@@ -215,8 +237,13 @@ const BlogPage = () => {
                 </Link>
               </div>
 
-              <div className='card-text dark:text-slate-300 mt-4'>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <div className='text-sm card-text dark:text-slate-300 mt-4'>
+                <p>
+                  Embarking on the startup funding path requires a solid
+                  foundation. It's crucial to have a strong business plan that
+                  outlines your vision. A persuasive pitch can make your startup
+                  stand out to investors.
+                </p>
                 <div className='mt-4 space-x-4 rtl:space-x-reverse'>
                   <Link href='#' className='btn-link'>
                     Learn more
