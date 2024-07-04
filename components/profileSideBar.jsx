@@ -46,6 +46,7 @@ const sections = [
     key: 'funding_info',
   },
 ];
+
 const fileFields = [
   {
     name: 'certificate_of_incorporation',
@@ -61,26 +62,21 @@ const fileFields = [
 ];
 
 const VerticalNavTabs = () => {
-  const { control } = useForm();
+  const { control, register, handleSubmit } = useForm();
   const { user, details, loading, updateDetailsLocally, updateUserLocally } =
     useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
-  const { register, handleSubmit } = useForm();
 
   const handleSave = async (data, section) => {
     try {
-      let updatedData;
       console.log('Saving data for section:', section, 'with data:', data);
-
+      let updatedData;
       let changedData = {};
       const uploadedFiles = {};
 
       switch (section) {
         case 'general_info':
-          changedData = {
-            email: data.email,
-            mobile: data.mobile,
-          };
+          changedData = { email: data.email, mobile: data.mobile };
           const generalInfoResponse = await updateGeneralInfo(
             user.id,
             changedData
@@ -131,30 +127,30 @@ const VerticalNavTabs = () => {
 
         case 'business_details':
           for (const { name } of fileFields) {
-            if (data[name]) {
-              console.log(`Uploading file for ${name}:`, data[name]);
-              try {
-                const uploadedUrl = await updateFile(
-                  data[name],
-                  'documents',
-                  details.company_name,
-                  name
-                );
-                console.log(`Uploaded file URL for ${name}: ${uploadedUrl}`);
-                uploadedFiles[name] = uploadedUrl;
-              } catch (error) {
-                console.error(`Error uploading file for ${name}:`, error);
-              }
+            if (data[name] && data[name][0]) {
+              console.log(`Uploading file for ${name}`);
+              uploadedFiles[name] = await updateFile(
+                data[name][0],
+                'documents',
+                details.company_name,
+                name
+              );
+              console.log(
+                `Uploaded file URL for ${name}: ${uploadedFiles[name]}`
+              );
+              changedData[name] = uploadedFiles[name];
+            } else {
+              console.log(`${name} not found in data.`);
             }
           }
           changedData = {
+            ...changedData,
             industry_sector: data.industry_sector,
             current_stage: data.current_stage,
             current_traction: data.current_traction,
             target_audience: data.target_audience,
             team_size: data.team_size,
             usp_moat: data.usp_moat,
-            ...uploadedFiles,
           };
           const businessDetailsResponse = await updateBusinessDetails(
             details.id,
@@ -281,7 +277,6 @@ const VerticalNavTabs = () => {
                               defaultValue={details?.state_city}
                               register={register}
                             />
-
                             <Textinput
                               label='Office Address'
                               name='office_address'
