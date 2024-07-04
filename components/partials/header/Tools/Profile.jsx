@@ -5,17 +5,27 @@ import { Menu } from '@headlessui/react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
+import useUserDetails from '@/hooks/useUserDetails';
 
 const ProfileLabel = ({ user }) => {
+  const { details } = useUserDetails();
   return (
     <div className='flex items-center'>
       <div className='flex-1 ltr:mr-[10px] rtl:ml-[10px]'>
         <div className='lg:h-8 lg:w-8 h-7 w-7 rounded-full'>
-          <img
-            src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
-            alt=''
-            className='block w-full h-full object-cover rounded-full'
-          />
+          {details?.company_logo ? (
+            <img
+              src={details.company_logo}
+              alt='Company Logo'
+              className='w-full h-full object-cover rounded-full'
+            />
+          ) : (
+            <img
+              src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
+              alt=''
+              className='w-full h-full object-cover rounded-full'
+            />
+          )}
         </div>
       </div>
       <div className='flex-none text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap'>
