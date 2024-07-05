@@ -29,13 +29,21 @@ const SidebarLogo = ({ menuHover }) => {
         <div className='flex items-center space-x-4'>
           {collapsed && !menuHover ? (
             <img
-              src='assets/images/logo/logo-cb.png'
+              src={
+                isDark
+                  ? 'assets/images/logo/X (2).png'
+                  : 'assets/images/logo/logo-cb.png'
+              }
               alt=''
               style={{ margin: '0 auto', height: '3rem' }}
             />
           ) : (
             <img
-              src='assets/images/logo/X (8).png'
+              src={
+                isDark
+                  ? 'assets/images/logo/X (1).png'
+                  : 'assets/images/logo/X (8).png'
+              }
               alt=''
               style={{ height: '3.9rem' }}
             />
