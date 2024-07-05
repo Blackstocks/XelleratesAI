@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import DownloadReportButton from '@/components/DownloadReportButton'; // Adjust the import path as necessary
+import SendReportButton from '@/components/DownloadReportButton'; // Adjust the import path as necessary
 // import { FaRobot } from 'react-icons/fa'; // Importing a chatbot icon from react-icons
 
 const Page = () => {
@@ -51,7 +51,7 @@ const Page = () => {
             sustainable growth.
           </p>
           <div className='bg-gradient-to-r from-gray-800 to-gray-500 p-3 rounded-lg shadow-lg text-white w-full sm:w-1/2 lg:w-1/4 mx-auto flex justify-center'>
-            <DownloadReportButton />
+            <SendReportButton />
           </div>
         </div>
       </div>
