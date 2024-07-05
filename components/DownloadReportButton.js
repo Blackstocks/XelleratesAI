@@ -35,42 +35,78 @@
 
 import React, { useState } from 'react';
 import useUserDetails from '@/hooks/useUserDetails';
+import { toast } from 'react-toastify';
 
 const SendReportButton = () => {
   const { details } = useUserDetails();
   const [message, setMessage] = useState('');
-  console.log(details?.founderInformation?.founder_email);
 
   const handleSendReport = async () => {
     setMessage('');
 
     if (!details?.founderInformation?.founder_email) {
-      setMessage('Founder Email not found');
+      toast.error('Email not found', {
+        position: 'top-right',
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
       return;
     }
 
-    const response = await fetch('/api/generate-report', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: details?.founderInformation?.founder_email,
-      }),
+    const toastId = toast.loading('Sending report...', {
+      position: 'top-right',
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: 'light',
     });
 
-    const data = await response.json();
+    try {
+      const response = await fetch('/api/generate-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: details?.founderInformation?.founder_email,
+        }),
+      });
 
-    if (response.ok) {
-      setMessage('Report sent successfully');
-    } else {
-      setMessage(`Error: ${data.error}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.update(toastId, {
+          render: 'Report sent successfully',
+          type: 'success',
+          isLoading: false,
+          autoClose: 1500,
+        });
+      } else {
+        toast.update(toastId, {
+          render: `Error: ${data.error}`,
+          type: 'error',
+          isLoading: false,
+          autoClose: 1500,
+        });
+      }
+    } catch (error) {
+      toast.update(toastId, {
+        render: `Error: ${error.message}`,
+        type: 'error',
+        isLoading: false,
+        autoClose: 1500,
+      });
     }
   };
 
   return (
     <div>
-      <button onClick={handleSendReport}> Evaluate my startup</button>
+      <button onClick={handleSendReport}>Send Report</button>
       {message && <p>{message}</p>}
     </div>
   );
