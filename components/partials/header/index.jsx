@@ -65,7 +65,7 @@ const Header = ({ className = 'custom-class' }) => {
              }
         `}
       >
-        <div className='flex justify-end items-center h-full'>
+        <div className='flex justify-between items-center h-full'>
           {/* For Vertical  */}
 
           {menuType === 'vertical' && (
