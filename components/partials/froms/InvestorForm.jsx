@@ -11,87 +11,85 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { investorSignupSchema } from '@/lib/schema/investorSchema';
 import { insertInvestorSignupData } from '@/lib/actions/investorActions';
-import { supabase } from '@/lib/supabaseclient';
+import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
 
 const InvestorSignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [initialValues, setInitialValues] = useState(null);
+  const [initialValues, setInitialValues] = useState({
+    name: '',
+    email: '',
+    mobile: '',
+  });
   const router = useRouter();
   const searchParams = useSearchParams();
   const profileId = searchParams.get('profile_id'); // Get profile_id from URL query
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(investorSignupSchema),
-    mode: 'all',
-    defaultValues: {
-      name: '',
-      email: '',
-      mobile: '',
-      usertype: '',
-      investmentThesis: '',
-      chequeSize: '',
-      sectors: '',
-      investmentStage: '',
-    },
-  });
-
   useEffect(() => {
-    if (profileId) {
+    if (!profileId) {
+      router.push('/'); // Redirect if profileId is not available
+    } else {
+      // Check if the form has already been filled
+      const checkFormFilled = async () => {
+        const { data: investorDetails, error: investorError } = await supabase
+          .from('investor_signup')
+          .select('*')
+          .eq('profile_id', profileId)
+          .single();
+
+        if (investorDetails) {
+          router.push('/profile');
+        } else if (investorError) {
+          console.error('Error fetching investor details:', investorError);
+        }
+      };
+
+      checkFormFilled();
+
+      // Fetch profile data
       const fetchProfileData = async () => {
-        try {
-          const { data: profile, error } = await supabase
-            .from('investor_signup')
-            .select(
-              'name, email, mobile, typeof, investment_thesis, cheque_size, sectors, investment_stage'
-            )
-            .eq('profile_id', profileId)
-            .single();
-          if (error) {
-            console.error('Error fetching profile data:', error);
-          } else {
-            setInitialValues({
-              name: profile.name,
-              email: profile.email,
-              mobile: profile.mobile,
-              usertype: profile.typeof,
-              investmentThesis: profile.investment_thesis,
-              chequeSize: profile.cheque_size,
-              sectors: profile.sectors,
-              investmentStage: profile.investment_stage,
-            });
-            reset({
-              name: profile.name,
-              email: profile.email,
-              mobile: profile.mobile,
-              usertype: profile.typeof,
-              investmentThesis: profile.investment_thesis,
-              chequeSize: profile.cheque_size,
-              sectors: profile.sectors,
-              investmentStage: profile.investment_stage,
-            }); // Reset form with fetched data
-          }
-        } catch (error) {
-          console.error('Unexpected error:', error);
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('name, email, mobile')
+          .eq('id', profileId)
+          .single();
+        if (error) {
+          console.error('Error fetching profile data:', error);
+        } else {
+          setInitialValues({
+            name: profile.name,
+            email: profile.email,
+            mobile: profile.mobile,
+          });
         }
       };
 
       fetchProfileData();
     }
-  }, [profileId, reset]);
+  }, [profileId, router]);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(investorSignupSchema),
+    mode: 'all',
+    defaultValues: initialValues,
+  });
+
+  useEffect(() => {
+    setValue('name', initialValues.name);
+    setValue('email', initialValues.email);
+    setValue('mobile', initialValues.mobile);
+  }, [initialValues, setValue]);
 
   const onSubmit = async (data) => {
     if (!profileId) {
       console.error('Profile ID is missing');
       return;
     }
-    // Include initial values for disabled fields in form data
-    const formData = { ...data, profile_id: profileId, ...initialValues };
+    const formData = { ...data, profile_id: profileId }; // Include profile_id in the form data
     console.log('Form Data:', formData);
     setIsLoading(true);
     try {
@@ -104,8 +102,6 @@ const InvestorSignupForm = () => {
       setIsLoading(false);
     }
   };
-
-  const isDisabled = (field) => !!initialValues && !!initialValues[field];
 
   return (
     <div>
@@ -124,7 +120,6 @@ const InvestorSignupForm = () => {
               name='name'
               error={errors.name}
               register={register}
-              disabled={isDisabled('name')}
             />
             <Textinput
               label='Email'
@@ -133,7 +128,6 @@ const InvestorSignupForm = () => {
               name='email'
               error={errors.email}
               register={register}
-              disabled={isDisabled('email')}
             />
             <Textinput
               label='Mobile'
@@ -142,7 +136,6 @@ const InvestorSignupForm = () => {
               name='mobile'
               error={errors.mobile}
               register={register}
-              disabled={isDisabled('mobile')}
             />
             <Select
               label='Are you a'
@@ -153,9 +146,8 @@ const InvestorSignupForm = () => {
                 { value: 'Angel Investor', label: 'Angel Investor' },
                 { value: 'Syndicate', label: 'Syndicate' },
               ]}
-              error={errors.usertype}
+              error={errors.type}
               register={register}
-              disabled={isDisabled('usertype')}
             />
             <Textarea
               label='Investment Thesis'
@@ -163,7 +155,6 @@ const InvestorSignupForm = () => {
               name='investmentThesis'
               error={errors.investmentThesis}
               register={register}
-              disabled={isDisabled('investmentThesis')}
             />
             <Textinput
               label='Cheque Size'
@@ -172,7 +163,6 @@ const InvestorSignupForm = () => {
               name='chequeSize'
               error={errors.chequeSize}
               register={register}
-              disabled={isDisabled('chequeSize')}
             />
             <Select
               label='Sectors you are interested in'
@@ -248,11 +238,9 @@ const InvestorSignupForm = () => {
                   label: 'Sports and Recreation',
                 },
                 { value: 'Human Resources', label: 'Human Resources' },
-                // Add more sectors as needed
               ]}
               error={errors.sectors}
               register={register}
-              disabled={isDisabled('sectors')}
             />
             <Select
               label='Stage you invest in'
@@ -267,7 +255,6 @@ const InvestorSignupForm = () => {
               ]}
               error={errors.investmentStage}
               register={register}
-              disabled={isDisabled('investmentStage')}
             />
           </div>
 

@@ -180,9 +180,6 @@
 // }
 import { PDFDocument, rgb } from 'pdf-lib';
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-
-dotenv.config(); // To load environment variables from .env.local file
 
 const generatePDF = async () => {
   const content = `
@@ -429,10 +426,8 @@ export default async function handler(req, res) {
     res.status(200).send({ message: 'Report sent successfully' });
   } catch (error) {
     console.error('Error generating or sending PDF document:', error);
-    res
-      .status(500)
-      .json({
-        error: `Error generating or sending PDF document: ${error.message}`,
-      });
+    res.status(500).json({
+      error: `Error generating or sending PDF document: ${error.message}`,
+    });
   }
 }
