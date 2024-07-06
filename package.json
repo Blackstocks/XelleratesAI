@@ -29,6 +29,7 @@
     "cobe": "^0.6.3",
     "dayjs": "^1.11.7",
     "docx": "^8.5.0",
+    "dotenv": "^16.4.5",
     "eslint": "8.36.0",
     "eslint-config-next": "^14.0.4",
     "framer-motion": "^10.10.0",
