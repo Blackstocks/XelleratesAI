@@ -20,6 +20,7 @@ const InvestorSignupForm = () => {
     email: '',
     mobile: '',
   });
+  const [selectedStages, setSelectedStages] = useState([]); // State to manage multi-select
   const router = useRouter();
   const searchParams = useSearchParams();
   const profileId = searchParams.get('profile_id'); // Get profile_id from URL query
@@ -84,12 +85,27 @@ const InvestorSignupForm = () => {
     setValue('mobile', initialValues.mobile);
   }, [initialValues, setValue]);
 
+  const handleStageChange = (event) => {
+    const { options } = event.target;
+    const selectedOptions = [];
+    for (const option of options) {
+      if (option.selected) {
+        selectedOptions.push(option.value);
+      }
+    }
+    setSelectedStages(selectedOptions);
+  };
+
   const onSubmit = async (data) => {
     if (!profileId) {
       console.error('Profile ID is missing');
       return;
     }
-    const formData = { ...data, profile_id: profileId }; // Include profile_id in the form data
+    const formData = {
+      ...data,
+      profile_id: profileId,
+      investmentStage: selectedStages,
+    }; // Include profile_id and multi-select data
     console.log('Form Data:', formData);
     setIsLoading(true);
     try {
@@ -255,6 +271,8 @@ const InvestorSignupForm = () => {
               ]}
               error={errors.investmentStage}
               register={register}
+              multiple={true} // Enable multi-select
+              onChange={handleStageChange} // Custom onChange handler
             />
           </div>
 

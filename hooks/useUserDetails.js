@@ -39,7 +39,7 @@ const useUserDetails = () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching user details:', error);
+      console.error('Error fetching user details:', error.message);
     } finally {
       setLoading(false);
     }
@@ -54,14 +54,17 @@ const useUserDetails = () => {
         .single();
       if (startupError) throw startupError;
 
-      const companyId = startup.id;
+      const companyId = startup?.id;
+      if (!companyId) {
+        throw new Error('No company profile found for this user.');
+      }
 
       const fetchDetails = async (table) => {
         const { data, error } = await supabase
           .from(table)
           .select('*')
           .eq('company_id', companyId)
-          .single();
+          .maybeSingle(); // Use maybeSingle to handle zero rows gracefully
         if (error) throw error;
         return data;
       };
@@ -87,7 +90,7 @@ const useUserDetails = () => {
         type: 'startup',
       });
     } catch (error) {
-      console.error('Error fetching startup details:', error);
+      console.error('Error fetching startup details:', error.message);
     }
   };
 

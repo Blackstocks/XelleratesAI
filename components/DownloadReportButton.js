@@ -38,13 +38,15 @@ import useUserDetails from '@/hooks/useUserDetails';
 import { toast } from 'react-toastify';
 
 const SendReportButton = () => {
-  const { details } = useUserDetails();
+  const { user, details } = useUserDetails();
   const [message, setMessage] = useState('');
 
   const handleSendReport = async () => {
     setMessage('');
-
-    if (!details?.founderInformation?.founder_email) {
+    if (
+      details?.type === 'startup' &&
+      !details?.founderInformation?.founder_email
+    ) {
       toast.error('Email not found', {
         position: 'top-right',
         autoClose: 1500,
@@ -56,6 +58,17 @@ const SendReportButton = () => {
         theme: 'light',
       });
       return;
+    } else if (details?.type === 'investor' && !user?.email) {
+      toast.error('Email not found', {
+        position: 'top-right',
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
     }
 
     const toastId = toast.loading('Sending report...', {
@@ -67,13 +80,18 @@ const SendReportButton = () => {
     });
 
     try {
+      const email =
+        details?.type === 'startup'
+          ? details?.founderInformation?.founder_email
+          : user?.email;
+      console.log(email);
       const response = await fetch('/api/generate-report', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: details?.founderInformation?.founder_email,
+          email: email,
         }),
       });
 

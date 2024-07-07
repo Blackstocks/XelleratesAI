@@ -10,6 +10,7 @@ import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import Select from '@/components/ui/Select';
 
 import {
   handleFileUpload,
@@ -261,7 +262,6 @@ const FormWizard = () => {
                       type='date'
                       placeholder='Date of Incorporation'
                       name='incorporationDate'
-                      error={errors.incorporationDate}
                       register={register}
                     />
                     <Textinput
@@ -392,7 +392,6 @@ const FormWizard = () => {
                       type='date'
                       placeholder='Year of Graduation'
                       name='graduationYear'
-                      error={errors.graduationYear}
                       register={register}
                     />
                   </div>
@@ -451,14 +450,92 @@ const FormWizard = () => {
                         Enter Business Details
                       </h4>
                     </div>
-                    <Textinput
+
+                    <Select
                       label='Industry or Sector'
-                      type='text'
-                      placeholder='Industry or Sector'
                       name='industrySector'
                       error={errors.industrySector}
+                      options={[
+                        {
+                          value: 'Agriculture and Allied Sectors',
+                          label: 'Agriculture and Allied Sectors',
+                        },
+                        { value: 'Manufacturing', label: 'Manufacturing' },
+                        { value: 'Services', label: 'Services' },
+                        { value: 'Energy', label: 'Energy' },
+                        { value: 'Infrastructure', label: 'Infrastructure' },
+                        {
+                          value: 'Retail and E-commerce',
+                          label: 'Retail and E-commerce',
+                        },
+                        {
+                          value: 'Banking and Insurance',
+                          label: 'Banking and Insurance',
+                        },
+                        {
+                          value: 'Mining and Minerals',
+                          label: 'Mining and Minerals',
+                        },
+                        { value: 'Food Processing', label: 'Food Processing' },
+                        {
+                          value: 'Textiles and Apparel',
+                          label: 'Textiles and Apparel',
+                        },
+                        { value: 'Automotive', label: 'Automotive' },
+                        {
+                          value: 'Chemical and Fertilizers',
+                          label: 'Chemical and Fertilizers',
+                        },
+                        {
+                          value: 'Pharmaceuticals and Biotechnology',
+                          label: 'Pharmaceuticals and Biotechnology',
+                        },
+                        {
+                          value: 'Media and Entertainment',
+                          label: 'Media and Entertainment',
+                        },
+                        {
+                          value: 'Tourism and Hospitality',
+                          label: 'Tourism and Hospitality',
+                        },
+                        {
+                          value: 'Education and Training',
+                          label: 'Education and Training',
+                        },
+                        { value: 'Healthcare', label: 'Healthcare' },
+                        {
+                          value: 'Telecommunications',
+                          label: 'Telecommunications',
+                        },
+                        {
+                          value: 'Logistics and Supply Chain',
+                          label: 'Logistics and Supply Chain',
+                        },
+                        {
+                          value: 'Aerospace and Defense',
+                          label: 'Aerospace and Defense',
+                        },
+                        {
+                          value: 'Environmental Services',
+                          label: 'Environmental Services',
+                        },
+                        {
+                          value: 'Fashion and Lifestyle',
+                          label: 'Fashion and Lifestyle',
+                        },
+                        {
+                          value: 'Financial Technology (Fintech)',
+                          label: 'Financial Technology (Fintech)',
+                        },
+                        {
+                          value: 'Sports and Recreation',
+                          label: 'Sports and Recreation',
+                        },
+                        { value: 'Human Resources', label: 'Human Resources' },
+                      ]}
                       register={register}
                     />
+
                     <Textinput
                       label='Current Stage'
                       type='text'
