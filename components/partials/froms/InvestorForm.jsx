@@ -1,21 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Textinput from '@/components/ui/Textinput';
-import Textarea from '@/components/ui/Textarea';
-import Select from '@/components/ui/Select';
-import Button from '@/components/ui/Button';
-import Card from '@/components/ui/Card';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { investorSignupSchema } from '@/lib/schema/investorSchema';
-import { insertInvestorSignupData } from '@/lib/actions/investorActions';
-import { supabase } from '@/lib/supabaseclient';
-import ReactSelect, { components } from 'react-select';
-import makeAnimated from 'react-select/animated';
-
-const animatedComponents = makeAnimated();
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Textinput from "@/components/ui/Textinput";
+import Textarea from "@/components/ui/Textarea";
+import Select from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { investorSignupSchema } from "@/lib/schema/investorSchema";
+import { insertInvestorSignupData } from "@/lib/actions/investorActions";
+import { supabase } from "@/lib/supabaseclient";
 
 const InvestorSignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,53 +23,7 @@ const InvestorSignupForm = () => {
   const [isMounted, setIsMounted] = useState(false); // New state for client-side rendering
   const router = useRouter();
   const searchParams = useSearchParams();
-  const profileId = searchParams.get('profile_id'); // Get profile_id from URL query
-
-  useEffect(() => {
-    setIsMounted(true); // Set the mounted state to true after component mounts
-  }, []);
-
-  useEffect(() => {
-    const initializeForm = async () => {
-      if (!profileId) {
-        router.push('/'); // Redirect if profileId is not available
-        return;
-      }
-
-      // Check if the form has already been filled
-      const { data: investorDetails, error: investorError } = await supabase
-        .from('investor_signup')
-        .select('*')
-        .eq('profile_id', profileId)
-        .single();
-
-      if (investorDetails) {
-        router.push('/profile');
-        return;
-      } else if (investorError) {
-        console.error('Error fetching investor details:', investorError);
-      }
-
-      // Fetch profile data
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('name, email, mobile')
-        .eq('id', profileId)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching profile data:', profileError);
-      } else {
-        setInitialValues({
-          name: profile.name,
-          email: profile.email,
-          mobile: profile.mobile,
-        });
-      }
-    };
-
-    initializeForm();
-  }, [profileId, router]);
+  const profileId = searchParams.get("profile_id"); // Get profile_id from URL query
 
   const {
     register,
@@ -84,29 +34,78 @@ const InvestorSignupForm = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(investorSignupSchema),
-    mode: 'all',
+    mode: "all",
+    defaultValues: {
+      name: "",
+      email: "",
+      mobile: "",
+      usertype: "",
+      investmentThesis: "",
+      chequeSize: "",
+      sectors: "",
+      investmentStage: "",
+    },
   });
 
   useEffect(() => {
-    reset(initialValues);
-  }, [initialValues, reset]);
+    if (profileId) {
+      const fetchProfileData = async () => {
+        try {
+          const { data: profile, error } = await supabase
+            .from("investor_signup")
+            .select(
+              "name, email, mobile, typeof, investment_thesis, cheque_size, sectors, investment_stage"
+            )
+            .eq("profile_id", profileId)
+            .single();
+          if (error) {
+            console.error("Error fetching profile data:", error);
+          } else {
+            setInitialValues({
+              name: profile.name,
+              email: profile.email,
+              mobile: profile.mobile,
+              usertype: profile.typeof,
+              investmentThesis: profile.investment_thesis,
+              chequeSize: profile.cheque_size,
+              sectors: profile.sectors,
+              investmentStage: profile.investment_stage,
+            });
+            reset({
+              name: profile.name,
+              email: profile.email,
+              mobile: profile.mobile,
+              usertype: profile.typeof,
+              investmentThesis: profile.investment_thesis,
+              chequeSize: profile.cheque_size,
+              sectors: profile.sectors,
+              investmentStage: profile.investment_stage,
+            }); // Reset form with fetched data
+          }
+        } catch (error) {
+          console.error("Unexpected error:", error);
+        }
+      };
+
+      fetchProfileData();
+    }
+  }, [profileId, reset]);
 
   const onSubmit = async (data) => {
     if (!profileId) {
-      console.error('Profile ID is missing');
+      console.error("Profile ID is missing");
       return;
     }
-
-    const formData = { ...data, profile_id: profileId };
-    console.log('Form Data to be Inserted:', formData);
-
+    // Include initial values for disabled fields in form data
+    const formData = { ...data, profile_id: profileId, ...initialValues };
+    console.log("Form Data:", formData);
     setIsLoading(true);
     try {
       await insertInvestorSignupData(formData);
-      console.log('Investor signup data saved successfully');
-      router.push('/profile');
+      console.log("Investor signup data saved successfully");
+      router.push("/profile"); // Redirect after successful signup
     } catch (error) {
-      console.error('Error saving investor signup data:', error);
+      console.error("Error saving investor signup data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -116,197 +115,171 @@ const InvestorSignupForm = () => {
 
   return (
     <div>
-      <Card title='Investor Signup'>
+      <Card title="Investor Signup">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className='grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5 pt-10'>
-            <div className='lg:col-span-3 md:col-span-2 col-span-1'>
-              <h4 className='text-base text-slate-800 dark:text-slate-300 my-6'>
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5 pt-10 px-6">
+            <div className="lg:col-span-3 md:col-span-2 col-span-1">
+              <h1 className="text-lg text-slate-800 dark:text-slate-300 my-6 font-semibold">
                 Enter Your Information
-              </h4>
+              </h1>
             </div>
             <Textinput
-              label='Name'
-              type='text'
-              placeholder='Name'
-              name='name'
+              label="Name"
+              type="text"
+              placeholder="Name"
+              name="name"
               error={errors.name}
               register={register}
+              disabled={isDisabled("name")}
             />
             <Textinput
-              label='Email'
-              type='email'
-              placeholder='Email'
-              name='email'
+              label="Email"
+              type="email"
+              placeholder="Email"
+              name="email"
               error={errors.email}
               register={register}
+              disabled={isDisabled("email")}
             />
             <Textinput
-              label='Mobile'
-              type='text'
-              placeholder='Mobile'
-              name='mobile'
+              label="Mobile"
+              type="text"
+              placeholder="Mobile"
+              name="mobile"
               error={errors.mobile}
               register={register}
+              disabled={isDisabled("mobile")}
             />
             <Select
-              label='Are you a'
-              name='usertype'
+              label="Are you a"
+              name="usertype"
               options={[
-                { value: 'VC', label: 'VC' },
-                { value: 'Angel Fund', label: 'Angel Fund' },
-                { value: 'Angel Investor', label: 'Angel Investor' },
-                { value: 'Syndicate', label: 'Syndicate' },
+                { value: "VC", label: "VC" },
+                { value: "Angel Fund", label: "Angel Fund" },
+                { value: "Angel Investor", label: "Angel Investor" },
+                { value: "Syndicate", label: "Syndicate" },
               ]}
               error={errors.usertype}
               register={register}
+              disabled={isDisabled("usertype")}
             />
             <Textarea
-              label='Investment Thesis'
-              placeholder='Investment Thesis'
-              name='investmentThesis'
+              label="Investment Thesis"
+              placeholder="Investment Thesis"
+              name="investmentThesis"
               error={errors.investmentThesis}
               register={register}
+              disabled={isDisabled("investmentThesis")}
             />
             <Textinput
-              label='Cheque Size'
-              type='text'
-              placeholder='Cheque Size'
-              name='chequeSize'
+              label="Cheque Size(in USD)"
+              type="text"
+              placeholder="Cheque Size(in USD)"
+              name="chequeSize"
               error={errors.chequeSize}
               register={register}
+              disabled={isDisabled("chequeSize")}
             />
             <Select
-              label='Sectors you are interested in'
-              name='sectors'
+              label="Sectors you are interested in"
+              name="sectors"
               options={[
                 {
-                  value: 'Agriculture and Allied Sectors',
-                  label: 'Agriculture and Allied Sectors',
+                  value: "Agriculture and Allied Sectors",
+                  label: "Agriculture and Allied Sectors",
                 },
-                { value: 'Manufacturing', label: 'Manufacturing' },
-                { value: 'Services', label: 'Services' },
-                { value: 'Energy', label: 'Energy' },
-                { value: 'Infrastructure', label: 'Infrastructure' },
+                { value: "Manufacturing", label: "Manufacturing" },
+                { value: "Services", label: "Services" },
+                { value: "Energy", label: "Energy" },
+                { value: "Infrastructure", label: "Infrastructure" },
                 {
-                  value: 'Retail and E-commerce',
-                  label: 'Retail and E-commerce',
-                },
-                {
-                  value: 'Banking and Insurance',
-                  label: 'Banking and Insurance',
-                },
-                { value: 'Mining and Minerals', label: 'Mining and Minerals' },
-                { value: 'Food Processing', label: 'Food Processing' },
-                {
-                  value: 'Textiles and Apparel',
-                  label: 'Textiles and Apparel',
-                },
-                { value: 'Automotive', label: 'Automotive' },
-                {
-                  value: 'Chemical and Fertilizers',
-                  label: 'Chemical and Fertilizers',
+                  value: "Retail and E-commerce",
+                  label: "Retail and E-commerce",
                 },
                 {
-                  value: 'Pharmaceuticals and Biotechnology',
-                  label: 'Pharmaceuticals and Biotechnology',
+                  value: "Banking and Insurance",
+                  label: "Banking and Insurance",
+                },
+                { value: "Mining and Minerals", label: "Mining and Minerals" },
+                { value: "Food Processing", label: "Food Processing" },
+                {
+                  value: "Textiles and Apparel",
+                  label: "Textiles and Apparel",
+                },
+                { value: "Automotive", label: "Automotive" },
+                {
+                  value: "Chemical and Fertilizers",
+                  label: "Chemical and Fertilizers",
                 },
                 {
-                  value: 'Media and Entertainment',
-                  label: 'Media and Entertainment',
+                  value: "Pharmaceuticals and Biotechnology",
+                  label: "Pharmaceuticals and Biotechnology",
                 },
                 {
-                  value: 'Tourism and Hospitality',
-                  label: 'Tourism and Hospitality',
+                  value: "Media and Entertainment",
+                  label: "Media and Entertainment",
                 },
                 {
-                  value: 'Education and Training',
-                  label: 'Education and Training',
-                },
-                { value: 'Healthcare', label: 'Healthcare' },
-                { value: 'Telecommunications', label: 'Telecommunications' },
-                {
-                  value: 'Logistics and Supply Chain',
-                  label: 'Logistics and Supply Chain',
+                  value: "Tourism and Hospitality",
+                  label: "Tourism and Hospitality",
                 },
                 {
-                  value: 'Aerospace and Defense',
-                  label: 'Aerospace and Defense',
+                  value: "Education and Training",
+                  label: "Education and Training",
+                },
+                { value: "Healthcare", label: "Healthcare" },
+                { value: "Telecommunications", label: "Telecommunications" },
+                {
+                  value: "Logistics and Supply Chain",
+                  label: "Logistics and Supply Chain",
                 },
                 {
-                  value: 'Environmental Services',
-                  label: 'Environmental Services',
+                  value: "Aerospace and Defense",
+                  label: "Aerospace and Defense",
                 },
                 {
-                  value: 'Fashion and Lifestyle',
-                  label: 'Fashion and Lifestyle',
+                  value: "Environmental Services",
+                  label: "Environmental Services",
                 },
                 {
-                  value: 'Financial Technology (Fintech)',
-                  label: 'Financial Technology (Fintech)',
+                  value: "Fashion and Lifestyle",
+                  label: "Fashion and Lifestyle",
                 },
                 {
-                  value: 'Sports and Recreation',
-                  label: 'Sports and Recreation',
+                  value: "Financial Technology (Fintech)",
+                  label: "Financial Technology (Fintech)",
                 },
-                { value: 'Human Resources', label: 'Human Resources' },
+                {
+                  value: "Sports and Recreation",
+                  label: "Sports and Recreation",
+                },
+                { value: "Human Resources", label: "Human Resources" },
               ]}
               error={errors.sectors}
               register={register}
+              disabled={isDisabled("sectors")}
             />
-            <div>
-              <label className='form-label' htmlFor='investmentStage'>
-                Stage you invest in
-              </label>
-              <Controller
-                name='investmentStage'
-                control={control}
-                defaultValue={[]} // Ensure default value is an empty array for a multi-select
-                render={({ field }) => {
-                  const investmentStageOptions = [
-                    { value: 'Pre Seed', label: 'Pre Seed' },
-                    { value: 'Seed', label: 'Seed' },
-                    { value: 'Pre-Series', label: 'Pre-Series' },
-                    { value: 'Series A', label: 'Series A' },
-                    { value: 'Series B', label: 'Series B' },
-                    { value: 'Series C & Beyond', label: 'Series C & Beyond' },
-                  ];
-
-                  return (
-                    <ReactSelect
-                      {...field}
-                      isMulti
-                      isClearable={false}
-                      closeMenuOnSelect={false}
-                      components={animatedComponents}
-                      options={investmentStageOptions}
-                      className='react-select'
-                      value={
-                        field.value?.map((value) =>
-                          investmentStageOptions.find(
-                            (option) => option.value === value
-                          )
-                        ) || []
-                      }
-                      onChange={(selected) =>
-                        field.onChange(selected.map((option) => option.value))
-                      }
-                    />
-                  );
-                }}
-              />
-              {errors.investmentStage && (
-                <p className='text-red-500 text-xs italic'>
-                  {errors.investmentStage.message}
-                </p>
-              )}
-            </div>
+            <Select
+              label="Stage you invest in"
+              name="investmentStage"
+              options={[
+                { value: "Pre Seed", label: "Pre Seed" },
+                { value: "Seed", label: "Seed" },
+                { value: "Pre-Series", label: "Pre-Series" },
+                { value: "Series A", label: "Series A" },
+                { value: "Series B", label: "Series B" },
+                { value: "Series C & Beyond", label: "Series C & Beyond" },
+              ]}
+              error={errors.investmentStage}
+              register={register}
+              disabled={isDisabled("investmentStage")}
+            />
           </div>
-
-          <div className='text-right mt-10'>
+          <div className="text-right mt-10">
             <Button
-              text={isLoading ? 'Submitting...' : 'Submit'}
-              className={`btn-dark ${isLoading ? 'loading' : ''}`}
-              type='submit'
+              text={isLoading ? "Submitting..." : "Submit"}
+              className={`btn-dark ${isLoading ? "loading" : ""}`}
+              type="submit"
               disabled={isLoading}
             />
           </div>

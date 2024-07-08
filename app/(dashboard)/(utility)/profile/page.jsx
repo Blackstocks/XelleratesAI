@@ -98,7 +98,7 @@ const Profile = () => {
                 {user?.name || 'User Name'}
               </div>
               <div className='text-sm font-light text-slate-600 dark:text-slate-400'>
-                {details?.typeof || 'Role'}
+                {details?.typeof || 'IX'}
               </div>
             </div>
           </div>
