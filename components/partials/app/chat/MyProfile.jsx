@@ -44,11 +44,39 @@ const MyProfile = () => {
             <div className='flex space-x-3 rtl:space-x-reverse'>
               <div className='flex-none'>
                 <div className='h-10 w-10 rounded-full'>
-                  <img
-                    src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
-                    alt=''
-                    className='w-full h-full object-cover rounded-full'
-                  />
+                  {details?.type === 'startup' ? (
+                    <div>
+                      {details?.company_logo ? (
+                        <img
+                          src={details.company_logo}
+                          alt='Company Logo'
+                          className='w-full h-full object-cover rounded-full'
+                        />
+                      ) : (
+                        <img
+                          src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
+                          alt=''
+                          className='w-full h-full object-cover rounded-full'
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      {details?.profile_photo ? (
+                        <img
+                          src={details.profile_photo}
+                          alt='Company Logo'
+                          className='w-full h-full object-cover rounded-full'
+                        />
+                      ) : (
+                        <img
+                          src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
+                          alt=''
+                          className='w-full h-full object-cover rounded-full'
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className='flex-1 text-start'>
