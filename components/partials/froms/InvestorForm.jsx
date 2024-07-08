@@ -271,7 +271,6 @@ const InvestorSignupForm = () => {
               ]}
               error={errors.investmentStage}
               register={register}
-              multiple={true} // Enable multi-select
               onChange={handleStageChange} // Custom onChange handler
             />
           </div>
