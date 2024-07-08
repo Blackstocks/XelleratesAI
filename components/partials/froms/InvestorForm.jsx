@@ -7,11 +7,15 @@ import Textarea from '@/components/ui/Textarea';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { investorSignupSchema } from '@/lib/schema/investorSchema';
 import { insertInvestorSignupData } from '@/lib/actions/investorActions';
-import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
+import { supabase } from '@/lib/supabaseclient';
+import ReactSelect, { components } from 'react-select';
+import makeAnimated from 'react-select/animated';
+
+const animatedComponents = makeAnimated();
 
 const InvestorSignupForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,98 +24,78 @@ const InvestorSignupForm = () => {
     email: '',
     mobile: '',
   });
-  const [selectedStages, setSelectedStages] = useState([]); // State to manage multi-select
   const router = useRouter();
   const searchParams = useSearchParams();
   const profileId = searchParams.get('profile_id'); // Get profile_id from URL query
 
   useEffect(() => {
-    if (!profileId) {
-      router.push('/'); // Redirect if profileId is not available
-    } else {
+    const initializeForm = async () => {
+      if (!profileId) {
+        router.push('/'); // Redirect if profileId is not available
+        return;
+      }
+
       // Check if the form has already been filled
-      const checkFormFilled = async () => {
-        const { data: investorDetails, error: investorError } = await supabase
-          .from('investor_signup')
-          .select('*')
-          .eq('profile_id', profileId)
-          .single();
+      const { data: investorDetails, error: investorError } = await supabase
+        .from('investor_signup')
+        .select('*')
+        .eq('profile_id', profileId)
+        .single();
 
-        if (investorDetails) {
-          router.push('/profile');
-        } else if (investorError) {
-          console.error('Error fetching investor details:', investorError);
-        }
-      };
-
-      checkFormFilled();
+      if (investorDetails) {
+        router.push('/profile');
+        return;
+      } else if (investorError) {
+        console.error('Error fetching investor details:', investorError);
+      }
 
       // Fetch profile data
-      const fetchProfileData = async () => {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('name, email, mobile')
-          .eq('id', profileId)
-          .single();
-        if (error) {
-          console.error('Error fetching profile data:', error);
-        } else {
-          setInitialValues({
-            name: profile.name,
-            email: profile.email,
-            mobile: profile.mobile,
-          });
-        }
-      };
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('name, email, mobile')
+        .eq('id', profileId)
+        .single();
 
-      fetchProfileData();
-    }
+      if (profileError) {
+        console.error('Error fetching profile data:', profileError);
+      } else {
+        setInitialValues({
+          name: profile.name,
+          email: profile.email,
+          mobile: profile.mobile,
+        });
+      }
+    };
+
+    initializeForm();
   }, [profileId, router]);
 
   const {
     register,
     handleSubmit,
     setValue,
+    control,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(investorSignupSchema),
     mode: 'all',
-    defaultValues: initialValues,
   });
 
   useEffect(() => {
-    setValue('name', initialValues.name);
-    setValue('email', initialValues.email);
-    setValue('mobile', initialValues.mobile);
-  }, [initialValues, setValue]);
-
-  const handleStageChange = (event) => {
-    const { options } = event.target;
-    const selectedOptions = [];
-    for (const option of options) {
-      if (option.selected) {
-        selectedOptions.push(option.value);
-      }
-    }
-    setSelectedStages(selectedOptions);
-  };
+    reset(initialValues);
+  }, [initialValues, reset]);
 
   const onSubmit = async (data) => {
     if (!profileId) {
       console.error('Profile ID is missing');
       return;
     }
-    const formData = {
-      ...data,
-      profile_id: profileId,
-      investmentStage: selectedStages,
-    }; // Include profile_id and multi-select data
-    console.log('Form Data:', formData);
+    const formData = { ...data, profile_id: profileId };
     setIsLoading(true);
     try {
       await insertInvestorSignupData(formData);
-      console.log('Investor signup data saved successfully');
-      router.push('/profile'); // Redirect after successful signup
+      router.push('/profile');
     } catch (error) {
       console.error('Error saving investor signup data:', error);
     } finally {
@@ -162,7 +146,7 @@ const InvestorSignupForm = () => {
                 { value: 'Angel Investor', label: 'Angel Investor' },
                 { value: 'Syndicate', label: 'Syndicate' },
               ]}
-              error={errors.type}
+              error={errors.usertype}
               register={register}
             />
             <Textarea
@@ -258,21 +242,41 @@ const InvestorSignupForm = () => {
               error={errors.sectors}
               register={register}
             />
-            <Select
-              label='Stage you invest in'
-              name='investmentStage'
-              options={[
-                { value: 'Pre Seed', label: 'Pre Seed' },
-                { value: 'Seed', label: 'Seed' },
-                { value: 'Pre-Series', label: 'Pre-Series' },
-                { value: 'Series A', label: 'Series A' },
-                { value: 'Series B', label: 'Series B' },
-                { value: 'Series C & Beyond', label: 'Series C & Beyond' },
-              ]}
-              error={errors.investmentStage}
-              register={register}
-              onChange={handleStageChange} // Custom onChange handler
-            />
+            <div>
+              <label className='form-label' htmlFor='investmentStage'>
+                Stage you invest in
+              </label>
+              <Controller
+                name='investmentStage'
+                control={control}
+                render={({ field }) => (
+                  <ReactSelect
+                    {...field}
+                    isMulti
+                    isClearable={false}
+                    closeMenuOnSelect={false}
+                    components={animatedComponents}
+                    options={[
+                      { value: 'Pre Seed', label: 'Pre Seed' },
+                      { value: 'Seed', label: 'Seed' },
+                      { value: 'Pre-Series', label: 'Pre-Series' },
+                      { value: 'Series A', label: 'Series A' },
+                      { value: 'Series B', label: 'Series B' },
+                      {
+                        value: 'Series C & Beyond',
+                        label: 'Series C & Beyond',
+                      },
+                    ]}
+                    className='react-select'
+                  />
+                )}
+              />
+              {errors.investmentStage && (
+                <p className='text-red-500 text-xs italic'>
+                  {errors.investmentStage.message}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className='text-right mt-10'>
