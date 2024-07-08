@@ -24,9 +24,14 @@ const InvestorSignupForm = () => {
     email: '',
     mobile: '',
   });
+  const [isMounted, setIsMounted] = useState(false); // New state for client-side rendering
   const router = useRouter();
   const searchParams = useSearchParams();
   const profileId = searchParams.get('profile_id'); // Get profile_id from URL query
+
+  useEffect(() => {
+    setIsMounted(true); // Set the mounted state to true after component mounts
+  }, []);
 
   useEffect(() => {
     const initializeForm = async () => {
@@ -91,10 +96,14 @@ const InvestorSignupForm = () => {
       console.error('Profile ID is missing');
       return;
     }
+
     const formData = { ...data, profile_id: profileId };
+    console.log('Form Data to be Inserted:', formData);
+
     setIsLoading(true);
     try {
       await insertInvestorSignupData(formData);
+      console.log('Investor signup data saved successfully');
       router.push('/profile');
     } catch (error) {
       console.error('Error saving investor signup data:', error);
@@ -102,6 +111,8 @@ const InvestorSignupForm = () => {
       setIsLoading(false);
     }
   };
+
+  if (!isMounted) return null; // Ensure client-side rendering
 
   return (
     <div>
@@ -249,27 +260,39 @@ const InvestorSignupForm = () => {
               <Controller
                 name='investmentStage'
                 control={control}
-                render={({ field }) => (
-                  <ReactSelect
-                    {...field}
-                    isMulti
-                    isClearable={false}
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    options={[
-                      { value: 'Pre Seed', label: 'Pre Seed' },
-                      { value: 'Seed', label: 'Seed' },
-                      { value: 'Pre-Series', label: 'Pre-Series' },
-                      { value: 'Series A', label: 'Series A' },
-                      { value: 'Series B', label: 'Series B' },
-                      {
-                        value: 'Series C & Beyond',
-                        label: 'Series C & Beyond',
-                      },
-                    ]}
-                    className='react-select'
-                  />
-                )}
+                defaultValue={[]} // Ensure default value is an empty array for a multi-select
+                render={({ field }) => {
+                  const investmentStageOptions = [
+                    { value: 'Pre Seed', label: 'Pre Seed' },
+                    { value: 'Seed', label: 'Seed' },
+                    { value: 'Pre-Series', label: 'Pre-Series' },
+                    { value: 'Series A', label: 'Series A' },
+                    { value: 'Series B', label: 'Series B' },
+                    { value: 'Series C & Beyond', label: 'Series C & Beyond' },
+                  ];
+
+                  return (
+                    <ReactSelect
+                      {...field}
+                      isMulti
+                      isClearable={false}
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      options={investmentStageOptions}
+                      className='react-select'
+                      value={
+                        field.value?.map((value) =>
+                          investmentStageOptions.find(
+                            (option) => option.value === value
+                          )
+                        ) || []
+                      }
+                      onChange={(selected) =>
+                        field.onChange(selected.map((option) => option.value))
+                      }
+                    />
+                  );
+                }}
               />
               {errors.investmentStage && (
                 <p className='text-red-500 text-xs italic'>
