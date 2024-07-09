@@ -30,7 +30,7 @@ const schema = yup
   })
   .required();
 
-const RegForm = () => {
+const RegForm1 = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userType, setUserType] = useState('Select User Type');
   const {
@@ -77,24 +77,7 @@ const RegForm = () => {
         return;
       }
 
-      // Determine the default role for the user
-      let userRole = 'user'; // Default role
-      if (data.user_type === 'investor') {
-        userRole = 'investor';
-      } else if (data.user_type === 'startup') {
-        userRole = 'startup';
-      }
-
-      // Optionally, make the first registered user a super admin
-      const { data: allUsers, error: usersError } = await supabase
-        .from('profiles')
-        .select('*');
-
-      if (!usersError && allUsers.length === 0) {
-        userRole = 'super_admin';
-      }
-
-      // Insert additional user data into the profiles table
+      // Insert additional user data into the profiles table with default status
       const { error: insertError } = await supabase.from('profiles').insert([
         {
           id: userId,
@@ -102,7 +85,8 @@ const RegForm = () => {
           email: data.email,
           mobile: data.mobile,
           user_type: data.user_type,
-          role: userRole, // Set the user role
+          role: 'user', // Set default role to 'user'
+          status: 'pending', // Set default status to 'pending'
         },
       ]);
 
@@ -110,7 +94,9 @@ const RegForm = () => {
         toast.error(insertError.message);
         setIsSubmitting(false);
       } else {
-        toast.success('Account created successfully!');
+        toast.success(
+          'Account created successfully! Please wait for approval.'
+        );
         router.push('/'); // Redirect to login page after registration
       }
     }
@@ -183,4 +169,4 @@ const RegForm = () => {
   );
 };
 
-export default RegForm;
+export default RegForm1;

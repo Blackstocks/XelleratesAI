@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
-import LoginForm from '@/components/partials/auth/login-form';
-import Social from '@/components/partials/auth/social';
+import LoginForm1 from '@/components/partials/auth/login-form1';
 import useDarkMode from '@/hooks/useDarkMode';
 import Globe from '@/components/globe'; // Import the Globe component
 
@@ -11,7 +10,10 @@ const Login = () => {
     <>
       <div className='loginwrapper'>
         <div className='lg-inner-column'>
-        <div className='left-column relative z-[1]' style={{ backgroundColor: 'black' }}>
+          <div
+            className='left-column relative z-[1]'
+            style={{ backgroundColor: 'black' }}
+          >
             <div className='absolute left-0 2xl:bottom-[-10px] bottom-[-10px] h-full w-full z-[-1]'>
               <div
                 style={{
@@ -38,7 +40,7 @@ const Login = () => {
                 <Globe /> {/* Replace the GIF with the Globe component */}
               </div>
             </div>
-        </div>
+          </div>
           <div className='right-column relative'>
             <div className='inner-content h-full flex flex-col bg-white dark:bg-slate-800'>
               <div className='auth-box h-full flex flex-col justify-center'>
@@ -64,7 +66,7 @@ const Login = () => {
                 <div className='text-center 2xl:mb-10 mb-4'>
                   <h4 className='font-medium'>Sign in</h4>
                 </div>
-                <LoginForm />
+                <LoginForm1 />
                 <div className='md:max-w-[345px] mx-auto font-normal text-slate-500 dark:text-slate-400 mt-12 uppercase text-sm'>
                   Don’t have an account?{' '}
                   <Link
