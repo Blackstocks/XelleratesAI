@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 import { toast } from 'react-toastify';
 import {
@@ -11,21 +11,87 @@ import GlobalFilter from '@/components/GlobalFilter';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
 
+// Debounce function to handle rapid state updates
+const debounce = (func, delay) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+};
+
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
+  const usersRef = useRef(users);
+
+  const fetchUsers = async () => {
+    const { data, error } = await supabase.from('profiles').select('*');
+
+    if (error) {
+      console.error(error);
+    } else {
+      // Sort users: approved users last, non-approved users first
+      data.sort((a, b) => b.status.localeCompare(a.status));
+      setUsers(data);
+      usersRef.current = data;
+    }
+  };
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const { data, error } = await supabase.from('profiles').select('*');
-
-      if (error) {
-        console.error(error);
-      } else {
-        setUsers(data);
-      }
-    };
-
     fetchUsers();
+
+    const subscription = supabase
+      .channel('public:profiles')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'profiles' },
+        (payload) => {
+          setUsers((prevUsers) =>
+            [...prevUsers, payload.new].sort((a, b) =>
+              b.status.localeCompare(a.status)
+            )
+          );
+          usersRef.current = [...usersRef.current, payload.new].sort((a, b) =>
+            b.status.localeCompare(a.status)
+          );
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'profiles' },
+        (payload) => {
+          setUsers((prevUsers) => {
+            const updatedUsers = prevUsers.map((user) =>
+              user.id === payload.new.id ? payload.new : user
+            );
+            return updatedUsers.sort((a, b) =>
+              b.status.localeCompare(a.status)
+            );
+          });
+          usersRef.current = usersRef.current
+            .map((user) => (user.id === payload.new.id ? payload.new : user))
+            .sort((a, b) => b.status.localeCompare(a.status));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'profiles' },
+        (payload) => {
+          setUsers((prevUsers) =>
+            prevUsers.filter((user) => user.id !== payload.old.id)
+          );
+          usersRef.current = usersRef.current.filter(
+            (user) => user.id !== payload.old.id
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const approveUser = async (userId) => {
@@ -39,10 +105,12 @@ const AdminDashboard = () => {
       toast.error('Error approving user');
     } else {
       toast.success('User approved successfully');
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === userId ? { ...user, status: 'approved' } : user
-        )
+      const updatedUsers = usersRef.current.map((user) =>
+        user.id === userId ? { ...user, status: 'approved' } : user
+      );
+      setUsers(updatedUsers.sort((a, b) => b.status.localeCompare(a.status)));
+      usersRef.current = updatedUsers.sort((a, b) =>
+        b.status.localeCompare(a.status)
       );
     }
   };
@@ -148,13 +216,17 @@ const AdminDashboard = () => {
                   const { key, ...headerGroupProps } =
                     headerGroup.getHeaderGroupProps();
                   return (
-                    <tr key={key} {...headerGroupProps}>
+                    <tr key={headerGroupProps.key} {...headerGroupProps}>
                       {headerGroup.headers.map((column) => {
                         const { key, ...columnProps } = column.getHeaderProps(
                           column.getSortByToggleProps()
                         );
                         return (
-                          <th key={key} {...columnProps} className='table-th'>
+                          <th
+                            key={columnProps.key}
+                            {...columnProps}
+                            className='table-th'
+                          >
                             {column.render('Header')}
                             <span>
                               {column.isSorted
@@ -178,11 +250,15 @@ const AdminDashboard = () => {
                   prepareRow(row);
                   const { key, ...rowProps } = row.getRowProps();
                   return (
-                    <tr key={key} {...rowProps}>
+                    <tr key={rowProps.key} {...rowProps}>
                       {row.cells.map((cell) => {
                         const { key, ...cellProps } = cell.getCellProps();
                         return (
-                          <td key={key} {...cellProps} className='table-td'>
+                          <td
+                            key={cellProps.key}
+                            {...cellProps}
+                            className='table-td'
+                          >
                             {cell.render('Cell')}
                           </td>
                         );
