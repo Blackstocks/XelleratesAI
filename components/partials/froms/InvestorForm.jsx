@@ -286,6 +286,8 @@ const InvestorSignupForm = () => {
                   label: 'Sports and Recreation',
                 },
                 { value: 'Human Resources', label: 'Human Resources' },
+                { value: 'Others', label: 'Others' },
+
               ]}
               error={errors.sectors}
               register={register}

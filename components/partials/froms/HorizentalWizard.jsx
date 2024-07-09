@@ -28,6 +28,7 @@ import {
   businessSchema,
   fundingSchema,
 } from "@/lib/schema/startup-form";
+import Select from "@/components/ui/Select";
 
 const steps = [
   { id: 1, title: "Contact Information" },
@@ -451,7 +452,7 @@ const FormWizard = () => {
                         Enter Business Details
                       </h1>
                     </div>
-                    <Textinput
+                    <Select
                       label="Industry or Sector"
                       type="text"
                       placeholder="Industry or Sector"
@@ -534,6 +535,7 @@ const FormWizard = () => {
                           label: 'Sports and Recreation',
                         },
                         { value: 'Human Resources', label: 'Human Resources' },
+                        {value: 'Others', label: 'Others'},
                       ]}
                       register={register}
                     />
