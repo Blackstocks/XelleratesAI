@@ -7,9 +7,13 @@ import { toggleActiveChat } from '@/components/partials/app/chat/store';
 import { useDispatch } from 'react-redux';
 import useMobileMenu from '@/hooks/useMobileMenu';
 import Submenu from './Submenu';
+import useUserDetails from '@/hooks/useUserDetails';
+
 const Navmenu = ({ menus }) => {
   const router = useRouter();
   const [activeSubmenu, setActiveSubmenu] = useState(null);
+  const { user } = useUserDetails();
+  const role = user?.role;
 
   const toggleSubmenu = (i) => {
     if (activeSubmenu === i) {
@@ -51,76 +55,85 @@ const Navmenu = ({ menus }) => {
   return (
     <>
       <ul>
-        {menus.map((item, i) => (
-          <li
-            key={i}
-            className={` single-sidebar-menu 
+        {role !== 'super_admin' &&
+          menus.map((item, i) => (
+            <li
+              key={i}
+              className={`single-sidebar-menu 
               ${item.child ? 'item-has-children' : ''}
               ${activeSubmenu === i ? 'open' : ''}
               ${locationName === item.link ? 'menu-item-active' : ''}`}
-          >
-            {/* single menu with no childred*/}
-            {!item.child && !item.isHeadr && (
-              <Link className='menu-link' href={item.link}>
-                <span className='menu-icon flex-grow-0'>
-                  <Icon icon={item.icon} />
-                </span>
-                <div className='text-box flex-grow'>{item.title}</div>
-                {item.badge && <span className='menu-badge'>{item.badge}</span>}
-              </Link>
-            )}
-            {/* only for menulabel */}
-            {item.isHeadr && !item.child && (
-              <div className='menulabel'>{item.title}</div>
-            )}
-            {/*    !!sub menu parent   */}
-            {item.child && (
-              <div
-                className={`menu-link ${
-                  activeSubmenu === i
-                    ? 'parent_active not-collapsed'
-                    : 'collapsed'
-                }`}
-                onClick={() => toggleSubmenu(i)}
-              >
-                <div className='flex-1 flex items-start'>
-                  <span className='menu-icon'>
+            >
+              {!item.child && !item.isHeadr && (
+                <Link className='menu-link' href={item.link}>
+                  <span className='menu-icon flex-grow-0'>
                     <Icon icon={item.icon} />
                   </span>
-                  <div className='text-box'>{item.title}</div>
-                </div>
-                <div className='flex-0'>
-                  <div
-                    className={`menu-arrow transform transition-all duration-300 ${
-                      activeSubmenu === i ? ' rotate-90' : ''
-                    }`}
-                  >
-                    <Icon icon='heroicons-outline:chevron-right' />
+                  <div className='text-box flex-grow'>{item.title}</div>
+                  {item.badge && (
+                    <span className='menu-badge'>{item.badge}</span>
+                  )}
+                </Link>
+              )}
+              {item.isHeadr && !item.child && (
+                <div className='menulabel'>{item.title}</div>
+              )}
+              {item.child && (
+                <div
+                  className={`menu-link ${
+                    activeSubmenu === i
+                      ? 'parent_active not-collapsed'
+                      : 'collapsed'
+                  }`}
+                  onClick={() => toggleSubmenu(i)}
+                >
+                  <div className='flex-1 flex items-start'>
+                    <span className='menu-icon'>
+                      <Icon icon={item.icon} />
+                    </span>
+                    <div className='text-box'>{item.title}</div>
+                  </div>
+                  <div className='flex-0'>
+                    <div
+                      className={`menu-arrow transform transition-all duration-300 ${
+                        activeSubmenu === i ? ' rotate-90' : ''
+                      }`}
+                    >
+                      <Icon icon='heroicons-outline:chevron-right' />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+              <Submenu
+                activeSubmenu={activeSubmenu}
+                item={item}
+                i={i}
+                locationName={locationName}
+              />
+            </li>
+          ))}
+        {/* Separate tab */}
+        {role === 'super_admin' && (
+          <div>
+            <li className={`single-sidebar-menu`}>
+              <Link className='menu-link' href='/admin/investors'>
+                <span className='menu-icon flex-grow-0'>
+                  <Icon icon='heroicons-outline:star' />
+                </span>
+                <div className='text-box flex-grow'>Investors</div>
+              </Link>
+            </li>
 
-            <Submenu
-              activeSubmenu={activeSubmenu}
-              item={item}
-              i={i}
-              locationName={locationName}
-            />
-          </li>
-        ))}
-        {/* <li className='single-sidebar-menu'>
-          <a
-            href='https://dashcode-react-doc.codeshaper.tech/'
-            target='_blank'
-            className='menu-link'
-          >
-            <span className='menu-icon'>
-              <Icon icon='heroicons:document' />
-            </span>
-            <div className='text-box'>Documentation</div>
-          </a>
-        </li> */}
+            <li className={`single-sidebar-menu`}>
+              <Link className='menu-link' href='/admin/startups'>
+                <span className='menu-icon flex-grow-0'>
+                  <Icon icon='heroicons-outline:star' />
+                </span>
+                <div className='text-box flex-grow'>Startups</div>
+              </Link>
+            </li>
+          </div>
+        )}
       </ul>
     </>
   );

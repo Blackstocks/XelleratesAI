@@ -11,31 +11,22 @@ import GlobalFilter from '@/components/GlobalFilter';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
 
-// Debounce function to handle rapid state updates
-const debounce = (func, delay) => {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      func.apply(this, args);
-    }, delay);
-  };
-};
-
-const AdminDashboard = () => {
+const AdminDashboard = ({ userType }) => {
   const [users, setUsers] = useState([]);
   const usersRef = useRef(users);
 
   const fetchUsers = async () => {
-    const { data, error } = await supabase.from('profiles').select('*');
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_type', userType);
 
     if (error) {
       console.error(error);
     } else {
-      // Sort users: approved users last, non-approved users first
-      data.sort((a, b) => b.status.localeCompare(a.status));
-      setUsers(data);
-      usersRef.current = data;
+      const sortedData = data.sort((a, b) => b.status.localeCompare(a.status));
+      setUsers(sortedData);
+      usersRef.current = sortedData;
     }
   };
 
@@ -48,43 +39,45 @@ const AdminDashboard = () => {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'profiles' },
         (payload) => {
-          setUsers((prevUsers) =>
-            [...prevUsers, payload.new].sort((a, b) =>
-              b.status.localeCompare(a.status)
-            )
-          );
-          usersRef.current = [...usersRef.current, payload.new].sort((a, b) =>
-            b.status.localeCompare(a.status)
-          );
+          if (payload.new.user_type === userType) {
+            setUsers((prevUsers) => {
+              const newUsers = [...prevUsers, payload.new].sort((a, b) =>
+                b.status.localeCompare(a.status)
+              );
+              usersRef.current = newUsers;
+              return newUsers;
+            });
+          }
         }
       )
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'profiles' },
         (payload) => {
-          setUsers((prevUsers) => {
-            const updatedUsers = prevUsers.map((user) =>
-              user.id === payload.new.id ? payload.new : user
-            );
-            return updatedUsers.sort((a, b) =>
-              b.status.localeCompare(a.status)
-            );
-          });
-          usersRef.current = usersRef.current
-            .map((user) => (user.id === payload.new.id ? payload.new : user))
-            .sort((a, b) => b.status.localeCompare(a.status));
+          if (payload.new.user_type === userType) {
+            setUsers((prevUsers) => {
+              const updatedUsers = prevUsers
+                .map((user) =>
+                  user.id === payload.new.id ? payload.new : user
+                )
+                .sort((a, b) => b.status.localeCompare(a.status));
+              usersRef.current = updatedUsers;
+              return updatedUsers;
+            });
+          }
         }
       )
       .on(
         'postgres_changes',
         { event: 'DELETE', schema: 'public', table: 'profiles' },
         (payload) => {
-          setUsers((prevUsers) =>
-            prevUsers.filter((user) => user.id !== payload.old.id)
-          );
-          usersRef.current = usersRef.current.filter(
-            (user) => user.id !== payload.old.id
-          );
+          setUsers((prevUsers) => {
+            const filteredUsers = prevUsers.filter(
+              (user) => user.id !== payload.old.id
+            );
+            usersRef.current = filteredUsers;
+            return filteredUsers;
+          });
         }
       )
       .subscribe();
@@ -92,7 +85,7 @@ const AdminDashboard = () => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, []);
+  }, [userType]);
 
   const approveUser = async (userId) => {
     const { error } = await supabase
@@ -105,13 +98,13 @@ const AdminDashboard = () => {
       toast.error('Error approving user');
     } else {
       toast.success('User approved successfully');
-      const updatedUsers = usersRef.current.map((user) =>
-        user.id === userId ? { ...user, status: 'approved' } : user
-      );
-      setUsers(updatedUsers.sort((a, b) => b.status.localeCompare(a.status)));
-      usersRef.current = updatedUsers.sort((a, b) =>
-        b.status.localeCompare(a.status)
-      );
+      const updatedUsers = usersRef.current
+        .map((user) =>
+          user.id === userId ? { ...user, status: 'approved' } : user
+        )
+        .sort((a, b) => b.status.localeCompare(a.status));
+      setUsers(updatedUsers);
+      usersRef.current = updatedUsers;
     }
   };
 
@@ -138,9 +131,7 @@ const AdminDashboard = () => {
         accessor: 'status',
         Cell: ({ value }) => (
           <span
-            className={`${
-              value === 'approved' ? 'text-green-600' : 'text-red-600'
-            }`}
+            className={value === 'approved' ? 'text-green-600' : 'text-red-600'}
           >
             {value}
           </span>
@@ -294,7 +285,7 @@ const AdminDashboard = () => {
         <ul className='flex items-center space-x-3 rtl:space-x-reverse flex-wrap'>
           <li className='text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180'>
             <button
-              className={` ${
+              className={`${
                 !canPreviousPage ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               onClick={() => gotoPage(0)}
@@ -305,7 +296,7 @@ const AdminDashboard = () => {
           </li>
           <li className='text-sm leading-4 text-slate-900 dark:text-white rtl:rotate-180'>
             <button
-              className={` ${
+              className={`${
                 !canPreviousPage ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               onClick={() => previousPage()}
@@ -317,10 +308,10 @@ const AdminDashboard = () => {
           {pageOptions.map((pageIdx) => (
             <li key={pageIdx}>
               <button
-                className={` ${
+                className={`${
                   pageIdx === pageIndex
-                    ? 'bg-slate-900 dark:bg-slate-600  dark:text-slate-200 text-white font-medium '
-                    : 'bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900  font-normal  '
+                    ? 'bg-slate-900 dark:bg-slate-600 dark:text-slate-200 text-white font-medium'
+                    : 'bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900 font-normal'
                 } text-sm rounded leading-[16px] flex h-6 w-6 items-center justify-center transition-all duration-150`}
                 onClick={() => gotoPage(pageIdx)}
               >
@@ -330,7 +321,7 @@ const AdminDashboard = () => {
           ))}
           <li className='text-sm leading-4 text-slate-900 dark:text-white rtl:rotate-180'>
             <button
-              className={` ${
+              className={`${
                 !canNextPage ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               onClick={() => nextPage()}
@@ -343,7 +334,7 @@ const AdminDashboard = () => {
             <button
               onClick={() => gotoPage(pageCount - 1)}
               disabled={!canNextPage}
-              className={` ${
+              className={`${
                 !canNextPage ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
