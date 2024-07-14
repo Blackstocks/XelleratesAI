@@ -10,6 +10,7 @@ import Textarea from '@/components/ui/Textarea';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Loading from '@/components/Loading';
+import Modal from '@/components/ui/Modal';
 import VerticalNavTabs from '@/components/profileSideBar';
 import {
   updateGeneralInfo,
@@ -30,7 +31,18 @@ const Profile = () => {
   const { register, handleSubmit, reset } = useForm();
   const router = useRouter();
   const user_id = user?.id;
-  console.log('user_id', user_id);
+  const [isModalActive, setIsModalActive] = useState(false);
+
+  useEffect(() => {
+    // Logic to determine if modal should be shown
+    if (!details) {
+      setIsModalActive(true);
+    }
+  }, []);
+
+  const handleClose = () => {
+    setIsModalActive(false);
+  };
 
   const handleClick = () => {
     if (user.user_type === 'investor') {
@@ -460,8 +472,25 @@ const Profile = () => {
         </>
       ) : (
         <div>
-          <div>Update your Profile </div>
-          <Button onClick={handleClick}>Update</Button>
+          <Modal
+            activeModal={isModalActive}
+            onClose={handleClose}
+            centered
+            title='Your Profile is Incomplete'
+          >
+            <div className='flex flex-col justify-center'>
+              <h4 className='font-medium text-lg text-center mb-3 text-slate-900'>
+                Update your Profile
+              </h4>
+
+              <Button
+                className='max-w-20 ml-auto mr-auto h-8 w-auto text-white bg-[rgb(30,41,59)] rounded-md shadow-md flex items-center justify-center px-3'
+                onClick={handleClick}
+              >
+                Update
+              </Button>
+            </div>
+          </Modal>
         </div>
       )}
     </div>
