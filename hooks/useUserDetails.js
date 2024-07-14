@@ -74,11 +74,15 @@ const useUserDetails = () => {
         founderInformation,
         cofounderInformation,
         fundingInformation,
+        ctoInfo,
+        companyDocuments,
       ] = await Promise.all([
         fetchDetails('business_details'),
         fetchDetails('founder_information'),
         fetchDetails('cofounder_information'),
         fetchDetails('funding_information'),
+        fetchDetails('CTO_info'),
+        fetchDetails('company_documents'),
       ]);
 
       setDetails({
@@ -87,6 +91,8 @@ const useUserDetails = () => {
         founderInformation,
         cofounderInformation,
         fundingInformation,
+        ctoInfo,
+        companyDocuments,
         type: 'startup',
       });
     } catch (error) {
