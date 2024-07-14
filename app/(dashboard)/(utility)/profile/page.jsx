@@ -21,12 +21,14 @@ import {
   updateProfile,
 } from '@/lib/actions/insertformdetails';
 import FormCompletionBanner from '@/components/FormCompletionBanner'; // Import the new banner component
+import { useRouter } from 'next/navigation';
 
 const Profile = () => {
   const { user, details, loading, updateUserLocally, updateDetailsLocally } =
     useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const { register, handleSubmit, reset } = useForm();
+  const router = useRouter();
   const user_id = user?.id;
   console.log('user_id', user_id);
 
