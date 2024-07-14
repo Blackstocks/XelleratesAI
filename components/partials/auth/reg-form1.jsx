@@ -13,6 +13,7 @@ import Dropdowntype from '@/components/ui/Dropdown1';
 const schema = yup
   .object({
     name: yup.string().required('Name is Required'),
+    companyName: yup.string(),
     email: yup.string().email('Invalid email').required('Email is Required'),
     mobile: yup
       .string()
@@ -27,6 +28,10 @@ const schema = yup
       .string()
       .oneOf([yup.ref('password'), null], 'Passwords must match'),
     user_type: yup.string().required('User type is required'),
+    linkedinProfile: yup
+      .string()
+      .url('Invalid URL')
+      .required('LinkedIn profile is required'),
   })
   .required();
 
@@ -82,9 +87,11 @@ const RegForm1 = () => {
         {
           id: userId,
           name: data.name,
+          company_name: data.companyName,
           email: data.email,
           mobile: data.mobile,
           user_type: data.user_type,
+          linkedin_profile: data.linkedinProfile,
           role: 'user', // Set default role to 'user'
           status: 'pending', // Set default status to 'pending'
         },
@@ -114,6 +121,14 @@ const RegForm1 = () => {
         label='Name'
         type='text'
         placeholder='Enter your name'
+        register={register}
+        error={errors.name}
+      />
+      <Textinput
+        name='companyName'
+        label='Company Name'
+        type='text'
+        placeholder='Enter your company name'
         register={register}
         error={errors.name}
       />
@@ -157,6 +172,14 @@ const RegForm1 = () => {
         ]}
         onSelect={handleSelectUserType}
         error={errors.user_type}
+      />
+      <Textinput
+        label='LinkedIn Profile'
+        type='url'
+        placeholder='https://www.linkedin.com/in/example'
+        name='linkedinProfile'
+        error={errors.linkedinProfile}
+        register={register}
       />
       <button
         className='btn btn-dark block w-full text-center'

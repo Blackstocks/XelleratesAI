@@ -60,6 +60,10 @@ const profileSchema = yup.object().shape({
     .url('Invalid URL')
     .required('LinkedIn profile is required'),
   companyLogo: yup.mixed().required('Company logo is required'), // Added validation for company logo
+  teamSize: yup.number().required('Team Size is required'),
+  currentStage: yup
+    .string()
+    .required('Current stage of the company is required'),
 });
 
 const founderAndEducationSchema = yup.object().shape({
@@ -107,15 +111,13 @@ const businessSchema = yup.object().shape({
     .mixed()
     .required('Business Valuation Report is required'),
   industrySector: yup.string().required('Industry or sector is required'),
-  currentStage: yup
-    .string()
-    .required('Current stage of the company is required'),
+
   currentTraction: yup.string().required('Current traction is required'),
   mis: yup.mixed().required('MIS is required'),
   pitchDeck: yup.mixed().required('Pitch Deck is required'),
   videoPitch: yup.mixed().required('Video Pitch is required'),
   targetAudience: yup.string().required('Target Audience is required'),
-  teamSize: yup.number().required('Team Size is required'),
+
   uspMoat: yup.string().required('USP/MOAT is required'),
 });
 
@@ -253,6 +255,8 @@ const FormWizard = () => {
               company_website: data.companyWebsite,
               linkedin_profile: data.linkedinProfile,
               company_logo: uploadedFiles.companyLogo || '',
+              current_stage: data.currentStage,
+              team_size: data.teamSize,
             },
           ]);
 
@@ -269,10 +273,8 @@ const FormWizard = () => {
             {
               company_id: companyId,
               industry_sector: data.industrySector,
-              current_stage: data.currentStage,
               current_traction: data.currentTraction,
               target_audience: data.targetAudience,
-              team_size: data.teamSize,
               usp_moat: data.uspMoat,
               certificate_of_incorporation:
                 uploadedFiles.certificateOfIncorporation || '',
@@ -481,7 +483,7 @@ const FormWizard = () => {
                   <div className='grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5 pt-10'>
                     <div className='lg:col-span-3 md:col-span-2 col-span-1'>
                       <h4 className='text-base text-slate-800 dark:text-slate-300 my-6'>
-                        Enter Your Company Profile
+                        Enter Your Company Details
                       </h4>
                     </div>
                     <Textinput
@@ -545,6 +547,22 @@ const FormWizard = () => {
                       placeholder='Company Website'
                       name='companyWebsite'
                       error={errors.companyWebsite}
+                      register={register}
+                    />
+                    <Textinput
+                      label='Team Size'
+                      type='number'
+                      placeholder='Team Size'
+                      name='teamSize'
+                      error={errors.teamSize}
+                      register={register}
+                    />
+                    <Textinput
+                      label='Current Stage'
+                      type='text'
+                      placeholder='Current Stage'
+                      name='currentStage'
+                      error={errors.currentStage}
                       register={register}
                     />
                     <Textinput
@@ -703,14 +721,7 @@ const FormWizard = () => {
                       error={errors.industrySector}
                       register={register}
                     />
-                    <Textinput
-                      label='Current Stage'
-                      type='text'
-                      placeholder='Current Stage'
-                      name='currentStage'
-                      error={errors.currentStage}
-                      register={register}
-                    />
+
                     <Textarea
                       label='Current Traction'
                       placeholder='Current Traction'
@@ -724,14 +735,6 @@ const FormWizard = () => {
                       placeholder='Target Audience'
                       name='targetAudience'
                       error={errors.targetAudience}
-                      register={register}
-                    />
-                    <Textinput
-                      label='Team Size'
-                      type='number'
-                      placeholder='Team Size'
-                      name='teamSize'
-                      error={errors.teamSize}
                       register={register}
                     />
                     <Textarea

@@ -58,7 +58,7 @@ const InvestorSignupForm = () => {
       // Fetch profile data
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('name, email, mobile')
+        .select('name, email, mobile,linkedin_profile')
         .eq('id', profileId)
         .single();
 
@@ -69,6 +69,7 @@ const InvestorSignupForm = () => {
           name: profile.name,
           email: profile.email,
           mobile: profile.mobile,
+          linkedinProfile: profile.linkedin_profile,
         });
       }
     };
@@ -287,7 +288,6 @@ const InvestorSignupForm = () => {
                 },
                 { value: 'Human Resources', label: 'Human Resources' },
                 { value: 'Others', label: 'Others' },
-
               ]}
               error={errors.sectors}
               register={register}
