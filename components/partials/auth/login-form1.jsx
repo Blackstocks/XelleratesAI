@@ -112,7 +112,7 @@ const LoginForm1 = () => {
 
       // Redirect based on whether the form has been filled or not
 
-      router.push('/dashboard');
+      router.push('/profile');
     } catch (error) {
       console.error('Login submission error:', error); // Logging error
       toast.error(
