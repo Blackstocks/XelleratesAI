@@ -111,17 +111,8 @@ const LoginForm1 = () => {
       }
 
       // Redirect based on whether the form has been filled or not
-      if (formFilled) {
-        router.push('/profile');
-      } else {
-        if (profile.user_type === 'investor') {
-          router.push(`investor-form?profile_id=${profile.id}`);
-        } else if (profile.user_type === 'startup') {
-          router.push(`startup-form?profile_id=${profile.id}`);
-        } else {
-          router.push('/profile'); // Redirect to a general dashboard or another appropriate page
-        }
-      }
+
+      router.push('/dashboard');
     } catch (error) {
       console.error('Login submission error:', error); // Logging error
       toast.error(
