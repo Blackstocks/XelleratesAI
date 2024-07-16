@@ -64,7 +64,7 @@ const Ecommerce = () => {
 
   return (
     <div className="w-full">
-      {details?.type === "startup" && (
+      {user?.user_type === "startup" && (
         <div className="w-full border">
           <section className="py-8 w-full">
             <div className="container px-4 mx-auto">
@@ -287,7 +287,7 @@ const Ecommerce = () => {
           </section>
         </div>
       )}
-      {details?.type === "investor" && (
+      {user?.user_type === "investor" && (
         <div className="w-full border">
           <section className="py-8 w-full">
             <div className="container px-4 mx-auto">
