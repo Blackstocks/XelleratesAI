@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Tab } from '@headlessui/react';
 import { useForm, Controller } from 'react-hook-form';
 import Icon from '@/components/ui/Icon';
@@ -135,20 +135,31 @@ const VerticalNavTabs = () => {
     companyDocuments,
     investorSignup,
     updateUserLocally,
-    updateDetailsLocally,
   } = useCompleteUserDetails();
   const { control, register, handleSubmit } = useForm();
   const { user, loading, details } = useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
+  const [founderInformationLoc, setFounderInformationLoc] = useState(null);
+  const [companyProfileLoc, setCompanyProfileLoc] = useState(null);
+  const [fundingInformationLoc, setFundingInformationLoc] = useState(null);
+  const [ctoInfoLoc, setCtoInfoLoc] = useState(null);
+  const [businessDetailsLoc, setBusinessDetailsLoc] = useState(null);
+
+  useEffect(()=>{
+    setFounderInformationLoc(founderInformation);
+    setCompanyProfileLoc(companyProfile);
+    setFundingInformationLoc(fundingInformation);
+    setCtoInfoLoc(ctoInfo);
+    setBusinessDetailsLoc(businessDetails);
+  },[companyProfile])
+
 
   const handleSave = async (data, section) => {
     try {
-      console.log('Saving data for section:', section, 'with data:', data);
+      // console.log('Saving data for section:', section, 'with data:', data);
       let updatedData;
       let changedData = {};
       const uploadedFiles = {};
-
-      // Check if the data already exists
 
       switch (section) {
         case 'general_info':
@@ -196,7 +207,6 @@ const VerticalNavTabs = () => {
               throw startupDetailsResponse.error;
             updatedData = startupDetailsResponse[0];
             console.log('Inserted company profile:', updatedData);
-            updateDetailsLocally('companyProfile', updatedData);
           } else {
             console.log('Updating company profile:', companyProfile.id);
             const startupDetailsResponse = await updateStartupDetails(
@@ -207,16 +217,12 @@ const VerticalNavTabs = () => {
               throw startupDetailsResponse.error;
             updatedData = startupDetailsResponse.data;
             console.log('Updated company profile:', updatedData);
-            updateDetailsLocally({
-              ...companyProfile,
-              ...updatedData,
-            });
+            setCompanyProfileLoc(updatedData);
           }
           break;
 
         case 'founder_info':
           const emptyfounder_info = !founderInformation?.id;
-
           const founderUploadedFiles = {};
           if (data.listofAdvisers && data.listofAdvisers[0]) {
             founderUploadedFiles.listofAdvisers = await handleFileUpload(
@@ -239,7 +245,7 @@ const VerticalNavTabs = () => {
           };
 
           console.log('Changed Data for founder_info:', changedData);
-
+          console.log(emptyfounder_info)
           if (emptyfounder_info) {
             const founderInfoResponse = await insertFounderInformation(
               companyProfile.id,
@@ -249,7 +255,7 @@ const VerticalNavTabs = () => {
             if (founderInfoResponse.error) throw founderInfoResponse.error;
             console.log('Inserted founder info:', founderInfoResponse.data);
             updatedData = founderInfoResponse.data;
-            updateDetailsLocally('founderInformation', updatedData);
+            setFounderInformationLoc(updatedData);
           } else {
             const founderInfoResponse = await updateFounderInfo(
               companyProfile.id,
@@ -258,10 +264,7 @@ const VerticalNavTabs = () => {
             );
             if (founderInfoResponse.error) throw founderInfoResponse.error;
             updatedData = founderInfoResponse.data;
-            updateDetailsLocally({
-              ...founderInformation,
-              ...updatedData,
-            });
+            setFounderInformationLoc(updatedData);
           }
 
           break;
@@ -299,10 +302,7 @@ const VerticalNavTabs = () => {
             );
             if (ctoInfoResponse.error) throw ctoInfoResponse.error;
             updatedData = ctoInfoResponse.data;
-            updateDetailsLocally({
-              ...ctoInfo,
-              ...updatedData,
-            });
+            setCtoInfoLoc(updatedData);
           } else {
             const ctoInfoResponse = await updateCTODetails(
               companyProfile.id,
@@ -311,16 +311,15 @@ const VerticalNavTabs = () => {
             );
             if (ctoInfoResponse.error) throw ctoInfoResponse.error;
             updatedData = ctoInfoResponse.data;
-            updateDetailsLocally({
-              ...ctoInfo,
-              ...updatedData,
-            });
+            setCtoInfoLoc(updatedData);
           }
 
           break;
 
         case 'company_documents':
-          const emptycompany_documents = !companyDocuments?.id;
+          console.log(companyDocuments)
+          console.log(companyDocuments[0]?.id);
+          const emptycompany_documents = !companyDocuments[0]?.id;
           const companyUploadedFiles = {};
           for (const [dbField, formField] of Object.entries(
             companyDocumentsFiles
@@ -336,7 +335,7 @@ const VerticalNavTabs = () => {
           }
 
           console.log('Changed Data for company_documents:', data);
-
+          console.log(emptycompany_documents)
           if (emptycompany_documents) {
             const companyDocumentsResponse = await insertCompanyDocuments(
               companyProfile.id,
@@ -346,10 +345,8 @@ const VerticalNavTabs = () => {
             if (companyDocumentsResponse.error)
               throw companyDocumentsResponse.error;
             updatedData = companyDocumentsResponse.data;
-            updateDetailsLocally({
-              ...companyDocuments,
-              ...updatedData,
-            });
+            console.log(updatedData);
+
           } else {
             const companyDocumentsResponse = await updateCompanyDocuments(
               companyProfile.id,
@@ -359,10 +356,7 @@ const VerticalNavTabs = () => {
             if (companyDocumentsResponse.error)
               throw companyDocumentsResponse.error;
             updatedData = companyDocumentsResponse.data;
-            updateDetailsLocally({
-              ...companyDocuments,
-              ...updatedData,
-            });
+            console.log(updatedData);
           }
 
           break;
@@ -407,8 +401,8 @@ const VerticalNavTabs = () => {
             }
 
             updatedData = businessDetailsResponse.data;
+            setBusinessDetailsLoc(updatedData);
             console.log('Data saved successfully:', updatedData);
-            updateDetailsLocally('businessDetails', updatedData);
           } catch (error) {
             console.error('Error saving business details:', error);
           }
@@ -450,22 +444,16 @@ const VerticalNavTabs = () => {
             );
             if (fundingInfoResponse.error) throw fundingInfoResponse.error;
             updatedData = fundingInfoResponse.data;
-            updateDetailsLocally({
-              ...fundingInformation,
-              ...updatedData,
-            });
+            setFundingInformationLoc(updatedData);
           } else {
             const fundingInfoResponse = await updateFundingInfo(
               companyProfile.id,
               changedData,
-              fundingUploadedFiles
             );
             if (fundingInfoResponse.error) throw fundingInfoResponse.error;
+            console.log(fundingInfoResponse);
             updatedData = fundingInfoResponse.data;
-            updateDetailsLocally({
-              ...fundingInformation,
-              ...updatedData,
-            });
+            setFundingInformationLoc(updatedData);
           }
           break;
         default:
@@ -542,7 +530,7 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Company Name'
                               name='company_name'
-                              defaultValue={companyProfile?.company_name}
+                              defaultValue={companyProfileLoc?.company_name}
                               placeholder='Enter your company name'
                               register={register}
                             />
@@ -550,56 +538,56 @@ const VerticalNavTabs = () => {
                               label='Incorporation Date'
                               type='date'
                               name='incorporation_date'
-                              defaultValue={companyProfile?.incorporation_date}
+                              defaultValue={companyProfileLoc?.incorporation_date}
                               placeholder='Select the incorporation date'
                               register={register}
                             />
                             <Textinput
                               label='Country'
                               name='country'
-                              defaultValue={companyProfile?.country}
+                              defaultValue={companyProfileLoc?.country}
                               placeholder='Enter the country'
                               register={register}
                             />
                             <Textinput
                               label='State/City'
                               name='state_city'
-                              defaultValue={companyProfile?.state_city}
+                              defaultValue={companyProfileLoc?.state_city}
                               placeholder='Enter the state or city'
                               register={register}
                             />
                             <Textinput
                               label='Office Address'
                               name='office_address'
-                              defaultValue={companyProfile?.office_address}
+                              defaultValue={companyProfileLoc?.office_address}
                               placeholder='Enter the office address'
                               register={register}
                             />
                             <Textinput
                               label='Company Website'
                               name='company_website'
-                              defaultValue={companyProfile?.company_website}
+                              defaultValue={companyProfileLoc?.company_website}
                               placeholder='Enter the company website URL'
                               register={register}
                             />
                             <Textinput
                               label='LinkedIn Profile'
                               name='linkedin_profile'
-                              defaultValue={companyProfile?.linkedin_profile}
+                              defaultValue={companyProfileLoc?.linkedin_profile}
                               placeholder='Enter the LinkedIn profile URL'
                               register={register}
                             />
                             <Textarea
                               label='Business Description'
                               name='short_description'
-                              defaultValue={companyProfile?.short_description}
+                              defaultValue={companyProfileLoc?.short_description}
                               placeholder='Provide a brief business description'
                               register={register}
                             />
                             <Select
                               label='Target Audience'
                               name='target_audience'
-                              defaultValue={companyProfile?.target_audience}
+                              defaultValue={companyProfileLoc?.target_audience}
                               options={[
                                 { value: 'B2C', label: 'B2C' },
                                 { value: 'B2B', label: 'B2B' },
@@ -614,7 +602,7 @@ const VerticalNavTabs = () => {
                             <Select
                               label='Industry or Sector'
                               name='industry_sector'
-                              defaultValue={companyProfile?.industry_sector}
+                              defaultValue={companyProfileLoc?.industry_sector}
                               options={[
                                 {
                                   value: 'Agriculture and Allied Sectors',
@@ -713,28 +701,28 @@ const VerticalNavTabs = () => {
                               label='Team Size'
                               type='number'
                               name='team_size'
-                              defaultValue={companyProfile?.team_size}
+                              defaultValue={companyProfileLoc?.team_size}
                               placeholder='Enter the team size'
                               register={register}
                             />
                             <Textinput
                               label='Current Stage'
                               name='current_stage'
-                              defaultValue={companyProfile?.current_stage}
+                              defaultValue={companyProfileLoc?.current_stage}
                               placeholder='Enter the current stage'
                               register={register}
                             />
                             <Textarea
                               label='USP/MOAT'
                               name='usp_moat'
-                              defaultValue={companyProfile?.usp_moat}
+                              defaultValue={companyProfileLoc?.usp_moat}
                               placeholder='Describe the USP/MOAT'
                               register={register}
                             />
                             <Select
                               label='Is your startup in media?'
                               name='media'
-                              defaultValue={companyProfile?.media}
+                              defaultValue={companyProfileLoc?.media}
                               options={[
                                 { value: 'Yes', label: 'Yes' },
                                 { value: 'No', label: 'No' },
@@ -744,7 +732,7 @@ const VerticalNavTabs = () => {
                             />
                             <Fileinput
                               name='company_logo'
-                              selectedFile={companyProfile?.company_logo}
+                              selectedFile={companyProfileLoc?.company_logo}
                               onChange={(e) => onChange(e.target.files[0])}
                               label='Company Logo'
                             />
@@ -755,28 +743,28 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='CTO Name'
                               name='cto_name'
-                              defaultValue={ctoInfo?.cto_name}
+                              defaultValue={ctoInfoLoc?.cto_name}
                               register={register}
                               placeholder='Enter CTO name'
                             />
                             <Textinput
                               label='Email'
                               name='cto_email'
-                              defaultValue={ctoInfo?.cto_email}
+                              defaultValue={ctoInfoLoc?.cto_email}
                               register={register}
                               placeholder='Enter CTO email'
                             />
                             <Textinput
                               label='Mobile Number'
                               name='cto_mobile'
-                              defaultValue={ctoInfo?.cto_mobile}
+                              defaultValue={ctoInfoLoc?.cto_mobile}
                               register={register}
                               placeholder='Enter CTO mobile number'
                             />
                             <Textinput
                               label='LinkedIn Profile'
                               name='cto_linkedin'
-                              defaultValue={ctoInfo?.cto_linkedin}
+                              defaultValue={ctoInfoLoc?.cto_linkedin}
                               register={register}
                               placeholder='Enter CTO LinkedIn profile URL'
                             />
@@ -784,20 +772,20 @@ const VerticalNavTabs = () => {
                               label='Tech Team Size'
                               type='number'
                               name='tech_team_size'
-                              defaultValue={ctoInfo?.tech_team_size}
+                              defaultValue={ctoInfoLoc?.tech_team_size}
                               register={register}
                               placeholder='Enter tech team size'
                             />
                             <Textinput
                               label='Mobile App Link'
                               name='mobile_app_link'
-                              defaultValue={ctoInfo?.mobile_app_link}
+                              defaultValue={ctoInfoLoc?.mobile_app_link}
                               register={register}
                               placeholder='Enter mobile app link'
                             />
                             <Fileinput
                               name='technology_roadmap'
-                              selectedFile={ctoInfo?.technology_roadmap}
+                              selectedFile={ctoInfoLoc?.technology_roadmap}
                               onChange={(e) => onChange(e.target.files[0])}
                               label='Upload Technology Roadmap'
                               placeholder='Upload technology roadmap'
@@ -810,21 +798,21 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Founder Name'
                               name='founder_name'
-                              defaultValue={founderInformation?.founder_name}
+                              defaultValue={founderInformationLoc?.founder_name}
                               register={register}
                               placeholder='Enter founder name'
                             />
                             <Textinput
                               label='Email'
                               name='founder_email'
-                              defaultValue={founderInformation?.founder_email}
+                              defaultValue={founderInformationLoc?.founder_email}
                               register={register}
                               placeholder='Enter founder email'
                             />
                             <Textinput
                               label='Mobile Number'
                               name='founder_mobile'
-                              defaultValue={founderInformation?.founder_mobile}
+                              defaultValue={founderInformationLoc?.founder_mobile}
                               register={register}
                               placeholder='Enter founder mobile number'
                             />
@@ -832,7 +820,7 @@ const VerticalNavTabs = () => {
                               label='LinkedIn Profile'
                               name='founder_linkedin'
                               defaultValue={
-                                founderInformation?.founder_linkedin
+                                founderInformationLoc?.founder_linkedin
                               }
                               register={register}
                               placeholder='Enter founder LinkedIn profile URL'
@@ -840,14 +828,14 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Degree Name'
                               name='degree_name'
-                              defaultValue={founderInformation?.degree_name}
+                              defaultValue={founderInformationLoc?.degree_name}
                               register={register}
                               placeholder='Enter degree name'
                             />
                             <Textinput
                               label='College Name'
                               name='college_name'
-                              defaultValue={founderInformation?.college_name}
+                              defaultValue={founderInformationLoc?.college_name}
                               register={register}
                               placeholder='Enter college name'
                             />
@@ -855,14 +843,14 @@ const VerticalNavTabs = () => {
                               label='Year of Graduation'
                               type='date'
                               name='graduation_year'
-                              defaultValue={founderInformation?.graduation_year}
+                              defaultValue={founderInformationLoc?.graduation_year}
                               register={register}
                               placeholder='Enter year of graduation'
                             />
                             <Fileinput
                               name='listofAdvisers'
                               selectedFile={
-                                founderInformation?.list_of_advisers
+                                founderInformationLoc?.list_of_advisers
                               }
                               onChange={(e) => onChange(e.target.files[0])}
                               label='List of Advisers'
@@ -1054,14 +1042,14 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Current Traction'
                               name='current_traction'
-                              defaultValue={businessDetails?.current_traction}
+                              defaultValue={businessDetailsLoc?.current_traction}
                               register={register}
                               placeholder='Enter current traction'
                             />
                             <Textinput
                               label='New Customers'
                               name='new_Customers'
-                              defaultValue={businessDetails?.new_Customers}
+                              defaultValue={businessDetailsLoc?.new_Customers}
                               register={register}
                               placeholder='Enter number of new customers'
                             />
@@ -1069,7 +1057,7 @@ const VerticalNavTabs = () => {
                               label='Customer Acquisition Cost'
                               name='customer_AcquisitionCost'
                               defaultValue={
-                                businessDetails?.customer_AcquisitionCost
+                                businessDetailsLoc?.customer_AcquisitionCost
                               }
                               register={register}
                               placeholder='Enter customer acquisition cost'
@@ -1078,7 +1066,7 @@ const VerticalNavTabs = () => {
                               label='Customer Lifetime Value'
                               name='customer_Lifetime_Value'
                               defaultValue={
-                                businessDetails?.customer_Lifetime_Value
+                                businessDetailsLoc?.customer_Lifetime_Value
                               }
                               register={register}
                               placeholder='Enter customer lifetime value'
@@ -1092,7 +1080,7 @@ const VerticalNavTabs = () => {
                               label='Total Funding Ask'
                               name='total_funding_ask'
                               defaultValue={
-                                fundingInformation?.total_funding_ask
+                                fundingInformationLoc?.total_funding_ask
                               }
                               register={register}
                               placeholder='Enter total funding ask'
@@ -1101,7 +1089,7 @@ const VerticalNavTabs = () => {
                               label='Amount Committed'
                               name='amount_committed'
                               defaultValue={
-                                fundingInformation?.amount_committed
+                                fundingInformationLoc?.amount_committed
                               }
                               register={register}
                               placeholder='Enter amount committed'
@@ -1110,7 +1098,7 @@ const VerticalNavTabs = () => {
                               label='Government Grants'
                               name='government_grants'
                               defaultValue={
-                                fundingInformation?.government_grants
+                                fundingInformationLoc?.government_grants
                               }
                               register={register}
                               placeholder='Enter government grants'
@@ -1118,7 +1106,7 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Equity Split'
                               name='equity_split'
-                              defaultValue={fundingInformation?.equity_split}
+                              defaultValue={fundingInformationLoc?.equity_split}
                               register={register}
                               placeholder='Enter equity split'
                             />
@@ -1126,7 +1114,7 @@ const VerticalNavTabs = () => {
                               label='Fund Utilization'
                               name='fund_utilization'
                               defaultValue={
-                                fundingInformation?.fund_utilization
+                                fundingInformationLoc?.fund_utilization
                               }
                               register={register}
                               placeholder='Describe fund utilization'
@@ -1134,14 +1122,14 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='ARR'
                               name='arr'
-                              defaultValue={fundingInformation?.arr}
+                              defaultValue={fundingInformationLoc?.arr}
                               register={register}
                               placeholder='Enter ARR'
                             />
                             <Textinput
                               label='MRR'
                               name='mrr'
-                              defaultValue={fundingInformation?.mrr}
+                              defaultValue={fundingInformationLoc?.mrr}
                               register={register}
                               placeholder='Enter MRR'
                             />
@@ -1213,7 +1201,7 @@ const VerticalNavTabs = () => {
                                     COMPANY NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.company_name}
+                                    {companyProfileLoc?.company_name}
                                   </div>
                                 </div>
                               </li>
@@ -1226,7 +1214,7 @@ const VerticalNavTabs = () => {
                                     INCORPORATION DATE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.incorporation_date}
+                                    {companyProfileLoc?.incorporation_date}
                                   </div>
                                 </div>
                               </li>
@@ -1239,8 +1227,8 @@ const VerticalNavTabs = () => {
                                     LOCATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.country},{' '}
-                                    {companyProfile?.state_city}
+                                    {companyProfileLoc?.country},{' '}
+                                    {companyProfileLoc?.state_city}
                                   </div>
                                 </div>
                               </li>
@@ -1253,7 +1241,7 @@ const VerticalNavTabs = () => {
                                     OFFICE ADDRESS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.office_address}
+                                    {companyProfileLoc?.office_address}
                                   </div>
                                 </div>
                               </li>
@@ -1266,10 +1254,10 @@ const VerticalNavTabs = () => {
                                     COMPANY WEBSITE
                                   </div>
                                   <a
-                                    href={companyProfile?.company_website}
+                                    href={companyProfileLoc?.company_website}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyProfile?.company_website}
+                                    {companyProfileLoc?.company_website}
                                   </a>
                                 </div>
                               </li>
@@ -1282,10 +1270,10 @@ const VerticalNavTabs = () => {
                                     LinkedIn Profile
                                   </div>
                                   <a
-                                    href={companyProfile?.linkedin_profile}
+                                    href={companyProfileLoc?.linkedin_profile}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyProfile?.linkedin_profile}
+                                    {companyProfileLoc?.linkedin_profile}
                                   </a>
                                 </div>
                               </li>
@@ -1298,7 +1286,7 @@ const VerticalNavTabs = () => {
                                     BUSINESS DESCRIPTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.short_description}
+                                    {companyProfileLoc?.short_description}
                                   </div>
                                 </div>
                               </li>
@@ -1311,7 +1299,7 @@ const VerticalNavTabs = () => {
                                     TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.team_size}
+                                    {companyProfileLoc?.team_size}
                                   </div>
                                 </div>
                               </li>
@@ -1324,7 +1312,7 @@ const VerticalNavTabs = () => {
                                     CURRENT STAGE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.current_stage}
+                                    {companyProfileLoc?.current_stage}
                                   </div>
                                 </div>
                               </li>
@@ -1337,7 +1325,7 @@ const VerticalNavTabs = () => {
                                     TARGET AUDIENCE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.target_audience}
+                                    {companyProfileLoc?.target_audience}
                                   </div>
                                 </div>
                               </li>
@@ -1350,7 +1338,7 @@ const VerticalNavTabs = () => {
                                     USP/MOAT
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.usp_moat}
+                                    {companyProfileLoc?.usp_moat}
                                   </div>
                                 </div>
                               </li>
@@ -1363,7 +1351,7 @@ const VerticalNavTabs = () => {
                                     INDUSTRY SECTOR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.industry_sector}
+                                    {companyProfileLoc?.industry_sector}
                                   </div>
                                 </div>
                               </li>
@@ -1376,11 +1364,11 @@ const VerticalNavTabs = () => {
                                     MEDIA PRESENCE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.media}
+                                    {companyProfileLoc?.media}
                                   </div>
                                 </div>
                               </li>
-                              {companyProfile?.company_logo && (
+                              {companyProfileLoc?.company_logo && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1390,7 +1378,7 @@ const VerticalNavTabs = () => {
                                       COMPANY LOGO
                                     </div>
                                     <a
-                                      href={companyProfile?.company_logo}
+                                      href={companyProfileLoc?.company_logo}
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1414,7 +1402,7 @@ const VerticalNavTabs = () => {
                                     FOUNDER NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.founder_name}
+                                    {founderInformationLoc?.founder_name}
                                   </div>
                                 </div>
                               </li>
@@ -1427,7 +1415,7 @@ const VerticalNavTabs = () => {
                                     EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.founder_email}
+                                    {founderInformationLoc?.founder_email}
                                   </div>
                                 </div>
                               </li>
@@ -1440,7 +1428,7 @@ const VerticalNavTabs = () => {
                                     MOBILE NUMBER
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.founder_mobile}
+                                    {founderInformationLoc?.founder_mobile}
                                   </div>
                                 </div>
                               </li>
@@ -1453,10 +1441,10 @@ const VerticalNavTabs = () => {
                                     LINKEDIN PROFILE
                                   </div>
                                   <a
-                                    href={founderInformation?.founder_linkedin}
+                                    href={founderInformationLoc?.founder_linkedin}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {founderInformation?.founder_linkedin}
+                                    {founderInformationLoc?.founder_linkedin}
                                   </a>
                                 </div>
                               </li>
@@ -1469,7 +1457,7 @@ const VerticalNavTabs = () => {
                                     DEGREE NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.degree_name}
+                                    {founderInformationLoc?.degree_name}
                                   </div>
                                 </div>
                               </li>
@@ -1482,7 +1470,7 @@ const VerticalNavTabs = () => {
                                     COLLEGE NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.college_name}
+                                    {founderInformationLoc?.college_name}
                                   </div>
                                 </div>
                               </li>
@@ -1495,11 +1483,11 @@ const VerticalNavTabs = () => {
                                     YEAR OF GRADUATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.graduation_year}
+                                    {founderInformationLoc?.graduation_year}
                                   </div>
                                 </div>
                               </li>
-                              {founderInformation?.list_of_advisers && (
+                              {founderInformationLoc?.list_of_advisers && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1510,7 +1498,7 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        founderInformation?.list_of_advisers
+                                        founderInformationLoc?.list_of_advisers
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1534,7 +1522,7 @@ const VerticalNavTabs = () => {
                                     CTO NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfo?.cto_name}
+                                    {ctoInfoLoc?.cto_name}
                                   </div>
                                 </div>
                               </li>
@@ -1547,7 +1535,7 @@ const VerticalNavTabs = () => {
                                     EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfo?.cto_email}
+                                    {ctoInfoLoc?.cto_email}
                                   </div>
                                 </div>
                               </li>
@@ -1560,7 +1548,7 @@ const VerticalNavTabs = () => {
                                     MOBILE NUMBER
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfo?.cto_mobile}
+                                    {ctoInfoLoc?.cto_mobile}
                                   </div>
                                 </div>
                               </li>
@@ -1573,10 +1561,10 @@ const VerticalNavTabs = () => {
                                     LINKEDIN PROFILE
                                   </div>
                                   <a
-                                    href={ctoInfo?.cto_linkedin}
+                                    href={ctoInfoLoc?.cto_linkedin}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfo?.cto_linkedin}
+                                    {ctoInfoLoc?.cto_linkedin}
                                   </a>
                                 </div>
                               </li>
@@ -1589,7 +1577,7 @@ const VerticalNavTabs = () => {
                                     TECH TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfo?.tech_team_size}
+                                    {ctoInfoLoc?.tech_team_size}
                                   </div>
                                 </div>
                               </li>
@@ -1602,14 +1590,14 @@ const VerticalNavTabs = () => {
                                     MOBILE APP LINK
                                   </div>
                                   <a
-                                    href={ctoInfo?.mobile_app_link}
+                                    href={ctoInfoLoc?.mobile_app_link}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfo?.mobile_app_link}
+                                    {ctoInfoLoc?.mobile_app_link}
                                   </a>
                                 </div>
                               </li>
-                              {ctoInfo?.technology_roadmap && (
+                              {ctoInfoLoc?.technology_roadmap && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1619,7 +1607,7 @@ const VerticalNavTabs = () => {
                                       TECHNOLOGY ROADMAP
                                     </div>
                                     <a
-                                      href={ctoInfo?.technology_roadmap}
+                                      href={ctoInfoLoc?.technology_roadmap}
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1642,7 +1630,7 @@ const VerticalNavTabs = () => {
                                     CURRENT TRACTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetails?.current_traction}
+                                    {businessDetailsLoc?.current_traction}
                                   </div>
                                 </div>
                               </li>
@@ -1652,10 +1640,10 @@ const VerticalNavTabs = () => {
                                 </div>
                                 <div className='flex-1'>
                                   <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    NEW CUSTOMERS IN LAST 6 MONTHS
+                                    HOW MANY NEW CUSTOMERS YOU OBTAINED IN THE 6 MONTHS?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetails?.new_Customers}
+                                    {businessDetailsLoc?.new_Customers}
                                   </div>
                                 </div>
                               </li>
@@ -1665,10 +1653,10 @@ const VerticalNavTabs = () => {
                                 </div>
                                 <div className='flex-1'>
                                   <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    CUSTOMER ACQUISITION COST
+                                    WHAT IS YOUR CUSTOMER ACQUISITION COST?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetails?.customer_AcquisitionCost}
+                                    {businessDetailsLoc?.customer_AcquisitionCost}
                                   </div>
                                 </div>
                               </li>
@@ -1678,10 +1666,10 @@ const VerticalNavTabs = () => {
                                 </div>
                                 <div className='flex-1'>
                                   <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    CUSTOMER LIFETIME VALUE
+                                    WHAT IS THE LIFETIME VALUE OF YOUR CUSTOMER?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetails?.customer_Lifetime_Value}
+                                    {businessDetailsLoc?.customer_Lifetime_Value}
                                   </div>
                                 </div>
                               </li>
@@ -2133,7 +2121,7 @@ const VerticalNavTabs = () => {
                                     TOTAL FUNDING ASK
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.total_funding_ask}
+                                    {fundingInformationLoc?.total_funding_ask}
                                   </div>
                                 </div>
                               </li>
@@ -2146,7 +2134,7 @@ const VerticalNavTabs = () => {
                                     AMOUNT COMMITTED
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.amount_committed}
+                                    {fundingInformationLoc?.amount_committed}
                                   </div>
                                 </div>
                               </li>
@@ -2159,7 +2147,7 @@ const VerticalNavTabs = () => {
                                     GOVERNMENT GRANTS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.government_grants}
+                                    {fundingInformationLoc?.government_grants}
                                   </div>
                                 </div>
                               </li>
@@ -2172,7 +2160,7 @@ const VerticalNavTabs = () => {
                                     EQUITY SPLIT
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.equity_split}
+                                    {fundingInformationLoc?.equity_split}
                                   </div>
                                 </div>
                               </li>
@@ -2185,7 +2173,7 @@ const VerticalNavTabs = () => {
                                     FUND UTILIZATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.fund_utilization}
+                                    {fundingInformationLoc?.fund_utilization}
                                   </div>
                                 </div>
                               </li>
@@ -2198,7 +2186,7 @@ const VerticalNavTabs = () => {
                                     ARR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.arr}
+                                    {fundingInformationLoc?.arr}
                                   </div>
                                 </div>
                               </li>
@@ -2211,11 +2199,11 @@ const VerticalNavTabs = () => {
                                     MRR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.mrr}
+                                    {fundingInformationLoc?.mrr}
                                   </div>
                                 </div>
                               </li>
-                              {fundingInformation?.current_cap_table && (
+                              {fundingInformationLoc?.current_cap_table && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2226,7 +2214,7 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        fundingInformation?.current_cap_table
+                                        fundingInformationLoc?.current_cap_table
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'

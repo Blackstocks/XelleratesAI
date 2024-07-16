@@ -55,19 +55,23 @@ const useCompleteUserDetails = () => {
             .from('company_profile')
             .select('*')
             .eq('profile_id', profileId)
-            .single();
         if (companyProfileError) throw companyProfileError;
+        if (!companyProfileData || companyProfileData.length !== 1) {
+          throw new Error(
+            `Expected one row for company_profile, but found ${companyProfileData.length}`
+          );
+        }
 
-        setCompanyProfile(companyProfileData);
-        const companyId = companyProfileData?.id;
+        setCompanyProfile(companyProfileData[0]);
+        const companyId = companyProfileData[0]?.id;
 
         const fetchDetails = async (table) => {
           const { data, error } = await supabase
             .from(table)
             .select('*')
             .eq('company_id', companyId)
-            .maybeSingle();
           if (error) throw error;
+          console.log(data)
           return data;
         };
 
@@ -87,11 +91,11 @@ const useCompleteUserDetails = () => {
           fetchDetails('company_documents'),
         ]);
 
-        setBusinessDetails(businessDetailsData);
-        setFounderInformation(founderInformationData);
-        setCofounderInformation(cofounderInformationData);
-        setFundingInformation(fundingInformationData);
-        setCtoInfo(ctoInfoData);
+        setBusinessDetails(businessDetailsData[0]);
+        setFounderInformation(founderInformationData[0]);
+        setCofounderInformation(cofounderInformationData[0]);
+        setFundingInformation(fundingInformationData[0]);
+        setCtoInfo(ctoInfoData[0]);
         setCompanyDocuments(companyDocumentsData);
       } catch (error) {
         console.error('Error fetching startup details:', error.message);
@@ -116,27 +120,6 @@ const useCompleteUserDetails = () => {
     fetchUserDetails();
   }, []);
 
-  const updateDetailsLocally = (section, updatedData) => {
-    if (section === 'companyProfile') {
-      setCompanyProfile((prev) => ({ ...prev, ...updatedData }));
-      console.log('companyProfile', companyProfile);
-    } else if (section === 'businessDetails') {
-      setBusinessDetails((prev) => ({ ...prev, ...updatedData }));
-    } else if (section === 'founderInformation') {
-      setFounderInformation((prev) => ({ ...prev, ...updatedData }));
-    } else if (section === 'cofounderInformation') {
-      setCofounderInformation((prev) => ({ ...prev, ...updatedData }));
-    } else if (section === 'fundingInformation') {
-      setFundingInformation((prev) => ({ ...prev, ...updatedData }));
-    } else if (section === 'ctoInfo') {
-      setCtoInfo((prev) => ({ ...prev, ...updatedData }));
-    } else if (section === 'companyDocuments') {
-      setCompanyDocuments((prev) => ({ ...prev, ...updatedData }));
-    } else {
-      setProfile((prev) => ({ ...prev, ...updatedData }));
-    }
-  };
-
   const updateUserLocally = (updatedUser) => {
     setUser((prevUser) => ({
       ...prevUser,
@@ -157,7 +140,6 @@ const useCompleteUserDetails = () => {
     investorSignup,
     loading,
     updateUserLocally,
-    updateDetailsLocally,
   };
 };
 
