@@ -136,7 +136,15 @@ const VerticalNavTabs = () => {
     investorSignup,
     updateUserLocally,
   } = useCompleteUserDetails();
-  const { control, register, handleSubmit } = useForm();
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm();
+
   const { user, loading, details } = useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const [founderInformationLoc, setFounderInformationLoc] = useState(null);
@@ -145,14 +153,13 @@ const VerticalNavTabs = () => {
   const [ctoInfoLoc, setCtoInfoLoc] = useState(null);
   const [businessDetailsLoc, setBusinessDetailsLoc] = useState(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     setFounderInformationLoc(founderInformation);
     setCompanyProfileLoc(companyProfile);
     setFundingInformationLoc(fundingInformation);
     setCtoInfoLoc(ctoInfo);
     setBusinessDetailsLoc(businessDetails);
-  },[companyProfile])
-
+  }, [companyProfile]);
 
   const handleSave = async (data, section) => {
     try {
@@ -161,10 +168,77 @@ const VerticalNavTabs = () => {
       let changedData = {};
       const uploadedFiles = {};
 
+      // Handle file uploads
+      const handleUploads = async (data) => {
+        switch (section) {
+          case 'startup_details':
+            if (data.company_logo && data.company_logo[0]) {
+              uploadedFiles.companyLogo = await handleFileUpload(
+                data.company_logo[0],
+                'documents',
+                companyProfile?.company_name || data.company_name,
+                'company_logo'
+              );
+            }
+            break;
+
+          case 'founder_info':
+            if (data.list_of_advisers && data.list_of_advisers[0]) {
+              uploadedFiles.list_of_advisers = await handleFileUpload(
+                data.list_of_advisers[0],
+                'documents',
+                companyProfile?.company_name || data.company_name,
+                'list_of_advisers'
+              );
+            }
+            break;
+
+          case 'CTO_info':
+            if (data.technology_roadmap && data.technology_roadmap[0]) {
+              uploadedFiles.technology_roadmap = await handleFileUpload(
+                data.technology_roadmap[0],
+                'documents',
+                companyProfile?.company_name || data.company_name,
+                'technology_roadmap'
+              );
+            }
+            break;
+
+          case 'company_documents':
+            for (const [dbField, formField] of Object.entries(
+              companyDocumentsFiles
+            )) {
+              if (data[formField] && data[formField][0]) {
+                uploadedFiles[formField] = await handleFileUpload(
+                  data[formField][0],
+                  'documents',
+                  companyProfile?.company_name || data.company_name,
+                  formField
+                );
+              }
+            }
+            break;
+
+          case 'funding_info':
+            if (data.current_cap_table && data.current_cap_table[0]) {
+              uploadedFiles.current_cap_table = await handleFileUpload(
+                data.current_cap_table[0],
+                'documents',
+                companyProfile?.company_name || data.company_name,
+                'current_cap_table'
+              );
+            }
+            break;
+
+          // Add more cases for other sections as needed
+        }
+      };
+
+      await handleUploads(data);
+
       switch (section) {
         case 'general_info':
           changedData = { email: data.email, mobile: data.mobile };
-          console.log('Changed Data for general_info:', changedData);
           const generalInfoResponse = await updateGeneralInfo(
             user.id,
             changedData
@@ -187,7 +261,7 @@ const VerticalNavTabs = () => {
             pin_code: data.pin_code || null,
             company_website: data.company_website || null,
             linkedin_profile: data.linkedin_profile || null,
-            company_logo: uploadedFiles.companyLogo || null,
+            company_logo: uploadedFiles.company_logo || null,
             current_stage: data.current_stage || null,
             team_size: data.team_size || null,
             target_audience: data.target_audience || null,
@@ -195,8 +269,6 @@ const VerticalNavTabs = () => {
             industry_sector: data.industry_sector || null,
             media: data.media || null,
           };
-
-          console.log('Changed Data for startup_details:', changedData);
 
           if (emptyStartupDetails) {
             const startupDetailsResponse = await insertCompanyProfile(
@@ -208,7 +280,6 @@ const VerticalNavTabs = () => {
             updatedData = startupDetailsResponse[0];
             console.log('Inserted company profile:', updatedData);
           } else {
-            console.log('Updating company profile:', companyProfile.id);
             const startupDetailsResponse = await updateStartupDetails(
               companyProfile.id,
               changedData
@@ -222,16 +293,8 @@ const VerticalNavTabs = () => {
           break;
 
         case 'founder_info':
-          const emptyfounder_info = !founderInformation?.id;
-          const founderUploadedFiles = {};
-          if (data.listofAdvisers && data.listofAdvisers[0]) {
-            founderUploadedFiles.listofAdvisers = await handleFileUpload(
-              data.listofAdvisers[0],
-              'documents',
-              companyProfile?.company_name || data.company_name,
-              'listofAdvisers'
-            );
-          }
+          console.log('founderInformation', founderInformation);
+          const emptyFounderInfo = !founderInformation?.id;
           changedData = {
             company_id: companyProfile?.id,
             founder_name: data.founder_name || null,
@@ -241,45 +304,35 @@ const VerticalNavTabs = () => {
             degree_name: data.degree_name || null,
             college_name: data.college_name || null,
             graduation_year: data.graduation_year || null,
-            list_of_advisers: founderUploadedFiles.listofAdvisers,
+            list_of_advisers: uploadedFiles.list_of_advisers,
           };
 
           console.log('Changed Data for founder_info:', changedData);
-          console.log(emptyfounder_info)
+          console.log(emptyfounder_info);
           if (emptyfounder_info) {
             const founderInfoResponse = await insertFounderInformation(
               companyProfile.id,
               changedData,
-              founderUploadedFiles
+              uploadedFiles
             );
             if (founderInfoResponse.error) throw founderInfoResponse.error;
-            console.log('Inserted founder info:', founderInfoResponse.data);
+            console.log('founderInfoResponse', founderInfoResponse);
             updatedData = founderInfoResponse.data;
             setFounderInformationLoc(updatedData);
           } else {
             const founderInfoResponse = await updateFounderInfo(
               companyProfile.id,
               changedData,
-              founderUploadedFiles
+              uploadedFiles
             );
             if (founderInfoResponse.error) throw founderInfoResponse.error;
             updatedData = founderInfoResponse.data;
             setFounderInformationLoc(updatedData);
           }
-
           break;
 
         case 'CTO_info':
-          const emptycto_info = !ctoInfo?.id;
-          const ctoUploadedFiles = {};
-          if (data.technology_roadmap && data.technology_roadmap[0]) {
-            ctoUploadedFiles.technology_roadmap = await handleFileUpload(
-              data.technology_roadmap[0],
-              'documents',
-              companyProfile?.company_name || data.company_name,
-              'technology_roadmap'
-            );
-          }
+          const emptyCtoInfo = !ctoInfo?.id;
           changedData = {
             company_id: companyProfile?.id,
             cto_name: data.cto_name || '',
@@ -288,17 +341,14 @@ const VerticalNavTabs = () => {
             cto_linkedin: data.cto_linkedin || '',
             tech_team_size: data.tech_team_size || '',
             mobile_app_link: data.mobile_app_link || '',
-            technology_roadmap: ctoUploadedFiles.technology_roadmap || '',
+            technology_roadmap: uploadedFiles.technology_roadmap || '',
           };
 
-          console.log('Changed Data for cto_info:', changedData);
-          console.log(emptycto_info);
-
-          if (emptycto_info) {
+          if (emptyCtoInfo) {
             const ctoInfoResponse = await insertCTODetails(
               companyProfile.id,
               changedData,
-              ctoUploadedFiles
+              uploadedFiles
             );
             if (ctoInfoResponse.error) throw ctoInfoResponse.error;
             updatedData = ctoInfoResponse.data;
@@ -307,17 +357,16 @@ const VerticalNavTabs = () => {
             const ctoInfoResponse = await updateCTODetails(
               companyProfile.id,
               changedData,
-              ctoUploadedFiles
+              uploadedFiles
             );
             if (ctoInfoResponse.error) throw ctoInfoResponse.error;
             updatedData = ctoInfoResponse.data;
             setCtoInfoLoc(updatedData);
           }
-
           break;
 
         case 'company_documents':
-          console.log(companyDocuments)
+          console.log(companyDocuments);
           console.log(companyDocuments[0]?.id);
           const emptycompany_documents = !companyDocuments[0]?.id;
           const companyUploadedFiles = {};
@@ -335,34 +384,32 @@ const VerticalNavTabs = () => {
           }
 
           console.log('Changed Data for company_documents:', data);
-          console.log(emptycompany_documents)
+          console.log(emptycompany_documents);
           if (emptycompany_documents) {
             const companyDocumentsResponse = await insertCompanyDocuments(
               companyProfile.id,
               data,
-              companyUploadedFiles
+              uploadedFiles
             );
             if (companyDocumentsResponse.error)
               throw companyDocumentsResponse.error;
             updatedData = companyDocumentsResponse.data;
             console.log(updatedData);
-
           } else {
             const companyDocumentsResponse = await updateCompanyDocuments(
               companyProfile.id,
               data,
-              companyUploadedFiles
+              uploadedFiles
             );
             if (companyDocumentsResponse.error)
               throw companyDocumentsResponse.error;
             updatedData = companyDocumentsResponse.data;
             console.log(updatedData);
           }
-
           break;
 
         case 'business_details':
-          const emptybusiness_details = !businessDetails?.id;
+          const emptyBusinessDetails = !businessDetails?.id;
           changedData = {
             company_id: companyProfile.id,
             current_traction: data.current_traction || null,
@@ -370,63 +417,39 @@ const VerticalNavTabs = () => {
             customer_AcquisitionCost: data.customer_AcquisitionCost || null,
             customer_Lifetime_Value: data.customer_Lifetime_Value || null,
           };
-
-          console.log('Changed Data for business_details:', changedData);
-
           try {
-            let businessDetailsResponse;
-            if (emptybusiness_details) {
-              console.log(
-                'Inserting business details for company:',
-                companyProfile.id
-              );
-              businessDetailsResponse = await insertBusinessDetails(
+            if (emptyBusinessDetails) {
+              const businessDetailsResponse = await insertBusinessDetails(
                 companyProfile.id,
                 changedData
               );
+              if (businessDetailsResponse.error)
+                throw businessDetailsResponse.error;
+              updatedData = businessDetailsResponse.data;
+              updateDetailsLocally('businessDetails', updatedData);
             } else {
-              console.log(
-                'Updating business details for company:',
-                companyProfile.id
-              );
-              businessDetailsResponse = await updateBusinessDetails(
+              const businessDetailsResponse = await updateBusinessDetails(
                 companyProfile.id,
                 changedData
               );
+              if (businessDetailsResponse.error)
+                throw businessDetailsResponse.error;
+              updatedData = businessDetailsResponse.data;
+              setBusinessDetailsLoc(updatedData);
+              console.log('Data saved successfully:', updatedData);
             }
-
-            if (businessDetailsResponse.error) {
-              console.error('Error response:', businessDetailsResponse.error);
-              throw businessDetailsResponse.error;
-            }
-
-            updatedData = businessDetailsResponse.data;
-            setBusinessDetailsLoc(updatedData);
-            console.log('Data saved successfully:', updatedData);
           } catch (error) {
             console.error('Error saving business details:', error);
           }
-
           break;
 
         case 'funding_info':
-          const emptyfunding_info = !fundingInformation?.id;
-          console.log('funding_info:', fundingInformation);
-          console.log('emptyfunding_info:', emptyfunding_info);
-          const fundingUploadedFiles = {};
-          if (data.current_cap_table && data.current_cap_table[0]) {
-            fundingUploadedFiles.current_cap_table = await handleFileUpload(
-              data.current_cap_table[0],
-              'documents',
-              companyProfile?.company_name || data.company_name,
-              'current_cap_table'
-            );
-          }
+          const emptyFundingInfo = !fundingInformation?.id;
           changedData = {
             company_id: companyProfile?.id,
             total_funding_ask: data.total_funding_ask || '',
             amount_committed: data.amount_committed || '',
-            current_cap_table: fundingUploadedFiles.current_cap_table || '',
+            current_cap_table: uploadedFiles.current_cap_table || '',
             government_grants: data.government_grants || '',
             equity_split: data.equity_split || '',
             fund_utilization: data.fund_utilization || '',
@@ -434,13 +457,11 @@ const VerticalNavTabs = () => {
             mrr: data.mrr || '',
           };
 
-          console.log('Changed Data for funding_info:', changedData);
-
-          if (emptyfunding_info) {
+          if (emptyFundingInfo) {
             const fundingInfoResponse = await insertFundingInformation(
               companyProfile.id,
               changedData,
-              fundingUploadedFiles
+              uploadedFiles
             );
             if (fundingInfoResponse.error) throw fundingInfoResponse.error;
             updatedData = fundingInfoResponse.data;
@@ -448,7 +469,7 @@ const VerticalNavTabs = () => {
           } else {
             const fundingInfoResponse = await updateFundingInfo(
               companyProfile.id,
-              changedData,
+              changedData
             );
             if (fundingInfoResponse.error) throw fundingInfoResponse.error;
             console.log(fundingInfoResponse);
@@ -456,10 +477,12 @@ const VerticalNavTabs = () => {
             setFundingInformationLoc(updatedData);
           }
           break;
+
         default:
           console.warn(`Unknown section: ${section}`);
           return;
       }
+
       console.log('Data saved successfully:', updatedData);
       setEditingSection(null);
     } catch (error) {
@@ -538,7 +561,9 @@ const VerticalNavTabs = () => {
                               label='Incorporation Date'
                               type='date'
                               name='incorporation_date'
-                              defaultValue={companyProfileLoc?.incorporation_date}
+                              defaultValue={
+                                companyProfileLoc?.incorporation_date
+                              }
                               placeholder='Select the incorporation date'
                               register={register}
                             />
@@ -580,7 +605,9 @@ const VerticalNavTabs = () => {
                             <Textarea
                               label='Business Description'
                               name='short_description'
-                              defaultValue={companyProfileLoc?.short_description}
+                              defaultValue={
+                                companyProfileLoc?.short_description
+                              }
                               placeholder='Provide a brief business description'
                               register={register}
                             />
@@ -730,11 +757,13 @@ const VerticalNavTabs = () => {
                               placeholder='Is your startup in media?'
                               register={register}
                             />
-                            <Fileinput
-                              name='company_logo'
+                            <InputGroup
+                              label='Upload Company Logo'
                               selectedFile={companyProfileLoc?.company_logo}
-                              onChange={(e) => onChange(e.target.files[0])}
-                              label='Company Logo'
+                              type='file'
+                              name='company_logo'
+                              error={errors.company_logo}
+                              register={register}
                             />
                           </>
                         )}
@@ -788,7 +817,10 @@ const VerticalNavTabs = () => {
                               selectedFile={ctoInfoLoc?.technology_roadmap}
                               onChange={(e) => onChange(e.target.files[0])}
                               label='Upload Technology Roadmap'
+                              type='file'
                               placeholder='Upload technology roadmap'
+                              error={errors.technology_roadmap}
+                              register={register}
                             />
                           </>
                         )}
@@ -805,14 +837,18 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Email'
                               name='founder_email'
-                              defaultValue={founderInformationLoc?.founder_email}
+                              defaultValue={
+                                founderInformationLoc?.founder_email
+                              }
                               register={register}
                               placeholder='Enter founder email'
                             />
                             <Textinput
                               label='Mobile Number'
                               name='founder_mobile'
-                              defaultValue={founderInformationLoc?.founder_mobile}
+                              defaultValue={
+                                founderInformationLoc?.founder_mobile
+                              }
                               register={register}
                               placeholder='Enter founder mobile number'
                             />
@@ -843,17 +879,18 @@ const VerticalNavTabs = () => {
                               label='Year of Graduation'
                               type='date'
                               name='graduation_year'
-                              defaultValue={founderInformationLoc?.graduation_year}
+                              defaultValue={
+                                founderInformationLoc?.graduation_year
+                              }
                               register={register}
                               placeholder='Enter year of graduation'
                             />
-                            <Fileinput
-                              name='listofAdvisers'
+                            <InputGroup
+                              label='List of Advisers'
                               selectedFile={
-                                founderInformationLoc?.list_of_advisers
+                                founderInformation?.list_of_advisers
                               }
                               onChange={(e) => onChange(e.target.files[0])}
-                              label='List of Advisers'
                             />
                           </>
                         )}
@@ -1042,7 +1079,9 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Current Traction'
                               name='current_traction'
-                              defaultValue={businessDetailsLoc?.current_traction}
+                              defaultValue={
+                                businessDetailsLoc?.current_traction
+                              }
                               register={register}
                               placeholder='Enter current traction'
                             />
@@ -1441,7 +1480,9 @@ const VerticalNavTabs = () => {
                                     LINKEDIN PROFILE
                                   </div>
                                   <a
-                                    href={founderInformationLoc?.founder_linkedin}
+                                    href={
+                                      founderInformationLoc?.founder_linkedin
+                                    }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
                                     {founderInformationLoc?.founder_linkedin}
@@ -1640,7 +1681,8 @@ const VerticalNavTabs = () => {
                                 </div>
                                 <div className='flex-1'>
                                   <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    HOW MANY NEW CUSTOMERS YOU OBTAINED IN THE 6 MONTHS?
+                                    HOW MANY NEW CUSTOMERS YOU OBTAINED IN THE 6
+                                    MONTHS?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {businessDetailsLoc?.new_Customers}
@@ -1656,7 +1698,9 @@ const VerticalNavTabs = () => {
                                     WHAT IS YOUR CUSTOMER ACQUISITION COST?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetailsLoc?.customer_AcquisitionCost}
+                                    {
+                                      businessDetailsLoc?.customer_AcquisitionCost
+                                    }
                                   </div>
                                 </div>
                               </li>
@@ -1669,7 +1713,9 @@ const VerticalNavTabs = () => {
                                     WHAT IS THE LIFETIME VALUE OF YOUR CUSTOMER?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetailsLoc?.customer_Lifetime_Value}
+                                    {
+                                      businessDetailsLoc?.customer_Lifetime_Value
+                                    }
                                   </div>
                                 </div>
                               </li>
