@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import Textinput from '@/components/ui/Textinput';
@@ -7,33 +5,19 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
+import { supabase } from '@/lib/supabaseclient';
 import Dropdowntype from '@/components/ui/Dropdown1';
 
-const schema = yup
-  .object({
-    name: yup.string().required('Name is Required'),
-    companyName: yup.string(),
-    email: yup.string().email('Invalid email').required('Email is Required'),
-    mobile: yup
-      .string()
-      .required('Mobile number is Required')
-      .matches(/^[0-9]+$/, 'Mobile number must be numeric'),
-    password: yup
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(20, "Password shouldn't be more than 20 characters")
-      .required('Please enter password'),
-    confirmpassword: yup
-      .string()
-      .oneOf([yup.ref('password'), null], 'Passwords must match'),
-    user_type: yup.string().required('User type is required'),
-    linkedinProfile: yup
-      .string()
-      .url('Invalid URL')
-      .required('LinkedIn profile is required'),
-  })
-  .required();
+const schema = yup.object({
+  name: yup.string().required('Name is Required'),
+  companyName: yup.string(),
+  email: yup.string().email('Invalid email').required('Email is Required'),
+  mobile: yup.string().required('Mobile number is Required').matches(/^[0-9]+$/, 'Mobile number must be numeric'),
+  password: yup.string().min(8, 'Password must be at least 8 characters').max(20, "Password shouldn't be more than 20 characters").required('Please enter password'),
+  confirmpassword: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match'),
+  user_type: yup.string().required('User type is required'),
+  linkedinProfile: yup.string().url('Invalid URL').required('LinkedIn profile is required'),
+}).required();
 
 const RegForm1 = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,12 +37,29 @@ const RegForm1 = () => {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
 
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp(
-      {
-        email: data.email,
-        password: data.password,
-      }
-    );
+    // Check if the user already exists in the profiles table
+    const { data: existingUsers, error: existingUserError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', data.email);
+
+    if (existingUserError) {
+      toast.error(existingUserError.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (existingUsers.length > 0) {
+      toast.error('User already registered with this email');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Proceed with signing up the new user
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+    });
 
     if (signUpError) {
       toast.error(signUpError.message);
@@ -69,10 +70,9 @@ const RegForm1 = () => {
     if (signUpData?.user) {
       const userId = signUpData.user.id;
 
-      // Update the user's profile with additional details
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
-          display_name: data.name, // Adding display name to the user's metadata
+          display_name: data.name,
         },
       });
 
@@ -82,7 +82,6 @@ const RegForm1 = () => {
         return;
       }
 
-      // Insert additional user data into the profiles table with default status
       const { error: insertError } = await supabase.from('profiles').insert([
         {
           id: userId,
@@ -92,8 +91,8 @@ const RegForm1 = () => {
           mobile: data.mobile,
           user_type: data.user_type,
           linkedin_profile: data.linkedinProfile,
-          role: 'user', // Set default role to 'user'
-          status: 'pending', // Set default status to 'pending'
+          role: 'user',
+          status: 'pending',
         },
       ]);
 
@@ -101,10 +100,25 @@ const RegForm1 = () => {
         toast.error(insertError.message);
         setIsSubmitting(false);
       } else {
-        toast.success(
-          'Account created successfully! Please wait for approval.'
-        );
-        router.push('/'); // Redirect to login page after registration
+        try {
+          const response = await fetch('/api/send-registration-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ to: data.email, name: data.name }),
+          });
+
+          if (response.ok) {
+            toast.success('Account created successfully! Please wait for approval.');
+            router.push('/');
+          } else {
+            const errorData = await response.json();
+            toast.error(errorData.error || 'Failed to send registration email.');
+          }
+        } catch (error) {
+          toast.error('Failed to send registration email.');
+        }
       }
     }
   };
@@ -130,7 +144,7 @@ const RegForm1 = () => {
         type='text'
         placeholder='Enter your company name'
         register={register}
-        error={errors.name}
+        error={errors.companyName}
       />
       <Textinput
         name='email'

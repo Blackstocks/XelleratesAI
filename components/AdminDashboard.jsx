@@ -91,7 +91,7 @@ const AdminDashboard = ({ userType }) => {
     };
   }, [userType]);
 
-  const approveUser = async (userId) => {
+  const approveUser = async (userId, userEmail, userName) => {
     const { error } = await supabase
       .from('profiles')
       .update({ status: 'approved' })
@@ -109,6 +109,25 @@ const AdminDashboard = ({ userType }) => {
         .sort((a, b) => b.status.localeCompare(a.status));
       setUsers(updatedUsers);
       usersRef.current = updatedUsers;
+
+      try {
+        const response = await fetch('/api/send-approval-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ to: userEmail, name: userName }),
+        });
+
+        if (response.ok) {
+          console.log('Approval email sent successfully');
+        } else {
+          const errorData = await response.json();
+          console.error('Failed to send approval email:', errorData.error);
+        }
+      } catch (error) {
+        console.error('Failed to send approval email:', error);
+      }
     }
   };
 
@@ -147,7 +166,7 @@ const AdminDashboard = ({ userType }) => {
           row.original.status !== 'approved' ? (
             <button
               className='btn btn-primary'
-              onClick={() => approveUser(row.original.id)}
+              onClick={() => approveUser(row.original.id, row.original.email, row.original.name)}
             >
               Approve
             </button>
