@@ -250,9 +250,9 @@ const FormCompletionBanner = ({ profileId }) => {
     return null;
   }
 
-  if (isLoading) {
-    return <Loading />; // Render the Loading component while fetching data
-  }
+  // if (isLoading) {
+  //   return <Loading />; // Render the Loading component while fetching data
+  // }
 
   return (
     <div className='completion-banner bg-grey-100 text-black py-4 px-6 flex items-center justify-between shadow-md rounded-md'>

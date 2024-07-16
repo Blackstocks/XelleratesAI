@@ -11,14 +11,25 @@ import Loading from '@/components/Loading';
 import { updateFile } from '@/lib/actions/insertformdetails';
 import Select from './ui/Select';
 import InputGroup from './ui/InputGroup';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 import Fileinput from '@/components/ui/Fileinput';
 import {
   updateGeneralInfo,
+  updateCTODetails,
   updateStartupDetails,
   updateFounderInfo,
   updateBusinessDetails,
   updateFundingInfo,
+  handleFileUpload,
+  insertCompanyProfile,
+  insertBusinessDetails,
+  insertFundingInformation,
+  insertContactInformation,
+  insertFounderInformation,
+  insertCofounderInformation,
+  insertCTODetails,
+  insertCompanyDocuments,
 } from '@/lib/actions/insertformdetails';
 
 const sections = [
@@ -113,9 +124,21 @@ const companyDocumentsFiles = {
 };
 
 const VerticalNavTabs = () => {
+  const {
+    profile,
+    companyProfile,
+    businessDetails,
+    founderInformation,
+    cofounderInformation,
+    fundingInformation,
+    ctoInfo,
+    companyDocuments,
+    investorSignup,
+    updateUserLocally,
+    updateDetailsLocally,
+  } = useCompleteUserDetails();
   const { control, register, handleSubmit } = useForm();
-  const { user, details, loading, updateDetailsLocally, updateUserLocally } =
-    useUserDetails();
+  const { user, loading, details } = useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
 
   const handleSave = async (data, section) => {
@@ -125,9 +148,12 @@ const VerticalNavTabs = () => {
       let changedData = {};
       const uploadedFiles = {};
 
+      // Check if the data already exists
+
       switch (section) {
         case 'general_info':
           changedData = { email: data.email, mobile: data.mobile };
+          console.log('Changed Data for general_info:', changedData);
           const generalInfoResponse = await updateGeneralInfo(
             user.id,
             changedData
@@ -138,202 +164,318 @@ const VerticalNavTabs = () => {
           break;
 
         case 'startup_details':
+          const emptyStartupDetails = !companyProfile?.id;
           changedData = {
-            company_name: data.companyName,
-            short_description: data.shortDescription,
-            incorporation_date: data.incorporationDate,
-            country: data.country,
-            state_city: data.stateCity,
-            office_address: data.officeAddress,
-            pin_code: data.pinCode,
-            company_website: data.companyWebsite,
-            linkedin_profile: data.linkedinProfile,
-            company_logo: uploadedFiles.companyLogo || '',
-            current_stage: data.currentStage,
-            team_size: data.teamSize,
-            target_audience: data.targetAudience,
-            usp_moat: data.uspMoat,
-            industry_sector: data.industrySector,
-            media: data.media,
+            profile_id: user?.id,
+            company_name: data.company_name || null,
+            short_description: data.short_description || null,
+            incorporation_date: data.incorporation_date || null,
+            country: data.country || null,
+            state_city: data.state_city || null,
+            office_address: data.office_address || null,
+            pin_code: data.pin_code || null,
+            company_website: data.company_website || null,
+            linkedin_profile: data.linkedin_profile || null,
+            company_logo: uploadedFiles.companyLogo || null,
+            current_stage: data.current_stage || null,
+            team_size: data.team_size || null,
+            target_audience: data.target_audience || null,
+            usp_moat: data.usp_moat || null,
+            industry_sector: data.industry_sector || null,
+            media: data.media || null,
           };
-          const startupDetailsResponse = await updateStartupDetails(
-            details.profile_id,
-            changedData
-          );
-          if (startupDetailsResponse.error) throw startupDetailsResponse.error;
-          updatedData = startupDetailsResponse.data;
-          updateDetailsLocally({ ...details, ...updatedData });
+
+          console.log('Changed Data for startup_details:', changedData);
+
+          if (emptyStartupDetails) {
+            const startupDetailsResponse = await insertCompanyProfile(
+              changedData,
+              uploadedFiles
+            );
+            if (startupDetailsResponse.error)
+              throw startupDetailsResponse.error;
+            updatedData = startupDetailsResponse[0];
+            console.log('Inserted company profile:', updatedData);
+            updateDetailsLocally('companyProfile', updatedData);
+          } else {
+            console.log('Updating company profile:', companyProfile.id);
+            const startupDetailsResponse = await updateStartupDetails(
+              companyProfile.id,
+              changedData
+            );
+            if (startupDetailsResponse.error)
+              throw startupDetailsResponse.error;
+            updatedData = startupDetailsResponse.data;
+            console.log('Updated company profile:', updatedData);
+            updateDetailsLocally({
+              ...companyProfile,
+              ...updatedData,
+            });
+          }
           break;
 
         case 'founder_info':
-          const founderUploadedFiles = {};
+          const emptyfounder_info = !founderInformation?.id;
 
+          const founderUploadedFiles = {};
           if (data.listofAdvisers && data.listofAdvisers[0]) {
-            console.log('Uploading file for listofAdvisers');
             founderUploadedFiles.listofAdvisers = await handleFileUpload(
               data.listofAdvisers[0],
               'documents',
-              details.company_name,
+              companyProfile?.company_name || data.company_name,
               'listofAdvisers'
             );
-            console.log(
-              `Uploaded file URL for listofAdvisers: ${founderUploadedFiles.listofAdvisers}`
-            );
-          } else {
-            console.log('listofAdvisers not found in data.');
           }
-
           changedData = {
-            founder_name: data.founder_name,
-            founder_email: data.founder_email,
-            founder_mobile: data.founder_mobile,
-            founder_linkedin: data.founder_linkedin,
-            degree_name: data.degree_name,
-            college_name: data.college_name,
-            graduation_year: data.graduation_year,
+            company_id: companyProfile?.id,
+            founder_name: data.founder_name || null,
+            founder_email: data.founder_email || null,
+            founder_mobile: data.founder_mobile || null,
+            founder_linkedin: data.founder_linkedin || null,
+            degree_name: data.degree_name || null,
+            college_name: data.college_name || null,
+            graduation_year: data.graduation_year || null,
             list_of_advisers: founderUploadedFiles.listofAdvisers,
           };
-          const founderInfoResponse = await updateFounderInfo(
-            details.id,
-            changedData
-          );
-          if (founderInfoResponse.error) throw founderInfoResponse.error;
-          updatedData = founderInfoResponse.data;
-          updateDetailsLocally({ ...details, founderInformation: updatedData });
-          break;
 
-        case 'cto_information':
-          const ctoUploadedFiles = {};
+          console.log('Changed Data for founder_info:', changedData);
 
-          if (data.technologyRoadmap && data.technologyRoadmap[0]) {
-            console.log('Uploading file for technologyRoadmap');
-            ctoUploadedFiles.technologyRoadmap = await handleFileUpload(
-              data.technologyRoadmap[0],
-              'documents',
-              details.company_name,
-              'technologyRoadmap'
+          if (emptyfounder_info) {
+            const founderInfoResponse = await insertFounderInformation(
+              companyProfile.id,
+              changedData,
+              founderUploadedFiles
             );
-            console.log(
-              `Uploaded file URL for technologyRoadmap: ${ctoUploadedFiles.technologyRoadmap}`
-            );
+            if (founderInfoResponse.error) throw founderInfoResponse.error;
+            console.log('Inserted founder info:', founderInfoResponse.data);
+            updatedData = founderInfoResponse.data;
+            updateDetailsLocally('founderInformation', updatedData);
           } else {
-            console.log('technologyRoadmap not found in data.');
+            const founderInfoResponse = await updateFounderInfo(
+              companyProfile.id,
+              changedData,
+              founderUploadedFiles
+            );
+            if (founderInfoResponse.error) throw founderInfoResponse.error;
+            updatedData = founderInfoResponse.data;
+            updateDetailsLocally({
+              ...founderInformation,
+              ...updatedData,
+            });
           }
 
+          break;
+
+        case 'CTO_info':
+          const emptycto_info = !ctoInfo?.id;
+          const ctoUploadedFiles = {};
+          if (data.technology_roadmap && data.technology_roadmap[0]) {
+            ctoUploadedFiles.technology_roadmap = await handleFileUpload(
+              data.technology_roadmap[0],
+              'documents',
+              companyProfile?.company_name || data.company_name,
+              'technology_roadmap'
+            );
+          }
           changedData = {
-            cto_name: data.ctoName,
-            cto_email: data.ctoEmail,
-            cto_mobile: data.ctoMobile,
-            cto_linkedin: data.ctoLinkedin,
-            tech_team_size: data.techTeamSize,
-            mobile_app_link: data.mobileAppLink,
-            technology_roadmap: ctoUploadedFiles.technologyRoadmap,
+            company_id: companyProfile?.id,
+            cto_name: data.cto_name || '',
+            cto_email: data.cto_email || '',
+            cto_mobile: data.cto_mobile || '',
+            cto_linkedin: data.cto_linkedin || '',
+            tech_team_size: data.tech_team_size || '',
+            mobile_app_link: data.mobile_app_link || '',
+            technology_roadmap: ctoUploadedFiles.technology_roadmap || '',
           };
-          const ctoInfoResponse = await insertCTODetails(
-            details.id,
-            changedData,
-            ctoUploadedFiles
-          );
-          if (ctoInfoResponse.error) throw ctoInfoResponse.error;
-          updatedData = ctoInfoResponse.data;
-          updateDetailsLocally({ ...details, ctoInformation: updatedData });
+
+          console.log('Changed Data for cto_info:', changedData);
+          console.log(emptycto_info);
+
+          if (emptycto_info) {
+            const ctoInfoResponse = await insertCTODetails(
+              companyProfile.id,
+              changedData,
+              ctoUploadedFiles
+            );
+            if (ctoInfoResponse.error) throw ctoInfoResponse.error;
+            updatedData = ctoInfoResponse.data;
+            updateDetailsLocally({
+              ...ctoInfo,
+              ...updatedData,
+            });
+          } else {
+            const ctoInfoResponse = await updateCTODetails(
+              companyProfile.id,
+              changedData,
+              ctoUploadedFiles
+            );
+            if (ctoInfoResponse.error) throw ctoInfoResponse.error;
+            updatedData = ctoInfoResponse.data;
+            updateDetailsLocally({
+              ...ctoInfo,
+              ...updatedData,
+            });
+          }
+
           break;
 
         case 'company_documents':
+          const emptycompany_documents = !companyDocuments?.id;
           const companyUploadedFiles = {};
-
           for (const [dbField, formField] of Object.entries(
             companyDocumentsFiles
           )) {
             if (data[formField] && data[formField][0]) {
-              console.log(`Uploading file for ${formField}`);
               companyUploadedFiles[formField] = await handleFileUpload(
                 data[formField][0],
                 'documents',
-                details.company_name,
+                companyProfile?.company_name || data.company_name,
                 formField
               );
-              console.log(
-                `Uploaded file URL for ${formField}: ${companyUploadedFiles[formField]}`
-              );
-            } else {
-              console.log(`${formField} not found in data.`);
             }
           }
 
-          const companyDocumentsResponse = await insertCompanyDocuments(
-            details.id,
-            data,
-            companyUploadedFiles
-          );
-          if (companyDocumentsResponse.error)
-            throw companyDocumentsResponse.error;
-          updatedData = companyDocumentsResponse.data;
-          updateDetailsLocally({ ...details, companyDocuments: updatedData });
+          console.log('Changed Data for company_documents:', data);
+
+          if (emptycompany_documents) {
+            const companyDocumentsResponse = await insertCompanyDocuments(
+              companyProfile.id,
+              data,
+              companyUploadedFiles
+            );
+            if (companyDocumentsResponse.error)
+              throw companyDocumentsResponse.error;
+            updatedData = companyDocumentsResponse.data;
+            updateDetailsLocally({
+              ...companyDocuments,
+              ...updatedData,
+            });
+          } else {
+            const companyDocumentsResponse = await updateCompanyDocuments(
+              companyProfile.id,
+              data,
+              companyUploadedFiles
+            );
+            if (companyDocumentsResponse.error)
+              throw companyDocumentsResponse.error;
+            updatedData = companyDocumentsResponse.data;
+            updateDetailsLocally({
+              ...companyDocuments,
+              ...updatedData,
+            });
+          }
+
           break;
+
         case 'business_details':
-          // for (const { name } of fileFields) {
-          //   if (data[name] && data[name][0]) {
-          //     console.log(`Uploading file for ${name}`);
-          //     uploadedFiles[name] = await updateFile(
-          //       data[name][0],
-          //       'documents',
-          //       details.company_name,
-          //       name
-          //     );
-          //     console.log(
-          //       `Uploaded file URL for ${name}: ${uploadedFiles[name]}`
-          //     );
-          //     changedData[name] = uploadedFiles[name];
-          //   } else {
-          //     console.log(`${name} not found in data.`);
-          //   }
-          // }
+          const emptybusiness_details = !businessDetails?.id;
           changedData = {
-            ...changedData,
-            company_id: companyId,
-            current_traction: formData.currentTraction,
-            new_Customers: formData.newCustomers,
-            customer_AcquisitionCost: formData.customerAcquisitionCost,
-            customer_Lifetime_Value: formData.customerLifetimeValue,
+            company_id: companyProfile.id,
+            current_traction: data.current_traction || null,
+            new_Customers: data.new_Customers || null,
+            customer_AcquisitionCost: data.customer_AcquisitionCost || null,
+            customer_Lifetime_Value: data.customer_Lifetime_Value || null,
           };
-          const businessDetailsResponse = await updateBusinessDetails(
-            details.id,
-            changedData
-          );
-          if (businessDetailsResponse.error)
-            throw businessDetailsResponse.error;
-          updatedData = businessDetailsResponse.data;
-          updateDetailsLocally({ ...details, businessDetails: updatedData });
+
+          console.log('Changed Data for business_details:', changedData);
+
+          try {
+            let businessDetailsResponse;
+            if (emptybusiness_details) {
+              console.log(
+                'Inserting business details for company:',
+                companyProfile.id
+              );
+              businessDetailsResponse = await insertBusinessDetails(
+                companyProfile.id,
+                changedData
+              );
+            } else {
+              console.log(
+                'Updating business details for company:',
+                companyProfile.id
+              );
+              businessDetailsResponse = await updateBusinessDetails(
+                companyProfile.id,
+                changedData
+              );
+            }
+
+            if (businessDetailsResponse.error) {
+              console.error('Error response:', businessDetailsResponse.error);
+              throw businessDetailsResponse.error;
+            }
+
+            updatedData = businessDetailsResponse.data;
+            console.log('Data saved successfully:', updatedData);
+            updateDetailsLocally('businessDetails', updatedData);
+          } catch (error) {
+            console.error('Error saving business details:', error);
+          }
+
           break;
 
         case 'funding_info':
+          const emptyfunding_info = !fundingInformation?.id;
+          console.log('funding_info:', fundingInformation);
+          console.log('emptyfunding_info:', emptyfunding_info);
+          const fundingUploadedFiles = {};
+          if (data.current_cap_table && data.current_cap_table[0]) {
+            fundingUploadedFiles.current_cap_table = await handleFileUpload(
+              data.current_cap_table[0],
+              'documents',
+              companyProfile?.company_name || data.company_name,
+              'current_cap_table'
+            );
+          }
           changedData = {
-            total_funding_ask: data.total_funding_ask,
-            amount_committed: data.amount_committed,
-            government_grants: data.government_grants,
-            equity_split: data.equity_split,
-            fund_utilization: data.fund_utilization,
-            arr: data.arr,
-            mrr: data.mrr,
+            company_id: companyProfile?.id,
+            total_funding_ask: data.total_funding_ask || '',
+            amount_committed: data.amount_committed || '',
+            current_cap_table: fundingUploadedFiles.current_cap_table || '',
+            government_grants: data.government_grants || '',
+            equity_split: data.equity_split || '',
+            fund_utilization: data.fund_utilization || '',
+            arr: data.arr || '',
+            mrr: data.mrr || '',
           };
-          const fundingInfoResponse = await updateFundingInfo(
-            details.id,
-            changedData
-          );
-          if (fundingInfoResponse.error) throw fundingInfoResponse.error;
-          updatedData = fundingInfoResponse.data;
-          updateDetailsLocally({ ...details, fundingInformation: updatedData });
-          break;
 
+          console.log('Changed Data for funding_info:', changedData);
+
+          if (emptyfunding_info) {
+            const fundingInfoResponse = await insertFundingInformation(
+              companyProfile.id,
+              changedData,
+              fundingUploadedFiles
+            );
+            if (fundingInfoResponse.error) throw fundingInfoResponse.error;
+            updatedData = fundingInfoResponse.data;
+            updateDetailsLocally({
+              ...fundingInformation,
+              ...updatedData,
+            });
+          } else {
+            const fundingInfoResponse = await updateFundingInfo(
+              companyProfile.id,
+              changedData,
+              fundingUploadedFiles
+            );
+            if (fundingInfoResponse.error) throw fundingInfoResponse.error;
+            updatedData = fundingInfoResponse.data;
+            updateDetailsLocally({
+              ...fundingInformation,
+              ...updatedData,
+            });
+          }
+          break;
         default:
+          console.warn(`Unknown section: ${section}`);
           return;
       }
-
-      console.log('Final updated data:', updatedData);
+      console.log('Data saved successfully:', updatedData);
       setEditingSection(null);
     } catch (error) {
-      console.error('Error updating data:', error.message || error);
+      console.error('Error saving data:', error);
     }
   };
 
@@ -400,56 +542,64 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Company Name'
                               name='company_name'
-                              defaultValue={details?.company_name}
+                              defaultValue={companyProfile?.company_name}
+                              placeholder='Enter your company name'
                               register={register}
                             />
                             <Textinput
                               label='Incorporation Date'
                               type='date'
                               name='incorporation_date'
-                              defaultValue={details?.incorporation_date}
+                              defaultValue={companyProfile?.incorporation_date}
+                              placeholder='Select the incorporation date'
                               register={register}
                             />
                             <Textinput
                               label='Country'
                               name='country'
-                              defaultValue={details?.country}
+                              defaultValue={companyProfile?.country}
+                              placeholder='Enter the country'
                               register={register}
                             />
                             <Textinput
                               label='State/City'
                               name='state_city'
-                              defaultValue={details?.state_city}
+                              defaultValue={companyProfile?.state_city}
+                              placeholder='Enter the state or city'
                               register={register}
                             />
                             <Textinput
                               label='Office Address'
                               name='office_address'
-                              defaultValue={details?.office_address}
+                              defaultValue={companyProfile?.office_address}
+                              placeholder='Enter the office address'
                               register={register}
                             />
                             <Textinput
                               label='Company Website'
                               name='company_website'
-                              defaultValue={details?.company_website}
+                              defaultValue={companyProfile?.company_website}
+                              placeholder='Enter the company website URL'
                               register={register}
                             />
                             <Textinput
                               label='LinkedIn Profile'
                               name='linkedin_profile'
-                              defaultValue={details?.linkedin_profile}
+                              defaultValue={companyProfile?.linkedin_profile}
+                              placeholder='Enter the LinkedIn profile URL'
                               register={register}
                             />
                             <Textarea
                               label='Business Description'
                               name='short_description'
-                              defaultValue={details?.short_description}
+                              defaultValue={companyProfile?.short_description}
+                              placeholder='Provide a brief business description'
                               register={register}
                             />
                             <Select
                               label='Target Audience'
                               name='target_audience'
-                              defaultValue={details?.target_audience}
+                              defaultValue={companyProfile?.target_audience}
                               options={[
                                 { value: 'B2C', label: 'B2C' },
                                 { value: 'B2B', label: 'B2B' },
@@ -458,12 +608,13 @@ const VerticalNavTabs = () => {
                                 { value: 'B2G', label: 'B2G' },
                                 { value: 'B2B2C', label: 'B2B2C' },
                               ]}
+                              placeholder='Select the target audience'
                               register={register}
                             />
                             <Select
                               label='Industry or Sector'
                               name='industry_sector'
-                              defaultValue={details?.industry_sector}
+                              defaultValue={companyProfile?.industry_sector}
                               options={[
                                 {
                                   value: 'Agriculture and Allied Sectors',
@@ -555,42 +706,101 @@ const VerticalNavTabs = () => {
                                 },
                                 { value: 'Others', label: 'Others' },
                               ]}
+                              placeholder='Select the industry or sector'
                               register={register}
                             />
                             <Textinput
                               label='Team Size'
                               type='number'
                               name='team_size'
-                              defaultValue={details?.team_size}
+                              defaultValue={companyProfile?.team_size}
+                              placeholder='Enter the team size'
                               register={register}
                             />
                             <Textinput
                               label='Current Stage'
                               name='current_stage'
-                              defaultValue={details?.current_stage}
+                              defaultValue={companyProfile?.current_stage}
+                              placeholder='Enter the current stage'
                               register={register}
                             />
                             <Textarea
                               label='USP/MOAT'
                               name='usp_moat'
-                              defaultValue={details?.usp_moat}
+                              defaultValue={companyProfile?.usp_moat}
+                              placeholder='Describe the USP/MOAT'
                               register={register}
                             />
                             <Select
                               label='Is your startup in media?'
                               name='media'
-                              defaultValue={details?.media}
+                              defaultValue={companyProfile?.media}
                               options={[
                                 { value: 'Yes', label: 'Yes' },
                                 { value: 'No', label: 'No' },
                               ]}
+                              placeholder='Is your startup in media?'
                               register={register}
                             />
                             <Fileinput
                               name='company_logo'
-                              selectedFile={details?.company_logo}
+                              selectedFile={companyProfile?.company_logo}
                               onChange={(e) => onChange(e.target.files[0])}
                               label='Company Logo'
+                            />
+                          </>
+                        )}
+                        {section.key === 'CTO_info' && (
+                          <>
+                            <Textinput
+                              label='CTO Name'
+                              name='cto_name'
+                              defaultValue={ctoInfo?.cto_name}
+                              register={register}
+                              placeholder='Enter CTO name'
+                            />
+                            <Textinput
+                              label='Email'
+                              name='cto_email'
+                              defaultValue={ctoInfo?.cto_email}
+                              register={register}
+                              placeholder='Enter CTO email'
+                            />
+                            <Textinput
+                              label='Mobile Number'
+                              name='cto_mobile'
+                              defaultValue={ctoInfo?.cto_mobile}
+                              register={register}
+                              placeholder='Enter CTO mobile number'
+                            />
+                            <Textinput
+                              label='LinkedIn Profile'
+                              name='cto_linkedin'
+                              defaultValue={ctoInfo?.cto_linkedin}
+                              register={register}
+                              placeholder='Enter CTO LinkedIn profile URL'
+                            />
+                            <Textinput
+                              label='Tech Team Size'
+                              type='number'
+                              name='tech_team_size'
+                              defaultValue={ctoInfo?.tech_team_size}
+                              register={register}
+                              placeholder='Enter tech team size'
+                            />
+                            <Textinput
+                              label='Mobile App Link'
+                              name='mobile_app_link'
+                              defaultValue={ctoInfo?.mobile_app_link}
+                              register={register}
+                              placeholder='Enter mobile app link'
+                            />
+                            <Fileinput
+                              name='technology_roadmap'
+                              selectedFile={ctoInfo?.technology_roadmap}
+                              onChange={(e) => onChange(e.target.files[0])}
+                              label='Upload Technology Roadmap'
+                              placeholder='Upload technology roadmap'
                             />
                           </>
                         )}
@@ -600,70 +810,66 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Founder Name'
                               name='founder_name'
-                              defaultValue={
-                                details?.founderInformation?.founder_name
-                              }
+                              defaultValue={founderInformation?.founder_name}
                               register={register}
+                              placeholder='Enter founder name'
                             />
                             <Textinput
                               label='Email'
                               name='founder_email'
-                              defaultValue={
-                                details?.founderInformation?.founder_email
-                              }
+                              defaultValue={founderInformation?.founder_email}
                               register={register}
+                              placeholder='Enter founder email'
                             />
                             <Textinput
                               label='Mobile Number'
                               name='founder_mobile'
-                              defaultValue={
-                                details?.founderInformation?.founder_mobile
-                              }
+                              defaultValue={founderInformation?.founder_mobile}
                               register={register}
+                              placeholder='Enter founder mobile number'
                             />
                             <Textinput
                               label='LinkedIn Profile'
                               name='founder_linkedin'
                               defaultValue={
-                                details?.founderInformation?.founder_linkedin
+                                founderInformation?.founder_linkedin
                               }
                               register={register}
+                              placeholder='Enter founder LinkedIn profile URL'
                             />
                             <Textinput
                               label='Degree Name'
                               name='degree_name'
-                              defaultValue={
-                                details?.founderInformation?.degree_name
-                              }
+                              defaultValue={founderInformation?.degree_name}
                               register={register}
+                              placeholder='Enter degree name'
                             />
                             <Textinput
                               label='College Name'
                               name='college_name'
-                              defaultValue={
-                                details?.founderInformation?.college_name
-                              }
+                              defaultValue={founderInformation?.college_name}
                               register={register}
+                              placeholder='Enter college name'
                             />
                             <Textinput
                               label='Year of Graduation'
                               type='date'
                               name='graduation_year'
-                              defaultValue={
-                                details?.founderInformation?.graduation_year
-                              }
+                              defaultValue={founderInformation?.graduation_year}
                               register={register}
+                              placeholder='Enter year of graduation'
                             />
                             <Fileinput
                               name='listofAdvisers'
                               selectedFile={
-                                details?.founderInformation?.list_of_advisers
+                                founderInformation?.list_of_advisers
                               }
                               onChange={(e) => onChange(e.target.files[0])}
                               label='List of Advisers'
                             />
                           </>
                         )}
+
                         {section.key === 'company_documents' && (
                           <>
                             <InputGroup
@@ -671,173 +877,174 @@ const VerticalNavTabs = () => {
                               type='file'
                               name='certificateOfIncorporation'
                               defaultValue={
-                                details?.companyDocuments
-                                  ?.certificate_of_incorporation
+                                companyDocuments?.certificate_of_incorporation
                               }
                               register={register}
+                              placeholder='Upload Certificate of Incorporation'
                             />
                             <InputGroup
                               label='Upload GST Certificate'
                               type='file'
                               name='gstCertificate'
-                              defaultValue={
-                                details?.companyDocuments?.gst_certificate
-                              }
+                              defaultValue={companyDocuments?.gst_certificate}
                               register={register}
+                              placeholder='Upload GST Certificate'
                             />
                             <InputGroup
                               label='Upload Trademark'
                               type='file'
                               name='trademark'
-                              defaultValue={
-                                details?.companyDocuments?.trademark
-                              }
+                              defaultValue={companyDocuments?.trademark}
                               register={register}
+                              placeholder='Upload Trademark'
                             />
                             <InputGroup
                               label='Upload Copyright'
                               type='file'
                               name='copyright'
-                              defaultValue={
-                                details?.companyDocuments?.copyright
-                              }
+                              defaultValue={companyDocuments?.copyright}
                               register={register}
+                              placeholder='Upload Copyright'
                             />
                             <InputGroup
                               label='Upload Patent'
                               type='file'
                               name='patent'
-                              defaultValue={details?.companyDocuments?.patent}
+                              defaultValue={companyDocuments?.patent}
                               register={register}
+                              placeholder='Upload Patent'
                             />
                             <InputGroup
                               label='Upload Startup India Certificate'
                               type='file'
                               name='startupIndiaCertificate'
                               defaultValue={
-                                details?.companyDocuments
-                                  ?.startup_india_certificate
+                                companyDocuments?.startup_india_certificate
                               }
                               register={register}
+                              placeholder='Upload Startup India Certificate'
                             />
                             <InputGroup
                               label='Upload your Due-Diligence Report'
                               type='file'
                               name='dueDiligenceReport'
                               defaultValue={
-                                details?.companyDocuments?.due_diligence_report
+                                companyDocuments?.due_diligence_report
                               }
                               register={register}
+                              placeholder='Upload Due-Diligence Report'
                             />
                             <InputGroup
                               label='Upload your Business Valuation report'
                               type='file'
                               name='businessValuationReport'
                               defaultValue={
-                                details?.companyDocuments
-                                  ?.business_valuation_report
+                                companyDocuments?.business_valuation_report
                               }
                               register={register}
+                              placeholder='Upload Business Valuation Report'
                             />
                             <InputGroup
                               label='Upload your MIS'
                               type='file'
                               name='mis'
-                              defaultValue={details?.companyDocuments?.mis}
+                              defaultValue={companyDocuments?.mis}
                               register={register}
+                              placeholder='Upload MIS'
                             />
                             <InputGroup
                               label='Upload your financial projections'
                               type='file'
                               name='financialProjections'
                               defaultValue={
-                                details?.companyDocuments?.financial_projections
+                                companyDocuments?.financial_projections
                               }
                               register={register}
+                              placeholder='Upload Financial Projections'
                             />
                             <InputGroup
                               label='Upload your balance sheet'
                               type='file'
                               name='balanceSheet'
-                              defaultValue={
-                                details?.companyDocuments?.balance_sheet
-                              }
+                              defaultValue={companyDocuments?.balance_sheet}
                               register={register}
+                              placeholder='Upload Balance Sheet'
                             />
                             <InputGroup
                               label='Upload your P&L Statement'
                               type='file'
                               name='plStatement'
-                              defaultValue={
-                                details?.companyDocuments?.pl_statement
-                              }
+                              defaultValue={companyDocuments?.pl_statement}
                               register={register}
+                              placeholder='Upload P&L Statement'
                             />
                             <InputGroup
                               label='Upload your cashflow statement'
                               type='file'
                               name='cashflowStatement'
                               defaultValue={
-                                details?.companyDocuments?.cashflow_statement
+                                companyDocuments?.cashflow_statement
                               }
                               register={register}
+                              placeholder='Upload Cashflow Statement'
                             />
                             <InputGroup
                               label='Upload Pitch Deck'
                               type='file'
                               name='pitchDeck'
-                              defaultValue={
-                                details?.companyDocuments?.pitch_deck
-                              }
+                              defaultValue={companyDocuments?.pitch_deck}
                               register={register}
+                              placeholder='Upload Pitch Deck'
                             />
                             <InputGroup
                               label='Upload Video Pitch'
                               type='file'
                               name='videoPitch'
-                              defaultValue={
-                                details?.companyDocuments?.video_pitch
-                              }
+                              defaultValue={companyDocuments?.video_pitch}
                               register={register}
+                              placeholder='Upload Video Pitch'
                             />
                             <InputGroup
                               label='Upload your SHA (Previous round/ existing round)'
                               type='file'
                               name='sha'
-                              defaultValue={details?.companyDocuments?.sha}
+                              defaultValue={companyDocuments?.sha}
                               register={register}
+                              placeholder='Upload SHA'
                             />
                             <InputGroup
                               label='Upload your Termsheet (previous round/ existing round)'
                               type='file'
                               name='termsheet'
-                              defaultValue={
-                                details?.companyDocuments?.termsheet
-                              }
+                              defaultValue={companyDocuments?.termsheet}
                               register={register}
+                              placeholder='Upload Termsheet'
                             />
                             <InputGroup
                               label='Upload your employment agreement'
                               type='file'
                               name='employmentAgreement'
                               defaultValue={
-                                details?.companyDocuments?.employment_agreement
+                                companyDocuments?.employment_agreement
                               }
                               register={register}
+                              placeholder='Upload Employment Agreement'
                             />
                             <InputGroup
                               label='Upload your MoU'
                               type='file'
                               name='mou'
-                              defaultValue={details?.companyDocuments?.mou}
+                              defaultValue={companyDocuments?.mou}
                               register={register}
+                              placeholder='Upload MoU'
                             />
                             <InputGroup
                               label='Upload your NDA'
                               type='file'
                               name='nda'
-                              defaultValue={details?.companyDocuments?.nda}
+                              defaultValue={companyDocuments?.nda}
                               register={register}
+                              placeholder='Upload NDA'
                             />
                           </>
                         )}
@@ -846,96 +1053,101 @@ const VerticalNavTabs = () => {
                           <>
                             <Textinput
                               label='Current Traction'
-                              name='currentTraction'
-                              defaultValue={
-                                details?.businessDetails?.current_traction
-                              }
+                              name='current_traction'
+                              defaultValue={businessDetails?.current_traction}
                               register={register}
+                              placeholder='Enter current traction'
                             />
                             <Textinput
                               label='New Customers'
-                              name='newCustomers'
-                              defaultValue={
-                                details?.businessDetails?.new_Customers
-                              }
+                              name='new_Customers'
+                              defaultValue={businessDetails?.new_Customers}
                               register={register}
+                              placeholder='Enter number of new customers'
                             />
                             <Textinput
                               label='Customer Acquisition Cost'
-                              name='customerAcquisitionCost'
+                              name='customer_AcquisitionCost'
                               defaultValue={
-                                details?.businessDetails
-                                  ?.customer_AcquisitionCost
+                                businessDetails?.customer_AcquisitionCost
                               }
                               register={register}
+                              placeholder='Enter customer acquisition cost'
                             />
                             <Textinput
                               label='Customer Lifetime Value'
-                              name='customerLifetimeValue'
+                              name='customer_Lifetime_Value'
                               defaultValue={
-                                details?.businessDetails
-                                  ?.customer_Lifetime_Value
+                                businessDetails?.customer_Lifetime_Value
                               }
                               register={register}
+                              placeholder='Enter customer lifetime value'
                             />
                           </>
                         )}
+
                         {section.key === 'funding_info' && (
                           <>
                             <Textinput
                               label='Total Funding Ask'
                               name='total_funding_ask'
                               defaultValue={
-                                details?.fundingInformation?.total_funding_ask
+                                fundingInformation?.total_funding_ask
                               }
                               register={register}
+                              placeholder='Enter total funding ask'
                             />
                             <Textinput
                               label='Amount Committed'
                               name='amount_committed'
                               defaultValue={
-                                details?.fundingInformation?.amount_committed
+                                fundingInformation?.amount_committed
                               }
                               register={register}
+                              placeholder='Enter amount committed'
                             />
                             <Textinput
                               label='Government Grants'
                               name='government_grants'
                               defaultValue={
-                                details?.fundingInformation?.government_grants
+                                fundingInformation?.government_grants
                               }
                               register={register}
+                              placeholder='Enter government grants'
                             />
                             <Textinput
                               label='Equity Split'
                               name='equity_split'
-                              defaultValue={
-                                details?.fundingInformation?.equity_split
-                              }
+                              defaultValue={fundingInformation?.equity_split}
                               register={register}
+                              placeholder='Enter equity split'
                             />
                             <Textarea
                               label='Fund Utilization'
                               name='fund_utilization'
                               defaultValue={
-                                details?.fundingInformation?.fund_utilization
+                                fundingInformation?.fund_utilization
                               }
                               register={register}
+                              placeholder='Describe fund utilization'
                             />
                             <Textinput
                               label='ARR'
                               name='arr'
-                              defaultValue={details?.fundingInformation?.arr}
+                              defaultValue={fundingInformation?.arr}
                               register={register}
+                              placeholder='Enter ARR'
                             />
                             <Textinput
                               label='MRR'
                               name='mrr'
-                              defaultValue={details?.fundingInformation?.mrr}
+                              defaultValue={fundingInformation?.mrr}
                               register={register}
+                              placeholder='Enter MRR'
                             />
                           </>
                         )}
+
                         <div className='flex lg:mt-4 mt-2'>
                           <Button
                             text='Save'
@@ -1001,7 +1213,7 @@ const VerticalNavTabs = () => {
                                     COMPANY NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.company_name}
+                                    {companyProfile?.company_name}
                                   </div>
                                 </div>
                               </li>
@@ -1014,7 +1226,7 @@ const VerticalNavTabs = () => {
                                     INCORPORATION DATE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.incorporation_date}
+                                    {companyProfile?.incorporation_date}
                                   </div>
                                 </div>
                               </li>
@@ -1027,7 +1239,8 @@ const VerticalNavTabs = () => {
                                     LOCATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.country}, {details?.state_city}
+                                    {companyProfile?.country},{' '}
+                                    {companyProfile?.state_city}
                                   </div>
                                 </div>
                               </li>
@@ -1040,7 +1253,7 @@ const VerticalNavTabs = () => {
                                     OFFICE ADDRESS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.office_address}
+                                    {companyProfile?.office_address}
                                   </div>
                                 </div>
                               </li>
@@ -1053,10 +1266,10 @@ const VerticalNavTabs = () => {
                                     COMPANY WEBSITE
                                   </div>
                                   <a
-                                    href={details?.company_website}
+                                    href={companyProfile?.company_website}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {details?.company_website}
+                                    {companyProfile?.company_website}
                                   </a>
                                 </div>
                               </li>
@@ -1069,10 +1282,10 @@ const VerticalNavTabs = () => {
                                     LinkedIn Profile
                                   </div>
                                   <a
-                                    href={details?.linkedin_profile}
+                                    href={companyProfile?.linkedin_profile}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {details?.linkedin_profile}
+                                    {companyProfile?.linkedin_profile}
                                   </a>
                                 </div>
                               </li>
@@ -1085,7 +1298,7 @@ const VerticalNavTabs = () => {
                                     BUSINESS DESCRIPTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.short_description}
+                                    {companyProfile?.short_description}
                                   </div>
                                 </div>
                               </li>
@@ -1098,7 +1311,7 @@ const VerticalNavTabs = () => {
                                     TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.team_size}
+                                    {companyProfile?.team_size}
                                   </div>
                                 </div>
                               </li>
@@ -1111,7 +1324,7 @@ const VerticalNavTabs = () => {
                                     CURRENT STAGE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.current_stage}
+                                    {companyProfile?.current_stage}
                                   </div>
                                 </div>
                               </li>
@@ -1124,7 +1337,7 @@ const VerticalNavTabs = () => {
                                     TARGET AUDIENCE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.target_audience}
+                                    {companyProfile?.target_audience}
                                   </div>
                                 </div>
                               </li>
@@ -1137,7 +1350,7 @@ const VerticalNavTabs = () => {
                                     USP/MOAT
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.usp_moat}
+                                    {companyProfile?.usp_moat}
                                   </div>
                                 </div>
                               </li>
@@ -1150,7 +1363,7 @@ const VerticalNavTabs = () => {
                                     INDUSTRY SECTOR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.industry_sector}
+                                    {companyProfile?.industry_sector}
                                   </div>
                                 </div>
                               </li>
@@ -1163,11 +1376,11 @@ const VerticalNavTabs = () => {
                                     MEDIA PRESENCE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.media}
+                                    {companyProfile?.media}
                                   </div>
                                 </div>
                               </li>
-                              {details?.company_logo && (
+                              {companyProfile?.company_logo && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1177,7 +1390,7 @@ const VerticalNavTabs = () => {
                                       COMPANY LOGO
                                     </div>
                                     <a
-                                      href={details?.company_logo}
+                                      href={companyProfile?.company_logo}
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1201,7 +1414,7 @@ const VerticalNavTabs = () => {
                                     FOUNDER NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.founderInformation?.founder_name}
+                                    {founderInformation?.founder_name}
                                   </div>
                                 </div>
                               </li>
@@ -1214,7 +1427,7 @@ const VerticalNavTabs = () => {
                                     EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.founderInformation?.founder_email}
+                                    {founderInformation?.founder_email}
                                   </div>
                                 </div>
                               </li>
@@ -1227,10 +1440,7 @@ const VerticalNavTabs = () => {
                                     MOBILE NUMBER
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      details?.founderInformation
-                                        ?.founder_mobile
-                                    }
+                                    {founderInformation?.founder_mobile}
                                   </div>
                                 </div>
                               </li>
@@ -1243,16 +1453,10 @@ const VerticalNavTabs = () => {
                                     LINKEDIN PROFILE
                                   </div>
                                   <a
-                                    href={
-                                      details?.founderInformation
-                                        ?.founder_linkedin
-                                    }
+                                    href={founderInformation?.founder_linkedin}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {
-                                      details?.founderInformation
-                                        ?.founder_linkedin
-                                    }
+                                    {founderInformation?.founder_linkedin}
                                   </a>
                                 </div>
                               </li>
@@ -1265,7 +1469,7 @@ const VerticalNavTabs = () => {
                                     DEGREE NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.founderInformation?.degree_name}
+                                    {founderInformation?.degree_name}
                                   </div>
                                 </div>
                               </li>
@@ -1278,7 +1482,7 @@ const VerticalNavTabs = () => {
                                     COLLEGE NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.founderInformation?.college_name}
+                                    {founderInformation?.college_name}
                                   </div>
                                 </div>
                               </li>
@@ -1291,15 +1495,11 @@ const VerticalNavTabs = () => {
                                     YEAR OF GRADUATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      details?.founderInformation
-                                        ?.graduation_year
-                                    }
+                                    {founderInformation?.graduation_year}
                                   </div>
                                 </div>
                               </li>
-                              {details?.founderInformation
-                                ?.list_of_advisers && (
+                              {founderInformation?.list_of_advisers && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1310,8 +1510,7 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details?.founderInformation
-                                          ?.list_of_advisers
+                                        founderInformation?.list_of_advisers
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1335,7 +1534,7 @@ const VerticalNavTabs = () => {
                                     CTO NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.ctoInfo?.cto_name}
+                                    {ctoInfo?.cto_name}
                                   </div>
                                 </div>
                               </li>
@@ -1348,7 +1547,7 @@ const VerticalNavTabs = () => {
                                     EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.ctoInfo?.cto_email}
+                                    {ctoInfo?.cto_email}
                                   </div>
                                 </div>
                               </li>
@@ -1361,7 +1560,7 @@ const VerticalNavTabs = () => {
                                     MOBILE NUMBER
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.ctoInfo?.cto_mobile}
+                                    {ctoInfo?.cto_mobile}
                                   </div>
                                 </div>
                               </li>
@@ -1374,10 +1573,10 @@ const VerticalNavTabs = () => {
                                     LINKEDIN PROFILE
                                   </div>
                                   <a
-                                    href={details?.ctoInfo?.cto_linkedin}
+                                    href={ctoInfo?.cto_linkedin}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {details?.ctoInfo?.cto_linkedin}
+                                    {ctoInfo?.cto_linkedin}
                                   </a>
                                 </div>
                               </li>
@@ -1390,7 +1589,7 @@ const VerticalNavTabs = () => {
                                     TECH TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.ctoInfo?.tech_team_size}
+                                    {ctoInfo?.tech_team_size}
                                   </div>
                                 </div>
                               </li>
@@ -1403,14 +1602,14 @@ const VerticalNavTabs = () => {
                                     MOBILE APP LINK
                                   </div>
                                   <a
-                                    href={details?.ctoInfo?.mobile_app_link}
+                                    href={ctoInfo?.mobile_app_link}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {details?.ctoInfo?.mobile_app_link}
+                                    {ctoInfo?.mobile_app_link}
                                   </a>
                                 </div>
                               </li>
-                              {details?.ctoInfo?.technology_roadmap && (
+                              {ctoInfo?.technology_roadmap && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1420,9 +1619,7 @@ const VerticalNavTabs = () => {
                                       TECHNOLOGY ROADMAP
                                     </div>
                                     <a
-                                      href={
-                                        details?.ctoInfo?.technology_roadmap
-                                      }
+                                      href={ctoInfo?.technology_roadmap}
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1445,7 +1642,7 @@ const VerticalNavTabs = () => {
                                     CURRENT TRACTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.businessDetails?.current_traction}
+                                    {businessDetails?.current_traction}
                                   </div>
                                 </div>
                               </li>
@@ -1458,7 +1655,7 @@ const VerticalNavTabs = () => {
                                     NEW CUSTOMERS IN LAST 6 MONTHS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.businessDetails?.new_Customers}
+                                    {businessDetails?.new_Customers}
                                   </div>
                                 </div>
                               </li>
@@ -1471,10 +1668,7 @@ const VerticalNavTabs = () => {
                                     CUSTOMER ACQUISITION COST
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      details?.businessDetails
-                                        ?.customer_AcquisitionCost
-                                    }
+                                    {businessDetails?.customer_AcquisitionCost}
                                   </div>
                                 </div>
                               </li>
@@ -1487,10 +1681,7 @@ const VerticalNavTabs = () => {
                                     CUSTOMER LIFETIME VALUE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      details?.businessDetails
-                                        ?.customer_Lifetime_Value
-                                    }
+                                    {businessDetails?.customer_Lifetime_Value}
                                   </div>
                                 </div>
                               </li>
@@ -1499,8 +1690,7 @@ const VerticalNavTabs = () => {
 
                           {section.key === 'company_documents' && (
                             <>
-                              {details?.companyDocuments
-                                ?.certificate_of_incorporation && (
+                              {companyDocuments?.certificate_of_incorporation && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1523,7 +1713,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.gst_certificate && (
+                              {companyDocuments?.gst_certificate && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1545,7 +1735,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.trademark && (
+                              {companyDocuments?.trademark && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1565,7 +1755,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.copyright && (
+                              {companyDocuments?.copyright && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1585,7 +1775,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.patent && (
+                              {companyDocuments?.patent && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1605,8 +1795,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments
-                                ?.startup_india_certificate && (
+                              {companyDocuments?.startup_india_certificate && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1629,8 +1818,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments
-                                ?.due_diligence_report && (
+                              {companyDocuments?.due_diligence_report && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1653,8 +1841,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments
-                                ?.business_valuation_report && (
+                              {companyDocuments?.business_valuation_report && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1677,7 +1864,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.mis && (
+                              {companyDocuments?.mis && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1697,8 +1884,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments
-                                ?.financial_projections && (
+                              {companyDocuments?.financial_projections && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1721,7 +1907,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.balance_sheet && (
+                              {companyDocuments?.balance_sheet && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1743,7 +1929,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.pl_statement && (
+                              {companyDocuments?.pl_statement && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1765,8 +1951,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments
-                                ?.cashflow_statement && (
+                              {companyDocuments?.cashflow_statement && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1789,7 +1974,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.pitch_deck && (
+                              {companyDocuments?.pitch_deck && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1809,7 +1994,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.video_pitch && (
+                              {companyDocuments?.video_pitch && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1831,7 +2016,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.sha && (
+                              {companyDocuments?.sha && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1851,7 +2036,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.termsheet && (
+                              {companyDocuments?.termsheet && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1871,8 +2056,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments
-                                ?.employment_agreement && (
+                              {companyDocuments?.employment_agreement && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1895,7 +2079,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.mou && (
+                              {companyDocuments?.mou && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1915,7 +2099,7 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {details?.companyDocuments?.nda && (
+                              {companyDocuments?.nda && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1949,10 +2133,7 @@ const VerticalNavTabs = () => {
                                     TOTAL FUNDING ASK
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      details?.fundingInformation
-                                        ?.total_funding_ask
-                                    }
+                                    {fundingInformation?.total_funding_ask}
                                   </div>
                                 </div>
                               </li>
@@ -1965,10 +2146,7 @@ const VerticalNavTabs = () => {
                                     AMOUNT COMMITTED
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      details?.fundingInformation
-                                        ?.amount_committed
-                                    }
+                                    {fundingInformation?.amount_committed}
                                   </div>
                                 </div>
                               </li>
@@ -1981,10 +2159,7 @@ const VerticalNavTabs = () => {
                                     GOVERNMENT GRANTS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      details?.fundingInformation
-                                        ?.government_grants
-                                    }
+                                    {fundingInformation?.government_grants}
                                   </div>
                                 </div>
                               </li>
@@ -1997,7 +2172,7 @@ const VerticalNavTabs = () => {
                                     EQUITY SPLIT
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.fundingInformation?.equity_split}
+                                    {fundingInformation?.equity_split}
                                   </div>
                                 </div>
                               </li>
@@ -2010,10 +2185,7 @@ const VerticalNavTabs = () => {
                                     FUND UTILIZATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      details?.fundingInformation
-                                        ?.fund_utilization
-                                    }
+                                    {fundingInformation?.fund_utilization}
                                   </div>
                                 </div>
                               </li>
@@ -2026,7 +2198,7 @@ const VerticalNavTabs = () => {
                                     ARR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.fundingInformation?.arr}
+                                    {fundingInformation?.arr}
                                   </div>
                                 </div>
                               </li>
@@ -2039,12 +2211,11 @@ const VerticalNavTabs = () => {
                                     MRR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {details?.fundingInformation?.mrr}
+                                    {fundingInformation?.mrr}
                                   </div>
                                 </div>
                               </li>
-                              {details?.fundingInformation
-                                ?.current_cap_table && (
+                              {fundingInformation?.current_cap_table && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2055,8 +2226,7 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details?.fundingInformation
-                                          ?.current_cap_table
+                                        fundingInformation?.current_cap_table
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'

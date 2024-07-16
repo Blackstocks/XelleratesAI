@@ -10,10 +10,9 @@ import Textarea from '@/components/ui/Textarea';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Loading from '@/components/Loading';
-import Modal from '@/components/ui/Modal';
+
 import VerticalNavTabs from '@/components/profileSideBar';
 import {
-  updateGeneralInfo,
   updateStartupDetails,
   updateFounderInfo,
   updateBusinessDetails,
@@ -22,36 +21,12 @@ import {
   updateProfile,
 } from '@/lib/actions/insertformdetails';
 import FormCompletionBanner from '@/components/FormCompletionBanner'; // Import the new banner component
-import { useRouter } from 'next/navigation';
 
 const Profile = () => {
   const { user, details, loading, updateUserLocally, updateDetailsLocally } =
     useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const { register, handleSubmit, reset } = useForm();
-  const router = useRouter();
-  const user_id = user?.id;
-
-  const [isModalActive, setIsModalActive] = useState(false);
-
-  useEffect(() => {
-    // Logic to determine if modal should be shown
-    if (!details) {
-      setIsModalActive(true);
-    }
-  }, []);
-
-  const handleClose = () => {
-    setIsModalActive(false);
-  };
-
-  const handleClick = () => {
-    if (user?.user_type === 'investor') {
-      router.push(`investor-form?profile_id=${user_id}`);
-    } else if (user?.user_type === 'startup') {
-      router.push(`startup-form?profile_id=${user_id}`);
-    }
-  };
 
   const handleSave = async (data, section) => {
     try {
@@ -88,10 +63,6 @@ const Profile = () => {
       console.error('Unexpected error:', error);
     }
   };
-
-  if (loading) {
-    return <Loading />;
-  }
 
   return (
     <div className='space-y-5 profile-page'>
@@ -139,13 +110,22 @@ const Profile = () => {
                   )}
                 </div>
               </div>
+
               <div className='flex-1'>
-                <div className='text-2xl font-medium text-slate-900 dark:text-slate-200 mb-[3px]'>
-                  {user?.name || 'User Name'}
-                </div>
-                <div className='text-sm font-light text-slate-600 dark:text-slate-400'>
-                  {details?.typeof || 'IX'}
-                </div>
+                {details?.type === 'investor' ? (
+                  <div className='text-2xl font-medium text-slate-900 dark:text-slate-200 mb-[3px]'>
+                    {user?.name || 'User Name'}
+                  </div>
+                ) : (
+                  <div className='text-2xl font-medium text-slate-900 dark:text-slate-200 mb-[3px]'>
+                    {user?.company_name || 'User Name'}
+                  </div>
+                )}
+                {details?.type === 'investor' && (
+                  <div className='text-sm font-light text-slate-600 dark:text-slate-400'>
+                    {details?.typeof || 'IX'}
+                  </div>
+                )}
               </div>
             </div>
           </div>
