@@ -272,7 +272,7 @@ const FormCompletionBanner = ({ profileId }) => {
         >
           &#x2716;
         </button>
-        {completionPercentage < 100 && (
+        {/* {completionPercentage < 100 && (
           <button
             onClick={() => {
               if (user?.user_type === 'investor') {
@@ -285,7 +285,7 @@ const FormCompletionBanner = ({ profileId }) => {
           >
             Update Profile
           </button>
-        )}
+        )} */}
       </div>
     </div>
   );
