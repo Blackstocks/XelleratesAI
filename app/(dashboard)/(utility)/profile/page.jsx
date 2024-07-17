@@ -13,14 +13,13 @@ import VerticalNavTabs from '@/components/profileSideBar';
 import ReactSelect from 'react-select';
 import makeAnimated from 'react-select/animated';
 import InputGroup from '@/components/ui/InputGroup';
-import { updateInvestorDetails } from '@/lib/actions/insertformdetails';
 import {
   insertInvestorSignupData,
   updateInvestorSignupData,
+  handleFileUpload,
 } from '@/lib/actions/investorActions';
 import FormCompletionBanner from '@/components/FormCompletionBanner';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-import { supabase } from '@/lib/supabaseclient';
 
 const Profile = () => {
   const { user, updateDetailsLocally } = useUserDetails();
@@ -36,34 +35,6 @@ const Profile = () => {
     formState: { errors },
   } = useForm();
   const animatedComponents = makeAnimated();
-
-  const handleFileUpload = async (file) => {
-    if (!file) {
-      console.log('Profile photo is not provided.');
-      return null;
-    }
-
-    const filePath = `profile_photos/${Date.now()}-${file.name}`;
-
-    try {
-      const { data, error } = await supabase.storage
-        .from('photos')
-        .upload(filePath, file);
-
-      if (error) {
-        throw error;
-      }
-
-      const { publicUrl } = supabase.storage
-        .from('photos')
-        .getPublicUrl(filePath).data;
-
-      return publicUrl; // Return the public URL
-    } catch (error) {
-      console.error('Error uploading profile photo:', error);
-      throw error;
-    }
-  };
 
   const handleSave = async (data, section) => {
     try {
