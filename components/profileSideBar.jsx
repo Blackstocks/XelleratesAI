@@ -16,7 +16,7 @@ import {
   updateGeneralInfo,
   updateCTODetails,
   updateStartupDetails,
-  updateFounderInfo,
+  updateFounderInformation,
   updateCompanyDocuments,
   updateBusinessDetails,
   updateFundingInfo,
@@ -159,7 +159,25 @@ const VerticalNavTabs = () => {
     name: 'socialMedia',
   });
 
-  const { user, loading, details } = useUserDetails();
+  const {
+    fields: coFounderFields,
+    append: appendCoFounder,
+    remove: removeCoFounder,
+  } = useFieldArray({
+    control,
+    name: 'co_founders',
+  });
+
+  const {
+    fields: advisorFields,
+    append: appendAdvisor,
+    remove: removeAdvisor,
+  } = useFieldArray({
+    control,
+    name: 'advisors',
+  });
+
+  const { user, loading } = useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const [founderInformationLoc, setFounderInformationLoc] = useState(null);
   const [companyProfileLoc, setCompanyProfileLoc] = useState(null);
@@ -266,21 +284,21 @@ const VerticalNavTabs = () => {
           console.log('companyProfile:', companyProfile);
           const emptyStartupDetails = !companyProfile?.id;
           const startupData = {
-            company_name: data.company_name || '',
-            incorporation_date: data.incorporation_date || '',
-            country: data.country || '',
-            state_city: data.state_city || '',
-            office_address: data.office_address || '',
-            company_website: data.company_website || '',
-            linkedin_profile: data.linkedin_profile || '',
-            short_description: data.short_description || '',
-            target_audience: data.target_audience || '',
-            industry_sector: data.industry_sector || '',
-            team_size: data.team_size || '',
-            current_stage: data.current_stage || '',
-            usp_moat: data.usp_moat || '',
-            media: data.media || '',
-            company_logo: uploadedFiles.company_logo || '',
+            company_name: data.company_name || null,
+            incorporation_date: data.incorporation_date || null,
+            country: data.country || null,
+            state_city: data.state_city || null,
+            office_address: data.office_address || null,
+            company_website: data.company_website || null,
+            linkedin_profile: data.linkedin_profile || null,
+            short_description: data.short_description || null,
+            target_audience: data.target_audience || null,
+            industry_sector: data.industry_sector || null,
+            team_size: data.team_size || null,
+            current_stage: data.current_stage || null,
+            usp_moat: data.usp_moat || null,
+            media: data.media || null,
+            company_logo: uploadedFiles.company_logo || null,
             socialMedia: data.socialMedia || [], // Ensure this is handled correctly as JSONB
           };
 
@@ -325,9 +343,8 @@ const VerticalNavTabs = () => {
           break;
 
         case 'founder_info':
-          console.log('founderInformation', founderInformation);
           const emptyFounderInfo = !founderInformation?.id;
-          changedData = {
+          const founderData = {
             company_id: companyProfile?.id,
             founder_name: data.founder_name || null,
             founder_email: data.founder_email || null,
@@ -336,31 +353,45 @@ const VerticalNavTabs = () => {
             degree_name: data.degree_name || null,
             college_name: data.college_name || null,
             graduation_year: data.graduation_year || null,
-            list_of_advisers: uploadedFiles.list_of_advisers,
+            advisors: data.advisors || [], // Ensure this is handled correctly as JSONB
+            co_founders: data.co_founders || [], // Ensure this is handled correctly as JSONB
+            co_founder_agreement: uploadedFiles.co_founder_agreement || null,
           };
 
-          console.log('Changed Data for founder_info:', changedData);
-          console.log(emptyFounderInfo);
-          if (emptyFounderInfo) {
-            const founderInfoResponse = await insertFounderInformation(
-              companyProfile.id,
-              changedData,
-              uploadedFiles
-            );
-            if (founderInfoResponse.error) throw founderInfoResponse.error;
-            console.log('founderInfoResponse', founderInfoResponse);
-            updatedData = founderInfoResponse[0]; // Correctly accessing the inserted data
-            console.log('updatedData', updatedData);
-            setFounderInformationLoc(updatedData);
-          } else {
-            const founderInfoResponse = await updateFounderInfo(
-              companyProfile.id,
-              changedData,
-              uploadedFiles
-            );
-            if (founderInfoResponse.error) throw founderInfoResponse.error;
-            updatedData = founderInfoResponse[0]; // Assuming update returns an array
-            setFounderInformationLoc(updatedData);
+          try {
+            let founderInfoResponse;
+            if (emptyFounderInfo) {
+              founderInfoResponse = await insertFounderInformation(
+                companyProfile.id,
+                founderData,
+                uploadedFiles
+              );
+            } else {
+              founderInfoResponse = await updateFounderInformation(
+                companyProfile.id,
+                founderData,
+                uploadedFiles
+              );
+            }
+
+            if (founderInfoResponse?.error) {
+              throw founderInfoResponse.error;
+            }
+
+            if (founderInfoResponse) {
+              updatedData = founderInfoResponse;
+              console.log(
+                `${
+                  emptyFounderInfo ? 'Inserted' : 'Updated'
+                } founder information:`,
+                updatedData
+              );
+              setFounderInformationLoc(updatedData);
+            } else {
+              console.error('Unexpected response format:', founderInfoResponse);
+            }
+          } catch (error) {
+            console.error('Error handling founder information:', error);
           }
           break;
 
@@ -368,13 +399,13 @@ const VerticalNavTabs = () => {
           const emptyCtoInfo = !ctoInfo?.id;
           changedData = {
             company_id: companyProfile?.id,
-            cto_name: data.cto_name || '',
-            cto_email: data.cto_email || '',
-            cto_mobile: data.cto_mobile || '',
-            cto_linkedin: data.cto_linkedin || '',
-            tech_team_size: data.tech_team_size || '',
-            mobile_app_link: data.mobile_app_link || '',
-            technology_roadmap: uploadedFiles.technology_roadmap || '',
+            cto_name: data.cto_name || null,
+            cto_email: data.cto_email || null,
+            cto_mobile: data.cto_mobile || null,
+            cto_linkedin: data.cto_linkedin || null,
+            tech_team_size: data.tech_team_size || null,
+            mobile_app_link: data.mobile_app_link || null,
+            technology_roadmap: uploadedFiles.technology_roadmap || null,
           };
 
           if (emptyCtoInfo) {
@@ -496,14 +527,14 @@ const VerticalNavTabs = () => {
           const emptyFundingInfo = !fundingInformation?.id;
           const fundingData = {
             company_id: companyProfile?.id,
-            total_funding_ask: data.total_funding_ask || '',
-            amount_committed: data.amount_committed || '',
-            current_cap_table: uploadedFiles.current_cap_table || '',
-            government_grants: data.government_grants || '',
-            equity_split: data.equity_split || '',
-            fund_utilization: data.fund_utilization || '',
-            arr: data.arr || '',
-            mrr: data.mrr || '',
+            total_funding_ask: data.total_funding_ask || null,
+            amount_committed: data.amount_committed || null,
+            current_cap_table: uploadedFiles.current_cap_table || null,
+            government_grants: data.government_grants || null,
+            equity_split: data.equity_split || null,
+            fund_utilization: data.fund_utilization || null,
+            arr: data.arr || null,
+            mrr: data.mrr || null,
             previous_funding: data.funding || [], // Ensure this is handled correctly as JSONB
           };
 
@@ -934,6 +965,246 @@ const VerticalNavTabs = () => {
                             />
                           </>
                         )}
+                        {section.key === 'founder_info' && (
+                          <>
+                            <Textinput
+                              label='Founder Name'
+                              name='founder_name'
+                              defaultValue={
+                                founderInformationLoc?.founder_name ||
+                                founderInformation?.founder_name ||
+                                'Not provided'
+                              }
+                              register={register}
+                              placeholder='Enter founder name'
+                            />
+                            <Textinput
+                              label='Email'
+                              name='founder_email'
+                              defaultValue={
+                                founderInformationLoc?.founder_email ||
+                                founderInformation?.founder_email ||
+                                'Not provided'
+                              }
+                              register={register}
+                              placeholder='Enter founder email'
+                            />
+                            <Textinput
+                              label='Mobile Number'
+                              name='founder_mobile'
+                              defaultValue={
+                                founderInformationLoc?.founder_mobile ||
+                                founderInformation?.founder_mobile ||
+                                'Not provided'
+                              }
+                              register={register}
+                              placeholder='Enter founder mobile number'
+                            />
+                            <Textinput
+                              label='LinkedIn Profile'
+                              name='founder_linkedin'
+                              defaultValue={
+                                founderInformationLoc?.founder_linkedin ||
+                                founderInformation?.founder_linkedin ||
+                                'Not provided'
+                              }
+                              register={register}
+                              placeholder='Enter founder LinkedIn profile URL'
+                            />
+                            <Textinput
+                              label='Degree Name'
+                              name='degree_name'
+                              defaultValue={
+                                founderInformationLoc?.degree_name ||
+                                founderInformation?.degree_name ||
+                                'Not provided'
+                              }
+                              register={register}
+                              placeholder='Enter degree name'
+                            />
+                            <Textinput
+                              label='College Name'
+                              name='college_name'
+                              defaultValue={
+                                founderInformationLoc?.college_name ||
+                                founderInformation?.college_name ||
+                                'Not provided'
+                              }
+                              register={register}
+                              placeholder='Enter college name'
+                            />
+                            <Textinput
+                              label='Year of Graduation'
+                              type='date'
+                              name='graduation_year'
+                              defaultValue={
+                                founderInformationLoc?.graduation_year ||
+                                founderInformation?.graduation_year ||
+                                'Not provided'
+                              }
+                              register={register}
+                              placeholder='Enter year of graduation'
+                            />
+
+                            {/* Co-Founders Section */}
+                            <div className='mt-4'>
+                              <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
+                                Co-Founders
+                              </div>
+                              {coFounderFields.map((field, index) => (
+                                <div
+                                  className='lg:grid-cols-5 md:grid-cols-4 grid-cols-1 grid gap-5 mb-5 last:mb-0'
+                                  key={field.id}
+                                >
+                                  <Textinput
+                                    label='Co-founder Name'
+                                    name={`co_founders.${index}.co_founder_name`}
+                                    defaultValue={
+                                      field.co_founder_name || 'Not provided'
+                                    }
+                                    register={register}
+                                    placeholder='Enter co-founder name'
+                                  />
+                                  <Textinput
+                                    label='Co-founder Email'
+                                    name={`co_founders.${index}.co_founder_email`}
+                                    defaultValue={
+                                      field.co_founder_email || 'Not provided'
+                                    }
+                                    register={register}
+                                    placeholder='Enter co-founder email'
+                                  />
+                                  <Textinput
+                                    label='Co-founder Mobile'
+                                    name={`co_founders.${index}.co_founder_mobile`}
+                                    defaultValue={
+                                      field.co_founder_mobile || 'Not provided'
+                                    }
+                                    register={register}
+                                    placeholder='Enter co-founder mobile number'
+                                  />
+                                  <Textinput
+                                    label='Co-founder LinkedIn'
+                                    name={`co_founders.${index}.co_founder_linkedin`}
+                                    defaultValue={
+                                      field.co_founder_linkedin ||
+                                      'Not provided'
+                                    }
+                                    register={register}
+                                    placeholder='Enter co-founder LinkedIn profile URL'
+                                  />
+                                  <div className='ml-auto mt-auto relative'>
+                                    <button
+                                      onClick={() => removeCoFounder(index)}
+                                      type='button'
+                                      className='inline-flex items-center justify-center h-10 w-10 bg-danger-500 text-lg border rounded border-danger-500 text-white'
+                                    >
+                                      <Icon icon='heroicons-outline:trash' />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                              <div className='mt-4'>
+                                <Button
+                                  text='Add new'
+                                  icon='heroicons-outline:plus'
+                                  className='text-slate-600 p-0 dark:text-slate-300'
+                                  onClick={() =>
+                                    appendCoFounder({
+                                      co_founder_name: '',
+                                      co_founder_email: '',
+                                      co_founder_mobile: '',
+                                      co_founder_linkedin: '',
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+
+                            {/* Advisors Section */}
+                            <div className='mt-4'>
+                              <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
+                                Advisors
+                              </div>
+                              {advisorFields.map((field, index) => (
+                                <div
+                                  className='lg:grid-cols-5 md:grid-cols-4 grid-cols-1 grid gap-5 mb-5 last:mb-0'
+                                  key={field.id}
+                                >
+                                  <Textinput
+                                    label='Advisor Name'
+                                    name={`advisors.${index}.advisor_name`}
+                                    defaultValue={
+                                      field.advisor_name || 'Not provided'
+                                    }
+                                    register={register}
+                                    placeholder='Enter advisor name'
+                                  />
+                                  <Textinput
+                                    label='Advisor Email'
+                                    name={`advisors.${index}.advisor_email`}
+                                    defaultValue={
+                                      field.advisor_email || 'Not provided'
+                                    }
+                                    register={register}
+                                    placeholder='Enter advisor email'
+                                  />
+                                  <Textinput
+                                    label='Advisor Mobile'
+                                    name={`advisors.${index}.advisor_mobile`}
+                                    defaultValue={
+                                      field.advisor_mobile || 'Not provided'
+                                    }
+                                    register={register}
+                                    placeholder='Enter advisor mobile number'
+                                  />
+                                  <Textinput
+                                    label='Advisor LinkedIn'
+                                    name={`advisors.${index}.advisor_linkedin`}
+                                    defaultValue={
+                                      field.advisor_linkedin || 'Not provided'
+                                    }
+                                    register={register}
+                                    placeholder='Enter advisor LinkedIn profile URL'
+                                  />
+                                  <div className='ml-auto mt-auto relative'>
+                                    <button
+                                      onClick={() => removeAdvisor(index)}
+                                      type='button'
+                                      className='inline-flex items-center justify-center h-10 w-10 bg-danger-500 text-lg border rounded border-danger-500 text-white'
+                                    >
+                                      <Icon icon='heroicons-outline:trash' />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                              <div className='mt-4'>
+                                <Button
+                                  text='Add new'
+                                  icon='heroicons-outline:plus'
+                                  className='text-slate-600 p-0 dark:text-slate-300'
+                                  onClick={() =>
+                                    appendAdvisor({
+                                      advisor_name: '',
+                                      advisor_email: '',
+                                      advisor_mobile: '',
+                                      advisor_linkedin: '',
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+
+                            {/* Co-Founder Agreement Upload */}
+                            <InputGroup
+                              label='Upload Co-Founder Agreement'
+                              name='co_founder_agreement'
+                              type='file'
+                              register={register}
+                              error={errors.co_founder_agreement}
+                            />
+                          </>
+                        )}
 
                         {section.key === 'funding_info' && (
                           <>
@@ -1351,7 +1622,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.company_name ||
-                                      companyProfile?.company_name}
+                                      companyProfile?.company_name ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1366,7 +1638,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.incorporation_date ||
-                                      companyProfile?.incorporation_date}
+                                      companyProfile?.incorporation_date ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1381,10 +1654,12 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.country ||
-                                      companyProfile?.country}
+                                      companyProfile?.country ||
+                                      'Not provided'}
                                     ,{' '}
                                     {companyProfileLoc?.state_city ||
-                                      companyProfile?.state_city}
+                                      companyProfile?.state_city ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1399,7 +1674,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.office_address ||
-                                      companyProfile?.office_address}
+                                      companyProfile?.office_address ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1415,12 +1691,14 @@ const VerticalNavTabs = () => {
                                   <a
                                     href={
                                       companyProfileLoc?.company_website ||
-                                      companyProfile?.company_website
+                                      companyProfile?.company_website ||
+                                      '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
                                     {companyProfileLoc?.company_website ||
-                                      companyProfile?.company_website}
+                                      companyProfile?.company_website ||
+                                      'Not provided'}
                                   </a>
                                 </div>
                               </li>
@@ -1436,12 +1714,14 @@ const VerticalNavTabs = () => {
                                   <a
                                     href={
                                       companyProfileLoc?.linkedin_profile ||
-                                      companyProfile?.linkedin_profile
+                                      companyProfile?.linkedin_profile ||
+                                      '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
                                     {companyProfileLoc?.linkedin_profile ||
-                                      companyProfile?.linkedin_profile}
+                                      companyProfile?.linkedin_profile ||
+                                      'Not provided'}
                                   </a>
                                 </div>
                               </li>
@@ -1456,7 +1736,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.short_description ||
-                                      companyProfile?.short_description}
+                                      companyProfile?.short_description ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1471,7 +1752,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.team_size ||
-                                      companyProfile?.team_size}
+                                      companyProfile?.team_size ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1486,7 +1768,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.current_stage ||
-                                      companyProfile?.current_stage}
+                                      companyProfile?.current_stage ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1501,7 +1784,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.target_audience ||
-                                      companyProfile?.target_audience}
+                                      companyProfile?.target_audience ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1516,7 +1800,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.usp_moat ||
-                                      companyProfile?.usp_moat}
+                                      companyProfile?.usp_moat ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1531,7 +1816,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.industry_sector ||
-                                      companyProfile?.industry_sector}
+                                      companyProfile?.industry_sector ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1546,7 +1832,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {companyProfileLoc?.media ||
-                                      companyProfile?.media}
+                                      companyProfile?.media ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1562,200 +1849,340 @@ const VerticalNavTabs = () => {
                                   <a
                                     href={
                                       companyProfileLoc?.company_logo ||
-                                      companyProfile?.company_logo
+                                      companyProfile?.company_logo ||
+                                      '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    View Company Logo
+                                    {companyProfileLoc?.company_logo ||
+                                    companyProfile?.company_logo
+                                      ? 'View Company Logo'
+                                      : 'Not provided'}
                                   </a>
                                 </div>
                               </li>
 
                               {/* Social Media Handles */}
-                              {(companyProfileLoc?.social_media_handles ||
-                                companyProfile?.social_media_handles) &&
-                                (
-                                  companyProfileLoc?.social_media_handles ||
-                                  companyProfile?.social_media_handles
-                                ).map((handle, index) => (
-                                  <li
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                    key={index}
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:share' />
+                              {(
+                                companyProfileLoc?.social_media_handles ||
+                                companyProfile?.social_media_handles
+                              )?.map((handle, index) => (
+                                <li
+                                  className='flex space-x-3 rtl:space-x-reverse'
+                                  key={index}
+                                >
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:share' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      {handle.platform || 'Not provided'}
                                     </div>
-                                    <div className='flex-1'>
-                                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                        {handle.platform}
-                                      </div>
-                                      <a
-                                        href={handle.url}
-                                        target='_blank'
-                                        rel='noopener noreferrer'
-                                        className='text-base text-slate-600 dark:text-slate-50'
-                                      >
-                                        {handle.url}
-                                      </a>
-                                    </div>
-                                  </li>
-                                ))}
+                                    <a
+                                      href={handle.url || '#'}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      {handle.url || 'Not provided'}
+                                    </a>
+                                  </div>
+                                </li>
+                              ))}
                             </>
                           )}
 
                           {section.key === 'founder_info' && (
                             <>
-                              {(founderInformationLoc?.founder_name ||
-                                founderInformation?.founder_name) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:user' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:user' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    FOUNDER NAME
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      FOUNDER NAME
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {founderInformationLoc?.founder_name ||
-                                        founderInformation?.founder_name}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {founderInformationLoc?.founder_name ||
+                                      founderInformation?.founder_name ||
+                                      'Not provided'}
                                   </div>
-                                </li>
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:envelope' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    FOUNDER EMAIL
+                                  </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {founderInformationLoc?.founder_email ||
+                                      founderInformation?.founder_email ||
+                                      'Not provided'}
+                                  </div>
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:phone' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    FOUNDER MOBILE
+                                  </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {founderInformationLoc?.founder_mobile ||
+                                      founderInformation?.founder_mobile ||
+                                      'Not provided'}
+                                  </div>
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:link' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    FOUNDER LINKEDIN
+                                  </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {founderInformationLoc?.founder_linkedin ||
+                                      founderInformation?.founder_linkedin ||
+                                      'Not provided'}
+                                  </div>
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:academic-cap' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    DEGREE NAME
+                                  </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {founderInformationLoc?.degree_name ||
+                                      founderInformation?.degree_name ||
+                                      'Not provided'}
+                                  </div>
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:building-library' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    COLLEGE NAME
+                                  </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {founderInformationLoc?.college_name ||
+                                      founderInformation?.college_name ||
+                                      'Not provided'}
+                                  </div>
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:calendar' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    GRADUATION YEAR
+                                  </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {founderInformationLoc?.graduation_year ||
+                                      founderInformation?.graduation_year ||
+                                      'Not provided'}
+                                  </div>
+                                </div>
+                              </li>
+                              {founderInformationLoc ? (
+                                <>
+                                  {founderInformationLoc?.advisors?.map(
+                                    (advisor, index) => (
+                                      <li
+                                        key={index}
+                                        className='flex space-x-3 rtl:space-x-reverse'
+                                      >
+                                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                          <Icon icon='heroicons:user-group' />
+                                        </div>
+                                        <div className='flex-1'>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Advisor Name: ${
+                                              advisor.advisor_name ||
+                                              'Not provided'
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Advisor Email: ${
+                                              advisor.advisor_email ||
+                                              'Not provided'
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Advisor Mobile: ${
+                                              advisor.advisor_mobile ||
+                                              'Not provided'
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Advisor LinkedIn: ${
+                                              advisor.advisor_linkedin ||
+                                              'Not provided'
+                                            }`}
+                                          </div>
+                                        </div>
+                                      </li>
+                                    )
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  {founderInformation?.advisors?.map(
+                                    (advisor, index) => (
+                                      <li
+                                        key={index}
+                                        className='flex space-x-3 rtl:space-x-reverse'
+                                      >
+                                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                          <Icon icon='heroicons:user-group' />
+                                        </div>
+                                        <div className='flex-1'>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Advisor Name: ${
+                                              advisor.advisor_name ||
+                                              'Not provided'
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Advisor Email: ${
+                                              advisor.advisor_email ||
+                                              'Not provided'
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Advisor Mobile: ${
+                                              advisor.advisor_mobile ||
+                                              'Not provided'
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Advisor LinkedIn: ${
+                                              advisor.advisor_linkedin ||
+                                              'Not provided'
+                                            }`}
+                                          </div>
+                                        </div>
+                                      </li>
+                                    )
+                                  )}
+                                </>
                               )}
-                              {(founderInformationLoc?.founder_email ||
-                                founderInformation?.founder_email) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:envelope' />
-                                  </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      EMAIL
+
+                              {founderInformationLoc?.co_founders?.map(
+                                (coFounder, index) => (
+                                  <li
+                                    key={index}
+                                    className='flex space-x-3 rtl:space-x-reverse'
+                                  >
+                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                      <Icon icon='heroicons:user-group' />
                                     </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {founderInformationLoc?.founder_email ||
-                                        founderInformation?.founder_email}
+                                    <div className='flex-1'>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Co-Founder Name: ${
+                                          coFounder.co_founder_name ||
+                                          'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Co-Founder Email: ${
+                                          coFounder.co_founder_email ||
+                                          'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Co-Founder Mobile: ${
+                                          coFounder.co_founder_mobile ||
+                                          'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Co-Founder LinkedIn: ${
+                                          coFounder.co_founder_linkedin ||
+                                          'Not provided'
+                                        }`}
+                                      </div>
                                     </div>
-                                  </div>
-                                </li>
+                                  </li>
+                                )
                               )}
-                              {(founderInformationLoc?.founder_mobile ||
-                                founderInformation?.founder_mobile) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:phone' />
-                                  </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      MOBILE NUMBER
+                              {founderInformation?.co_founders?.map(
+                                (coFounder, index) => (
+                                  <li
+                                    key={index}
+                                    className='flex space-x-3 rtl:space-x-reverse'
+                                  >
+                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                      <Icon icon='heroicons:user-group' />
                                     </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {founderInformationLoc?.founder_mobile ||
-                                        founderInformation?.founder_mobile}
+                                    <div className='flex-1'>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Co-Founder Name: ${
+                                          coFounder.co_founder_name ||
+                                          'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Co-Founder Email: ${
+                                          coFounder.co_founder_email ||
+                                          'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Co-Founder Mobile: ${
+                                          coFounder.co_founder_mobile ||
+                                          'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Co-Founder LinkedIn: ${
+                                          coFounder.co_founder_linkedin ||
+                                          'Not provided'
+                                        }`}
+                                      </div>
                                     </div>
-                                  </div>
-                                </li>
+                                  </li>
+                                )
                               )}
-                              {(founderInformationLoc?.founder_linkedin ||
-                                founderInformation?.founder_linkedin) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:globe-alt' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    CO-FOUNDER AGREEMENT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      LINKEDIN PROFILE
-                                    </div>
-                                    <a
-                                      href={
-                                        founderInformationLoc?.founder_linkedin ||
-                                        founderInformation?.founder_linkedin
-                                      }
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      {founderInformationLoc?.founder_linkedin ||
-                                        founderInformation?.founder_linkedin}
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
-                              {(founderInformationLoc?.degree_name ||
-                                founderInformation?.degree_name) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:academic-cap' />
-                                  </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      DEGREE NAME
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {founderInformationLoc?.degree_name ||
-                                        founderInformation?.degree_name}
-                                    </div>
-                                  </div>
-                                </li>
-                              )}
-                              {(founderInformationLoc?.college_name ||
-                                founderInformation?.college_name) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:building-library' />
-                                  </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      COLLEGE NAME
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {founderInformationLoc?.college_name ||
-                                        founderInformation?.college_name}
-                                    </div>
-                                  </div>
-                                </li>
-                              )}
-                              {(founderInformationLoc?.graduation_year ||
-                                founderInformation?.graduation_year) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:calendar' />
-                                  </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      YEAR OF GRADUATION
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {founderInformationLoc?.graduation_year ||
-                                        founderInformation?.graduation_year}
-                                    </div>
-                                  </div>
-                                </li>
-                              )}
-                              {(founderInformationLoc?.list_of_advisers ||
-                                founderInformation?.list_of_advisers) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
-                                  </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      LIST OF ADVISERS
-                                    </div>
-                                    <a
-                                      href={
-                                        founderInformationLoc?.list_of_advisers ||
-                                        founderInformation?.list_of_advisers
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View List of Advisers
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      founderInformationLoc?.co_founder_agreement ||
+                                      founderInformation?.co_founder_agreement ||
+                                      'Not provided'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    View Agreement
+                                  </a>
+                                </div>
+                              </li>
                             </>
                           )}
 
@@ -1770,7 +2197,9 @@ const VerticalNavTabs = () => {
                                     CTO NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfoLoc?.cto_name}
+                                    {ctoInfoLoc?.cto_name ||
+                                      ctoInfo?.cto_name ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1783,7 +2212,9 @@ const VerticalNavTabs = () => {
                                     EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfoLoc?.cto_email}
+                                    {ctoInfoLoc?.cto_email ||
+                                      ctoInfo?.cto_email ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1796,7 +2227,9 @@ const VerticalNavTabs = () => {
                                     MOBILE NUMBER
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfoLoc?.cto_mobile}
+                                    {ctoInfoLoc?.cto_mobile ||
+                                      ctoInfo?.cto_mobile ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1809,10 +2242,16 @@ const VerticalNavTabs = () => {
                                     LINKEDIN PROFILE
                                   </div>
                                   <a
-                                    href={ctoInfoLoc?.cto_linkedin}
+                                    href={
+                                      ctoInfoLoc?.cto_linkedin ||
+                                      ctoInfo?.cto_linkedin ||
+                                      '#'
+                                    }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfoLoc?.cto_linkedin}
+                                    {ctoInfoLoc?.cto_linkedin ||
+                                      ctoInfo?.cto_linkedin ||
+                                      'Not provided'}
                                   </a>
                                 </div>
                               </li>
@@ -1825,7 +2264,9 @@ const VerticalNavTabs = () => {
                                     TECH TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfoLoc?.tech_team_size}
+                                    {ctoInfoLoc?.tech_team_size ||
+                                      ctoInfo?.tech_team_size ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1838,33 +2279,44 @@ const VerticalNavTabs = () => {
                                     MOBILE APP LINK
                                   </div>
                                   <a
-                                    href={ctoInfoLoc?.mobile_app_link}
+                                    href={
+                                      ctoInfoLoc?.mobile_app_link ||
+                                      ctoInfo?.mobile_app_link ||
+                                      '#'
+                                    }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfoLoc?.mobile_app_link}
+                                    {ctoInfoLoc?.mobile_app_link ||
+                                      ctoInfo?.mobile_app_link ||
+                                      'Not provided'}
                                   </a>
                                 </div>
                               </li>
-                              {ctoInfoLoc?.technology_roadmap && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    TECHNOLOGY ROADMAP
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      TECHNOLOGY ROADMAP
-                                    </div>
-                                    <a
-                                      href={ctoInfoLoc?.technology_roadmap}
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Technology Roadmap
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      ctoInfoLoc?.technology_roadmap ||
+                                      ctoInfo?.technology_roadmap ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {ctoInfoLoc?.technology_roadmap ||
+                                    ctoInfo?.technology_roadmap
+                                      ? 'View Technology Roadmap'
+                                      : 'Not provided'}
+                                  </a>
+                                </div>
+                              </li>
                             </>
                           )}
                           {section.key === 'business_details' && (
@@ -1878,7 +2330,9 @@ const VerticalNavTabs = () => {
                                     CURRENT TRACTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetailsLoc?.current_traction}
+                                    {businessDetailsLoc?.current_traction ||
+                                      businessDetails?.current_traction ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1892,7 +2346,9 @@ const VerticalNavTabs = () => {
                                     MONTHS?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetailsLoc?.new_Customers}
+                                    {businessDetailsLoc?.new_Customers ||
+                                      businessDetails?.new_Customers ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1905,9 +2361,9 @@ const VerticalNavTabs = () => {
                                     WHAT IS YOUR CUSTOMER ACQUISITION COST?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      businessDetailsLoc?.customer_AcquisitionCost
-                                    }
+                                    {businessDetailsLoc?.customer_AcquisitionCost ||
+                                      businessDetails?.customer_AcquisitionCost ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1920,10 +2376,9 @@ const VerticalNavTabs = () => {
                                     WHAT IS THE LIFETIME VALUE OF YOUR CUSTOMER?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {
-                                      businessDetailsLoc?.customer_Lifetime_Value
-                                    }
-                                    {businessDetails?.customer_Lifetime_Value}
+                                    {businessDetailsLoc?.customer_Lifetime_Value ||
+                                      businessDetails?.customer_Lifetime_Value ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -2468,227 +2923,207 @@ const VerticalNavTabs = () => {
 
                           {section.key === 'funding_info' && (
                             <>
-                              {(fundingInformationLoc?.total_funding_ask ||
-                                fundingInformation?.total_funding_ask) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:currency-dollar' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:currency-dollar' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    TOTAL FUNDING ASK
                                   </div>
-                                  <div className='flex-1'>
-                                    +{' '}
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      TOTAL FUNDING ASK
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {fundingInformationLoc?.total_funding_ask ||
-                                        fundingInformation?.total_funding_ask}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.total_funding_ask ||
+                                      fundingInformation?.total_funding_ask ||
+                                      'Not provided'}
                                   </div>
-                                </li>
-                              )}
-                              {(fundingInformationLoc?.amount_committed ||
-                                fundingInformation?.amount_committed) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:banknotes' />
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:banknotes' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    AMOUNT COMMITTED
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      AMOUNT COMMITTED
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {fundingInformationLoc?.amount_committed ||
-                                        fundingInformation?.amount_committed}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.amount_committed ||
+                                      fundingInformation?.amount_committed ||
+                                      'Not provided'}
                                   </div>
-                                </li>
-                              )}
-                              {(fundingInformationLoc?.government_grants ||
-                                fundingInformation?.government_grants) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:clipboard-document-check' />
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:clipboard-document-check' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    GOVERNMENT GRANTS
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      GOVERNMENT GRANTS
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {fundingInformationLoc?.government_grants ||
-                                        fundingInformation?.government_grants}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.government_grants ||
+                                      fundingInformation?.government_grants ||
+                                      'Not provided'}
                                   </div>
-                                </li>
-                              )}
-                              {(fundingInformationLoc?.equity_split ||
-                                fundingInformation?.equity_split) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:chart-pie' />
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:chart-pie' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    EQUITY SPLIT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      EQUITY SPLIT
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {fundingInformationLoc?.equity_split ||
-                                        fundingInformation?.equity_split}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.equity_split ||
+                                      fundingInformation?.equity_split ||
+                                      'Not provided'}
                                   </div>
-                                </li>
-                              )}
-                              {(fundingInformationLoc?.fund_utilization ||
-                                fundingInformation?.fund_utilization) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document-text' />
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document-text' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    FUND UTILIZATION
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      FUND UTILIZATION
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {fundingInformationLoc?.fund_utilization ||
-                                        fundingInformation?.fund_utilization}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.fund_utilization ||
+                                      fundingInformation?.fund_utilization ||
+                                      'Not provided'}
                                   </div>
-                                </li>
-                              )}
-                              {(fundingInformationLoc?.arr ||
-                                fundingInformation?.arr) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:chart-bar' />
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:chart-bar' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    ARR
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      ARR
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {fundingInformationLoc?.arr ||
-                                        fundingInformation?.arr}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.arr ||
+                                      fundingInformation?.arr ||
+                                      'Not provided'}
                                   </div>
-                                </li>
-                              )}
-                              {(fundingInformationLoc?.mrr ||
-                                fundingInformation?.mrr) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:chart-bar' />
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:chart-bar' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    MRR
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      MRR
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {fundingInformationLoc?.mrr ||
-                                        fundingInformation?.mrr}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.mrr ||
+                                      fundingInformation?.mrr ||
+                                      'Not provided'}
                                   </div>
-                                </li>
-                              )}
-                              {(fundingInformationLoc?.current_cap_table ||
-                                fundingInformation?.current_cap_table) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    CAP TABLE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      Cap Table
-                                    </div>
-                                    <a
-                                      href={
-                                        fundingInformationLoc?.current_cap_table ||
-                                        fundingInformation?.current_cap_table
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Cap Table
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
-
+                                  <a
+                                    href={
+                                      fundingInformationLoc?.current_cap_table ||
+                                      fundingInformation?.current_cap_table ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {fundingInformationLoc?.current_cap_table ||
+                                    fundingInformation?.current_cap_table
+                                      ? 'View Cap Table'
+                                      : 'Not provided'}
+                                  </a>
+                                </div>
+                              </li>
                               {/* Render Previous Funding Information */}
-                              {(fundingInformationLoc?.previous_funding ||
-                                fundingInformation?.previous_funding) && (
-                                <>
-                                  <div className='mt-4 text-slate-600 dark:text-slate-300 uppercase text-xs font-medium mb-1 leading-[12px]'>
-                                    Previous Funding Information
-                                  </div>
-                                  {fundingInformationLoc?.previous_funding?.map(
-                                    (funding, index) => (
-                                      <li
-                                        key={index}
-                                        className='flex space-x-3 rtl:space-x-reverse'
-                                      >
-                                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                          <Icon icon='heroicons:banknotes' />
-                                        </div>
-                                        <div className='flex-1'>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Investor Name: ${
-                                              funding.investorName || ''
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Firm Name: ${
-                                              funding.firmName || ''
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Investor Type: ${
-                                              funding.investorType || ''
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Amount Raised: ${
-                                              funding.amountRaised || ''
-                                            }`}
-                                          </div>
-                                        </div>
-                                      </li>
-                                    )
-                                  )}
-                                  {fundingInformation?.previous_funding?.map(
-                                    (funding, index) => (
-                                      <li
-                                        key={index}
-                                        className='flex space-x-3 rtl:space-x-reverse'
-                                      >
-                                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                          <Icon icon='heroicons:banknotes' />
-                                        </div>
-                                        <div className='flex-1'>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Investor Name: ${
-                                              funding.investorName || ''
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Firm Name: ${
-                                              funding.firmName || ''
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Investor Type: ${
-                                              funding.investorType || ''
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Amount Raised: ${
-                                              funding.amountRaised || ''
-                                            }`}
-                                          </div>
-                                        </div>
-                                      </li>
-                                    )
-                                  )}
-                                </>
+                              <div className='mt-4 text-slate-600 dark:text-slate-300 uppercase text-xs font-medium mb-1 leading-[12px]'>
+                                Previous Funding Information
+                              </div>
+                              {fundingInformationLoc?.previous_funding?.map(
+                                (funding, index) => (
+                                  <li
+                                    key={index}
+                                    className='flex space-x-3 rtl:space-x-reverse'
+                                  >
+                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                      <Icon icon='heroicons:banknotes' />
+                                    </div>
+                                    <div className='flex-1'>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Investor Name: ${
+                                          funding.investorName || 'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Firm Name: ${
+                                          funding.firmName || 'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Investor Type: ${
+                                          funding.investorType || 'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Amount Raised: ${
+                                          funding.amountRaised || 'Not provided'
+                                        }`}
+                                      </div>
+                                    </div>
+                                  </li>
+                                )
+                              )}
+                              {fundingInformation?.previous_funding?.map(
+                                (funding, index) => (
+                                  <li
+                                    key={index}
+                                    className='flex space-x-3 rtl:space-x-reverse'
+                                  >
+                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                      <Icon icon='heroicons:banknotes' />
+                                    </div>
+                                    <div className='flex-1'>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Investor Name: ${
+                                          funding.investorName || 'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Firm Name: ${
+                                          funding.firmName || 'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Investor Type: ${
+                                          funding.investorType || 'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Amount Raised: ${
+                                          funding.amountRaised || 'Not provided'
+                                        }`}
+                                      </div>
+                                    </div>
+                                  </li>
+                                )
                               )}
                             </>
                           )}
