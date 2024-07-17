@@ -32,7 +32,7 @@ import {
   fundingSchema,
   companyDocumentsSchema,
 } from '@/lib/schema/startup-form';
-import Select from '@/components/ui/Select';
+import CustomSelect from '@/components/ui/Select';
 
 const steps = [
   { id: 1, title: 'Contact Information' },
@@ -331,7 +331,7 @@ const FormWizard = () => {
                       error={errors.companyWebsite}
                       register={register}
                     />
-                    <Select
+                    <CustomSelect
                       label='Target Audience'
                       type='text'
                       placeholder='Target Audience'
@@ -365,7 +365,7 @@ const FormWizard = () => {
                       ]}
                       register={register}
                     />
-                    <Select
+                    <CustomSelect
                       label='Industry or Sector'
                       type='text'
                       placeholder='Industry or Sector'
@@ -483,7 +483,7 @@ const FormWizard = () => {
                       error={errors.linkedinProfile}
                       register={register}
                     />
-                    <Select
+                    <CustomSelect
                       label='Is your startup in media? '
                       type='text'
                       placeholder='Yes/No'

@@ -7,7 +7,7 @@ import Icon from '@/components/ui/Icon';
 import useUserDetails from '@/hooks/useUserDetails';
 import Textinput from '@/components/ui/Textinput';
 import Textarea from '@/components/ui/Textarea';
-import Select from '@/components/ui/Select';
+import CustomSelect from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Loading from '@/components/Loading';
 
@@ -391,7 +391,7 @@ const Profile = () => {
                         />
                         Investment Stage
                       </label>
-                      <Select
+                      <CustomSelect
                         name='investment_stage'
                         options={[
                           { value: 'Pre Seed', label: 'Pre Seed' },

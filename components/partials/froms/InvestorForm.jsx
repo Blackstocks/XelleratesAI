@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Textinput from '@/components/ui/Textinput';
 import Textarea from '@/components/ui/Textarea';
-import Select from '@/components/ui/Select';
+import CustomSelect from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { useForm, Controller } from 'react-hook-form';
@@ -186,7 +186,7 @@ const InvestorSignupForm = () => {
               error={errors.mobile}
               register={register}
             />
-            <Select
+            <CustomSelect
               label='Are you a'
               name='usertype'
               options={[
@@ -213,7 +213,7 @@ const InvestorSignupForm = () => {
               error={errors.chequeSize}
               register={register}
             />
-            <Select
+            <CustomSelect
               label='Sectors you are interested in'
               name='sectors'
               options={[

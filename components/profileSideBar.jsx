@@ -8,9 +8,11 @@ import Textarea from '@/components/ui/Textarea';
 import Button from '@/components/ui/Button';
 import useUserDetails from '@/hooks/useUserDetails';
 import Loading from '@/components/Loading';
-import Select from './ui/Select';
+import CustomSelect from './ui/Select';
+import Select from 'react-select';
 import InputGroup from './ui/InputGroup';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import { countries } from '@/constant/data';
 import { useFieldArray } from 'react-hook-form';
 import {
   updateGeneralInfo,
@@ -663,13 +665,49 @@ const VerticalNavTabs = () => {
                               placeholder='Select the incorporation date'
                               register={register}
                             />
-                            <Textinput
-                              label='Country'
+                            <Controller
                               name='country'
-                              defaultValue={companyProfileLoc?.country}
-                              placeholder='Enter the country'
-                              register={register}
+                              control={control}
+                              defaultValue=''
+                              render={({ field }) => (
+                                <div>
+                                  <label
+                                    htmlFor='country'
+                                    className='form-label'
+                                  >
+                                    Country
+                                  </label>
+                                  <Select
+                                    name='loading'
+                                    isLoading={true}
+                                    isClearable={false}
+                                    {...field}
+                                    options={countries}
+                                    register={register}
+                                    styles={{
+                                      option: (provided) => ({
+                                        ...provided,
+                                        fontSize: '14px',
+                                      }),
+                                    }}
+                                    className='react-select'
+                                    classNamePrefix='select'
+                                    defaultValue={countries.find(
+                                      (country) =>
+                                        country.value ===
+                                        (field.value ||
+                                          companyProfileLoc?.country ||
+                                          companyProfile?.country)
+                                    )}
+                                    onChange={(selectedOption) =>
+                                      field.onChange(selectedOption?.value)
+                                    }
+                                    placeholder='Select your country'
+                                  />
+                                </div>
+                              )}
                             />
+
                             <Textinput
                               label='State/City'
                               name='state_city'
@@ -707,7 +745,7 @@ const VerticalNavTabs = () => {
                               placeholder='Provide a brief business description'
                               register={register}
                             />
-                            <Select
+                            <CustomSelect
                               label='Target Audience'
                               name='target_audience'
                               defaultValue={companyProfileLoc?.target_audience}
@@ -722,7 +760,7 @@ const VerticalNavTabs = () => {
                               placeholder='Select the target audience'
                               register={register}
                             />
-                            <Select
+                            <CustomSelect
                               label='Industry or Sector'
                               name='industry_sector'
                               defaultValue={companyProfileLoc?.industry_sector}
@@ -842,7 +880,7 @@ const VerticalNavTabs = () => {
                               placeholder='Describe the USP/MOAT'
                               register={register}
                             />
-                            <Select
+                            <CustomSelect
                               label='Is your startup in media?'
                               name='media'
                               defaultValue={companyProfileLoc?.media}
