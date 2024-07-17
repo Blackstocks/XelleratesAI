@@ -128,19 +128,15 @@ const VerticalNavTabs = () => {
     companyProfile,
     businessDetails,
     founderInformation,
-    cofounderInformation,
     fundingInformation,
     ctoInfo,
     companyDocuments,
-    investorSignup,
     updateUserLocally,
   } = useCompleteUserDetails();
   const {
     control,
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm();
   const {
@@ -209,7 +205,7 @@ const VerticalNavTabs = () => {
         switch (section) {
           case 'startup_details':
             if (data.company_logo && data.company_logo[0]) {
-              uploadedFiles.companyLogo = await handleFileUpload(
+              uploadedFiles.company_logo = await handleFileUpload(
                 data.company_logo[0],
                 'documents',
                 companyProfile?.company_name || data.company_name,
@@ -219,9 +215,9 @@ const VerticalNavTabs = () => {
             break;
 
           case 'founder_info':
-            if (data.list_of_advisers && data.list_of_advisers[0]) {
-              uploadedFiles.list_of_advisers = await handleFileUpload(
-                data.list_of_advisers[0],
+            if (data.co_founder_agreement && data.co_founder_agreement[0]) {
+              uploadedFiles.co_founder_agreement = await handleFileUpload(
+                data.co_founder_agreement[0],
                 'documents',
                 companyProfile?.company_name || data.company_name,
                 'list_of_advisers'
@@ -284,7 +280,8 @@ const VerticalNavTabs = () => {
 
         case 'startup_details':
           console.log('companyProfile:', companyProfile);
-          const emptyStartupDetails = !companyProfile?.id;
+          const emptyStartupDetails =
+            !companyProfile?.id || !companyProfileLoc?.id;
           const startupData = {
             company_name: data.company_name || null,
             incorporation_date: data.incorporation_date || null,
@@ -305,18 +302,21 @@ const VerticalNavTabs = () => {
           };
 
           try {
+            console.log('uploadFiles:', uploadedFiles);
             let startupDetailsResponse;
             console.log('emptyStartupDetails:', emptyStartupDetails);
             if (emptyStartupDetails) {
               startupDetailsResponse = await insertStartupDetails(
                 startupData,
-                user.id
+                user.id,
+                uploadedFiles
               );
             } else {
               console.log('emptyStartupDetails:', emptyStartupDetails);
               startupDetailsResponse = await updateStartupDetails(
                 startupData,
-                user.id
+                user.id,
+                uploadedFiles
               );
             }
 
@@ -345,7 +345,8 @@ const VerticalNavTabs = () => {
           break;
 
         case 'founder_info':
-          const emptyFounderInfo = !founderInformation?.id;
+          const emptyFounderInfo =
+            !founderInformation?.id || !founderInformationLoc?.id;
           const founderData = {
             company_id: companyProfile?.id,
             founder_name: data.founder_name || null,
@@ -398,7 +399,7 @@ const VerticalNavTabs = () => {
           break;
 
         case 'CTO_info':
-          const emptyCtoInfo = !ctoInfo?.id;
+          const emptyCtoInfo = !ctoInfo?.id || !ctoInfoLoc?.id;
           changedData = {
             company_id: companyProfile?.id,
             cto_name: data.cto_name || null,
@@ -439,7 +440,8 @@ const VerticalNavTabs = () => {
 
         case 'company_documents':
           console.log(companyDocuments[0]?.id);
-          const emptyCompanyDocuments = !companyDocuments[0]?.id;
+          const emptyCompanyDocuments =
+            !companyDocuments[0]?.id || !companyDocumentsLoc?.id;
           const companyUploadedFiles = {};
           for (const [dbField, formField] of Object.entries(
             companyDocumentsFiles
@@ -485,7 +487,8 @@ const VerticalNavTabs = () => {
           break;
 
         case 'business_details':
-          const emptyBusinessDetails = !businessDetails?.id;
+          const emptyBusinessDetails =
+            !businessDetails?.id || !businessDetailsLoc?.id;
           changedData = {
             company_id: companyProfile.id,
             current_traction: data.current_traction || null,
@@ -526,7 +529,8 @@ const VerticalNavTabs = () => {
           break;
 
         case 'funding_info':
-          const emptyFundingInfo = !fundingInformation?.id;
+          const emptyFundingInfo =
+            !fundingInformation?.id || !fundingInformationLoc?.id;
           const fundingData = {
             company_id: companyProfile?.id,
             total_funding_ask: data.total_funding_ask || null,
@@ -651,10 +655,12 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Company Name'
                               name='company_name'
-                              defaultValue={companyProfileLoc?.company_name}
+                              defaultValue={user?.company_name}
                               placeholder='Enter your company name'
                               register={register}
+                              readOnly={!!user?.company_name} // This makes the input read-only if there is a default value
                             />
+
                             <Textinput
                               label='Incorporation Date'
                               type='date'
@@ -678,8 +684,6 @@ const VerticalNavTabs = () => {
                                     Country
                                   </label>
                                   <Select
-                                    name='loading'
-                                    isLoading={true}
                                     isClearable={false}
                                     {...field}
                                     options={countries}
@@ -692,17 +696,7 @@ const VerticalNavTabs = () => {
                                     }}
                                     className='react-select'
                                     classNamePrefix='select'
-                                    defaultValue={countries.find(
-                                      (country) =>
-                                        country.value ===
-                                        (field.value ||
-                                          companyProfileLoc?.country ||
-                                          companyProfile?.country)
-                                    )}
-                                    onChange={(selectedOption) =>
-                                      field.onChange(selectedOption?.value)
-                                    }
-                                    placeholder='Select your country'
+                                    defaultValue={countries[0]}
                                   />
                                 </div>
                               )}
@@ -893,7 +887,6 @@ const VerticalNavTabs = () => {
                             />
                             <InputGroup
                               label='Upload Company Logo'
-                              selectedFile={companyProfileLoc?.company_logo}
                               type='file'
                               name='company_logo'
                               error={errors.company_logo}
@@ -915,6 +908,7 @@ const VerticalNavTabs = () => {
                                     placeholder='Platform'
                                     register={register}
                                     name={`socialMedia[${index}].platform`}
+                                    defaultValue={item.platform || ''}
                                   />
                                   <Textinput
                                     label='URL'
@@ -923,6 +917,7 @@ const VerticalNavTabs = () => {
                                     placeholder='URL'
                                     register={register}
                                     name={`socialMedia[${index}].url`}
+                                    defaultValue={item.url || ''}
                                   />
                                   <div className='ml-auto mt-auto relative'>
                                     <button
@@ -1659,7 +1654,8 @@ const VerticalNavTabs = () => {
                                     COMPANY NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.company_name ||
+                                    {user?.company_name ||
+                                      companyProfileLoc?.company_name ||
                                       companyProfile?.company_name ||
                                       'Not provided'}
                                   </div>

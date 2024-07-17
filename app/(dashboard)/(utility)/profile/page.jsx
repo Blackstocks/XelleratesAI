@@ -13,18 +13,17 @@ import Loading from '@/components/Loading';
 
 import VerticalNavTabs from '@/components/profileSideBar';
 import {
-  updateStartupDetails,
-  updateFounderInfo,
-  updateBusinessDetails,
-  updateFundingInfo,
   updateInvestorDetails,
+  insertInvestorSignupData,
   updateProfile,
 } from '@/lib/actions/insertformdetails';
 import FormCompletionBanner from '@/components/FormCompletionBanner'; // Import the new banner component
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const Profile = () => {
-  const { user, details, loading, updateUserLocally, updateDetailsLocally } =
-    useUserDetails();
+  const { user, updateDetailsLocally } = useUserDetails();
+  const { companyProfile, investorSignup, updateUserLocally } =
+    useCompleteUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const { register, handleSubmit, reset } = useForm();
 
@@ -36,20 +35,10 @@ const Profile = () => {
           result = await updateProfile(user.id, data);
           updateUserLocally(data);
           break;
-        case 'startup_details':
-          result = await updateStartupDetails(details.profile_id, data);
-          break;
-        case 'founder_info':
-          result = await updateFounderInfo(details.id, data);
-          break;
-        case 'business_details':
-          result = await updateBusinessDetails(details.id, data);
-          break;
-        case 'funding_info':
-          result = await updateFundingInfo(details.id, data);
-          break;
         case 'investor_details':
-          result = await updateInvestorDetails(user.id, data);
+          result = investorSignup
+            ? await updateInvestorDetails(user.id, data)
+            : await insertInvestorSignupData({ ...data, profile_id: user.id });
           updateDetailsLocally(data);
           break;
         default:
@@ -66,7 +55,7 @@ const Profile = () => {
 
   return (
     <div className='space-y-5 profile-page'>
-      <FormCompletionBanner profileId={details?.profile_id} />{' '}
+      <FormCompletionBanner profileId={companyProfile?.profile_id} />{' '}
       {/* Add the banner component */}
       <>
         <div className='profiel-wrap px-[35px] pb-10 md:pt-[84px] pt-10 rounded-lg bg-white dark:bg-slate-800 lg:flex lg:space-y-0 space-y-6 justify-between items-end relative z-[1]'>
@@ -75,11 +64,11 @@ const Profile = () => {
             <div className='md:flex items-end md:space-x-6 rtl:space-x-reverse'>
               <div className='flex-none'>
                 <div className='md:h-[186px] md:w-[186px] h-[140px] w-[140px] md:ml-0 md:mr-0 ml-auto mr-auto md:mb-0 mb-4 rounded-full ring-4 ring-slate-100 relative'>
-                  {details?.type === 'startup' ? (
+                  {user?.user_type === 'startup' ? (
                     <div>
-                      {details?.company_logo ? (
+                      {companyProfile?.company_logo ? (
                         <img
-                          src={details.company_logo}
+                          src={companyProfile.company_logo}
                           alt='Company Logo'
                           className='w-full h-full object-cover rounded-full'
                         />
@@ -93,9 +82,9 @@ const Profile = () => {
                     </div>
                   ) : (
                     <div>
-                      {details?.profile_photo ? (
+                      {investorSignup?.profile_photo ? (
                         <img
-                          src={details.profile_photo}
+                          src={investorSignup?.profile_photo}
                           alt='Company Logo'
                           className='w-full h-full object-cover rounded-full'
                         />
@@ -112,7 +101,7 @@ const Profile = () => {
               </div>
 
               <div className='flex-1'>
-                {details?.type === 'investor' ? (
+                {user?.user_type === 'investor' ? (
                   <div className='text-2xl font-medium text-slate-900 dark:text-slate-200 mb-[3px]'>
                     {user?.name || 'User Name'}
                   </div>
@@ -121,9 +110,9 @@ const Profile = () => {
                     {user?.company_name || 'User Name'}
                   </div>
                 )}
-                {details?.type === 'investor' && (
+                {user?.user_type === 'investor' && (
                   <div className='text-sm font-light text-slate-600 dark:text-slate-400'>
-                    {details?.typeof || 'IX'}
+                    {investorSignup?.typeof || 'IX'}
                   </div>
                 )}
               </div>
@@ -250,7 +239,7 @@ const Profile = () => {
                           INVESTOR TYPE
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {details.typeof}
+                          {investorSignup?.typeof}
                         </div>
                       </div>
                     </li>
@@ -263,7 +252,7 @@ const Profile = () => {
                           CHEQUE SIZE
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {details.cheque_size}
+                          {investorSignup?.cheque_size}
                         </div>
                       </div>
                     </li>
@@ -276,9 +265,9 @@ const Profile = () => {
                           SECTORS
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {Array.isArray(details.sectors)
-                            ? details.sectors.join(', ')
-                            : details.sectors}
+                          {Array.isArray(investorSignup?.sectors)
+                            ? investorSignup?.sectors.join(', ')
+                            : investorSignup?.sectors}
                         </div>
                       </div>
                     </li>
@@ -291,7 +280,7 @@ const Profile = () => {
                           INVESTMENT STAGE
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {details.investment_stage}
+                          {investorSignup?.investment_stage}
                         </div>
                       </div>
                     </li>
@@ -304,7 +293,7 @@ const Profile = () => {
                           INVESTMENT THESIS
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {details.investment_thesis}
+                          {investorSignup?.investment_thesis}
                         </div>
                       </div>
                     </li>
@@ -347,7 +336,7 @@ const Profile = () => {
                           },
                           { value: 'Syndicate', label: 'Syndicate' },
                         ]}
-                        defaultValue={details.typeof}
+                        defaultValue={investorSignup?.typeof}
                         register={register}
                       />
                     </div>
@@ -361,7 +350,7 @@ const Profile = () => {
                       </label>
                       <Textinput
                         name='cheque_size'
-                        defaultValue={details.cheque_size}
+                        defaultValue={investorSignup?.cheque_size}
                         register={register}
                       />
                     </div>
@@ -376,9 +365,9 @@ const Profile = () => {
                       <Textarea
                         name='sectors'
                         defaultValue={
-                          Array.isArray(details.sectors)
-                            ? details.sectors.join(', ')
-                            : details.sectors
+                          Array.isArray(investorSignup?.sectors)
+                            ? investorSignup?.sectors.join(', ')
+                            : investorSignup?.sectors
                         }
                         register={register}
                       />
@@ -404,7 +393,7 @@ const Profile = () => {
                             label: 'Series C & Beyond',
                           },
                         ]}
-                        defaultValue={details.investment_stage}
+                        defaultValue={investorSignup?.investment_stage}
                         register={register}
                       />
                     </div>
@@ -418,7 +407,7 @@ const Profile = () => {
                       </label>
                       <Textarea
                         name='investment_thesis'
-                        defaultValue={details.investment_thesis}
+                        defaultValue={investorSignup?.investment_thesis}
                         register={register}
                       />
                     </div>
@@ -450,27 +439,6 @@ const Profile = () => {
           />
         )}
       </>
-      {/* <div>
-          <Modal
-            activeModal={isModalActive}
-            onClose={handleClose}
-            centered
-            title='Your Profile is Incomplete'
-          >
-            <div className='flex flex-col justify-center'>
-              <h4 className='font-medium text-lg text-center mb-3 text-slate-900'>
-                Update your Profile
-              </h4>
-
-              <Button
-                className='max-w-20 ml-auto mr-auto h-8 w-auto text-white bg-[rgb(30,41,59)] rounded-md shadow-md flex items-center justify-center px-3'
-                onClick={handleClick}
-              >
-                Update
-              </Button>
-            </div>
-          </Modal>
-        </div> */}
     </div>
   );
 };
