@@ -19,6 +19,7 @@ import {
   updateCTODetails,
   updateStartupDetails,
   updateFounderInfo,
+  updateCompanyDocuments,
   updateBusinessDetails,
   updateFundingInfo,
   handleFileUpload,
@@ -152,6 +153,7 @@ const VerticalNavTabs = () => {
   const [fundingInformationLoc, setFundingInformationLoc] = useState(null);
   const [ctoInfoLoc, setCtoInfoLoc] = useState(null);
   const [businessDetailsLoc, setBusinessDetailsLoc] = useState(null);
+  const [companyDocumentsLoc, setCompanyDocumentsLoc] = useState(null);
 
   useEffect(() => {
     setFounderInformationLoc(founderInformation);
@@ -159,6 +161,7 @@ const VerticalNavTabs = () => {
     setFundingInformationLoc(fundingInformation);
     setCtoInfoLoc(ctoInfo);
     setBusinessDetailsLoc(businessDetails);
+    setCompanyDocumentsLoc(companyDocuments);
   }, [companyProfile]);
 
   const handleSave = async (data, section) => {
@@ -275,17 +278,20 @@ const VerticalNavTabs = () => {
               changedData,
               uploadedFiles
             );
-            if (startupDetailsResponse.error)
+            if (startupDetailsResponse.error) {
               throw startupDetailsResponse.error;
-            updatedData = startupDetailsResponse[0];
+            }
+            updatedData = startupDetailsResponse;
             console.log('Inserted company profile:', updatedData);
+            setCompanyProfileLoc(updatedData);
           } else {
             const startupDetailsResponse = await updateStartupDetails(
               companyProfile.id,
               changedData
             );
-            if (startupDetailsResponse.error)
+            if (startupDetailsResponse.error) {
               throw startupDetailsResponse.error;
+            }
             updatedData = startupDetailsResponse.data;
             console.log('Updated company profile:', updatedData);
             setCompanyProfileLoc(updatedData);
@@ -308,8 +314,8 @@ const VerticalNavTabs = () => {
           };
 
           console.log('Changed Data for founder_info:', changedData);
-          console.log(emptyfounder_info);
-          if (emptyfounder_info) {
+          console.log(emptyFounderInfo);
+          if (emptyFounderInfo) {
             const founderInfoResponse = await insertFounderInformation(
               companyProfile.id,
               changedData,
@@ -317,7 +323,8 @@ const VerticalNavTabs = () => {
             );
             if (founderInfoResponse.error) throw founderInfoResponse.error;
             console.log('founderInfoResponse', founderInfoResponse);
-            updatedData = founderInfoResponse.data;
+            updatedData = founderInfoResponse[0]; // Correctly accessing the inserted data
+            console.log('updatedData', updatedData);
             setFounderInformationLoc(updatedData);
           } else {
             const founderInfoResponse = await updateFounderInfo(
@@ -326,7 +333,7 @@ const VerticalNavTabs = () => {
               uploadedFiles
             );
             if (founderInfoResponse.error) throw founderInfoResponse.error;
-            updatedData = founderInfoResponse.data;
+            updatedData = founderInfoResponse[0]; // Assuming update returns an array
             setFounderInformationLoc(updatedData);
           }
           break;
@@ -350,8 +357,11 @@ const VerticalNavTabs = () => {
               changedData,
               uploadedFiles
             );
-            if (ctoInfoResponse.error) throw ctoInfoResponse.error;
-            updatedData = ctoInfoResponse.data;
+            if (ctoInfoResponse.error) {
+              throw ctoInfoResponse.error;
+            }
+            updatedData = ctoInfoResponse;
+            console.log('Inserted CTO details:', updatedData);
             setCtoInfoLoc(updatedData);
           } else {
             const ctoInfoResponse = await updateCTODetails(
@@ -359,8 +369,11 @@ const VerticalNavTabs = () => {
               changedData,
               uploadedFiles
             );
-            if (ctoInfoResponse.error) throw ctoInfoResponse.error;
+            if (ctoInfoResponse.error) {
+              throw ctoInfoResponse.error;
+            }
             updatedData = ctoInfoResponse.data;
+            console.log('Updated CTO details:', updatedData);
             setCtoInfoLoc(updatedData);
           }
           break;
@@ -368,7 +381,7 @@ const VerticalNavTabs = () => {
         case 'company_documents':
           console.log(companyDocuments);
           console.log(companyDocuments[0]?.id);
-          const emptycompany_documents = !companyDocuments[0]?.id;
+          const emptyCompanyDocuments = !companyDocuments[0]?.id;
           const companyUploadedFiles = {};
           for (const [dbField, formField] of Object.entries(
             companyDocumentsFiles
@@ -384,27 +397,32 @@ const VerticalNavTabs = () => {
           }
 
           console.log('Changed Data for company_documents:', data);
-          console.log(emptycompany_documents);
-          if (emptycompany_documents) {
-            const companyDocumentsResponse = await insertCompanyDocuments(
-              companyProfile.id,
-              data,
-              uploadedFiles
-            );
-            if (companyDocumentsResponse.error)
-              throw companyDocumentsResponse.error;
-            updatedData = companyDocumentsResponse.data;
-            console.log(updatedData);
-          } else {
-            const companyDocumentsResponse = await updateCompanyDocuments(
-              companyProfile.id,
-              data,
-              uploadedFiles
-            );
-            if (companyDocumentsResponse.error)
-              throw companyDocumentsResponse.error;
-            updatedData = companyDocumentsResponse.data;
-            console.log(updatedData);
+          console.log(emptyCompanyDocuments);
+          try {
+            if (emptyCompanyDocuments) {
+              const companyDocumentsResponse = await insertCompanyDocuments(
+                companyProfile.id,
+                companyUploadedFiles
+              );
+              if (companyDocumentsResponse.error) {
+                throw companyDocumentsResponse.error;
+              }
+              updatedData = companyDocumentsResponse;
+              console.log('Inserted company documents:', updatedData);
+            } else {
+              const companyDocumentsResponse = await updateCompanyDocuments(
+                companyProfile.id,
+                companyUploadedFiles
+              );
+              if (companyDocumentsResponse.error) {
+                throw companyDocumentsResponse.error;
+              }
+              updatedData = companyDocumentsResponse.data;
+              console.log('Updated company documents:', updatedData);
+            }
+            setCompanyDocumentsLoc(updatedData);
+          } catch (error) {
+            console.error('Error saving company documents:', error);
           }
           break;
 
@@ -417,27 +435,33 @@ const VerticalNavTabs = () => {
             customer_AcquisitionCost: data.customer_AcquisitionCost || null,
             customer_Lifetime_Value: data.customer_Lifetime_Value || null,
           };
+
           try {
             if (emptyBusinessDetails) {
               const businessDetailsResponse = await insertBusinessDetails(
                 companyProfile.id,
                 changedData
               );
-              if (businessDetailsResponse.error)
+              if (businessDetailsResponse.error) {
                 throw businessDetailsResponse.error;
+              }
               updatedData = businessDetailsResponse.data;
-              updateDetailsLocally('businessDetails', updatedData);
+              console.log('Inserted business details:', updatedData);
+              setBusinessDetailsLoc(updatedData);
             } else {
               const businessDetailsResponse = await updateBusinessDetails(
                 companyProfile.id,
                 changedData
               );
-              if (businessDetailsResponse.error)
+              if (businessDetailsResponse.error) {
                 throw businessDetailsResponse.error;
+              }
               updatedData = businessDetailsResponse.data;
+              console.log('Updated business details:', updatedData);
               setBusinessDetailsLoc(updatedData);
-              console.log('Data saved successfully:', updatedData);
+              console.log('Business Details:', businessDetailsLoc);
             }
+            console.log('Data saved successfully:', updatedData);
           } catch (error) {
             console.error('Error saving business details:', error);
           }
@@ -463,17 +487,22 @@ const VerticalNavTabs = () => {
               changedData,
               uploadedFiles
             );
-            if (fundingInfoResponse.error) throw fundingInfoResponse.error;
+            if (fundingInfoResponse.error) {
+              throw fundingInfoResponse.error;
+            }
             updatedData = fundingInfoResponse.data;
+            console.log('Inserted funding information:', updatedData);
             setFundingInformationLoc(updatedData);
           } else {
             const fundingInfoResponse = await updateFundingInfo(
               companyProfile.id,
               changedData
             );
-            if (fundingInfoResponse.error) throw fundingInfoResponse.error;
-            console.log(fundingInfoResponse);
+            if (fundingInfoResponse.error) {
+              throw fundingInfoResponse.error;
+            }
             updatedData = fundingInfoResponse.data;
+            console.log('Updated funding information:', updatedData);
             setFundingInformationLoc(updatedData);
           }
           break;
@@ -812,15 +841,13 @@ const VerticalNavTabs = () => {
                               register={register}
                               placeholder='Enter mobile app link'
                             />
-                            <Fileinput
-                              name='technology_roadmap'
-                              selectedFile={ctoInfoLoc?.technology_roadmap}
-                              onChange={(e) => onChange(e.target.files[0])}
+                            <InputGroup
                               label='Upload Technology Roadmap'
+                              name='technology_roadmap'
                               type='file'
-                              placeholder='Upload technology roadmap'
-                              error={errors.technology_roadmap}
                               register={register}
+                              defaultValue={ctoInfoLoc?.technology_roadmap}
+                              error={errors.technology_roadmap}
                             />
                           </>
                         )}
@@ -887,10 +914,12 @@ const VerticalNavTabs = () => {
                             />
                             <InputGroup
                               label='List of Advisers'
-                              selectedFile={
+                              name='list_of_advisers'
+                              type='file'
+                              register={register}
+                              defaultValue={
                                 founderInformation?.list_of_advisers
                               }
-                              onChange={(e) => onChange(e.target.files[0])}
                             />
                           </>
                         )}
@@ -1716,6 +1745,7 @@ const VerticalNavTabs = () => {
                                     {
                                       businessDetailsLoc?.customer_Lifetime_Value
                                     }
+                                    {businessDetails?.customer_Lifetime_Value}
                                   </div>
                                 </div>
                               </li>
@@ -1724,7 +1754,9 @@ const VerticalNavTabs = () => {
 
                           {section.key === 'company_documents' && (
                             <>
-                              {companyDocuments?.certificate_of_incorporation && (
+                              {(companyDocumentsLoc?.certificate_of_incorporation ||
+                                companyDocuments[0]
+                                  ?.certificate_of_incorporation) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1735,8 +1767,9 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments
-                                          .certificate_of_incorporation
+                                        companyDocumentsLoc?.certificate_of_incorporation ||
+                                        companyDocuments[0]
+                                          ?.certificate_of_incorporation
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1747,7 +1780,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.gst_certificate && (
+
+                              {(companyDocumentsLoc?.gst_certificate ||
+                                companyDocuments[0]?.gst_certificate) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1758,7 +1793,8 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments.gst_certificate
+                                        companyDocumentsLoc?.gst_certificate ||
+                                        companyDocuments[0]?.gst_certificate
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1769,7 +1805,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.trademark && (
+
+                              {(companyDocumentsLoc?.trademark ||
+                                companyDocuments[0]?.trademark) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1779,7 +1817,10 @@ const VerticalNavTabs = () => {
                                       TRADEMARK
                                     </div>
                                     <a
-                                      href={details.companyDocuments.trademark}
+                                      href={
+                                        companyDocumentsLoc?.trademark ||
+                                        companyDocuments[0]?.trademark
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1789,7 +1830,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.copyright && (
+
+                              {(companyDocumentsLoc?.copyright ||
+                                companyDocuments[0]?.copyright) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1799,7 +1842,10 @@ const VerticalNavTabs = () => {
                                       COPYRIGHT
                                     </div>
                                     <a
-                                      href={details.companyDocuments.copyright}
+                                      href={
+                                        companyDocumentsLoc?.copyright ||
+                                        companyDocuments[0]?.copyright
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1809,7 +1855,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.patent && (
+
+                              {(companyDocumentsLoc?.patent ||
+                                companyDocuments[0]?.patent) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1819,7 +1867,10 @@ const VerticalNavTabs = () => {
                                       PATENT
                                     </div>
                                     <a
-                                      href={details.companyDocuments.patent}
+                                      href={
+                                        companyDocumentsLoc?.patent ||
+                                        companyDocuments[0]?.patent
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1829,7 +1880,10 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.startup_india_certificate && (
+
+                              {(companyDocumentsLoc?.startup_india_certificate ||
+                                companyDocuments[0]
+                                  ?.startup_india_certificate) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1840,8 +1894,9 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments
-                                          .startup_india_certificate
+                                        companyDocumentsLoc?.startup_india_certificate ||
+                                        companyDocuments[0]
+                                          ?.startup_india_certificate
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1852,7 +1907,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.due_diligence_report && (
+
+                              {(companyDocumentsLoc?.due_diligence_report ||
+                                companyDocuments[0]?.due_diligence_report) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1863,8 +1920,9 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments
-                                          .due_diligence_report
+                                        companyDocumentsLoc?.due_diligence_report ||
+                                        companyDocuments[0]
+                                          ?.due_diligence_report
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1875,7 +1933,10 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.business_valuation_report && (
+
+                              {(companyDocumentsLoc?.business_valuation_report ||
+                                companyDocuments[0]
+                                  ?.business_valuation_report) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1886,8 +1947,9 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments
-                                          .business_valuation_report
+                                        companyDocumentsLoc?.business_valuation_report ||
+                                        companyDocuments[0]
+                                          ?.business_valuation_report
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1898,7 +1960,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.mis && (
+
+                              {(companyDocumentsLoc?.mis ||
+                                companyDocuments[0]?.mis) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1908,7 +1972,10 @@ const VerticalNavTabs = () => {
                                       MIS
                                     </div>
                                     <a
-                                      href={details.companyDocuments.mis}
+                                      href={
+                                        companyDocumentsLoc?.mis ||
+                                        companyDocuments[0]?.mis
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1918,7 +1985,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.financial_projections && (
+
+                              {(companyDocumentsLoc?.financial_projections ||
+                                companyDocuments[0]?.financial_projections) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1929,8 +1998,9 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments
-                                          .financial_projections
+                                        companyDocumentsLoc?.financial_projections ||
+                                        companyDocuments[0]
+                                          ?.financial_projections
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1941,7 +2011,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.balance_sheet && (
+
+                              {(companyDocumentsLoc?.balance_sheet ||
+                                companyDocuments[0]?.balance_sheet) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1952,7 +2024,8 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments.balance_sheet
+                                        companyDocumentsLoc?.balance_sheet ||
+                                        companyDocuments[0]?.balance_sheet
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1963,7 +2036,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.pl_statement && (
+
+                              {(companyDocumentsLoc?.pl_statement ||
+                                companyDocuments[0]?.pl_statement) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1974,7 +2049,8 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments.pl_statement
+                                        companyDocumentsLoc?.pl_statement ||
+                                        companyDocuments[0]?.pl_statement
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1985,7 +2061,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.cashflow_statement && (
+
+                              {(companyDocumentsLoc?.cashflow_statement ||
+                                companyDocuments[0]?.cashflow_statement) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1996,8 +2074,8 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments
-                                          .cashflow_statement
+                                        companyDocumentsLoc?.cashflow_statement ||
+                                        companyDocuments[0]?.cashflow_statement
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -2008,7 +2086,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.pitch_deck && (
+
+                              {(companyDocumentsLoc?.pitch_deck ||
+                                companyDocuments[0]?.pitch_deck) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2018,7 +2098,10 @@ const VerticalNavTabs = () => {
                                       PITCH DECK
                                     </div>
                                     <a
-                                      href={details.companyDocuments.pitch_deck}
+                                      href={
+                                        companyDocumentsLoc?.pitch_deck ||
+                                        companyDocuments[0]?.pitch_deck
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -2028,7 +2111,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.video_pitch && (
+
+                              {(companyDocumentsLoc?.video_pitch ||
+                                companyDocuments[0]?.video_pitch) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2039,7 +2124,8 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments.video_pitch
+                                        companyDocumentsLoc?.video_pitch ||
+                                        companyDocuments[0]?.video_pitch
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -2050,7 +2136,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.sha && (
+
+                              {(companyDocumentsLoc?.sha ||
+                                companyDocuments[0]?.sha) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2060,7 +2148,10 @@ const VerticalNavTabs = () => {
                                       SHA (PREVIOUS/EXISTING ROUND)
                                     </div>
                                     <a
-                                      href={details.companyDocuments.sha}
+                                      href={
+                                        companyDocumentsLoc?.sha ||
+                                        companyDocuments[0]?.sha
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -2070,7 +2161,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.termsheet && (
+
+                              {(companyDocumentsLoc?.termsheet ||
+                                companyDocuments[0]?.termsheet) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2080,7 +2173,10 @@ const VerticalNavTabs = () => {
                                       TERMSHEET (PREVIOUS/EXISTING ROUND)
                                     </div>
                                     <a
-                                      href={details.companyDocuments.termsheet}
+                                      href={
+                                        companyDocumentsLoc?.termsheet ||
+                                        companyDocuments[0]?.termsheet
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -2090,7 +2186,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.employment_agreement && (
+
+                              {(companyDocumentsLoc?.employment_agreement ||
+                                companyDocuments[0]?.employment_agreement) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2101,8 +2199,9 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        details.companyDocuments
-                                          .employment_agreement
+                                        companyDocumentsLoc?.employment_agreement ||
+                                        companyDocuments[0]
+                                          ?.employment_agreement
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -2113,7 +2212,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.mou && (
+
+                              {(companyDocumentsLoc?.mou ||
+                                companyDocuments[0]?.mou) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2123,7 +2224,10 @@ const VerticalNavTabs = () => {
                                       MOU
                                     </div>
                                     <a
-                                      href={details.companyDocuments.mou}
+                                      href={
+                                        companyDocumentsLoc?.mou ||
+                                        companyDocuments[0]?.mou
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -2133,7 +2237,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
-                              {companyDocuments?.nda && (
+
+                              {(companyDocumentsLoc?.nda ||
+                                companyDocuments[0]?.nda) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2143,7 +2249,10 @@ const VerticalNavTabs = () => {
                                       NDA
                                     </div>
                                     <a
-                                      href={details.companyDocuments.nda}
+                                      href={
+                                        companyDocumentsLoc?.nda ||
+                                        companyDocuments[0]?.nda
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
