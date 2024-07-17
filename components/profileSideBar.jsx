@@ -21,7 +21,7 @@ import {
   updateBusinessDetails,
   updateFundingInfo,
   handleFileUpload,
-  insertCompanyProfile,
+  insertStartupDetails,
   insertBusinessDetails,
   insertFundingInformation,
   insertFounderInformation,
@@ -141,9 +141,22 @@ const VerticalNavTabs = () => {
     watch,
     formState: { errors },
   } = useForm();
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: fundingFields,
+    append: appendFunding,
+    remove: removeFunding,
+  } = useFieldArray({
     control,
     name: 'funding',
+  });
+
+  const {
+    fields: socialMediaFields,
+    append: appendSocialMedia,
+    remove: removeSocialMedia,
+  } = useFieldArray({
+    control,
+    name: 'socialMedia',
   });
 
   const { user, loading, details } = useUserDetails();
@@ -208,9 +221,7 @@ const VerticalNavTabs = () => {
             break;
 
           case 'company_documents':
-            for (const [dbField, formField] of Object.entries(
-              companyDocumentsFiles
-            )) {
+            for (const [formField] of Object.entries(companyDocumentsFiles)) {
               if (data[formField] && data[formField][0]) {
                 uploadedFiles[formField] = await handleFileUpload(
                   data[formField][0],
@@ -252,49 +263,64 @@ const VerticalNavTabs = () => {
           break;
 
         case 'startup_details':
+          console.log('companyProfile:', companyProfile || companyProfile[0]);
           const emptyStartupDetails = !companyProfile?.id;
-          changedData = {
-            profile_id: user?.id,
-            company_name: data.company_name || null,
-            short_description: data.short_description || null,
-            incorporation_date: data.incorporation_date || null,
-            country: data.country || null,
-            state_city: data.state_city || null,
-            office_address: data.office_address || null,
-            pin_code: data.pin_code || null,
-            company_website: data.company_website || null,
-            linkedin_profile: data.linkedin_profile || null,
-            company_logo: uploadedFiles.company_logo || null,
-            current_stage: data.current_stage || null,
-            team_size: data.team_size || null,
-            target_audience: data.target_audience || null,
-            usp_moat: data.usp_moat || null,
-            industry_sector: data.industry_sector || null,
-            media: data.media || null,
+          const startupData = {
+            company_name: data.company_name || '',
+            incorporation_date: data.incorporation_date || '',
+            country: data.country || '',
+            state_city: data.state_city || '',
+            office_address: data.office_address || '',
+            company_website: data.company_website || '',
+            linkedin_profile: data.linkedin_profile || '',
+            short_description: data.short_description || '',
+            target_audience: data.target_audience || '',
+            industry_sector: data.industry_sector || '',
+            team_size: data.team_size || '',
+            current_stage: data.current_stage || '',
+            usp_moat: data.usp_moat || '',
+            media: data.media || '',
+            company_logo: uploadedFiles.company_logo || '',
+            socialMedia: data.socialMedia || [], // Ensure this is handled correctly as JSONB
           };
 
-          if (emptyStartupDetails) {
-            const startupDetailsResponse = await insertCompanyProfile(
-              changedData,
-              uploadedFiles
-            );
-            if (startupDetailsResponse.error) {
+          try {
+            let startupDetailsResponse;
+            console.log('emptyStartupDetails:', emptyStartupDetails);
+            if (emptyStartupDetails) {
+              startupDetailsResponse = await insertStartupDetails(
+                startupData,
+                user.id
+              );
+            } else {
+              console.log('emptyStartupDetails:', emptyStartupDetails);
+              startupDetailsResponse = await updateStartupDetails(
+                startupData,
+                user.id
+              );
+            }
+
+            if (startupDetailsResponse?.error) {
               throw startupDetailsResponse.error;
             }
-            updatedData = startupDetailsResponse;
-            console.log('Inserted company profile:', updatedData);
-            setCompanyProfileLoc(updatedData);
-          } else {
-            const startupDetailsResponse = await updateStartupDetails(
-              companyProfile.id,
-              changedData
-            );
-            if (startupDetailsResponse.error) {
-              throw startupDetailsResponse.error;
+
+            if (startupDetailsResponse) {
+              updatedData = startupDetailsResponse;
+              console.log(
+                `${
+                  emptyStartupDetails ? 'Inserted' : 'Updated'
+                } startup details:`,
+                updatedData
+              );
+              setCompanyProfileLoc(updatedData);
+            } else {
+              console.error(
+                'Unexpected response format:',
+                startupDetailsResponse
+              );
             }
-            updatedData = startupDetailsResponse.data;
-            console.log('Updated company profile:', updatedData);
-            setCompanyProfileLoc(updatedData);
+          } catch (error) {
+            console.error('Error handling startup details:', error);
           }
           break;
 
@@ -379,7 +405,6 @@ const VerticalNavTabs = () => {
           break;
 
         case 'company_documents':
-          console.log(companyDocuments);
           console.log(companyDocuments[0]?.id);
           const emptyCompanyDocuments = !companyDocuments[0]?.id;
           const companyUploadedFiles = {};
@@ -805,6 +830,53 @@ const VerticalNavTabs = () => {
                               error={errors.company_logo}
                               register={register}
                             />
+                            <div className='mt-4'>
+                              <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
+                                Other Social Media Handles
+                              </div>
+                              {socialMediaFields.map((item, index) => (
+                                <div
+                                  className='lg:grid-cols-5 md:grid-cols-4 grid-cols-1 grid gap-5 mb-5 last:mb-0'
+                                  key={item.id}
+                                >
+                                  <Textinput
+                                    label='Platform'
+                                    type='text'
+                                    id={`platform${index}`}
+                                    placeholder='Platform'
+                                    register={register}
+                                    name={`socialMedia[${index}].platform`}
+                                  />
+                                  <Textinput
+                                    label='URL'
+                                    type='url'
+                                    id={`url${index}`}
+                                    placeholder='URL'
+                                    register={register}
+                                    name={`socialMedia[${index}].url`}
+                                  />
+                                  <div className='ml-auto mt-auto relative'>
+                                    <button
+                                      onClick={() => removeSocialMedia(index)}
+                                      type='button'
+                                      className='inline-flex items-center justify-center h-10 w-10 bg-danger-500 text-lg border rounded border-danger-500 text-white'
+                                    >
+                                      <Icon icon='heroicons-outline:trash' />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                              <div className='mt-4'>
+                                <Button
+                                  text='Add new'
+                                  icon='heroicons-outline:plus'
+                                  className='text-slate-600 p-0 dark:text-slate-300'
+                                  onClick={() =>
+                                    appendSocialMedia({ platform: '', url: '' })
+                                  }
+                                />
+                              </div>
+                            </div>
                           </>
                         )}
                         {section.key === 'CTO_info' && (
@@ -928,7 +1000,7 @@ const VerticalNavTabs = () => {
                               <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
                                 Previous Funding Information
                               </div>
-                              {fields.map((item, index) => (
+                              {fundingFields.map((item, index) => (
                                 <div
                                   className='lg:grid-cols-5 md:grid-cols-4 grid-cols-1 grid gap-5 mb-5 last:mb-0'
                                   key={item.id}
@@ -965,17 +1037,15 @@ const VerticalNavTabs = () => {
                                     register={register}
                                     name={`funding[${index}].amountRaised`}
                                   />
-                                  {index >= 0 && (
-                                    <div className='ml-auto mt-auto relative'>
-                                      <button
-                                        onClick={() => remove(index)}
-                                        type='button'
-                                        className='inline-flex items-center justify-center h-10 w-10 bg-danger-500 text-lg border rounded border-danger-500 text-white'
-                                      >
-                                        <Icon icon='heroicons-outline:trash' />
-                                      </button>
-                                    </div>
-                                  )}
+                                  <div className='ml-auto mt-auto relative'>
+                                    <button
+                                      onClick={() => removeFunding(index)}
+                                      type='button'
+                                      className='inline-flex items-center justify-center h-10 w-10 bg-danger-500 text-lg border rounded border-danger-500 text-white'
+                                    >
+                                      <Icon icon='heroicons-outline:trash' />
+                                    </button>
+                                  </div>
                                 </div>
                               ))}
                               <div className='mt-4'>
@@ -984,7 +1054,7 @@ const VerticalNavTabs = () => {
                                   icon='heroicons-outline:plus'
                                   className='text-slate-600 p-0 dark:text-slate-300'
                                   onClick={() =>
-                                    append({
+                                    appendFunding({
                                       investorName: '',
                                       firmName: '',
                                       investorType: '',
@@ -1271,183 +1341,244 @@ const VerticalNavTabs = () => {
                           )}
                           {section.key === 'startup_details' && (
                             <>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:building-storefront' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    COMPANY NAME
+                              {(companyProfileLoc?.company_name ||
+                                companyProfile?.company_name) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:building-storefront' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.company_name}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      COMPANY NAME
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.company_name ||
+                                        companyProfile?.company_name}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:calendar' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    INCORPORATION DATE
+                                </li>
+                              )}
+                              {(companyProfileLoc?.incorporation_date ||
+                                companyProfile?.incorporation_date) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:calendar' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.incorporation_date}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      INCORPORATION DATE
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.incorporation_date ||
+                                        companyProfile?.incorporation_date}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:map' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    LOCATION
+                                </li>
+                              )}
+                              {(companyProfileLoc?.country ||
+                                companyProfile?.country) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:map' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.country},{' '}
-                                    {companyProfileLoc?.state_city}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      LOCATION
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.country ||
+                                        companyProfile?.country}
+                                      ,{' '}
+                                      {companyProfileLoc?.state_city ||
+                                        companyProfile?.state_city}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:building-office' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    OFFICE ADDRESS
+                                </li>
+                              )}
+                              {(companyProfileLoc?.office_address ||
+                                companyProfile?.office_address) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:building-office' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.office_address}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      OFFICE ADDRESS
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.office_address ||
+                                        companyProfile?.office_address}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:globe-alt' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    COMPANY WEBSITE
+                                </li>
+                              )}
+                              {(companyProfileLoc?.company_website ||
+                                companyProfile?.company_website) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:globe-alt' />
                                   </div>
-                                  <a
-                                    href={companyProfileLoc?.company_website}
-                                    className='text-base text-slate-600 dark:text-slate-50'
-                                  >
-                                    {companyProfileLoc?.company_website}
-                                  </a>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:globe-alt' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    LinkedIn Profile
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      COMPANY WEBSITE
+                                    </div>
+                                    <a
+                                      href={
+                                        companyProfileLoc?.company_website ||
+                                        companyProfile?.company_website
+                                      }
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      {companyProfileLoc?.company_website ||
+                                        companyProfile?.company_website}
+                                    </a>
                                   </div>
-                                  <a
-                                    href={companyProfileLoc?.linkedin_profile}
-                                    className='text-base text-slate-600 dark:text-slate-50'
-                                  >
-                                    {companyProfileLoc?.linkedin_profile}
-                                  </a>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:briefcase' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    BUSINESS DESCRIPTION
+                                </li>
+                              )}
+                              {(companyProfileLoc?.linkedin_profile ||
+                                companyProfile?.linkedin_profile) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:globe-alt' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.short_description}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      LinkedIn Profile
+                                    </div>
+                                    <a
+                                      href={
+                                        companyProfileLoc?.linkedin_profile ||
+                                        companyProfile?.linkedin_profile
+                                      }
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      {companyProfileLoc?.linkedin_profile ||
+                                        companyProfile?.linkedin_profile}
+                                    </a>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:users' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    TEAM SIZE
+                                </li>
+                              )}
+                              {(companyProfileLoc?.short_description ||
+                                companyProfile?.short_description) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:briefcase' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.team_size}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      BUSINESS DESCRIPTION
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.short_description ||
+                                        companyProfile?.short_description}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:chart-bar' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    CURRENT STAGE
+                                </li>
+                              )}
+                              {(companyProfileLoc?.team_size ||
+                                companyProfile?.team_size) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:users' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.current_stage}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      TEAM SIZE
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.team_size ||
+                                        companyProfile?.team_size}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:flag' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    TARGET AUDIENCE
+                                </li>
+                              )}
+                              {(companyProfileLoc?.current_stage ||
+                                companyProfile?.current_stage) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:chart-bar' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.target_audience}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      CURRENT STAGE
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.current_stage ||
+                                        companyProfile?.current_stage}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:light-bulb' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    USP/MOAT
+                                </li>
+                              )}
+                              {(companyProfileLoc?.target_audience ||
+                                companyProfile?.target_audience) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:flag' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.usp_moat}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      TARGET AUDIENCE
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.target_audience ||
+                                        companyProfile?.target_audience}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:tag' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    INDUSTRY SECTOR
+                                </li>
+                              )}
+                              {(companyProfileLoc?.usp_moat ||
+                                companyProfile?.usp_moat) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:light-bulb' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.industry_sector}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      USP/MOAT
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.usp_moat ||
+                                        companyProfile?.usp_moat}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:document' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    MEDIA PRESENCE
+                                </li>
+                              )}
+                              {(companyProfileLoc?.industry_sector ||
+                                companyProfile?.industry_sector) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:tag' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.media}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      INDUSTRY SECTOR
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.industry_sector ||
+                                        companyProfile?.industry_sector}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              {companyProfileLoc?.company_logo && (
+                                </li>
+                              )}
+                              {(companyProfileLoc?.media ||
+                                companyProfile?.media) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      MEDIA PRESENCE
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {companyProfileLoc?.media ||
+                                        companyProfile?.media}
+                                    </div>
+                                  </div>
+                                </li>
+                              )}
+                              {(companyProfileLoc?.company_logo ||
+                                companyProfile?.company_logo) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1457,7 +1588,10 @@ const VerticalNavTabs = () => {
                                       COMPANY LOGO
                                     </div>
                                     <a
-                                      href={companyProfileLoc?.company_logo}
+                                      href={
+                                        companyProfileLoc?.company_logo ||
+                                        companyProfile?.company_logo
+                                      }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
@@ -1467,6 +1601,36 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </li>
                               )}
+
+                              {/* Social Media Handles */}
+                              {(companyProfileLoc?.social_media_handles ||
+                                companyProfile?.social_media_handles) &&
+                                (
+                                  companyProfileLoc?.social_media_handles ||
+                                  companyProfile?.social_media_handles
+                                ).map((handle, index) => (
+                                  <li
+                                    className='flex space-x-3 rtl:space-x-reverse'
+                                    key={index}
+                                  >
+                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                      <Icon icon='heroicons:share' />
+                                    </div>
+                                    <div className='flex-1'>
+                                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                        {handle.platform}
+                                      </div>
+                                      <a
+                                        href={handle.url}
+                                        target='_blank'
+                                        rel='noopener noreferrer'
+                                        className='text-base text-slate-600 dark:text-slate-50'
+                                      >
+                                        {handle.url}
+                                      </a>
+                                    </div>
+                                  </li>
+                                ))}
                             </>
                           )}
 
@@ -1766,8 +1930,9 @@ const VerticalNavTabs = () => {
                           {section.key === 'company_documents' && (
                             <>
                               {(companyDocumentsLoc?.certificate_of_incorporation ||
-                                companyDocuments[0]
-                                  ?.certificate_of_incorporation) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]
+                                    ?.certificate_of_incorporation)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1793,7 +1958,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.gst_certificate ||
-                                companyDocuments[0]?.gst_certificate) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.gst_certificate)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1818,7 +1984,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.trademark ||
-                                companyDocuments[0]?.trademark) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.trademark)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1843,7 +2010,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.copyright ||
-                                companyDocuments[0]?.copyright) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.copyright)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1868,7 +2036,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.patent ||
-                                companyDocuments[0]?.patent) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.patent)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1893,8 +2062,9 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.startup_india_certificate ||
-                                companyDocuments[0]
-                                  ?.startup_india_certificate) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]
+                                    ?.startup_india_certificate)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1920,7 +2090,9 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.due_diligence_report ||
-                                companyDocuments[0]?.due_diligence_report) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]
+                                    ?.due_diligence_report)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1946,8 +2118,9 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.business_valuation_report ||
-                                companyDocuments[0]
-                                  ?.business_valuation_report) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]
+                                    ?.business_valuation_report)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1973,7 +2146,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.mis ||
-                                companyDocuments[0]?.mis) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.mis)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1998,7 +2172,9 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.financial_projections ||
-                                companyDocuments[0]?.financial_projections) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]
+                                    ?.financial_projections)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2024,7 +2200,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.balance_sheet ||
-                                companyDocuments[0]?.balance_sheet) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.balance_sheet)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2049,7 +2226,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.pl_statement ||
-                                companyDocuments[0]?.pl_statement) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.pl_statement)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2074,7 +2252,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.cashflow_statement ||
-                                companyDocuments[0]?.cashflow_statement) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.cashflow_statement)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2099,7 +2278,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.pitch_deck ||
-                                companyDocuments[0]?.pitch_deck) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.pitch_deck)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2124,7 +2304,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.video_pitch ||
-                                companyDocuments[0]?.video_pitch) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.video_pitch)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2149,7 +2330,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.sha ||
-                                companyDocuments[0]?.sha) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.sha)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2174,7 +2356,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.termsheet ||
-                                companyDocuments[0]?.termsheet) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.termsheet)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2199,7 +2382,9 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.employment_agreement ||
-                                companyDocuments[0]?.employment_agreement) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]
+                                    ?.employment_agreement)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2225,7 +2410,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.mou ||
-                                companyDocuments[0]?.mou) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.mou)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2250,7 +2436,8 @@ const VerticalNavTabs = () => {
                               )}
 
                               {(companyDocumentsLoc?.nda ||
-                                companyDocuments[0]?.nda) && (
+                                (companyDocuments &&
+                                  companyDocuments[0]?.nda)) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2278,98 +2465,127 @@ const VerticalNavTabs = () => {
 
                           {section.key === 'funding_info' && (
                             <>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:currency-dollar' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    TOTAL FUNDING ASK
+                              {(fundingInformationLoc?.total_funding_ask ||
+                                fundingInformation?.total_funding_ask) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:currency-dollar' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.total_funding_ask}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      TOTAL FUNDING ASK
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {fundingInformationLoc?.total_funding_ask ||
+                                        fundingInformation?.total_funding_ask}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:banknotes' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    AMOUNT COMMITTED
+                                </li>
+                              )}
+                              {(fundingInformationLoc?.amount_committed ||
+                                fundingInformation?.amount_committed) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:banknotes' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.amount_committed}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      AMOUNT COMMITTED
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {fundingInformationLoc?.amount_committed ||
+                                        fundingInformation?.amount_committed}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:clipboard-document-check' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    GOVERNMENT GRANTS
+                                </li>
+                              )}
+                              {(fundingInformationLoc?.government_grants ||
+                                fundingInformation?.government_grants) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:clipboard-document-check' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.government_grants}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      GOVERNMENT GRANTS
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {fundingInformationLoc?.government_grants ||
+                                        fundingInformation?.government_grants}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:chart-pie' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    EQUITY SPLIT
+                                </li>
+                              )}
+                              {(fundingInformationLoc?.equity_split ||
+                                fundingInformation?.equity_split) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:chart-pie' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.equity_split}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      EQUITY SPLIT
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {fundingInformationLoc?.equity_split ||
+                                        fundingInformation?.equity_split}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:document-text' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    FUND UTILIZATION
+                                </li>
+                              )}
+                              {(fundingInformationLoc?.fund_utilization ||
+                                fundingInformation?.fund_utilization) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:document-text' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.fund_utilization}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      FUND UTILIZATION
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {fundingInformationLoc?.fund_utilization ||
+                                        fundingInformation?.fund_utilization}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:chart-bar' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    ARR
+                                </li>
+                              )}
+                              {(fundingInformationLoc?.arr ||
+                                fundingInformation?.arr) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:chart-bar' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.arr}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      ARR
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {fundingInformationLoc?.arr ||
+                                        fundingInformation?.arr}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:chart-bar' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    MRR
+                                </li>
+                              )}
+                              {(fundingInformationLoc?.mrr ||
+                                fundingInformation?.mrr) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:chart-bar' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.mrr}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      MRR
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {fundingInformationLoc?.mrr ||
+                                        fundingInformation?.mrr}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              {fundingInformationLoc?.current_cap_table && (
+                                </li>
+                              )}
+                              {(fundingInformationLoc?.current_cap_table ||
+                                fundingInformation?.current_cap_table) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -2380,16 +2596,95 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        fundingInformationLoc?.current_cap_table
+                                        fundingInformationLoc?.current_cap_table ||
+                                        fundingInformation?.current_cap_table
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
                                       className='text-base text-slate-600 dark:text-slate-50'
                                     >
-                                      View Certificate
+                                      View Cap Table
                                     </a>
                                   </div>
                                 </li>
+                              )}
+
+                              {/* Render Previous Funding Information */}
+                              {(fundingInformationLoc?.previous_funding ||
+                                fundingInformation?.previous_funding) && (
+                                <>
+                                  <div className='mt-4 text-slate-600 dark:text-slate-300 uppercase text-xs font-medium mb-1 leading-[12px]'>
+                                    Previous Funding Information
+                                  </div>
+                                  {fundingInformationLoc?.previous_funding?.map(
+                                    (funding, index) => (
+                                      <li
+                                        key={index}
+                                        className='flex space-x-3 rtl:space-x-reverse'
+                                      >
+                                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                          <Icon icon='heroicons:banknotes' />
+                                        </div>
+                                        <div className='flex-1'>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Investor Name: ${
+                                              funding.investorName || ''
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Firm Name: ${
+                                              funding.firmName || ''
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Investor Type: ${
+                                              funding.investorType || ''
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Amount Raised: ${
+                                              funding.amountRaised || ''
+                                            }`}
+                                          </div>
+                                        </div>
+                                      </li>
+                                    )
+                                  )}
+                                  {fundingInformation?.previous_funding?.map(
+                                    (funding, index) => (
+                                      <li
+                                        key={index}
+                                        className='flex space-x-3 rtl:space-x-reverse'
+                                      >
+                                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                          <Icon icon='heroicons:banknotes' />
+                                        </div>
+                                        <div className='flex-1'>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Investor Name: ${
+                                              funding.investorName || ''
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Firm Name: ${
+                                              funding.firmName || ''
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Investor Type: ${
+                                              funding.investorType || ''
+                                            }`}
+                                          </div>
+                                          <div className='text-base text-slate-600 dark:text-slate-50'>
+                                            {`Amount Raised: ${
+                                              funding.amountRaised || ''
+                                            }`}
+                                          </div>
+                                        </div>
+                                      </li>
+                                    )
+                                  )}
+                                </>
                               )}
                             </>
                           )}
