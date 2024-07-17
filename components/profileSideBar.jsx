@@ -2425,537 +2425,535 @@ const VerticalNavTabs = () => {
 
                           {section.key === 'company_documents' && (
                             <>
-                              {(companyDocumentsLoc?.certificate_of_incorporation ||
-                                (companyDocuments &&
-                                  companyDocuments[0]
-                                    ?.certificate_of_incorporation)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    CERTIFICATE OF INCORPORATION
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      CERTIFICATE OF INCORPORATION
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.certificate_of_incorporation ||
-                                        companyDocuments[0]
-                                          ?.certificate_of_incorporation
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Certificate
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.certificate_of_incorporation ||
+                                      companyDocuments?.[0]
+                                        ?.certificate_of_incorporation ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.certificate_of_incorporation ||
+                                    companyDocuments?.[0]
+                                      ?.certificate_of_incorporation
+                                      ? 'View Certificate'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.gst_certificate ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.gst_certificate)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    GST CERTIFICATE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      GST CERTIFICATE
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.gst_certificate ||
-                                        companyDocuments[0]?.gst_certificate
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Certificate
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.gst_certificate ||
+                                      companyDocuments?.[0]?.gst_certificate ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.gst_certificate ||
+                                    companyDocuments?.[0]?.gst_certificate
+                                      ? 'View Certificate'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.trademark ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.trademark)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    TRADEMARK
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      TRADEMARK
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.trademark ||
-                                        companyDocuments[0]?.trademark
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Trademark
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.trademark ||
+                                      companyDocuments?.[0]?.trademark ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.trademark ||
+                                    companyDocuments?.[0]?.trademark
+                                      ? 'View Trademark'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.copyright ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.copyright)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    COPYRIGHT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      COPYRIGHT
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.copyright ||
-                                        companyDocuments[0]?.copyright
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Copyright
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.copyright ||
+                                      companyDocuments?.[0]?.copyright ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.copyright ||
+                                    companyDocuments?.[0]?.copyright
+                                      ? 'View Copyright'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.patent ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.patent)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    PATENT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      PATENT
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.patent ||
-                                        companyDocuments[0]?.patent
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Patent
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.patent ||
+                                      companyDocuments?.[0]?.patent ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.patent ||
+                                    companyDocuments?.[0]?.patent
+                                      ? 'View Patent'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.startup_india_certificate ||
-                                (companyDocuments &&
-                                  companyDocuments[0]
-                                    ?.startup_india_certificate)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    STARTUP INDIA CERTIFICATE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      STARTUP INDIA CERTIFICATE
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.startup_india_certificate ||
-                                        companyDocuments[0]
-                                          ?.startup_india_certificate
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Certificate
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.startup_india_certificate ||
+                                      companyDocuments?.[0]
+                                        ?.startup_india_certificate ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.startup_india_certificate ||
+                                    companyDocuments?.[0]
+                                      ?.startup_india_certificate
+                                      ? 'View Certificate'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.due_diligence_report ||
-                                (companyDocuments &&
-                                  companyDocuments[0]
-                                    ?.due_diligence_report)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    DUE DILIGENCE REPORT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      DUE DILIGENCE REPORT
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.due_diligence_report ||
-                                        companyDocuments[0]
-                                          ?.due_diligence_report
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Report
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.due_diligence_report ||
+                                      companyDocuments?.[0]
+                                        ?.due_diligence_report ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.due_diligence_report ||
+                                    companyDocuments?.[0]?.due_diligence_report
+                                      ? 'View Report'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.business_valuation_report ||
-                                (companyDocuments &&
-                                  companyDocuments[0]
-                                    ?.business_valuation_report)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    BUSINESS VALUATION REPORT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      BUSINESS VALUATION REPORT
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.business_valuation_report ||
-                                        companyDocuments[0]
-                                          ?.business_valuation_report
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Report
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.business_valuation_report ||
+                                      companyDocuments?.[0]
+                                        ?.business_valuation_report ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.business_valuation_report ||
+                                    companyDocuments?.[0]
+                                      ?.business_valuation_report
+                                      ? 'View Report'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.mis ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.mis)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    MIS
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      MIS
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.mis ||
-                                        companyDocuments[0]?.mis
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View MIS
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.mis ||
+                                      companyDocuments?.[0]?.mis ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.mis ||
+                                    companyDocuments?.[0]?.mis
+                                      ? 'View MIS'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.financial_projections ||
-                                (companyDocuments &&
-                                  companyDocuments[0]
-                                    ?.financial_projections)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    FINANCIAL PROJECTIONS
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      FINANCIAL PROJECTIONS
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.financial_projections ||
-                                        companyDocuments[0]
-                                          ?.financial_projections
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Projections
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.financial_projections ||
+                                      companyDocuments?.[0]
+                                        ?.financial_projections ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.financial_projections ||
+                                    companyDocuments?.[0]?.financial_projections
+                                      ? 'View Projections'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.balance_sheet ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.balance_sheet)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    BALANCE SHEET
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      BALANCE SHEET
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.balance_sheet ||
-                                        companyDocuments[0]?.balance_sheet
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Balance Sheet
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.balance_sheet ||
+                                      companyDocuments?.[0]?.balance_sheet ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.balance_sheet ||
+                                    companyDocuments?.[0]?.balance_sheet
+                                      ? 'View Balance Sheet'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.pl_statement ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.pl_statement)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    P&L STATEMENT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      P&L STATEMENT
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.pl_statement ||
-                                        companyDocuments[0]?.pl_statement
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View P&L Statement
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.pl_statement ||
+                                      companyDocuments?.[0]?.pl_statement ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.pl_statement ||
+                                    companyDocuments?.[0]?.pl_statement
+                                      ? 'View P&L Statement'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.cashflow_statement ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.cashflow_statement)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    CASHFLOW STATEMENT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      CASHFLOW STATEMENT
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.cashflow_statement ||
-                                        companyDocuments[0]?.cashflow_statement
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Cashflow Statement
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.cashflow_statement ||
+                                      companyDocuments?.[0]
+                                        ?.cashflow_statement ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.cashflow_statement ||
+                                    companyDocuments?.[0]?.cashflow_statement
+                                      ? 'View Cashflow Statement'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.pitch_deck ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.pitch_deck)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    PITCH DECK
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      PITCH DECK
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.pitch_deck ||
-                                        companyDocuments[0]?.pitch_deck
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Pitch Deck
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.pitch_deck ||
+                                      companyDocuments?.[0]?.pitch_deck ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.pitch_deck ||
+                                    companyDocuments?.[0]?.pitch_deck
+                                      ? 'View Pitch Deck'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.video_pitch ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.video_pitch)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    VIDEO PITCH
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      VIDEO PITCH
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.video_pitch ||
-                                        companyDocuments[0]?.video_pitch
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Video Pitch
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.video_pitch ||
+                                      companyDocuments?.[0]?.video_pitch ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.video_pitch ||
+                                    companyDocuments?.[0]?.video_pitch
+                                      ? 'View Video Pitch'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.sha ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.sha)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    SHA (PREVIOUS/EXISTING ROUND)
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      SHA (PREVIOUS/EXISTING ROUND)
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.sha ||
-                                        companyDocuments[0]?.sha
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View SHA
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.sha ||
+                                      companyDocuments?.[0]?.sha ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.sha ||
+                                    companyDocuments?.[0]?.sha
+                                      ? 'View SHA'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.termsheet ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.termsheet)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    TERMSHEET (PREVIOUS/EXISTING ROUND)
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      TERMSHEET (PREVIOUS/EXISTING ROUND)
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.termsheet ||
-                                        companyDocuments[0]?.termsheet
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Termsheet
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.termsheet ||
+                                      companyDocuments?.[0]?.termsheet ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.termsheet ||
+                                    companyDocuments?.[0]?.termsheet
+                                      ? 'View Termsheet'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.employment_agreement ||
-                                (companyDocuments &&
-                                  companyDocuments[0]
-                                    ?.employment_agreement)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    EMPLOYMENT AGREEMENT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      EMPLOYMENT AGREEMENT
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.employment_agreement ||
-                                        companyDocuments[0]
-                                          ?.employment_agreement
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Agreement
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.employment_agreement ||
+                                      companyDocuments?.[0]
+                                        ?.employment_agreement ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.employment_agreement ||
+                                    companyDocuments?.[0]?.employment_agreement
+                                      ? 'View Agreement'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.mou ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.mou)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    MOU
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      MOU
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.mou ||
-                                        companyDocuments[0]?.mou
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View MoU
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.mou ||
+                                      companyDocuments?.[0]?.mou ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.mou ||
+                                    companyDocuments?.[0]?.mou
+                                      ? 'View MoU'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
 
-                              {(companyDocumentsLoc?.nda ||
-                                (companyDocuments &&
-                                  companyDocuments[0]?.nda)) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    NDA
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      NDA
-                                    </div>
-                                    <a
-                                      href={
-                                        companyDocumentsLoc?.nda ||
-                                        companyDocuments[0]?.nda
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View NDA
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyDocumentsLoc?.nda ||
+                                      companyDocuments?.[0]?.nda ||
+                                      '#'
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyDocumentsLoc?.nda ||
+                                    companyDocuments?.[0]?.nda
+                                      ? 'View NDA'
+                                      : 'Not Provided'}
+                                  </a>
+                                </div>
+                              </li>
                             </>
                           )}
 
