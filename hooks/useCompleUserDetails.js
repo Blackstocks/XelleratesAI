@@ -28,7 +28,7 @@ const useCompleteUserDetails = () => {
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', user.id)
+            .eq('id', user?.id)
             .single();
           if (profileError) throw profileError;
 
@@ -36,9 +36,9 @@ const useCompleteUserDetails = () => {
           setUser(user);
 
           if (profileData.user_type === 'startup') {
-            await fetchStartupDetails(profileData.id);
+            await fetchStartupDetails(profileData?.id);
           } else if (profileData.user_type === 'investor') {
-            await fetchInvestorDetails(profileData.id);
+            await fetchInvestorDetails(profileData?.id);
           }
         }
       } catch (error) {
@@ -54,7 +54,7 @@ const useCompleteUserDetails = () => {
           await supabase
             .from('company_profile')
             .select('*')
-            .eq('profile_id', profileId)
+            .eq('profile_id', profileId);
         if (companyProfileError) throw companyProfileError;
         if (!companyProfileData || companyProfileData.length !== 1) {
           throw new Error(
@@ -69,9 +69,9 @@ const useCompleteUserDetails = () => {
           const { data, error } = await supabase
             .from(table)
             .select('*')
-            .eq('company_id', companyId)
+            .eq('company_id', companyId);
           if (error) throw error;
-          console.log(data)
+          console.log(data);
           return data;
         };
 
