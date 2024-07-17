@@ -109,7 +109,7 @@ const useCompleteUserDetails = () => {
             .from('investor_signup')
             .select('*')
             .eq('profile_id', profileId)
-            .single();
+            .maybeSingle();
         if (investorSignupError) throw investorSignupError;
         setInvestorSignup(investorSignupData);
       } catch (error) {

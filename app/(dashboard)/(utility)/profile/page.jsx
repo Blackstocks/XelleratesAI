@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
 import useUserDetails from '@/hooks/useUserDetails';
@@ -9,37 +9,84 @@ import Textinput from '@/components/ui/Textinput';
 import Textarea from '@/components/ui/Textarea';
 import CustomSelect from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
-import Loading from '@/components/Loading';
-
 import VerticalNavTabs from '@/components/profileSideBar';
+import ReactSelect from 'react-select';
+import makeAnimated from 'react-select/animated';
+import InputGroup from '@/components/ui/InputGroup';
+import { updateInvestorDetails } from '@/lib/actions/insertformdetails';
 import {
-  updateInvestorDetails,
   insertInvestorSignupData,
-  updateProfile,
-} from '@/lib/actions/insertformdetails';
-import FormCompletionBanner from '@/components/FormCompletionBanner'; // Import the new banner component
+  updateInvestorSignupData,
+} from '@/lib/actions/investorActions';
+import FormCompletionBanner from '@/components/FormCompletionBanner';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import { supabase } from '@/lib/supabaseclient';
 
 const Profile = () => {
   const { user, updateDetailsLocally } = useUserDetails();
   const { companyProfile, investorSignup, updateUserLocally } =
     useCompleteUserDetails();
   const [editingSection, setEditingSection] = useState(null);
-  const { register, handleSubmit, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm();
+  const animatedComponents = makeAnimated();
+
+  const handleFileUpload = async (file) => {
+    if (!file) {
+      console.log('Profile photo is not provided.');
+      return null;
+    }
+
+    const filePath = `profile_photos/${Date.now()}-${file.name}`;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from('photos')
+        .upload(filePath, file);
+
+      if (error) {
+        throw error;
+      }
+
+      const { publicUrl } = supabase.storage
+        .from('photos')
+        .getPublicUrl(filePath).data;
+
+      return publicUrl; // Return the public URL
+    } catch (error) {
+      console.error('Error uploading profile photo:', error);
+      throw error;
+    }
+  };
 
   const handleSave = async (data, section) => {
     try {
+      let profilePhotoUrl = null;
+      if (data.profilePhoto && data.profilePhoto[0]) {
+        profilePhotoUrl = await handleFileUpload(data.profilePhoto[0]);
+      }
+
+      const formData = {
+        ...data,
+        profilePhoto: profilePhotoUrl,
+      };
+
       let result;
       switch (section) {
-        case 'general_info':
-          result = await updateProfile(user.id, data);
-          updateUserLocally(data);
-          break;
         case 'investor_details':
           result = investorSignup
-            ? await updateInvestorDetails(user.id, data)
-            : await insertInvestorSignupData({ ...data, profile_id: user.id });
-          updateDetailsLocally(data);
+            ? await updateInvestorSignupData(user?.id, formData)
+            : await insertInvestorSignupData({
+                ...formData,
+                profile_id: user.id,
+              });
+          updateDetailsLocally(formData);
           break;
         default:
           console.error('Unknown section:', section);
@@ -55,8 +102,7 @@ const Profile = () => {
 
   return (
     <div className='space-y-5 profile-page'>
-      <FormCompletionBanner profileId={companyProfile?.profile_id} />{' '}
-      {/* Add the banner component */}
+      <FormCompletionBanner profileId={companyProfile?.profile_id} />
       <>
         <div className='profiel-wrap px-[35px] pb-10 md:pt-[84px] pt-10 rounded-lg bg-white dark:bg-slate-800 lg:flex lg:space-y-0 space-y-6 justify-between items-end relative z-[1]'>
           <div className='bg-slate-900 dark:bg-slate-700 absolute left-0 top-0 md:h-1/2 h-[150px] w-full z-[-1] rounded-t-lg'></div>
@@ -85,7 +131,7 @@ const Profile = () => {
                       {investorSignup?.profile_photo ? (
                         <img
                           src={investorSignup?.profile_photo}
-                          alt='Company Logo'
+                          alt='Profile Photo'
                           className='w-full h-full object-cover rounded-full'
                         />
                       ) : (
@@ -103,24 +149,23 @@ const Profile = () => {
               <div className='flex-1'>
                 {user?.user_type === 'investor' ? (
                   <div className='text-2xl font-medium text-slate-900 dark:text-slate-200 mb-[3px]'>
-                    {user?.name || 'User Name'}
+                    {user?.name || 'Not provided'}
                   </div>
                 ) : (
                   <div className='text-2xl font-medium text-slate-900 dark:text-slate-200 mb-[3px]'>
-                    {user?.company_name || 'User Name'}
+                    {user?.company_name || 'Not provided'}
                   </div>
                 )}
                 {user?.user_type === 'investor' && (
                   <div className='text-sm font-light text-slate-600 dark:text-slate-400'>
-                    {investorSignup?.typeof || 'IX'}
+                    {investorSignup?.typeof || 'Not provided'}
                   </div>
                 )}
               </div>
             </div>
           </div>
         </div>
-        <div className='grid grid-cols-12 gap-6'>
-          {user?.user_type === 'investor' && (
+        {/* {user?.user_type === 'investor' && (
             <>
               {editingSection !== 'general_info' && (
                 <div className='relative lg:col-span-6 col-span-12'>
@@ -138,7 +183,7 @@ const Profile = () => {
                             href={`mailto:${user?.email}`}
                             className='text-base text-slate-600 dark:text-slate-50'
                           >
-                            {user?.email}
+                            {user?.email || 'Not provided'}
                           </a>
                         </div>
                       </li>
@@ -154,7 +199,7 @@ const Profile = () => {
                             href={`tel:${user?.mobile}`}
                             className='text-base text-slate-600 dark:text-slate-50'
                           >
-                            {user?.mobile}
+                            {user?.mobile || 'Not provided'}
                           </a>
                         </div>
                       </li>
@@ -224,165 +269,441 @@ const Profile = () => {
                 </div>
               )}
             </>
-          )}
-          {user?.user_type === 'investor' &&
-            editingSection !== 'investor_details' && (
-              <div className='relative lg:col-span-6 col-span-12'>
-                <Card title='Investor Details'>
-                  <ul className='list space-y-8'>
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:briefcase' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          INVESTOR TYPE
-                        </div>
-                        <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {investorSignup?.typeof}
-                        </div>
-                      </div>
-                    </li>
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:credit-card' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          CHEQUE SIZE
-                        </div>
-                        <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {investorSignup?.cheque_size}
-                        </div>
-                      </div>
-                    </li>
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:chart-bar' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          SECTORS
-                        </div>
-                        <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {Array.isArray(investorSignup?.sectors)
-                            ? investorSignup?.sectors.join(', ')
-                            : investorSignup?.sectors}
-                        </div>
-                      </div>
-                    </li>
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:calendar' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          INVESTMENT STAGE
-                        </div>
-                        <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {investorSignup?.investment_stage}
-                        </div>
-                      </div>
-                    </li>
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document-text' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          INVESTMENT THESIS
-                        </div>
-                        <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {investorSignup?.investment_thesis}
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                  <Button
-                    onClick={() => setEditingSection('investor_details')}
-                    className='absolute right-4 top-16 h-8 w-auto text-white bg-[rgb(30,41,59)] rounded-md shadow-md flex items-center justify-center px-3'
-                  >
-                    <Icon icon='heroicons:pencil-square' className='mr-1' />{' '}
-                    Edit
-                  </Button>
-                </Card>
-              </div>
-            )}
-          {editingSection === 'investor_details' && (
+          )} */}
+        {user?.user_type === 'investor' &&
+          editingSection !== 'investor_details' && (
             <div className='relative lg:col-span-6 col-span-12'>
-              <Card title='Edit Investor Details'>
-                <form
-                  onSubmit={handleSubmit((data) =>
-                    handleSave(data, 'investor_details')
-                  )}
-                >
-                  <div className='space-y-4'>
-                    <div className='mb-4'>
-                      <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                        <Icon
-                          icon='heroicons:briefcase'
-                          className='inline-block mr-1 text-xl mb-2'
-                        />
-                        Investor Type
-                      </label>
-                      <Select
-                        name='typeof'
-                        options={[
-                          { value: 'VC', label: 'VC' },
-                          { value: 'Angel Fund', label: 'Angel Fund' },
-                          {
-                            value: 'Angel Investor',
-                            label: 'Angel Investor',
-                          },
-                          { value: 'Syndicate', label: 'Syndicate' },
-                        ]}
-                        defaultValue={investorSignup?.typeof}
-                        register={register}
-                      />
+              <Card title='Investor Details'>
+                <ul className='list space-y-8'>
+                  <li className='flex space-x-3 rtl:space-x-reverse'>
+                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                      <Icon icon='heroicons:envelope' />
                     </div>
+                    <div className='flex-1'>
+                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        EMAIL
+                      </div>
+                      <a
+                        href={`mailto:${user?.email}`}
+                        className='text-base text-slate-600 dark:text-slate-50'
+                      >
+                        {user?.email || 'Not provided'}
+                      </a>
+                    </div>
+                  </li>
+                  <li className='flex space-x-3 rtl:space-x-reverse'>
+                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                      <Icon icon='heroicons:phone-arrow-up-right' />
+                    </div>
+                    <div className='flex-1'>
+                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        PHONE
+                      </div>
+                      <a
+                        href={`tel:${user?.mobile}`}
+                        className='text-base text-slate-600 dark:text-slate-50'
+                      >
+                        {user?.mobile || 'Not provided'}
+                      </a>
+                    </div>
+                  </li>
+                  <li className='flex space-x-3 rtl:space-x-reverse'>
+                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                      <Icon icon='heroicons:briefcase' />
+                    </div>
+                    <div className='flex-1'>
+                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        INVESTOR TYPE
+                      </div>
+                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                        {investorSignup?.typeof || 'Not provided'}
+                      </div>
+                    </div>
+                  </li>
+                  <li className='flex space-x-3 rtl:space-x-reverse'>
+                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                      <Icon icon='heroicons:credit-card' />
+                    </div>
+                    <div className='flex-1'>
+                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        CHEQUE SIZE
+                      </div>
+                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                        {investorSignup?.cheque_size || 'Not provided'}
+                      </div>
+                    </div>
+                  </li>
+                  <li className='flex space-x-3 rtl:space-x-reverse'>
+                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                      <Icon icon='heroicons:chart-bar' />
+                    </div>
+                    <div className='flex-1'>
+                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        SECTORS
+                      </div>
+                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                        {Array.isArray(investorSignup?.sectors)
+                          ? investorSignup?.sectors.join(', ')
+                          : investorSignup?.sectors || 'Not provided'}
+                      </div>
+                    </div>
+                  </li>
+                  <li className='flex space-x-3 rtl:space-x-reverse'>
+                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                      <Icon icon='heroicons:calendar' />
+                    </div>
+                    <div className='flex-1'>
+                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        INVESTMENT STAGE
+                      </div>
+                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                        {investorSignup?.investment_stage || 'Not provided'}
+                      </div>
+                    </div>
+                  </li>
+                  <li className='flex space-x-3 rtl:space-x-reverse'>
+                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                      <Icon icon='heroicons:document-text' />
+                    </div>
+                    <div className='flex-1'>
+                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        INVESTMENT THESIS
+                      </div>
+                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                        {investorSignup?.investment_thesis || 'Not provided'}
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <Button
+                  onClick={() => setEditingSection('investor_details')}
+                  className='absolute right-4 top-16 h-8 w-auto text-white bg-[rgb(30,41,59)] rounded-md shadow-md flex items-center justify-center px-3'
+                >
+                  <Icon icon='heroicons:pencil-square' className='mr-1' /> Edit
+                </Button>
+              </Card>
+            </div>
+          )}
+        {editingSection === 'investor_details' && (
+          <div className='relative lg:col-span-6 col-span-12'>
+            <Card title='Edit Investor Details'>
+              <form
+                onSubmit={handleSubmit((data) =>
+                  handleSave(data, 'investor_details')
+                )}
+              >
+                <div className='space-y-4'>
+                  <div className='mb-4'>
                     <div className='mb-4'>
                       <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
                         <Icon
-                          icon='heroicons:credit-card'
+                          icon='heroicons:envelope'
                           className='inline-block mr-1 text-xl mb-2'
                         />
-                        Cheque Size
+                        Email
                       </label>
                       <Textinput
-                        name='cheque_size'
-                        defaultValue={investorSignup?.cheque_size}
+                        name='email'
+                        defaultValue={user?.email}
                         register={register}
                       />
                     </div>
                     <div className='mb-4'>
                       <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        <Icon
+                          icon='heroicons:phone-arrow-up-right'
+                          className='inline-block mr-1 text-xl mb-2'
+                        />
+                        Phone
+                      </label>
+                      <Textinput
+                        name='mobile'
+                        defaultValue={user?.mobile}
+                        register={register}
+                      />
+                    </div>
+                    <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                      <Icon
+                        icon='heroicons:briefcase'
+                        className='inline-block mr-1 text-xl mb-2'
+                      />
+                      Investor Type
+                    </label>
+                    <CustomSelect
+                      name='usertype'
+                      options={[
+                        { value: 'VC', label: 'VC' },
+                        { value: 'Angel Fund', label: 'Angel Fund' },
+                        { value: 'Angel Investor', label: 'Angel Investor' },
+                        { value: 'Syndicate', label: 'Syndicate' },
+                      ]}
+                      defaultValue={investorSignup?.typeof}
+                      register={register}
+                    />
+                  </div>
+                  <div className='mb-4'>
+                    <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                      <Icon
+                        icon='heroicons:credit-card'
+                        className='inline-block mr-1 text-xl mb-2'
+                      />
+                      Cheque Size
+                    </label>
+                    <Textinput
+                      name='chequeSize'
+                      defaultValue={investorSignup?.cheque_size}
+                      register={register}
+                    />
+                  </div>
+                  <div className='mb-4'>
+                    {/* <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
                         <Icon
                           icon='heroicons:chart-bar'
                           className='inline-block mr-1 text-xl mb-2'
                         />
                         Sectors
                       </label>
-                      <Textarea
+                      <CustomSelect
+                        label='Sectors you are interested in'
                         name='sectors'
-                        defaultValue={
-                          Array.isArray(investorSignup?.sectors)
-                            ? investorSignup?.sectors.join(', ')
-                            : investorSignup?.sectors
-                        }
+                        options={[
+                          {
+                            value: 'Agriculture and Allied Sectors',
+                            label: 'Agriculture and Allied Sectors',
+                          },
+                          { value: 'Manufacturing', label: 'Manufacturing' },
+                          { value: 'Services', label: 'Services' },
+                          { value: 'Energy', label: 'Energy' },
+                          { value: 'Infrastructure', label: 'Infrastructure' },
+                          {
+                            value: 'Retail and E-commerce',
+                            label: 'Retail and E-commerce',
+                          },
+                          {
+                            value: 'Banking and Insurance',
+                            label: 'Banking and Insurance',
+                          },
+                          {
+                            value: 'Mining and Minerals',
+                            label: 'Mining and Minerals',
+                          },
+                          {
+                            value: 'Food Processing',
+                            label: 'Food Processing',
+                          },
+                          {
+                            value: 'Textiles and Apparel',
+                            label: 'Textiles and Apparel',
+                          },
+                          { value: 'Automotive', label: 'Automotive' },
+                          {
+                            value: 'Chemical and Fertilizers',
+                            label: 'Chemical and Fertilizers',
+                          },
+                          {
+                            value: 'Pharmaceuticals and Biotechnology',
+                            label: 'Pharmaceuticals and Biotechnology',
+                          },
+                          {
+                            value: 'Media and Entertainment',
+                            label: 'Media and Entertainment',
+                          },
+                          {
+                            value: 'Tourism and Hospitality',
+                            label: 'Tourism and Hospitality',
+                          },
+                          {
+                            value: 'Education and Training',
+                            label: 'Education and Training',
+                          },
+                          { value: 'Healthcare', label: 'Healthcare' },
+                          {
+                            value: 'Telecommunications',
+                            label: 'Telecommunications',
+                          },
+                          {
+                            value: 'Logistics and Supply Chain',
+                            label: 'Logistics and Supply Chain',
+                          },
+                          {
+                            value: 'Aerospace and Defense',
+                            label: 'Aerospace and Defense',
+                          },
+                          {
+                            value: 'Environmental Services',
+                            label: 'Environmental Services',
+                          },
+                          {
+                            value: 'Fashion and Lifestyle',
+                            label: 'Fashion and Lifestyle',
+                          },
+                          {
+                            value: 'Financial Technology (Fintech)',
+                            label: 'Financial Technology (Fintech)',
+                          },
+                          {
+                            value: 'Sports and Recreation',
+                            label: 'Sports and Recreation',
+                          },
+                          {
+                            value: 'Human Resources',
+                            label: 'Human Resources',
+                          },
+                          { value: 'Others', label: 'Others' },
+                        ]}
+                        error={errors.sectors}
                         register={register}
-                      />
-                    </div>
-                    <div className='mb-4'>
-                      <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                      /> */}
+                    <div>
+                      <label
+                        className='form-label block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'
+                        htmlFor='sectors'
+                      >
                         <Icon
-                          icon='heroicons:calendar'
+                          icon='heroicons:chart-bar'
                           className='inline-block mr-1 text-xl mb-2'
                         />
-                        Investment Stage
+                        Sectors
                       </label>
-                      <CustomSelect
-                        name='investment_stage'
-                        options={[
+                      <Controller
+                        name='sectors'
+                        control={control}
+                        defaultValue={[]} // Ensure default value is an empty array for a multi-select
+                        render={({ field }) => {
+                          const sectorOptions = [
+                            {
+                              value: 'Agriculture and Allied Sectors',
+                              label: 'Agriculture and Allied Sectors',
+                            },
+                            {
+                              value: 'Manufacturing',
+                              label: 'Manufacturing',
+                            },
+                            { value: 'Services', label: 'Services' },
+                            { value: 'Energy', label: 'Energy' },
+                            {
+                              value: 'Infrastructure',
+                              label: 'Infrastructure',
+                            },
+                            {
+                              value: 'Retail and E-commerce',
+                              label: 'Retail and E-commerce',
+                            },
+                            {
+                              value: 'Banking and Insurance',
+                              label: 'Banking and Insurance',
+                            },
+                            {
+                              value: 'Mining and Minerals',
+                              label: 'Mining and Minerals',
+                            },
+                            {
+                              value: 'Food Processing',
+                              label: 'Food Processing',
+                            },
+                            {
+                              value: 'Textiles and Apparel',
+                              label: 'Textiles and Apparel',
+                            },
+                            { value: 'Automotive', label: 'Automotive' },
+                            {
+                              value: 'Chemical and Fertilizers',
+                              label: 'Chemical and Fertilizers',
+                            },
+                            {
+                              value: 'Pharmaceuticals and Biotechnology',
+                              label: 'Pharmaceuticals and Biotechnology',
+                            },
+                            {
+                              value: 'Media and Entertainment',
+                              label: 'Media and Entertainment',
+                            },
+                            {
+                              value: 'Tourism and Hospitality',
+                              label: 'Tourism and Hospitality',
+                            },
+                            {
+                              value: 'Education and Training',
+                              label: 'Education and Training',
+                            },
+                            { value: 'Healthcare', label: 'Healthcare' },
+                            {
+                              value: 'Telecommunications',
+                              label: 'Telecommunications',
+                            },
+                            {
+                              value: 'Logistics and Supply Chain',
+                              label: 'Logistics and Supply Chain',
+                            },
+                            {
+                              value: 'Aerospace and Defense',
+                              label: 'Aerospace and Defense',
+                            },
+                            {
+                              value: 'Environmental Services',
+                              label: 'Environmental Services',
+                            },
+                            {
+                              value: 'Fashion and Lifestyle',
+                              label: 'Fashion and Lifestyle',
+                            },
+                            {
+                              value: 'Financial Technology (Fintech)',
+                              label: 'Financial Technology (Fintech)',
+                            },
+                            {
+                              value: 'Sports and Recreation',
+                              label: 'Sports and Recreation',
+                            },
+                            {
+                              value: 'Human Resources',
+                              label: 'Human Resources',
+                            },
+                            { value: 'Others', label: 'Others' },
+                          ];
+
+                          return (
+                            <ReactSelect
+                              {...field}
+                              isMulti
+                              isClearable={false}
+                              closeMenuOnSelect={false}
+                              components={animatedComponents}
+                              options={sectorOptions}
+                              className='react-select'
+                              value={
+                                field.value?.map((value) =>
+                                  sectorOptions.find(
+                                    (option) => option.value === value
+                                  )
+                                ) || []
+                              }
+                              onChange={(selected) =>
+                                field.onChange(
+                                  selected.map((option) => option.value)
+                                )
+                              }
+                            />
+                          );
+                        }}
+                      />
+                      {errors.sectors && (
+                        <p className='text-red-500 text-xs italic'>
+                          {errors.sectors.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className='form-label' htmlFor='investmentStage'>
+                      Stage you invest in
+                    </label>
+                    <Controller
+                      name='investmentStage'
+                      control={control}
+                      defaultValue={[]} // Ensure default value is an empty array for a multi-select
+                      render={({ field }) => {
+                        const investmentStageOptions = [
                           { value: 'Pre Seed', label: 'Pre Seed' },
                           { value: 'Seed', label: 'Seed' },
                           { value: 'Pre-Series', label: 'Pre-Series' },
@@ -392,43 +713,83 @@ const Profile = () => {
                             value: 'Series C & Beyond',
                             label: 'Series C & Beyond',
                           },
-                        ]}
-                        defaultValue={investorSignup?.investment_stage}
-                        register={register}
-                      />
-                    </div>
-                    <div className='mb-4'>
-                      <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                        <Icon
-                          icon='heroicons:document-text'
-                          className='inline-block mr-1 text-xl mb-2'
-                        />
-                        INVESTMENT THESIS
-                      </label>
-                      <Textarea
-                        name='investment_thesis'
-                        defaultValue={investorSignup?.investment_thesis}
-                        register={register}
-                      />
-                    </div>
-                  </div>
-                  <div className='flex mt-4'>
-                    <Button
-                      text='Save'
-                      type='submit'
-                      className='btn-dark mr-4'
+                        ];
+
+                        return (
+                          <ReactSelect
+                            {...field}
+                            isMulti
+                            isClearable={false}
+                            closeMenuOnSelect={false}
+                            components={animatedComponents}
+                            options={investmentStageOptions}
+                            className='react-select'
+                            value={
+                              field.value?.map((value) =>
+                                investmentStageOptions.find(
+                                  (option) => option.value === value
+                                )
+                              ) || []
+                            }
+                            onChange={(selected) =>
+                              field.onChange(
+                                selected.map((option) => option.value)
+                              )
+                            }
+                          />
+                        );
+                      }}
                     />
-                    <Button
-                      text='Cancel'
-                      onClick={() => setEditingSection(null)}
-                      className='btn-light'
+                    {errors.investmentStage && (
+                      <p className='text-red-500 text-xs italic'>
+                        {errors.investmentStage.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className='mb-4'>
+                    <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                      <Icon
+                        icon='heroicons:document-text'
+                        className='inline-block mr-1 text-xl mb-2'
+                      />
+                      Investment Thesis
+                    </label>
+                    <Textarea
+                      name='investmentThesis'
+                      defaultValue={investorSignup?.investment_thesis}
+                      register={register}
                     />
                   </div>
-                </form>
-              </Card>
-            </div>
-          )}
-        </div>
+                  <div className='mb-4'>
+                    <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                      <Icon
+                        icon='heroicons:document-text'
+                        className='inline-block mr-1 text-xl mb-2'
+                      />
+                      Profile Photo
+                    </label>
+                    <InputGroup
+                      type='file'
+                      name='profilePhoto'
+                      error={errors.profilePhoto}
+                      register={register}
+                      className='upload-animation'
+                    />
+                  </div>
+                </div>
+                <div className='flex mt-4'>
+                  <Button text='Save' type='submit' className='btn-dark mr-4' />
+                  <Button
+                    text='Cancel'
+                    onClick={() => setEditingSection(null)}
+                    className='btn-light'
+                  />
+                </div>
+              </form>
+            </Card>
+          </div>
+        )}
+
         {user?.user_type === 'startup' && (
           <VerticalNavTabs
             editingSection={editingSection}
