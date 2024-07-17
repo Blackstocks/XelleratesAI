@@ -8,12 +8,10 @@ import Textarea from '@/components/ui/Textarea';
 import Button from '@/components/ui/Button';
 import useUserDetails from '@/hooks/useUserDetails';
 import Loading from '@/components/Loading';
-import { updateFile } from '@/lib/actions/insertformdetails';
 import Select from './ui/Select';
 import InputGroup from './ui/InputGroup';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-
-import Fileinput from '@/components/ui/Fileinput';
+import { useFieldArray } from 'react-hook-form';
 import {
   updateGeneralInfo,
   updateCTODetails,
@@ -26,9 +24,7 @@ import {
   insertCompanyProfile,
   insertBusinessDetails,
   insertFundingInformation,
-  insertContactInformation,
   insertFounderInformation,
-  insertCofounderInformation,
   insertCTODetails,
   insertCompanyDocuments,
 } from '@/lib/actions/insertformdetails';
@@ -145,6 +141,10 @@ const VerticalNavTabs = () => {
     watch,
     formState: { errors },
   } = useForm();
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'funding',
+  });
 
   const { user, loading, details } = useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
@@ -469,7 +469,7 @@ const VerticalNavTabs = () => {
 
         case 'funding_info':
           const emptyFundingInfo = !fundingInformation?.id;
-          changedData = {
+          const fundingData = {
             company_id: companyProfile?.id,
             total_funding_ask: data.total_funding_ask || '',
             amount_committed: data.amount_committed || '',
@@ -479,31 +479,42 @@ const VerticalNavTabs = () => {
             fund_utilization: data.fund_utilization || '',
             arr: data.arr || '',
             mrr: data.mrr || '',
+            previous_funding: data.funding || [], // Ensure this is handled correctly as JSONB
           };
 
-          if (emptyFundingInfo) {
-            const fundingInfoResponse = await insertFundingInformation(
-              companyProfile.id,
-              changedData,
-              uploadedFiles
-            );
-            if (fundingInfoResponse.error) {
+          try {
+            let fundingInfoResponse;
+            if (emptyFundingInfo) {
+              fundingInfoResponse = await insertFundingInformation(
+                companyProfile.id,
+                fundingData,
+                uploadedFiles
+              );
+            } else {
+              fundingInfoResponse = await updateFundingInfo(
+                companyProfile.id,
+                fundingData
+              );
+            }
+
+            if (fundingInfoResponse?.error) {
               throw fundingInfoResponse.error;
             }
-            updatedData = fundingInfoResponse.data;
-            console.log('Inserted funding information:', updatedData);
-            setFundingInformationLoc(updatedData);
-          } else {
-            const fundingInfoResponse = await updateFundingInfo(
-              companyProfile.id,
-              changedData
-            );
-            if (fundingInfoResponse.error) {
-              throw fundingInfoResponse.error;
+
+            if (fundingInfoResponse) {
+              updatedData = fundingInfoResponse;
+              console.log(
+                `${
+                  emptyFundingInfo ? 'Inserted' : 'Updated'
+                } funding information:`,
+                updatedData
+              );
+              setFundingInformationLoc(updatedData);
+            } else {
+              console.error('Unexpected response format:', fundingInfoResponse);
             }
-            updatedData = fundingInfoResponse.data;
-            console.log('Updated funding information:', updatedData);
-            setFundingInformationLoc(updatedData);
+          } catch (error) {
+            console.error('Error handling funding information:', error);
           }
           break;
 
@@ -852,75 +863,137 @@ const VerticalNavTabs = () => {
                           </>
                         )}
 
-                        {section.key === 'founder_info' && (
+                        {section.key === 'funding_info' && (
                           <>
                             <Textinput
-                              label='Founder Name'
-                              name='founder_name'
-                              defaultValue={founderInformationLoc?.founder_name}
-                              register={register}
-                              placeholder='Enter founder name'
-                            />
-                            <Textinput
-                              label='Email'
-                              name='founder_email'
+                              label='Total Funding Ask'
+                              name='total_funding_ask'
                               defaultValue={
-                                founderInformationLoc?.founder_email
+                                fundingInformationLoc?.total_funding_ask
                               }
                               register={register}
-                              placeholder='Enter founder email'
+                              placeholder='Enter total funding ask'
                             />
                             <Textinput
-                              label='Mobile Number'
-                              name='founder_mobile'
+                              label='Amount Committed'
+                              name='amount_committed'
                               defaultValue={
-                                founderInformationLoc?.founder_mobile
+                                fundingInformationLoc?.amount_committed
                               }
                               register={register}
-                              placeholder='Enter founder mobile number'
+                              placeholder='Enter amount committed'
                             />
                             <Textinput
-                              label='LinkedIn Profile'
-                              name='founder_linkedin'
+                              label='Government Grants'
+                              name='government_grants'
                               defaultValue={
-                                founderInformationLoc?.founder_linkedin
+                                fundingInformationLoc?.government_grants
                               }
                               register={register}
-                              placeholder='Enter founder LinkedIn profile URL'
+                              placeholder='Enter government grants'
                             />
                             <Textinput
-                              label='Degree Name'
-                              name='degree_name'
-                              defaultValue={founderInformationLoc?.degree_name}
+                              label='Equity Split'
+                              name='equity_split'
+                              defaultValue={fundingInformationLoc?.equity_split}
                               register={register}
-                              placeholder='Enter degree name'
+                              placeholder='Enter equity split'
                             />
-                            <Textinput
-                              label='College Name'
-                              name='college_name'
-                              defaultValue={founderInformationLoc?.college_name}
-                              register={register}
-                              placeholder='Enter college name'
-                            />
-                            <Textinput
-                              label='Year of Graduation'
-                              type='date'
-                              name='graduation_year'
+                            <Textarea
+                              label='Fund Utilization'
+                              name='fund_utilization'
                               defaultValue={
-                                founderInformationLoc?.graduation_year
+                                fundingInformationLoc?.fund_utilization
                               }
                               register={register}
-                              placeholder='Enter year of graduation'
+                              placeholder='Describe fund utilization'
                             />
-                            <InputGroup
-                              label='List of Advisers'
-                              name='list_of_advisers'
-                              type='file'
+                            <Textinput
+                              label='ARR'
+                              name='arr'
+                              defaultValue={fundingInformationLoc?.arr}
                               register={register}
-                              defaultValue={
-                                founderInformation?.list_of_advisers
-                              }
+                              placeholder='Enter ARR'
                             />
+                            <Textinput
+                              label='MRR'
+                              name='mrr'
+                              defaultValue={fundingInformationLoc?.mrr}
+                              register={register}
+                              placeholder='Enter MRR'
+                            />
+
+                            {/* Funding Repeater Section */}
+                            <div className='mt-4'>
+                              <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
+                                Previous Funding Information
+                              </div>
+                              {fields.map((item, index) => (
+                                <div
+                                  className='lg:grid-cols-5 md:grid-cols-4 grid-cols-1 grid gap-5 mb-5 last:mb-0'
+                                  key={item.id}
+                                >
+                                  <Textinput
+                                    label='Investor Name'
+                                    type='text'
+                                    id={`investorName${index}`}
+                                    placeholder='Investor Name'
+                                    register={register}
+                                    name={`funding[${index}].investorName`}
+                                  />
+                                  <Textinput
+                                    label='Firm Name'
+                                    type='text'
+                                    id={`firmName${index}`}
+                                    placeholder='Firm Name'
+                                    register={register}
+                                    name={`funding[${index}].firmName`}
+                                  />
+                                  <Textinput
+                                    label='Investor Type'
+                                    type='text'
+                                    id={`investorType${index}`}
+                                    placeholder='Investor Type'
+                                    register={register}
+                                    name={`funding[${index}].investorType`}
+                                  />
+                                  <Textinput
+                                    label='Amount Raised'
+                                    type='number'
+                                    id={`amountRaised${index}`}
+                                    placeholder='Amount Raised'
+                                    register={register}
+                                    name={`funding[${index}].amountRaised`}
+                                  />
+                                  {index >= 0 && (
+                                    <div className='ml-auto mt-auto relative'>
+                                      <button
+                                        onClick={() => remove(index)}
+                                        type='button'
+                                        className='inline-flex items-center justify-center h-10 w-10 bg-danger-500 text-lg border rounded border-danger-500 text-white'
+                                      >
+                                        <Icon icon='heroicons-outline:trash' />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                              <div className='mt-4'>
+                                <Button
+                                  text='Add new'
+                                  icon='heroicons-outline:plus'
+                                  className='text-slate-600 p-0 dark:text-slate-300'
+                                  onClick={() =>
+                                    append({
+                                      investorName: '',
+                                      firmName: '',
+                                      investorType: '',
+                                      amountRaised: '',
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
                           </>
                         )}
 
@@ -1138,68 +1211,6 @@ const VerticalNavTabs = () => {
                               }
                               register={register}
                               placeholder='Enter customer lifetime value'
-                            />
-                          </>
-                        )}
-
-                        {section.key === 'funding_info' && (
-                          <>
-                            <Textinput
-                              label='Total Funding Ask'
-                              name='total_funding_ask'
-                              defaultValue={
-                                fundingInformationLoc?.total_funding_ask
-                              }
-                              register={register}
-                              placeholder='Enter total funding ask'
-                            />
-                            <Textinput
-                              label='Amount Committed'
-                              name='amount_committed'
-                              defaultValue={
-                                fundingInformationLoc?.amount_committed
-                              }
-                              register={register}
-                              placeholder='Enter amount committed'
-                            />
-                            <Textinput
-                              label='Government Grants'
-                              name='government_grants'
-                              defaultValue={
-                                fundingInformationLoc?.government_grants
-                              }
-                              register={register}
-                              placeholder='Enter government grants'
-                            />
-                            <Textinput
-                              label='Equity Split'
-                              name='equity_split'
-                              defaultValue={fundingInformationLoc?.equity_split}
-                              register={register}
-                              placeholder='Enter equity split'
-                            />
-                            <Textarea
-                              label='Fund Utilization'
-                              name='fund_utilization'
-                              defaultValue={
-                                fundingInformationLoc?.fund_utilization
-                              }
-                              register={register}
-                              placeholder='Describe fund utilization'
-                            />
-                            <Textinput
-                              label='ARR'
-                              name='arr'
-                              defaultValue={fundingInformationLoc?.arr}
-                              register={register}
-                              placeholder='Enter ARR'
-                            />
-                            <Textinput
-                              label='MRR'
-                              name='mrr'
-                              defaultValue={fundingInformationLoc?.mrr}
-                              register={register}
-                              placeholder='Enter MRR'
                             />
                           </>
                         )}
