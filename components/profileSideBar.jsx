@@ -1636,103 +1636,133 @@ const VerticalNavTabs = () => {
 
                           {section.key === 'founder_info' && (
                             <>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:user' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    FOUNDER NAME
+                              {(founderInformationLoc?.founder_name ||
+                                founderInformation?.founder_name) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:user' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.founder_name}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      FOUNDER NAME
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {founderInformationLoc?.founder_name ||
+                                        founderInformation?.founder_name}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:envelope' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    EMAIL
+                                </li>
+                              )}
+                              {(founderInformationLoc?.founder_email ||
+                                founderInformation?.founder_email) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:envelope' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.founder_email}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      EMAIL
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {founderInformationLoc?.founder_email ||
+                                        founderInformation?.founder_email}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:phone' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    MOBILE NUMBER
+                                </li>
+                              )}
+                              {(founderInformationLoc?.founder_mobile ||
+                                founderInformation?.founder_mobile) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:phone' />
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.founder_mobile}
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      MOBILE NUMBER
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {founderInformationLoc?.founder_mobile ||
+                                        founderInformation?.founder_mobile}
+                                    </div>
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:globe-alt' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    LINKEDIN PROFILE
+                                </li>
+                              )}
+                              {(founderInformationLoc?.founder_linkedin ||
+                                founderInformation?.founder_linkedin) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:globe-alt' />
                                   </div>
-                                  <a
-                                    href={
-                                      founderInformationLoc?.founder_linkedin
-                                    }
-                                    className='text-base text-slate-600 dark:text-slate-50'
-                                  >
-                                    {founderInformationLoc?.founder_linkedin}
-                                  </a>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:academic-cap' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    DEGREE NAME
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      LINKEDIN PROFILE
+                                    </div>
+                                    <a
+                                      href={
+                                        founderInformationLoc?.founder_linkedin ||
+                                        founderInformation?.founder_linkedin
+                                      }
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      {founderInformationLoc?.founder_linkedin ||
+                                        founderInformation?.founder_linkedin}
+                                    </a>
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.degree_name}
+                                </li>
+                              )}
+                              {(founderInformationLoc?.degree_name ||
+                                founderInformation?.degree_name) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:academic-cap' />
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:building-library' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    COLLEGE NAME
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      DEGREE NAME
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {founderInformationLoc?.degree_name ||
+                                        founderInformation?.degree_name}
+                                    </div>
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.college_name}
+                                </li>
+                              )}
+                              {(founderInformationLoc?.college_name ||
+                                founderInformation?.college_name) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:building-library' />
                                   </div>
-                                </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:calendar' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    YEAR OF GRADUATION
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      COLLEGE NAME
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {founderInformationLoc?.college_name ||
+                                        founderInformation?.college_name}
+                                    </div>
                                   </div>
-                                  <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.graduation_year}
+                                </li>
+                              )}
+                              {(founderInformationLoc?.graduation_year ||
+                                founderInformation?.graduation_year) && (
+                                <li className='flex space-x-3 rtl:space-x-reverse'>
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:calendar' />
                                   </div>
-                                </div>
-                              </li>
-                              {founderInformationLoc?.list_of_advisers && (
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      YEAR OF GRADUATION
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {founderInformationLoc?.graduation_year ||
+                                        founderInformation?.graduation_year}
+                                    </div>
+                                  </div>
+                                </li>
+                              )}
+                              {(founderInformationLoc?.list_of_advisers ||
+                                founderInformation?.list_of_advisers) && (
                                 <li className='flex space-x-3 rtl:space-x-reverse'>
                                   <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                     <Icon icon='heroicons:document' />
@@ -1743,7 +1773,8 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <a
                                       href={
-                                        founderInformationLoc?.list_of_advisers
+                                        founderInformationLoc?.list_of_advisers ||
+                                        founderInformation?.list_of_advisers
                                       }
                                       target='_blank'
                                       rel='noopener noreferrer'
@@ -1756,6 +1787,7 @@ const VerticalNavTabs = () => {
                               )}
                             </>
                           )}
+
                           {section.key === 'CTO_info' && (
                             <>
                               <li className='flex space-x-3 rtl:space-x-reverse'>
@@ -2472,6 +2504,7 @@ const VerticalNavTabs = () => {
                                     <Icon icon='heroicons:currency-dollar' />
                                   </div>
                                   <div className='flex-1'>
+                                    +{' '}
                                     <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
                                       TOTAL FUNDING ASK
                                     </div>
