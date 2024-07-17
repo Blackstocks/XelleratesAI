@@ -263,7 +263,7 @@ const VerticalNavTabs = () => {
           break;
 
         case 'startup_details':
-          console.log('companyProfile:', companyProfile || companyProfile[0]);
+          console.log('companyProfile:', companyProfile);
           const emptyStartupDetails = !companyProfile?.id;
           const startupData = {
             company_name: data.company_name || '',
@@ -1341,266 +1341,237 @@ const VerticalNavTabs = () => {
                           )}
                           {section.key === 'startup_details' && (
                             <>
-                              {(companyProfileLoc?.company_name ||
-                                companyProfile?.company_name) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:building-storefront' />
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:building-storefront' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    COMPANY NAME
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      COMPANY NAME
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.company_name ||
-                                        companyProfile?.company_name}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.company_name ||
+                                      companyProfile?.company_name}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.incorporation_date ||
-                                companyProfile?.incorporation_date) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:calendar' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:calendar' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    INCORPORATION DATE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      INCORPORATION DATE
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.incorporation_date ||
-                                        companyProfile?.incorporation_date}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.incorporation_date ||
+                                      companyProfile?.incorporation_date}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.country ||
-                                companyProfile?.country) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:map' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:map' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    LOCATION
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      LOCATION
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.country ||
-                                        companyProfile?.country}
-                                      ,{' '}
-                                      {companyProfileLoc?.state_city ||
-                                        companyProfile?.state_city}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.country ||
+                                      companyProfile?.country}
+                                    ,{' '}
+                                    {companyProfileLoc?.state_city ||
+                                      companyProfile?.state_city}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.office_address ||
-                                companyProfile?.office_address) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:building-office' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:building-office' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    OFFICE ADDRESS
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      OFFICE ADDRESS
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.office_address ||
-                                        companyProfile?.office_address}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.office_address ||
+                                      companyProfile?.office_address}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.company_website ||
-                                companyProfile?.company_website) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:globe-alt' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:globe-alt' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    COMPANY WEBSITE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      COMPANY WEBSITE
-                                    </div>
-                                    <a
-                                      href={
-                                        companyProfileLoc?.company_website ||
-                                        companyProfile?.company_website
-                                      }
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      {companyProfileLoc?.company_website ||
-                                        companyProfile?.company_website}
-                                    </a>
+                                  <a
+                                    href={
+                                      companyProfileLoc?.company_website ||
+                                      companyProfile?.company_website
+                                    }
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyProfileLoc?.company_website ||
+                                      companyProfile?.company_website}
+                                  </a>
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:globe-alt' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    LinkedIn Profile
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.linkedin_profile ||
-                                companyProfile?.linkedin_profile) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:globe-alt' />
+                                  <a
+                                    href={
+                                      companyProfileLoc?.linkedin_profile ||
+                                      companyProfile?.linkedin_profile
+                                    }
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {companyProfileLoc?.linkedin_profile ||
+                                      companyProfile?.linkedin_profile}
+                                  </a>
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:briefcase' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    BUSINESS DESCRIPTION
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      LinkedIn Profile
-                                    </div>
-                                    <a
-                                      href={
-                                        companyProfileLoc?.linkedin_profile ||
-                                        companyProfile?.linkedin_profile
-                                      }
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      {companyProfileLoc?.linkedin_profile ||
-                                        companyProfile?.linkedin_profile}
-                                    </a>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.short_description ||
+                                      companyProfile?.short_description}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.short_description ||
-                                companyProfile?.short_description) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:briefcase' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:users' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    TEAM SIZE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      BUSINESS DESCRIPTION
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.short_description ||
-                                        companyProfile?.short_description}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.team_size ||
+                                      companyProfile?.team_size}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.team_size ||
-                                companyProfile?.team_size) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:users' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:chart-bar' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    CURRENT STAGE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      TEAM SIZE
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.team_size ||
-                                        companyProfile?.team_size}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.current_stage ||
+                                      companyProfile?.current_stage}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.current_stage ||
-                                companyProfile?.current_stage) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:chart-bar' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:flag' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    TARGET AUDIENCE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      CURRENT STAGE
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.current_stage ||
-                                        companyProfile?.current_stage}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.target_audience ||
+                                      companyProfile?.target_audience}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.target_audience ||
-                                companyProfile?.target_audience) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:flag' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:light-bulb' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    USP/MOAT
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      TARGET AUDIENCE
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.target_audience ||
-                                        companyProfile?.target_audience}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.usp_moat ||
+                                      companyProfile?.usp_moat}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.usp_moat ||
-                                companyProfile?.usp_moat) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:light-bulb' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:tag' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    INDUSTRY SECTOR
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      USP/MOAT
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.usp_moat ||
-                                        companyProfile?.usp_moat}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.industry_sector ||
+                                      companyProfile?.industry_sector}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.industry_sector ||
-                                companyProfile?.industry_sector) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:tag' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    MEDIA PRESENCE
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      INDUSTRY SECTOR
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.industry_sector ||
-                                        companyProfile?.industry_sector}
-                                    </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {companyProfileLoc?.media ||
+                                      companyProfile?.media}
                                   </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.media ||
-                                companyProfile?.media) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
+                                </div>
+                              </li>
+
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    COMPANY LOGO
                                   </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      MEDIA PRESENCE
-                                    </div>
-                                    <div className='text-base text-slate-600 dark:text-slate-50'>
-                                      {companyProfileLoc?.media ||
-                                        companyProfile?.media}
-                                    </div>
-                                  </div>
-                                </li>
-                              )}
-                              {(companyProfileLoc?.company_logo ||
-                                companyProfile?.company_logo) && (
-                                <li className='flex space-x-3 rtl:space-x-reverse'>
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:document' />
-                                  </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      COMPANY LOGO
-                                    </div>
-                                    <a
-                                      href={
-                                        companyProfileLoc?.company_logo ||
-                                        companyProfile?.company_logo
-                                      }
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      View Company Logo
-                                    </a>
-                                  </div>
-                                </li>
-                              )}
+                                  <a
+                                    href={
+                                      companyProfileLoc?.company_logo ||
+                                      companyProfile?.company_logo
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    View Company Logo
+                                  </a>
+                                </div>
+                              </li>
 
                               {/* Social Media Handles */}
                               {(companyProfileLoc?.social_media_handles ||
