@@ -78,7 +78,7 @@ const OrderChart = ({
   return (
     <div className={className}>
       <div className='text-sm text-slate-600 dark:text-slate-300 mb-[6px]'>
-        Orders
+      <b>Revenue</b>
       </div>
       <div className='text-lg text-slate-900 dark:text-white font-medium mb-[6px]'>
         123k

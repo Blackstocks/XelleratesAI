@@ -6,15 +6,15 @@ import "swiper/css/effect-cards";
 const cardLists = [
   {
     bg: "from-[#1EABEC] to-primary-500 ",
-    cardNo: "****  ****  **** 3945",
+    cardNo: "Xellerates AI",
   },
   {
     bg: "from-[#4C33F7] to-[#801FE0] ",
-    cardNo: "****  ****  **** 3945",
+    cardNo: "Conqr",
   },
   {
     bg: "from-[#FF9838] to-[#008773]",
-    cardNo: "****  ****  **** 3945",
+    cardNo: "Sputnik",
   },
 ];
 const CardSlider = () => {
@@ -38,7 +38,7 @@ const CardSlider = () => {
                 {item.cardNo}
               </div>
               <div className="text-xs text-opacity-75 mb-[2px]">
-                Card balance
+                Investment Amount
               </div>
               <div className="text-2xl font-semibold">$10,975</div>
             </div>

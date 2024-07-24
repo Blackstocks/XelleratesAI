@@ -59,7 +59,7 @@ const EarningChart = ({
       <div className="flex items-center">
         <div className="flex-none">
           <div className="text-sm text-slate-600 dark:text-slate-300 mb-[6px]">
-            Earnings
+          <b>Profit/Loss</b>
           </div>
           <div className="text-lg text-slate-900 dark:text-white font-medium mb-[6px]">
             $12,335.00

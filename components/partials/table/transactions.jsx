@@ -1,5 +1,6 @@
-"use client"
+"use client";
 
+import { useState, useMemo } from "react";
 import { advancedTable } from "@/constant/table-data";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
@@ -13,15 +14,13 @@ import {
   usePagination,
 } from "react-table";
 import GlobalFilter from "@/components/partials/table/GlobalFilter";
-import { useMemo } from "react";
 
 const COLUMNS = [
   {
-    Header: "customer",
+    Header: "Doccument Name",
     accessor: "customer",
     Cell: (row) => {
       return (
-
         <span className="inline-flex items-center">
           <span className="w-7 h-7 rounded-full ltr:mr-3 rtl:ml-3 flex-none bg-slate-600">
             <img
@@ -34,7 +33,6 @@ const COLUMNS = [
             {row?.cell?.value.name}
           </span>
         </span>
-
       );
     },
   },
@@ -45,16 +43,13 @@ const COLUMNS = [
       return (
         <span className="text-slate-500 dark:text-slate-400">
           {row?.cell?.value}
-          <span className="inline-block ml-1">
-            11:35
-          </span>
+          <span className="inline-block ml-1">11:35</span>
         </span>
-
       );
     },
   },
   {
-    Header: "HISTORY",
+    Header: "Last Viewed",
     accessor: "quantity",
     Cell: (row) => {
       return (
@@ -69,9 +64,8 @@ const COLUMNS = [
       );
     },
   },
-
   {
-    Header: "amount",
+    Header: "Owner",
     accessor: "status",
     Cell: (row) => {
       return (
@@ -82,7 +76,6 @@ const COLUMNS = [
             } 
             ${row?.cell?.value === "due" ? "text-warning-500 " : ""}
             ${row?.cell?.value === "cancled" ? "text-danger-500" : ""}
-
              `}
           >
             {row?.cell?.value === "due" && <span>+$ 1,200.00</span>}
@@ -94,7 +87,7 @@ const COLUMNS = [
     },
   },
   {
-    Header: "action",
+    Header: "Evalluate",
     accessor: "action",
     Cell: (row) => {
       return (
@@ -111,14 +104,11 @@ const COLUMNS = [
               {actions.map((item, i) => (
                 <Menu.Item key={i}>
                   <div
-                    className={`
-
-                  ${
-                    item.name === "delete"
-                      ? "bg-danger-500 text-danger-500 bg-opacity-30   hover:bg-opacity-100 hover:text-white"
-                      : "hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50"
-                  }
-                   w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm  last:mb-0 cursor-pointer 
+                    className={`${
+                      item.name === "delete"
+                        ? "bg-danger-500 text-danger-500 bg-opacity-30   hover:bg-opacity-100 hover:text-white"
+                        : "hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50"
+                    } w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm  last:mb-0 cursor-pointer 
                    first:rounded-t last:rounded-b flex  space-x-2 items-center rtl:space-x-reverse `}
                   >
                     <span className="text-base">
@@ -131,7 +121,6 @@ const COLUMNS = [
             </div>
           </Dropdown>
         </div>
-
       );
     },
   },
@@ -143,18 +132,23 @@ const actions = [
     icon: "heroicons-outline:eye",
   },
   {
-    name: "edit",
+    name: "Review",
     icon: "heroicons:pencil-square",
   },
   {
-    name: "delete",
-    icon: "heroicons-outline:trash",
+    name: "Comment",
+    icon: "heroicons-outline:pencil-square",
   },
 ];
 
 const TransactionsTable = () => {
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
   const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => advancedTable, []);
+  const data = useMemo(() => {
+    if (selectedFilter === "all") return advancedTable;
+    return advancedTable.filter((item) => item.category === selectedFilter);
+  }, [selectedFilter]);
 
   const tableInstance = useTable(
     {
@@ -164,7 +158,6 @@ const TransactionsTable = () => {
         pageSize: 4,
       },
     },
-
     useGlobalFilter,
     useSortBy,
     usePagination,
@@ -174,7 +167,6 @@ const TransactionsTable = () => {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    footerGroups,
     page,
     nextPage,
     previousPage,
@@ -190,51 +182,79 @@ const TransactionsTable = () => {
   } = tableInstance;
 
   const { globalFilter, pageIndex, pageSize } = state;
+
   return (
     <>
       <Card noborder>
         <div className="md:flex justify-between items-center mb-6">
-          <h4 className="card-title">All transactions</h4>
-          <div>
+          <h4 className="card-title">All Documents</h4>
+          <div className="flex items-center space-x-4">
+            <Dropdown
+              classMenuItems="right-0 w-[140px] top-[110%]"
+              label={
+                <span className="text-xl text-center block w-full">
+                  <Icon icon="heroicons-outline:filter" />
+                </span>
+              }
+            >
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {["all", "documents", "financial", "approval"].map((filter) => (
+                  <Menu.Item key={filter}>
+                    <div
+                      onClick={() => setSelectedFilter(filter)}
+                      className={`hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center rtl:space-x-reverse ${
+                        selectedFilter === filter ? "bg-slate-200 dark:bg-slate-700" : ""
+                      }`}
+                    >
+                      <span>{filter.charAt(0).toUpperCase() + filter.slice(1)}</span>
+                    </div>
+                  </Menu.Item>
+                ))}
+              </div>
+            </Dropdown>
             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
           </div>
         </div>
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden ">
+            <div className="overflow-hidden">
               <table
                 className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
-                {...getTableProps}
+                {...getTableProps()}
               >
-                <thead className=" border-t border-slate-100 dark:border-slate-800">
+                <thead className="border-t border-slate-100 dark:border-slate-800">
                   {headerGroups.map((headerGroup) => {
                     const { key, ...restHeaderGroupProps } =
                       headerGroup.getHeaderGroupProps();
-                    <tr key={key} {...restHeaderGroupProps}>
-                      {headerGroup.headers.map((column) => {
-                        const { key, ...restColumn } = column.getHeaderProps();
-                        <th
-                          key={key}
-                          {...restColumn}
-                          scope="col"
-                          className=" table-th "
-                        >
-                          {column.render("Header")}
-                          <span>
-                            {column.isSorted
-                              ? column.isSortedDesc
-                                ? " 🔽"
-                                : " 🔼"
-                              : ""}
-                          </span>
-                        </th>;
-                      })}
-                    </tr>;
+                    return (
+                      <tr key={key} {...restHeaderGroupProps}>
+                        {headerGroup.headers.map((column) => {
+                          const { key, ...restColumn } = column.getHeaderProps();
+                          return (
+                            <th
+                              key={key}
+                              {...restColumn}
+                              scope="col"
+                              className="table-th"
+                            >
+                              {column.render("Header")}
+                              <span>
+                                {column.isSorted
+                                  ? column.isSortedDesc
+                                    ? " 🔽"
+                                    : " 🔼"
+                                  : ""}
+                              </span>
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    );
                   })}
                 </thead>
                 <tbody
                   className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
-                  {...getTableBodyProps}
+                  {...getTableBodyProps()}
                 >
                   {page.map((row) => {
                     prepareRow(row);
@@ -260,6 +280,44 @@ const TransactionsTable = () => {
               </table>
             </div>
           </div>
+        </div>
+        <div className="py-3 flex items-center justify-between">
+          <div className="flex-1 flex items-center justify-between">
+            <span className="text-sm text-slate-700 dark:text-slate-200">
+              Page {pageIndex + 1} of {pageOptions.length}
+            </span>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => gotoPage(0)}
+                disabled={!canPreviousPage}
+                className="btn btn-light"
+              >
+                {"<<"}
+              </button>
+              <button
+                onClick={() => previousPage()}
+                disabled={!canPreviousPage}
+                className="btn btn-light"
+              >
+                {"<"}
+              </button>
+              <button
+                onClick={() => nextPage()}
+                disabled={!canNextPage}
+                className="btn btn-light"
+              >
+                {">"}
+              </button>
+              <button
+                onClick={() => gotoPage(pageCount - 1)}
+                disabled={!canNextPage}
+                className="btn btn-light"
+              >
+                {">>"}
+              </button>
+            </div>
+          </div>
+          
         </div>
       </Card>
     </>

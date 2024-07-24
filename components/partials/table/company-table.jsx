@@ -1,9 +1,8 @@
-"use client"
+"use client";
 import React, { useState, useMemo } from "react";
 import { homeTable } from "../../../constant/table-data";
-
 import Icon from "@/components/ui/Icon";
-
+import GlobalFilter from "@/components/partials/table/GlobalFilter";
 import {
   useTable,
   useRowSelect,
@@ -14,7 +13,7 @@ import {
 
 const COLUMNS = [
   {
-    Header: "company",
+    Header: "Company Name",
     accessor: "company",
     Cell: (row) => {
       return (
@@ -41,15 +40,15 @@ const COLUMNS = [
     },
   },
   {
-    Header: "Category",
-    accessor: "category",
+    Header: "Sector",
+    accessor: "sector",
     Cell: (row) => {
       return <span>Technology</span>;
     },
   },
   {
-    Header: "sales",
-    accessor: "sales",
+    Header: "Return on Investment",
+    accessor: "roi",
     Cell: (row) => {
       return (
         <div className="flex space-x-6 items-center rtl:space-x-reverse">
@@ -69,25 +68,12 @@ const COLUMNS = [
       );
     },
   },
-  {
-    Header: "views",
-    accessor: "views",
-    Cell: (row) => {
-      return <span>{row?.cell?.value}</span>;
-    },
-  },
-  {
-    Header: "revenue",
-    accessor: "revenue",
-    Cell: (row) => {
-      return <span>{row?.cell?.value}</span>;
-    },
-  },
 ];
 
 const CompanyTable = () => {
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => homeTable, []);
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const tableInstance = useTable(
     {
@@ -97,7 +83,6 @@ const CompanyTable = () => {
         pageSize: 6,
       },
     },
-
     useGlobalFilter,
     useSortBy,
     usePagination,
@@ -107,7 +92,6 @@ const CompanyTable = () => {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    footerGroups,
     page,
     nextPage,
     previousPage,
@@ -117,52 +101,62 @@ const CompanyTable = () => {
     state,
     gotoPage,
     pageCount,
-    setPageSize,
-    setGlobalFilter,
     prepareRow,
+    setGlobalFilter: setTableGlobalFilter,
   } = tableInstance;
 
   const { pageIndex, pageSize } = state;
 
+  const handleSearch = (value) => {
+    setGlobalFilter(value);
+    setTableGlobalFilter(value);
+  };
+
   return (
     <>
+      <div className="mb-4">
+      </div>
       <div>
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden ">
+            <div className="overflow-hidden">
               <table
                 className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
-                {...getTableProps}
+                {...getTableProps()}
               >
-                <thead className=" bg-slate-200 dark:bg-slate-700">
+                <thead className="bg-slate-200 dark:bg-slate-700">
                   {headerGroups.map((headerGroup) => {
                     const { key, ...restHeaderGroupProps } =
                       headerGroup.getHeaderGroupProps();
-                    <tr key={key} {...restHeaderGroupProps}>
-                      {headerGroup.headers.map((column) => {
-                        const { key, ...restColumn } = column.getHeaderProps();
-                        <th
-                          key={key}
-                          {...restColumn}
-                          scope="col"
-                          className=" table-th "
-                        >
-                          {column.render("Header")}
-                          <span>
-                            {column.isSorted
-                              ? column.isSortedDesc
-                                ? " 🔽"
-                                : " 🔼"
-                              : ""}
-                          </span>
-                        </th>;
-                      })}
-                    </tr>;
+                    return (
+                      <tr key={key} {...restHeaderGroupProps}>
+                        {headerGroup.headers.map((column) => {
+                          const { key, ...restColumn } = column.getHeaderProps();
+                          return (
+                            <th
+                              key={key}
+                              {...restColumn}
+                              scope="col"
+                              className="table-th"
+                            >
+                              {column.render("Header")}
+                              <span>
+                                {column.isSorted
+                                  ? column.isSortedDesc
+                                    ? " 🔽"
+                                    : " 🔼"
+                                  : ""}
+                              </span>
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    );
                   })}
                 </thead>
                 <tbody
                   className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
-                  {...getTableBodyProps}
+                  {...getTableBodyProps()}
                 >
                   {page.map((row) => {
                     prepareRow(row);
@@ -190,10 +184,10 @@ const CompanyTable = () => {
           </div>
         </div>
         <div className="md:flex md:space-y-0 space-y-5 justify-center mt-6 items-center">
-          <ul className="flex items-center  space-x-3  rtl:space-x-reverse">
+          <ul className="flex items-center space-x-3 rtl:space-x-reverse">
             <li className="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180">
               <button
-                className={` ${
+                className={`${
                   !canPreviousPage ? "opacity-50 cursor-not-allowed" : ""
                 }`}
                 onClick={() => previousPage()}
@@ -207,11 +201,11 @@ const CompanyTable = () => {
                 <button
                   href="#"
                   aria-current="page"
-                  className={` ${
+                  className={`${
                     pageIdx === pageIndex
-                      ? "bg-slate-900 dark:bg-slate-600  dark:text-slate-200 text-white font-medium "
-                      : "bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900  font-normal  "
-                  }    text-sm rounded leading-[16px] flex h-6 w-6 items-center justify-center transition-all duration-150`}
+                      ? "bg-slate-900 dark:bg-slate-600 dark:text-slate-200 text-white font-medium"
+                      : "bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900 font-normal"
+                  } text-sm rounded leading-[16px] flex h-6 w-6 items-center justify-center transition-all duration-150`}
                   onClick={() => gotoPage(pageIdx)}
                 >
                   {page + 1}
@@ -220,7 +214,7 @@ const CompanyTable = () => {
             ))}
             <li className="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180">
               <button
-                className={` ${
+                className={`${
                   !canNextPage ? "opacity-50 cursor-not-allowed" : ""
                 }`}
                 onClick={() => nextPage()}
