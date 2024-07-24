@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '../../../../lib/supabaseclient';
-import { CircularProgress, Modal, makeStyles } from '@material-ui/core';
+// import { CircularProgress, Modal, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -211,7 +211,7 @@ const Equity = () => {
           <h1 className="text-2xl font-bold mb-6">Equity</h1>
           {loading ? (
             <div className="flex justify-center items-center">
-              <CircularProgress />
+              {/* <CircularProgress /> */}
             </div>
           ) : (
             <>
