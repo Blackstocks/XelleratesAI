@@ -1,56 +1,46 @@
-"use client"
+"use client";
 import Icon from "@/components/ui/Icon";
 
 const statistics = [
   {
-    title: "Sales",
-    count: "354",
-    bg: "bg-warning-500",
+    title: "Available Investors",
+    count: "10",
+    bg: "bg-slate-900",
     text: "text-primary-500",
-    percent: "25.67% ",
+    percent: "5.00%",
     icon: "heroicons:arrow-trending-up",
     img: "/assets/images/all-img/shade-1.png",
     percentClass: "text-primary-500",
   },
   {
-    title: "Revenue ",
-    count: "$86,954",
-
-    bg: "bg-info-500",
+    title: "Reach Out",
+    count: "5",
+    bg: "bg-primary-500",
     text: "text-primary-500",
-    percent: "8.67%",
+    percent: "2.50%",
     icon: "heroicons:arrow-trending-up",
     img: "/assets/images/all-img/shade-2.png",
     percentClass: "text-primary-500",
   },
   {
-    title: "Conversion",
-    count: "15%",
-    bg: "bg-primary-500",
-    text: "text-danger-500",
-    percent: "1.67%  ",
-    icon: "heroicons:arrow-trending-down",
-    img: "/assets/images/all-img/shade-3.png",
-    percentClass: "text-danger-500",
-  },
-  {
-    title: "Leads",
-    count: "654",
-    bg: "bg-success-500",
+    title: "Interest Recieved",
+    count: "8",
+    bg: "bg-success-400",
     text: "text-primary-500",
-    percent: "11.67%  ",
+    percent: "4.00%",
     icon: "heroicons:arrow-trending-up",
-    img: "/assets/images/all-img/shade-4.png",
+    img: "/assets/images/all-img/shade-3.png",
     percentClass: "text-primary-500",
   },
 ];
+
 const GroupChart3 = () => {
   return (
     <>
       {statistics.map((item, i) => (
         <div
           key={i}
-          className={`${item.bg} rounded-md p-4 bg-opacity-[0.15] dark:bg-opacity-25 relative z-[1]`}
+          className={`${item.bg} rounded-md p-3 bg-opacity-[0.15] dark:bg-opacity-25 relative z-[1]`}
         >
           <div className="overlay absolute left-0 top-0 w-full h-full z-[-1]">
             <img
@@ -61,24 +51,11 @@ const GroupChart3 = () => {
             />
           </div>
           <span className="block mb-6 text-sm text-slate-900 dark:text-white font-medium">
-            {item.title}
+            <h6><b>{item.title}</b></h6>
           </span>
-          <span className="block mb- text-2xl text-slate-900 dark:text-white font-medium mb-6">
+          <span className="block text-2xl text-slate-900 dark:text-white font-medium mb-6">
             {item.count}
           </span>
-          <div className="flex space-x-2 rtl:space-x-reverse">
-            <div className={` flex-none text-xl  ${item.text} `}>
-              <Icon icon={item.icon} />
-            </div>
-            <div className="flex-1 text-sm">
-              <span className={` block mb-[2px] ${item.percentClass} `}>
-                {item.percent}
-              </span>
-              <span className="block mb-1 text-slate-600 dark:text-slate-300">
-                From last week
-              </span>
-            </div>
-          </div>
         </div>
       ))}
     </>

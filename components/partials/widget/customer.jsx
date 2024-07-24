@@ -99,47 +99,6 @@ const Customer = () => {
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-5 mt-5">
-        {customers2.map((item, i) => (
-          <div
-            key={i}
-            className="relative z-[1] p-4 rounded md:flex items-center bg-gray-5003 dark:bg-slate-900 md:space-x-10 md:space-y-0 space-y-3 rtl:space-x-reverse"
-          >
-            <div
-              className={`${
-                item.active ? "ring-2 ring-[#FFC155]" : ""
-              } h-10 w-10 rounded-full relative`}
-            >
-              {item.active && (
-                <span className="crown absolute -top-[14px] left-1/2 -translate-x-1/2">
-                  <img src="/assets/images/icon/crown.svg" alt="" />
-                </span>
-              )}
-              <img
-                src={item.img}
-                alt=""
-                className="w-full h-full rounded-full"
-              />
-              <span className="h-4 w-4 absolute right-0 bottom-0 rounded-full bg-[#FFC155] border border-white flex flex-col items-center justify-center text-white text-[10px] font-medium">
-                {item.number}
-              </span>
-            </div>
-            <h4 className="text-sm text-slate-600 font-semibold">
-              {item.title}
-            </h4>
-            <div className="inline-block text-center bg-slate-900 text-white px-[10px] py-[6px] text-xs font-medium rounded-full min-w-[60px]">
-              {item.value}
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between text-sm font-normal dark:text-slate-300 mb-3">
-                <span>Progress</span>
-                <span className="font-normal">{item.value}%</span>
-              </div>
-              <ProgressBar value={item.value} className={item.barColor} />
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

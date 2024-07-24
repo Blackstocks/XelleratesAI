@@ -14,6 +14,7 @@ import useUserDetails from "@/hooks/useUserDetails";
 import Customer from "@/components/partials/widget/customer";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseclient";
+import ImageBlock2 from "@/components/partials/widget/block/image-block-2";
 
 const financials = [
   {

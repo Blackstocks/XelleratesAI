@@ -3,38 +3,48 @@ import Icon from "@/components/ui/Icon";
 
 const statistics = [
   {
-    title: "Investors available for your startup",
-    count: "10",
+    title: "Total Startups",
+    count: "20",
     bg: "bg-warning-500",
     text: "text-primary-500",
-    percent: "5.00%",
+    percent: "10.00%",
     icon: "heroicons:arrow-trending-up",
     img: "/assets/images/all-img/shade-1.png",
     percentClass: "text-primary-500",
   },
   {
-    title: "Investors reached out",
-    count: "5",
+    title: "Curated Startups",
+    count: "15",
     bg: "bg-info-500",
     text: "text-primary-500",
-    percent: "2.50%",
+    percent: "7.50%",
     icon: "heroicons:arrow-trending-up",
     img: "/assets/images/all-img/shade-2.png",
     percentClass: "text-primary-500",
   },
   {
-    title: "Interest from Investors",
-    count: "8",
+    title: "Open Conversations",
+    count: "10",
     bg: "bg-success-500",
     text: "text-primary-500",
-    percent: "4.00%",
+    percent: "5.00%",
     icon: "heroicons:arrow-trending-up",
     img: "/assets/images/all-img/shade-3.png",
     percentClass: "text-primary-500",
   },
+  {
+    title: "Closed Transactions",
+    count: "5",
+    bg: "bg-danger-500",
+    text: "text-primary-500",
+    percent: "2.50%",
+    icon: "heroicons:arrow-trending-up",
+    img: "/assets/images/all-img/shade-4.png",
+    percentClass: "text-primary-500",
+  },
 ];
 
-const GroupChart3 = () => {
+const GroupChartNew3 = () => {
   return (
     <>
       {statistics.map((item, i) => (
@@ -51,7 +61,9 @@ const GroupChart3 = () => {
             />
           </div>
           <span className="block mb-6 text-sm text-slate-900 dark:text-white font-medium">
-            {item.title}
+            <h7>
+              <b>{item.title}</b>
+            </h7>
           </span>
           <span className="block text-2xl text-slate-900 dark:text-white font-medium mb-6">
             {item.count}
@@ -62,4 +74,4 @@ const GroupChart3 = () => {
   );
 };
 
-export default GroupChart3;
+export default GroupChartNew3;

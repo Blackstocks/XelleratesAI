@@ -1,15 +1,7 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { recentOrder } from "@/constant/table-data";
-
 import Icon from "@/components/ui/Icon";
-
-import {
-  useTable,
-  useRowSelect,
-  useSortBy,
-  useGlobalFilter,
-  usePagination,
-} from "react-table";
+import { useTable, useSortBy, useGlobalFilter } from "react-table";
 
 const COLUMNS = [
   {
@@ -38,7 +30,6 @@ const COLUMNS = [
       );
     },
   },
-
   {
     Header: "invoice",
     accessor: "invoice",
@@ -71,7 +62,7 @@ const COLUMNS = [
                 : ""
             }
             ${
-              row?.cell?.value === "cancled"
+              row?.cell?.value === "canceled"
                 ? "text-danger-500 bg-danger-500"
                 : ""
             }
@@ -84,7 +75,6 @@ const COLUMNS = [
                 ? "text-primary-500 bg-primary-500"
                 : ""
             }
-            
              `}
           >
             {row?.cell?.value}
@@ -97,100 +87,48 @@ const COLUMNS = [
 
 const RecentOrderTable = () => {
   const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => recentOrder, []);
+  const data = useMemo(() => recentOrder.slice(0, 4), []); // Limiting to 4 rows
 
   const tableInstance = useTable(
     {
       columns,
       data,
-      initialState: {
-        pageSize: 6,
-      },
     },
-
     useGlobalFilter,
-    useSortBy,
-    usePagination,
-    useRowSelect
+    useSortBy
   );
+
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    footerGroups,
-    page,
-    nextPage,
-    previousPage,
-    canNextPage,
-    canPreviousPage,
-    pageOptions,
-    state,
-    gotoPage,
-    pageCount,
-    setPageSize,
-    setGlobalFilter,
+    rows,
     prepareRow,
   } = tableInstance;
-
-  const { pageIndex, pageSize } = state;
 
   return (
     <>
       <div>
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden ">
+            <div className="overflow-hidden">
               <table
                 className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
-                {...getTableProps}
+                {...getTableProps()}
               >
-                <thead className="bg-slate-200 dark:bg-slate-700">
-                  {headerGroups.map((headerGroup) => {
-                    const { key, ...restHeaderGroupProps } =
-                      headerGroup.getHeaderGroupProps();
-                    <tr key={key} {...restHeaderGroupProps}>
-                      {headerGroup.headers.map((column) => {
-                        const { key, ...restColumn } = column.getHeaderProps();
-                        <th
-                          key={key}
-                          {...restColumn}
-                          scope="col"
-                          className=" table-th "
-                        >
-                          {column.render("Header")}
-                          <span>
-                            {column.isSorted
-                              ? column.isSortedDesc
-                                ? " 🔽"
-                                : " 🔼"
-                              : ""}
-                          </span>
-                        </th>;
-                      })}
-                    </tr>;
-                  })}
-                </thead>
                 <tbody
                   className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
-                  {...getTableBodyProps}
+                  {...getTableBodyProps()}
                 >
-                  {page.map((row) => {
+                  {rows.map((row) => {
                     prepareRow(row);
-                    const { key, ...restRowProps } = row.getRowProps();
                     return (
-                      <tr key={key} {...restRowProps}>
-                        {row.cells.map((cell) => {
-                          const { key, ...restCellProps } = cell.getCellProps();
-                          return (
-                            <td
-                              key={key}
-                              {...restCellProps}
-                              className="table-td"
-                            >
-                              {cell.render("Cell")}
-                            </td>
-                          );
-                        })}
+                      <tr key={row.id} {...row.getRowProps()}>
+                        {row.cells.map((cell) => (
+                          <td key={cell.column.id} {...cell.getCellProps()} className="table-td">
+                            {cell.render("Cell")}
+                          </td>
+                        ))}
                       </tr>
                     );
                   })}
@@ -198,48 +136,6 @@ const RecentOrderTable = () => {
               </table>
             </div>
           </div>
-        </div>
-        <div className="md:flex md:space-y-0 space-y-5 justify-center mt-6 items-center">
-          <ul className="flex items-center  space-x-3  rtl:space-x-reverse">
-            <li className="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180">
-              <button
-                className={` ${
-                  !canPreviousPage ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-              >
-                <Icon icon="heroicons-outline:chevron-left" />
-              </button>
-            </li>
-            {pageOptions.map((page, pageIdx) => (
-              <li key={pageIdx}>
-                <button
-                  href="#"
-                  aria-current="page"
-                  className={` ${
-                    pageIdx === pageIndex
-                      ? "bg-slate-900 dark:bg-slate-600  dark:text-slate-200 text-white font-medium "
-                      : "bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900  font-normal  "
-                  }    text-sm rounded leading-[16px] flex h-6 w-6 items-center justify-center transition-all duration-150`}
-                  onClick={() => gotoPage(pageIdx)}
-                >
-                  {page + 1}
-                </button>
-              </li>
-            ))}
-            <li className="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180">
-              <button
-                className={` ${
-                  !canNextPage ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-              >
-                <Icon icon="heroicons-outline:chevron-right" />
-              </button>
-            </li>
-          </ul>
         </div>
       </div>
     </>
