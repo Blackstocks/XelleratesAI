@@ -9,12 +9,14 @@ const ImageBlock1 = () => {
     >
       <div className="max-w-[169px]">
         <div className="text-xl font-medium text-slate-900 mb-2">
-          Upgrade your Dashcode
+        <b>companyName....</b>
         </div>
-        <p className="text-sm text-slate-800">Pro plan for better results</p>
+        <div className="text-sm font-medium text-slate-900 mb-2">
+        Evaluation Report
+        </div>
       </div>
-      <div className="absolute top-1/2 -translate-y-1/2 ltr:right-6 rtl:left-6 mt-2 h-12 w-12 bg-white text-slate-900 rounded-full text-xs font-medium flex flex-col items-center justify-center">
-        Now
+      <div className="absolute top-1/2 -translate-y-1/2 ltr:right-6 rtl:left-6 ml-10 mt-2 h-15 w-13 bg-white text-slate-900 rounded-full text-xs font-medium flex flex-col items-center justify-center">
+        View Report
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import ImageBlock1 from "@/components/partials/widget/block/image-block-1";
 import ImageBlock2 from "@/components/partials/widget/block/image-block-2";
 import { supabase } from "@/lib/supabaseclient";
 import "react-toastify/dist/ReactToastify.css";
+import Button from "@/components/ui/Button";
 // import { InvestorsCard, InvestmentCard, GeographicsCard, TransactionsCard } from '@/components/ui/Card';
 
 const rabitWidget = [
@@ -59,8 +60,31 @@ const Fundraising = () => {
             <div className="h-32 lg:h-35">
               <ImageBlock2 />
             </div>
-            <div className="h-32 lg:h-30">
-              <ImageBlock1 companyName={companyName} />
+            <div
+              className="bg-no-repeat bg-cover bg-center px-5 py-8 rounded-[6px] relative flex items-center"
+              style={{
+                backgroundImage: `url(/assets/images/all-img/widget-bg-5.png)`,
+              }}
+            >
+              <div className="flex-1">
+                <div className="max-w-[180px]">
+                  <h4 className="text-xl font-medium text-white mb-0">
+                    <span className="block text-sm text-white">
+                      <h6>
+                        <b>CompanyName...</b>
+                      </h6>
+                    </span>
+                    <span className="block text-sm">Evaluation Report</span>
+                  </h4>
+                </div>
+              </div>
+              <div className="flex-none">
+                <Button
+                  icon="heroicons-outline:eye"
+                  text="View Report"
+                  className="btn-light bg-white btn-sm "
+                />
+              </div>
             </div>
           </div>
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -85,11 +109,10 @@ const Fundraising = () => {
           </div>
         </div>
         <br />
-        <br />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
-              title: "Equity Fundraising (Components - Cards)",
+              title: "Equity Fundraising",
               color: "bg-primary-500",
               link: "/tools/fundraising/equity",
             },
@@ -111,90 +134,31 @@ const Fundraising = () => {
           ].map((card, index) => (
             <div
               key={index}
-              className={`relative ${card.color} text-white p-4 rounded shadow hover:shadow-lg transition-shadow h-36`}
+              className={`relative ${card.color} text-white p-4 rounded shadow hover:shadow-lg transition-shadow`}
             >
-              <h2 className="text-lg font-semibold mb-2 text-center">
+              <h2 className="text-lg font-semibold mb-8 text-center">
                 {card.title}
               </h2>
               <a
                 href={card.link}
-                className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white text-black-500 text-xs font-medium rounded px-4 py-2 hover:bg-gray-200 transition"
+                className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white text-black-500 text-xs font-medium rounded px-4 py-2 hover:bg-gray-200 transition"
               >
                 Explore
               </a>
             </div>
           ))}
         </div>
-        <br />
-        <br />
         <div className="flex-1 p-8">
           <div className="text-center">
-            <h1 className="flex text-2xl font-bold mb-6 justify-center">Why Us?</h1>
-            <div className="flex flex-wrap gap-5 justify-center">
-              {rabitWidget.map((item, i) => (
-                <div
-                  className={`mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
-                  key={i}
-                >
-                  <div className="max-w-[168px]">
-                    <div className="widget-title">5000+ Investors</div>
-                  </div>
-                  <img
-                    src="/assets/images/svg/line.svg"
-                    alt=""
-                    className="absolute left-0 bottom-0 w-full z-[-1]"
-                  />
-                </div>
-              ))}
-              {rabitWidget.map((item, i) => (
-                <div
-                  className={`mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
-                  key={i}
-                >
-                  <div className="max-w-[168px]">
-                    <div className="widget-title">
-                      Hand Led Investment Worth $ 2Bn
-                    </div>
-                  </div>
-                  <img
-                    src="/assets/images/svg/line.svg"
-                    alt=""
-                    className="absolute left-0 bottom-0 w-full z-[-1]"
-                  />
-                </div>
-              ))}
-              {rabitWidget.map((item, i) => (
-                <div
-                  className={`mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
-                  key={i}
-                >
-                  <div className="max-w-[168px]">
-                    <div className="widget-title">5000+ Transactions</div>
-                  </div>
-                  <img
-                    src="/assets/images/svg/line.svg"
-                    alt=""
-                    className="absolute left-0 bottom-0 w-full z-[-1]"
-                  />
-                </div>
-              ))}
-              {rabitWidget.map((item, i) => (
-                <div
-                  className={`mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
-                  key={i}
-                >
-                  <div className="max-w-[168px]">
-                    <div className="widget-title">
-                      10+ Geographies/Countries
-                    </div>
-                  </div>
-                  <img
-                    src="/assets/images/svg/line.svg"
-                    alt=""
-                    className="absolute left-0 bottom-0 w-full z-[-1]"
-                  />
-                </div>
-              ))}
+            <h1 className="flex text-2xl font-bold mb-6 justify-center">
+              Why Us?
+            </h1>
+            <div className="flex justify-center">
+              <img
+                src="\assets\images\tools\whyus.png"
+                alt="Why Us?"
+                className="w-1/2 h-auto"
+              />
             </div>
           </div>
         </div>
