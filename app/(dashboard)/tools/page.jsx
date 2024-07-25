@@ -243,7 +243,7 @@ const Tools = () => {
                     "Fundraising",
                     "Streamline your fund raising with our platform, offering tailored solutions and connections to potential investors.",
                     "bg-slate-900 dark:bg-slate-800",
-                    ""
+                    "/tools/fundraising"
                   )}
                   {cardContent(
                     "Legal Help Desk",
