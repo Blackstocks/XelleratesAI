@@ -5,7 +5,6 @@ import useUserDetails from "@/hooks/useUserDetails";
 import Loading from "@/components/Loading";
 import { supabase } from "@/lib/supabaseclient";
 import dynamic from "next/dynamic";
-// const CircularProgress = dynamic(() => import('../../../components/ui/ProgressBar/CircularProgress'), { ssr: false });
 
 const rabitWidget = [
   {
@@ -38,9 +37,11 @@ const Tools = () => {
     fetchCompanyName();
   }, [user]);
 
-  const handleLinkClick = (e) => {
-    e.preventDefault();
-    setIsModalOpen(true);
+  const handleLinkClick = (e, link) => {
+    if (link === "#") {
+      e.preventDefault();
+      setIsModalOpen(true);
+    }
   };
 
   const closeModal = () => {
@@ -67,7 +68,7 @@ const Tools = () => {
         <a
           className="btn bg-white hover:bg-opacity-80 text-slate-900 btn-sm"
           href={link}
-          onClick={link === "#" ? handleLinkClick : null}
+          onClick={(e) => handleLinkClick(e, link)}
         >
           Explore
         </a>
@@ -84,7 +85,7 @@ const Tools = () => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       <div className="flex items-center bg-white p-4 rounded-lg shadow">
         <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
-          {/* show the percentage from backend  */}
+          {/* show the percentage from backend */}
           {/* <CircularProgress /> */}
         </div>
         <div className="ml-4">
@@ -279,7 +280,7 @@ const Tools = () => {
                     "Document Management",
                     "Streamline your document management with our secure platform, ensuring easy access and organization of critical files.",
                     "bg-slate-900 dark:bg-slate-800",
-                    "#"
+                    "/tools/document-management"
                   )}
                   {cardContent(
                     "Syndicate",
@@ -311,24 +312,6 @@ const Tools = () => {
           </div>
         )}
       </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-80">
-            <h2 className="text-lg font-semibold mb-4 text-center">
-              Coming Soon!!
-            </h2>
-            <div className="flex justify-center">
-              <button
-                className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
-                onClick={closeModal}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
