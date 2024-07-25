@@ -15,15 +15,6 @@ const rabitWidget = [
   {
     bg: "bg-slate-900 dark:bg-slate-800",
   },
-  {
-    bg: "bg-slate-900 dark:bg-slate-800",
-  },
-  {
-    bg: "bg-slate-900 dark:bg-slate-800",
-  },
-  {
-    bg: "bg-slate-900 dark:bg-slate-800",
-  },
 ];
 
 const Fundraising = () => {
@@ -138,17 +129,63 @@ const Fundraising = () => {
         <br />
         <div className="flex-1 p-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-6">Why Us?</h1>
-            <div className="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-5">
+            <h1 className="flex text-2xl font-bold mb-6 justify-center">Why Us?</h1>
+            <div className="flex flex-wrap gap-5 justify-center">
               {rabitWidget.map((item, i) => (
                 <div
-                  className={` mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
+                  className={`mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
                   key={i}
                 >
                   <div className="max-w-[168px]">
-                    <div className="widget-title">Unlimited Access</div>
-                    <div className="text-xs font-normal">
-                      Upgrade your system to business plan
+                    <div className="widget-title">5000+ Investors</div>
+                  </div>
+                  <img
+                    src="/assets/images/svg/line.svg"
+                    alt=""
+                    className="absolute left-0 bottom-0 w-full z-[-1]"
+                  />
+                </div>
+              ))}
+              {rabitWidget.map((item, i) => (
+                <div
+                  className={`mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
+                  key={i}
+                >
+                  <div className="max-w-[168px]">
+                    <div className="widget-title">
+                      Hand Led Investment Worth $ 2Bn
+                    </div>
+                  </div>
+                  <img
+                    src="/assets/images/svg/line.svg"
+                    alt=""
+                    className="absolute left-0 bottom-0 w-full z-[-1]"
+                  />
+                </div>
+              ))}
+              {rabitWidget.map((item, i) => (
+                <div
+                  className={`mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
+                  key={i}
+                >
+                  <div className="max-w-[168px]">
+                    <div className="widget-title">5000+ Transactions</div>
+                  </div>
+                  <img
+                    src="/assets/images/svg/line.svg"
+                    alt=""
+                    className="absolute left-0 bottom-0 w-full z-[-1]"
+                  />
+                </div>
+              ))}
+              {rabitWidget.map((item, i) => (
+                <div
+                  className={`mt-7 p-6 relative z-[1] rounded-2xl text-white ${item.bg}`}
+                  key={i}
+                >
+                  <div className="max-w-[168px]">
+                    <div className="widget-title">
+                      10+ Geographies/Countries
                     </div>
                   </div>
                   <img

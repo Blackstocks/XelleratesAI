@@ -1,26 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { CircularProgress, Modal, makeStyles, LinearProgress } from "@material-ui/core";
 import { supabase } from "../../../../../lib/supabaseclient";
 import Card from "@/components/ui/Card2";
 
-const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
-}));
-
 const Equity = () => {
-  const classes = useStyles();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [investorsPerPage] = useState(20);
@@ -146,7 +130,7 @@ const Equity = () => {
         </div>
         {loading ? (
           <div className="flex justify-center items-center">
-            <CircularProgress />
+            <div className="loader"></div>
           </div>
         ) : (
           <>
@@ -216,23 +200,25 @@ const Equity = () => {
                 </div>
               </div>
             )}
-            <Modal
-              open={open}
-              onClose={handleClose}
-              className={classes.modal}
-              aria-labelledby="simple-modal-title"
-              aria-describedby="simple-modal-description"
-            >
-              <div className={classes.paper}>
-                <h2 id="simple-modal-title">Complete Your Profile</h2>
-                <p id="simple-modal-description">Please complete your profile before connecting with investors.</p>
-                <LinearProgress variant="determinate" value={progress} />
-                <p className="text-center mt-2">Our AI model is analyzing your profile...</p>
-                <button onClick={handleClose} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-                  Close
-                </button>
+            {open && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
+                <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full p-6">
+                  <h2 className="text-xl font-medium text-gray-900" id="simple-modal-title">Complete Your Profile</h2>
+                  <p className="mt-2 text-sm text-gray-500" id="simple-modal-description">
+                    Please complete your profile before connecting with investors.
+                  </p>
+                  <div className="mt-4 w-full bg-gray-200 rounded-full">
+                    <div className="bg-blue-500 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style={{ width: `${progress}%` }}>
+                      {progress}%
+                    </div>
+                  </div>
+                  <p className="text-center mt-2">Our AI model is analyzing your profile...</p>
+                  <button onClick={handleClose} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+                    Close
+                  </button>
+                </div>
               </div>
-            </Modal>
+            )}
           </>
         )}
       </main>
