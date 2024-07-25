@@ -19,27 +19,7 @@ const rabitWidget = [
 ];
 
 const Fundraising = () => {
-  const { user, details, loading } = useCompleteUserDetails();
-  const [companyName, setCompanyName] = useState("");
-
-  useEffect(() => {
-    const fetchCompanyName = async () => {
-      if (user) {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("company_name")
-          .eq("id", user.id)
-          .single();
-
-        if (!error && data) {
-          setCompanyName(data.company_name);
-        }
-      }
-    };
-
-    fetchCompanyName();
-  }, [user]);
-
+  const { user,companyProfile, loading } = useCompleteUserDetails();
   if (loading) {
     return <Loading />;
   }
@@ -71,7 +51,7 @@ const Fundraising = () => {
                   <h4 className="text-xl font-medium text-white mb-0">
                     <span className="block text-sm text-white">
                       <h6>
-                        <b>CompanyName...</b>
+                        <b>{companyProfile?.company_name || "Company Name"}</b>
                       </h6>
                     </span>
                     <span className="block text-sm">Evaluation Report</span>
