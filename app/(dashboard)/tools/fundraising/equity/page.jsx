@@ -117,14 +117,26 @@ const Equity = () => {
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
       <main className="flex-1 p-8">
-        <div className="card mb-8">
-          <img src="/path/to/your/image.jpg" alt="Card image" className="card-img-top" />
-          <div className="card-body">
-            <h5 className="card-title">Card Title</h5>
-            <h6 className="card-subtitle mb-2 text-muted">Card Subtitle</h6>
-            <p className="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-            <a href="#" className="card-link">Learn more</a>
-            <a href="#" className="card-link">Another link</a>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="card">
+            <img src="/path/to/your/image.jpg" alt="Card image" className="card-img-top" />
+            <div className="card-body">
+              <h5 className="card-title">Connect with Investors</h5>
+              <h6 className="card-subtitle mb-2 text-muted">Find the right investor for your startup</h6>
+              <p className="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+              <a href="#" className="card-link">Learn more</a>
+              <a href="#" className="card-link">Another link</a>
+            </div>
+          </div>
+          <div className="card">
+            <img src="/path/to/your/image.jpg" alt="Card image" className="card-img-top" />
+            <div className="card-body">
+              <h5 className="card-title">Investment Banking</h5>
+              <h6 className="card-subtitle mb-2 text-muted">Get support for your financial needs</h6>
+              <p className="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+              <a href="#" className="card-link">Learn more</a>
+              <a href="#" className="card-link">Another link</a>
+            </div>
           </div>
         </div>
         <div className="flex justify-between items-center mb-8">
