@@ -2,27 +2,19 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Card from "@/components/ui/Card";
-import Textinput from "@/components/ui/Textinput";
 import GroupChart5 from "@/components/partials/widget/chart/group-chart5";
-import Link from "next/link";
-import SimpleBar from "simplebar-react";
-import HistoryChart from "@/components/partials/widget/chart/history-chart";
-import AccountReceivable from "@/components/partials/widget/chart/account-receivable";
-import AccountPayable from "@/components/partials/widget/chart/account-payable";
 import { supabase } from "@/lib/supabaseclient"; // Import supabase client
 import TransactionsTable from "@/components/partials/table/transactions";
-import SelectMonth from "@/components/partials/SelectMonth";
 import HomeBredCurbs from "@/components/partials/HomeBredCurbs";
-import Dropdown from "@/components/ui/Dropdown";
 import Icon from "@/components/ui/Icon";
-import { Menu } from "@headlessui/react";
 import RecentOrderTable from "@/components/partials/table/recentOrder-table";
 import ProfitChart from "@/components/partials/widget/chart/profit-chart";
 import OrderChart from "@/components/partials/widget/chart/order-chart";
 import EarningChart from "@/components/partials/widget/chart/earning-chart";
 import CompanyTable from "@/components/partials/table/company-table";
-import useUserDetails from "@/hooks/useUserDetails"; 
+import useUserDetails from "@/hooks/useUserDetails";
 import GlobalFilter from "@/components/partials/table/GlobalFilter";
+import HistoryChart from "@/components/partials/widget/chart/history-chart";
 
 const CardSlider = dynamic(
   () => import("@/components/partials/widget/CardSlider"),
@@ -49,10 +41,10 @@ const users = [
 
 const BankingPage = () => {
   const { user, loading } = useUserDetails(); // Assuming you have a hook to fetch user details
-  const [activeIndex, setActiveIndex] = useState(0);
   const [clientName, setClientName] = useState("Client");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [globalFilter, setGlobalFilter] = useState("");
+  const [selectedCard, setSelectedCard] = useState("portfolio");
 
   useEffect(() => {
     const fetchClientName = async () => {
@@ -76,6 +68,10 @@ const BankingPage = () => {
 
   const handleSearch = (value) => {
     setGlobalFilter(value);
+  };
+
+  const handleSelectChange = (event) => {
+    setSelectedCard(event.target.value);
   };
 
   if (loading) {
@@ -111,47 +107,33 @@ const BankingPage = () => {
       </Card>
       <div className="grid grid-cols-12 gap-5">
         <div className="lg:col-span-4 col-span-12 space-y-5">
-          <Card title="My Portfolios">
-            <div className="max-w-[90%] mx-auto mt-2">
-              <CardSlider />
+          <Card title="">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="card-title">
+                {selectedCard === "portfolio" ? "My Portfolios" : "Track Potential Startups"}
+              </h4>
+              <select
+                onChange={handleSelectChange}
+                className="form-select block w-1/3 mt-1 text-sm border-gray-300 rounded-md"
+              >
+                <option value="portfolio">My Portfolios</option>
+                <option value="track">Track Potential Startups</option>
+              </select>
             </div>
-          </Card>
-          <Card title="Track Potential Startups">
             <div className="max-w-[90%] mx-auto mt-2">
-              <CardSlider2 />
+              {selectedCard === "portfolio" ? <CardSlider /> : <CardSlider2 />}
             </div>
           </Card>
           <Card>
             <div className="flex justify-between mb-6">
               <h4 className="card-title">Activities</h4>
-              <Dropdown
-                classMenuItems="right-0 w-[180px] top-[110%]"
-                label={
-                  <span className="text-sm text-center block w-full">
-                    <Icon icon="heroicons-outline:filter" />
-                    <span className="ml-2">{selectedFilter}</span>
-                  </span>
-                }
+              <select
+                onChange={(e) => setSelectedFilter(e.target.value)}
+                className="form-select block w-full mt-1 text-sm border-gray-300 rounded-md"
               >
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {["open transaction", "closed transaction"].map((filter) => (
-                    <Menu.Item key={filter}>
-                      <div
-                        onClick={() => setSelectedFilter(filter)}
-                        className={`hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center rtl:space-x-reverse ${
-                          selectedFilter === filter
-                            ? "bg-slate-200 dark:bg-slate-700"
-                            : ""
-                        }`}
-                      >
-                        <span>
-                          {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                        </span>
-                      </div>
-                    </Menu.Item>
-                  ))}
-                </div>
-              </Dropdown>
+                <option value="open transaction">Open Transaction</option>
+                <option value="closed transaction">Closed Transaction</option>
+              </select>
             </div>
           </Card>
         </div>

@@ -6,12 +6,6 @@ import Loading from "@/components/Loading";
 import { supabase } from "@/lib/supabaseclient";
 import dynamic from "next/dynamic";
 
-const rabitWidget = [
-  {
-    bg: "bg-slate-900 dark:bg-slate-800",
-  },
-];
-
 const Tools = () => {
   const { user, details, loading } = useUserDetails();
   const [companyName, setCompanyName] = useState("");
@@ -52,33 +46,14 @@ const Tools = () => {
     return <Loading />;
   }
 
-  const cardContent = (title, subtitle, imgSrc, link) => (
-    <div
-      className={`relative z-[1] rounded-2xl text-white bg-cover bg-center bg-slate-900 dark:bg-slate-800 shadow-lg p-6`}
-      style={{ backgroundImage: `url(${imgSrc})` }}
+  const cardContent = (title, imgSrc, link) => (
+    <a
+      href={link}
+      onClick={(e) => handleLinkClick(e, link)}
+      className="relative z-[1] rounded-2xl shadow-lg transform transition-transform duration-500"
     >
-      <div className="max-w-[300px] mx-auto text-center">
-        <div className="widget-title text-white">
-          <h5 className="text-white">
-            <b>{title}</b>
-          </h5>
-        </div>
-      </div>
-      <div className="mt-4 mb-4 text-center">
-        <a
-          className="btn bg-white hover:bg-opacity-80 text-slate-900 btn-sm"
-          href={link}
-          onClick={(e) => handleLinkClick(e, link)}
-        >
-          Explore
-        </a>
-        <img
-          src="/assets/images/svg/line.svg"
-          alt=""
-          className="absolute left-0 bottom-0 w-full z-[-1]"
-        />
-      </div>
-    </div>
+      <img src={imgSrc} alt={title} className="rounded-2xl w-full transition-transform duration-300 ease-in-out" />
+    </a>
   );
 
   const additionalCards = () => (
@@ -217,44 +192,38 @@ const Tools = () => {
           {user?.user_type === "startup" && additionalCards()}
         </div>
         {user?.user_type === "startup" && (
-          <div className="w-full border">
+          <div className="w-full">
             <section className="py-8 w-full">
               <div className="container px-4 mx-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {cardContent(
                     "Investment Readiness",
-                    "Achieve investment readiness with our comprehensive tools for incorporation, certification, and cap table management.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/1.png",
                     "#"
                   )}
                   {cardContent(
                     "DIY Pitch Deck",
-                    "Create your own pitch deck effortlessly with our DIY tool, equipped with templates and customization options.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/2.png",
                     "#"
                   )}
                   {cardContent(
                     "Financial Insights",
-                    "Gain comprehensive financial insights with our advanced analytics tool, providing real-time data and trends.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/3.png",
                     "#"
                   )}
                   {cardContent(
                     "Fundraising",
-                    "Streamline your fund raising with our platform, offering tailored solutions and connections to potential investors.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/4.png",
                     "/tools/fundraising"
                   )}
                   {cardContent(
                     "Legal Help Desk",
-                    "Access legal assistance with our help desk, offering guidance on contracts, compliance and legal documentation.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/5.png",
                     "#"
                   )}
                   {cardContent(
                     "Connect with Incubators",
-                    "Connect with top incubators through our platform, fostering growth and providing valuable mentorship and resources.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/6.png",
                     "#"
                   )}
                 </div>
@@ -266,44 +235,38 @@ const Tools = () => {
           {user?.user_type === "investor" && additionalCards2()}
         </div>
         {user?.user_type === "investor" && (
-          <div className="w-full border">
+          <div className="w-full">
             <section className="py-8 w-full">
               <div className="container px-4 mx-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {cardContent(
                     "Curated Dealflow",
-                    "Access global deal flow opportunities, connecting with investors and startups worldwide for strategic growth.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/1.png",
                     "#"
                   )}
                   {cardContent(
                     "Document Management",
-                    "Streamline your document management with our secure platform, ensuring easy access and organization of critical files.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/2.png",
                     "/tools/document-management"
                   )}
                   {cardContent(
                     "Syndicate",
-                    "Join or create syndicates to pool resources, share risks, and invest in promising startups collaboratively.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/3.png",
                     "#"
                   )}
                   {cardContent(
                     "Portfolio Management",
-                    "Optimize your investments with our portfolio management tools, providing insights and tracking performance.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/4.png",
                     "/tools/portfolio-management"
                   )}
                   {cardContent(
                     "Valuate a Startup",
-                    "Accurately valuate startups using our comprehensive tools, offering detailed financial and market evaluations.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/5.png",
                     "#"
                   )}
                   {cardContent(
                     "Post Term Sheet",
-                    "Manage post-term sheet activities efficiently with our tools, ensuring smooth transitions and adherence to agreements.",
-                    "bg-slate-900 dark:bg-slate-800",
+                    "/assets/images/tools/6.png",
                     "#"
                   )}
                 </div>
@@ -312,6 +275,15 @@ const Tools = () => {
           </div>
         )}
       </div>
+      <style jsx>{`
+        a {
+          perspective: 1000px;
+        }
+        a:hover img {
+          transform: rotateY(10deg) translateY(-10px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+      `}</style>
     </div>
   );
 };
