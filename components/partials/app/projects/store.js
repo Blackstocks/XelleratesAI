@@ -1,13 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
-
-import { toast } from "react-toastify";
+import { createSlice } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'react-toastify';
 
 export const appProjectSlice = createSlice({
-  name: "approject",
+  name: 'approject',
   initialState: {
     openProjectModal: false,
-    isLoading: null,
+    isLoading: false, // Set initial state for isLoading to a boolean
     editItem: {},
     editModal: false,
     projects: [
@@ -15,31 +14,31 @@ export const appProjectSlice = createSlice({
         id: uuidv4(),
         assignee: [
           {
-            image: "/assets/images/avatar/av-1.svg",
-            label: "Mahedi Amin",
+            image: '/assets/images/avatar/av-1.svg',
+            label: 'Mahedi Amin',
           },
           {
-            image: "/assets/images/avatar/av-2.svg",
-            label: "Sovo Haldar",
+            image: '/assets/images/avatar/av-2.svg',
+            label: 'Sovo Haldar',
           },
           {
-            image: "/assets/images/avatar/av-3.svg",
-            label: "Rakibul Islam",
+            image: '/assets/images/avatar/av-3.svg',
+            label: 'Rakibul Islam',
           },
         ],
-        name: "Management Dashboard ",
-        des: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.",
-        startDate: "2022-10-03",
-        endDate: "2022-10-06",
+        name: 'Management Dashboard',
+        des: 'Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.',
+        startDate: '2022-10-03',
+        endDate: '2022-10-06',
         progress: 75,
         category: [
           {
-            value: "team",
-            label: "team",
+            value: 'team',
+            label: 'team',
           },
           {
-            value: "low",
-            label: "low",
+            value: 'low',
+            label: 'low',
           },
         ],
       },
@@ -47,32 +46,31 @@ export const appProjectSlice = createSlice({
         id: uuidv4(),
         assignee: [
           {
-            image: "/assets/images/avatar/av-1.svg",
-            label: "Mahedi Amin",
+            image: '/assets/images/avatar/av-1.svg',
+            label: 'Mahedi Amin',
           },
           {
-            image: "/assets/images/avatar/av-2.svg",
-            label: "Sovo Haldar",
+            image: '/assets/images/avatar/av-2.svg',
+            label: 'Sovo Haldar',
           },
           {
-            image: "/assets/images/avatar/av-3.svg",
-            label: "Rakibul Islam",
+            image: '/assets/images/avatar/av-3.svg',
+            label: 'Rakibul Islam',
           },
         ],
-        name: "Business Dashboard ",
-        des: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.",
-        startDate: "2022-10-03",
-        endDate: "2022-10-10",
+        name: 'Business Dashboard',
+        des: 'Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.',
+        startDate: '2022-10-03',
+        endDate: '2022-10-10',
         progress: 50,
-
         category: [
           {
-            value: "team",
-            label: "team",
+            value: 'team',
+            label: 'team',
           },
           {
-            value: "low",
-            label: "low",
+            value: 'low',
+            label: 'low',
           },
         ],
       },
@@ -87,64 +85,57 @@ export const appProjectSlice = createSlice({
     },
     pushProject: (state, action) => {
       state.projects.unshift(action.payload);
-
-      toast.success("Add Successfully", {
-        position: "top-right",
+      toast.success('Added Successfully', {
+        position: 'top-right',
         autoClose: 1500,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: 'light',
       });
     },
     removeProject: (state, action) => {
       state.projects = state.projects.filter(
         (item) => item.id !== action.payload
       );
-      toast.warning("Remove Successfully", {
-        position: "top-right",
+      toast.warning('Removed Successfully', {
+        position: 'top-right',
         autoClose: 1500,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "light",
+        theme: 'light',
       });
     },
     updateProject: (state, action) => {
-      // update project and  store it into editItem when click edit button
-
-      state.editItem = action.payload;
-      // toggle edit modal
-      state.editModal = !state.editModal;
-      // find index
-      let index = state.projects.findIndex(
-        (item) => item.id === action.payload.id
-      );
-      // update project
-      state.projects.splice(index, 1, {
-        id: action.payload.id,
-        name: action.payload.name,
-        des: action.payload.des,
-        startDate: action.payload.startDate,
-        endDate: action.payload.endDate,
-        assignee: action.payload.assignee,
-        progress: action.payload.progress,
-        category: action.payload.category,
-      });
+      if (action.payload && action.payload.id) {
+        state.editItem = action.payload;
+        state.editModal = !state.editModal;
+        const index = state.projects.findIndex(
+          (item) => item.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.projects[index] = {
+            ...state.projects[index],
+            ...action.payload,
+          };
+        }
+      } else {
+        console.error('updateProject payload is invalid', action.payload);
+      }
     },
   },
 });
 
 export const {
-  openModal,
-  pushProject,
   toggleAddModal,
-  removeProject,
+  pushProject,
   toggleEditModal,
+  removeProject,
   updateProject,
 } = appProjectSlice.actions;
 export default appProjectSlice.reducer;

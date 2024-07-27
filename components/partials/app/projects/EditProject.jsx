@@ -1,293 +1,164 @@
-import React, { useState, useEffect } from "react";
-import Select, { components } from "react-select";
-import Modal from "@/components/ui/Modal";
-import { useSelector, useDispatch } from "react-redux";
-import { updateProject, toggleEditModal } from "./store";
-import Icon from "@/components/ui/Icon";
-import Textarea from "@/components/ui/Textarea";
-import Flatpickr from "react-flatpickr";
-import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { toast } from "react-toastify";
-import FormGroup from "@/components/ui/FormGroup";
+import React, { useState, useEffect } from 'react';
+import Modal from '@/components/ui/Modal';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateProject, toggleEditModal } from './store';
+import Textinput from '@/components/ui/Textinput';
+import FileInput from '@/components/ui/Fileinput';
+import { useForm } from 'react-hook-form';
+import {
+  handleInvestorFileUpload,
+  updateInvestorDocuments,
+} from '@/lib/actions/investorActions';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import { toast } from 'react-toastify';
 
-const styles = {
-  multiValue: (base, state) => {
-    return state.data.isFixed ? { ...base, opacity: "0.5" } : base;
-  },
-  multiValueLabel: (base, state) => {
-    return state.data.isFixed
-      ? { ...base, color: "#626262", paddingRight: 6 }
-      : base;
-  },
-  multiValueRemove: (base, state) => {
-    return state.data.isFixed ? { ...base, display: "none" } : base;
-  },
-  option: (provided, state) => ({
-    ...provided,
-    fontSize: "14px",
-  }),
-};
-
-const assigneeOptions = [
-  {
-    value: "mahedi",
-    label: "Mahedi Amin",
-    image: "/assets/images/avatar/av-1.svg",
-  },
-  {
-    value: "sovo",
-    label: "Sovo Haldar",
-    image: "/assets/images/avatar/av-2.svg",
-  },
-  {
-    value: "rakibul",
-    label: "Rakibul Islam",
-    image: "/assets/images/avatar/av-3.svg",
-  },
-  {
-    value: "pritom",
-    label: "Pritom Miha",
-    image: "/assets/images/avatar/av-4.svg",
-  },
-];
-const options = [
-  {
-    value: "team",
-    label: "team",
-  },
-  {
-    value: "low",
-    label: "low",
-  },
-  {
-    value: "medium",
-    label: "medium",
-  },
-  {
-    value: "high",
-    label: "high",
-  },
-  {
-    value: "update",
-    label: "update",
-  },
-];
-
-const OptionComponent = ({ data, ...props }) => {
-  //const Icon = data.icon;
-
-  return (
-    <components.Option {...props}>
-      <span className="flex items-center space-x-4">
-        <div className="flex-none">
-          <div className="h-7 w-7 rounded-full">
-            <img
-              src={data.image}
-              alt=""
-              className="w-full h-full rounded-full"
-            />
-          </div>
-        </div>
-        <span className="flex-1">{data.label}</span>
-      </span>
-    </components.Option>
-  );
-};
-
-const EditProject = () => {
+const EditProject = (documents) => {
+  console.log('documents', documents);
+  const { profile, investorSignup } = useCompleteUserDetails();
   const { editModal, editItem } = useSelector((state) => state.project);
   const dispatch = useDispatch();
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const userId = profile?.id;
 
-  const FormValidationSchema = yup
-    .object({
-      name: yup.string().required("Name is required"),
-      assign: yup.mixed().required("Assignee is required"),
-      startDate: yup
-        .date()
-        .required("Start date is required")
-        .min(new Date(), "Start date must be greater than today"),
-      endDate: yup
-        .date()
-        .required("End date is required")
-        .min(new Date(), "End date must be greater than today"),
-    })
-    .required();
-
-  const {
-    register,
-    control,
-    reset,
-    formState: { errors },
-    handleSubmit,
-  } = useForm({
-    resolver: yupResolver(FormValidationSchema),
-
-    mode: "all",
-  });
+  const { register, handleSubmit, reset } = useForm();
+  const [selectedFiles, setSelectedFiles] = useState({});
 
   useEffect(() => {
-    reset(editItem);
-  }, [editItem]);
+    if (editItem) {
+      reset(editItem);
+      setSelectedFiles(editItem.files || {});
+    }
+  }, [editItem, reset]);
+  console.log('investorSignup', investorSignup);
 
-  const onSubmit = (data) => {
-    dispatch(
-      updateProject({
-        id: editItem.id,
-        name: data.name,
-        des: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        assignee: data.assign,
-        category: null,
-        startDate: startDate.toISOString().split("T")[0],
-        endDate: endDate.toISOString().split("T")[0],
-        progress: Math.floor(Math.random() * (100 - 10 + 1) + 10),
-      })
-    );
-    dispatch(toggleEditModal(false));
-    toast.info("Edit Successfully", {
-      position: "top-right",
-      autoClose: 1500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
+  const handleFileChange = (e, name) => {
+    const files = e.target.files;
+    setSelectedFiles((prevFiles) => ({
+      ...prevFiles,
+      [name]: files.length > 1 ? Array.from(files) : files[0],
+    }));
   };
+
+  const onSubmit = async (data) => {
+    const companyName = data.companyName;
+    const formData = { companyName };
+
+    const uploadFile = async (file, name) => {
+      if (file) {
+        const url = await handleInvestorFileUpload(
+          file,
+          companyName,
+          name,
+          investorSignup?.name
+        );
+        formData[name] = url;
+      }
+    };
+
+    for (const key in selectedFiles) {
+      await uploadFile(selectedFiles[key], key);
+    }
+
+    const updatedData = await updateInvestorDocuments(
+      formData,
+      userId,
+      editItem.id
+    );
+
+    if (!updatedData.error) {
+      dispatch(updateProject(updatedData.data));
+      dispatch(toggleEditModal(false));
+      toast.info('Edit Successfully', {
+        position: 'top-right',
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'dark',
+      });
+      reset();
+      setSelectedFiles({});
+    } else {
+      // Add error handling here
+      toast.error('Edit Failed', {
+        position: 'top-right',
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'dark',
+      });
+    }
+  };
+
+  const fileInputs = [
+    { name: 'companyLogo', label: 'Company Logo' },
+    { name: 'nda', label: 'NDA' },
+    { name: 'termsheet', label: 'Termsheet' },
+    { name: 'transactionDocuments', label: 'Transaction Documents' },
+    {
+      name: 'shareSubscriptionAgreement',
+      label: 'Share Subscription Agreement',
+    },
+    { name: 'shareHolderAgreement', label: 'Share Holder Agreement' },
+    { name: 'sharePurchaseAgreement', label: 'Share Purchase Agreement' },
+    {
+      name: 'conditionsPrecedentDocuments',
+      label: 'Conditions Precedent Documents',
+    },
+    { name: 'closingDocuments', label: 'Closing Documents' },
+    { name: 'csDocuments', label: 'CS Documents' },
+    { name: 'dueDiligenceReport', label: 'Due-Diligence Report' },
+    { name: 'misQuarterly', label: 'MIS Quarterly' },
+    { name: 'misAnnually', label: 'MIS Annually' },
+    { name: 'balanceSheet', label: 'Balance Sheet' },
+    { name: 'plStatement', label: 'P&L Statement' },
+    { name: 'cashflowStatement', label: 'Cashflow Statement' },
+    { name: 'auditedFinancials', label: 'Audited Financials' },
+    { name: 'valuationReport', label: 'Valuation Report' },
+    { name: 'boardMeetings', label: 'Board Meetings' },
+    { name: 'shareholdersMeetings', label: 'Shareholders Meetings' },
+    { name: 'boardResolutions', label: 'Board Resolutions' },
+  ];
 
   return (
     <Modal
-      title="Edit Project"
+      className='max-w-none'
+      title='Edit Documents'
       activeModal={editModal}
       onClose={() => dispatch(toggleEditModal(false))}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 ">
-        <FormGroup error={errors.name}>
-          <input
-            type="text"
-            defaultValue={editItem.name}
-            className="form-control py-2"
-            {...register("name")}
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 p-4'>
+        <div className=''>
+          <Textinput
+            defaultValue={editItem.companyName}
+            className='w-full md:w-fit'
+            name='companyName'
+            label='Company Name'
+            placeholder='Enter Company Name'
+            register={register}
           />
-        </FormGroup>
-        <div className="grid lg:grid-cols-2 gap-4 grid-cols-1">
-          <FormGroup
-            label="Start Date"
-            id="default-picker"
-            error={errors.startDate}
-          >
-            <Controller
-              name="startDate"
-              control={control}
-              render={({ field }) => (
-                <Flatpickr
-                  className="form-control py-2"
-                  id="default-picker"
-                  placeholder="yyyy, dd M"
-                  value={startDate}
-                  onChange={(date) => {
-                    field.onChange(date);
-                  }}
-                  options={{
-                    altInput: true,
-                    altFormat: "F j, Y",
-                    dateFormat: "Y-m-d",
-                  }}
-                />
-              )}
-            />
-          </FormGroup>
-          <FormGroup
-            label="End Date"
-            id="default-picker2"
-            error={errors.endDate}
-          >
-            <Controller
-              name="endDate"
-              control={control}
-              render={({ field }) => (
-                <Flatpickr
-                  className="form-control py-2"
-                  id="default-picker2"
-                  placeholder="yyyy, dd M"
-                  value={endDate}
-                  onChange={(date) => {
-                    field.onChange(date);
-                  }}
-                  options={{
-                    altInput: true,
-                    altFormat: "F j, Y",
-                    dateFormat: "Y-m-d",
-                  }}
-                />
-              )}
-            />
-          </FormGroup>
         </div>
-        <div className={errors.assign ? "has-error" : ""}>
-          <label className="form-label" htmlFor="icon_s">
-            Assignee
-          </label>
-          <Controller
-            name="assign"
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                options={assigneeOptions}
-                styles={styles}
-                className="react-select"
-                classNamePrefix="select"
-                isSearchable={false}
-                defaultValue={editItem.assignee}
-                isMulti
-                components={{
-                  Option: OptionComponent,
-                }}
-                id="icon_s"
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+          {fileInputs.map((input) => (
+            <div key={input.name} className='w-full'>
+              <FileInput
+                name={input.name}
+                label={input.label}
+                onChange={(e) => handleFileChange(e, input.name)}
+                selectedFile={selectedFiles[input.name]}
+                register={register}
               />
-            )}
-          />
-          {errors.assign && (
-            <div className=" mt-2  text-danger-500 block text-sm">
-              {errors.assign?.message || errors.assign?.label.message}
             </div>
-          )}
+          ))}
         </div>
-
-        <div className={errors.tags ? "has-error" : ""}>
-          <label className="form-label" htmlFor="icon_s">
-            Tag
-          </label>
-          <Controller
-            name="tags"
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                options={options}
-                styles={styles}
-                className="react-select"
-                classNamePrefix="select"
-                isMulti
-                id="icon_s"
-              />
-            )}
-          />
-          {errors.assign && (
-            <div className=" mt-2  text-danger-500 block text-sm">
-              {errors.tags?.message || errors.tags?.label.message}
-            </div>
-          )}
-        </div>
-        <Textarea label="Description" placeholder="Description" />
-
-        <div className="ltr:text-right rtl:text-left">
-          <button className="btn btn-dark  text-center">Update</button>
+        <div className='text-right'>
+          <button type='submit' className='btn btn-dark'>
+            Update
+          </button>
         </div>
       </form>
     </Modal>
