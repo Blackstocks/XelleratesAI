@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import useUserDetails from "@/hooks/useUserDetails";
 import Loading from "@/components/Loading";
 import { supabase } from "@/lib/supabaseclient";
-import dynamic from "next/dynamic";
 
 const Tools = () => {
   const { user, details, loading } = useUserDetails();
@@ -52,133 +51,51 @@ const Tools = () => {
       onClick={(e) => handleLinkClick(e, link)}
       className="relative z-[1] rounded-2xl shadow-lg transform transition-transform duration-500"
     >
-      <img src={imgSrc} alt={title} className="rounded-2xl w-full transition-transform duration-300 ease-in-out" />
+      <div className="relative">
+        <img src={imgSrc} alt={title} className="rounded-2xl w-full" />
+        {imgSrc === "/assets/images/tools/uppers2.png" && (
+          <img
+            src="/assets/images/tools/customer.png"
+            alt="Customer Care"
+            className="absolute inset-0 h-12 w-12 animate-zoom"
+            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
+          />
+        )}
+        {imgSrc === "/assets/images/tools/uppers1.png" && (
+          <img
+            src="/assets/images/tools/clickr.png"
+            alt="Click"
+            className="absolute inset-0 h-12 w-12 animate-zoom"
+            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
+          />
+        )}
+        {imgSrc === "/assets/images/tools/uppers3.png" && (
+          <img
+            src="/assets/images/tools/walletr.png"
+            alt="Wallet"
+            className="absolute inset-0 h-12 w-12 animate-zoom"
+            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
+          />
+        )}
+      </div>
     </a>
   );
 
   const additionalCards = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <div className="flex items-center bg-white p-4 rounded-lg shadow">
-        <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
-          {/* show the percentage from backend */}
-          {/* <CircularProgress /> */}
-        </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-semibold">
-            Few steps away from completing your profile
-          </h3>
-        </div>
-      </div>
-      <div className="flex items-center bg-white p-4 rounded-lg shadow">
-        <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center relative">
-          <div className="absolute inset-0 flex items-center justify-center animate-bounce">
-            <img
-              src="/assets/images/tools/click.jpg"
-              alt="Click Animation"
-              className="w-20 h-25"
-            />
-          </div>
-        </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-medium">
-            <b>Connect with investors in a single click</b>
-          </h3>
-        </div>
-      </div>
-      <div className="flex items-center bg-white p-4 rounded-lg shadow">
-        <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center relative">
-          <div className="absolute inset-0 flex items-center justify-center animate-pulse">
-            <img
-              src="/assets/images/tools/customer_care.jpg"
-              alt="Phone Animation"
-              className="w-20 h-25"
-            />
-          </div>
-        </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-normal">
-            <b>Free consultation with an Investment Banker</b>
-          </h3>
-        </div>
-      </div>
-      <div className="flex items-center bg-white p-4 rounded-lg shadow">
-        <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center relative">
-          <img
-            src="/assets/images/tools/wallet.jpg"
-            alt="Wallet Icon"
-            className="w-20 h-25"
-          />
-        </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-semibold">Wallet Balance</h3>
-          <p className="text-sm">$50000</p>
-        </div>
-      </div>
+      {cardContent("Few steps away from completing your profile", "/assets/images/tools/uppers4.png")}
+      {cardContent("Connect with investors in a single click", "/assets/images/tools/uppers2.png")}
+      {cardContent("Free consultation with an Investment Banker", "/assets/images/tools/uppers1.png")}
+      {cardContent("Wallet Balance", "/assets/images/tools/uppers3.png")}
     </div>
   );
 
   const additionalCards2 = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <div className="flex items-center bg-white p-4 rounded-lg shadow">
-        <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center relative">
-          <div className="absolute inset-0 flex items-center justify-center animate-pulse">
-            <img
-              src="/assets/images/tools/customer_care.jpg"
-              alt="Phone Animation"
-              className="w-20 h-25"
-            />
-          </div>
-        </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-semibold">
-            Get free consultation with an Investment Banker
-          </h3>
-        </div>
-      </div>
-      <div className="flex items-center bg-white p-4 rounded-lg shadow">
-        <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center relative">
-          <div className="absolute inset-0 flex items-center justify-center animate-bounce">
-            <img
-              src="/assets/images/tools/funding.png"
-              alt="Click Animation"
-              className="w-20 h-25"
-            />
-          </div>
-        </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-medium">
-            <b>Raise funds for your portfolio startup(s)</b>
-          </h3>
-        </div>
-      </div>
-      <div className="flex items-center bg-white p-4 rounded-lg shadow">
-        <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center relative">
-          <div className="absolute inset-0 flex items-center justify-center animate-pulse">
-            <img
-              src="/assets/images/tools/bank.png"
-              alt="Phone Animation"
-              className="w-20 h-25"
-            />
-          </div>
-        </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-normal">
-            <b>Explore exit opportunities</b>
-          </h3>
-        </div>
-      </div>
-      <div className="flex items-center bg-white p-4 rounded-lg shadow">
-        <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center relative">
-          <img
-            src="/assets/images/tools/stock.png"
-            alt="Wallet Icon"
-            className="w-20 h-25"
-          />
-        </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-semibold">Invest in upcoming IPOs</h3>
-        </div>
-      </div>
+      {cardContent("Get free consultation with an Investment Banker", "/assets/images/tools/upper1.png")}
+      {cardContent("Raise funds for your portfolio startup(s)", "/assets/images/tools/upper2.png")}
+      {cardContent("Explore exit opportunities", "/assets/images/tools/upper3.png")}
+      {cardContent("Invest in upcoming IPOs", "/assets/images/tools/upper4.png")}
     </div>
   );
 
@@ -241,32 +158,32 @@ const Tools = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {cardContent(
                     "Curated Dealflow",
-                    "/assets/images/tools/1.png",
+                    "/assets/images/tools/11.png",
                     "#"
                   )}
                   {cardContent(
                     "Document Management",
-                    "/assets/images/tools/2.png",
+                    "/assets/images/tools/12.png",
                     "/tools/document-management"
                   )}
                   {cardContent(
                     "Syndicate",
-                    "/assets/images/tools/3.png",
+                    "/assets/images/tools/13.png",
                     "#"
                   )}
                   {cardContent(
                     "Portfolio Management",
-                    "/assets/images/tools/4.png",
+                    "/assets/images/tools/15.png",
                     "/tools/portfolio-management"
                   )}
                   {cardContent(
                     "Valuate a Startup",
-                    "/assets/images/tools/5.png",
+                    "/assets/images/tools/16.png",
                     "#"
                   )}
                   {cardContent(
                     "Post Term Sheet",
-                    "/assets/images/tools/6.png",
+                    "/assets/images/tools/17.png",
                     "#"
                   )}
                 </div>
@@ -278,10 +195,22 @@ const Tools = () => {
       <style jsx>{`
         a {
           perspective: 1000px;
+          display: block;
         }
         a:hover img {
           transform: rotateY(10deg) translateY(-10px);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes zoom {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+        .animate-zoom {
+          animation: zoom 3s infinite;
         }
       `}</style>
     </div>

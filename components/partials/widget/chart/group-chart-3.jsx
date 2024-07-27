@@ -5,60 +5,41 @@ const statistics = [
   {
     title: "Available Investors",
     count: "10",
-    bg: "bg-slate-900",
-    text: "text-primary-500",
-    percent: "5.00%",
-    icon: "heroicons:arrow-trending-up",
-    img: "/assets/images/all-img/shade-1.png",
-    percentClass: "text-primary-500",
+    img: "/assets/images/dashboard/sdash1.png",
   },
   {
     title: "Reach Out",
     count: "5",
-    bg: "bg-primary-500",
-    text: "text-primary-500",
-    percent: "2.50%",
-    icon: "heroicons:arrow-trending-up",
-    img: "/assets/images/all-img/shade-2.png",
-    percentClass: "text-primary-500",
+    img: "/assets/images/dashboard/sdash2.png",
   },
   {
-    title: "Interest Recieved",
+    title: "Interest Received",
     count: "8",
-    bg: "bg-success-400",
-    text: "text-primary-500",
-    percent: "4.00%",
-    icon: "heroicons:arrow-trending-up",
-    img: "/assets/images/all-img/shade-3.png",
-    percentClass: "text-primary-500",
+    img: "/assets/images/dashboard/sdash3.png",
   },
 ];
 
 const GroupChart3 = () => {
   return (
-    <>
+    <div className="flex gap-4">
       {statistics.map((item, i) => (
-        <div
-          key={i}
-          className={`${item.bg} rounded-md p-3 bg-opacity-[0.15] dark:bg-opacity-25 relative z-[1]`}
-        >
-          <div className="overlay absolute left-0 top-0 w-full h-full z-[-1]">
-            <img
-              src={item.img}
-              alt=""
-              draggable="false"
-              className="w-full h-full object-contain"
-            />
+        <div key={i} className="relative w-35 h-32 flex-shrink-0 ml-3">
+          <img
+            src={item.img}
+            alt={item.title}
+            draggable="false"
+            className="w-full h-full object-contain rounded-md"
+          />
+          <div className="absolute inset-0 flex items-center justify-center ml-2">
+            <div className="bg-white dark:bg-slate-900 rounded-full h-10 w-10 flex items-center justify-center ml-12">
+              <span className="text-xl text-slate-900 dark:text-white font-medium">
+                {item.count}
+              </span>
+            </div>
           </div>
-          <span className="block mb-6 text-sm text-slate-900 dark:text-white font-medium">
-            <h6><b>{item.title}</b></h6>
-          </span>
-          <span className="block text-2xl text-slate-900 dark:text-white font-medium mb-6">
-            {item.count}
-          </span>
         </div>
       ))}
-    </>
+    </div>
   );
 };
 

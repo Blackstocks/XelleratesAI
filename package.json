@@ -24,6 +24,7 @@
     "@svg-maps/world": "^1.0.1",
     "@tippyjs/react": "^4.2.6",
     "apexcharts": "^3.33.2",
+    "axios": "^1.7.2",
     "chart.js": "^4.2.1",
     "cleave.js": "^1.6.0",
     "cobe": "^0.6.3",

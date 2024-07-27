@@ -32,7 +32,9 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
             <h4 className="text-xl font-medium text-white mb-2">
               <span className="block font-normal">Good evening,</span>
               <span className="block">
-                <h5 className=" text-white"><b>{companyName ? companyName : "Loading..."}</b></h5>
+                <h5 className="text-white">
+                  <b>{companyName ? companyName : "Loading..."}</b>
+                </h5>
               </span>
             </h4>
           </div>
@@ -45,21 +47,31 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
         </div>
         <div className="flex items-center justify-end flex-1">
           {userType === "startup" ? (
-            <button
-              className="bg-white text-black-500 shadow-lg py-2 px-4 rounded ml-auto"
-              onClick={handleDownloadReport}
-            >
-              Download Investment Readiness Report
-            </button>
+            <>
+              <img
+                src="/assets/images/dashboard/investment-readiness.png"
+                alt="Investment Readiness"
+                className="block dark:hidden w-50% h-auto"
+              />
+              <img
+                src="/assets/images/dashboard/investment-redinessdark.png"
+                alt="Investment Readiness Dark"
+                className="hidden dark:block w-50% h-auto"
+              />
+            </>
           ) : (
-            <a
-              href="https://www.instagram.com"
-              className="bg-white text-black-700 shadow-lg py-2 px-4 rounded ml-auto"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Get Latest Insight on Startup
-            </a>
+            <>
+              <img
+                src="/assets/images/dashboard/latest-insight.png"
+                alt="Latest Insight"
+                className="block dark:hidden w-full h-auto"
+              />
+              <img
+                src="/assets/images/dashboard/latest-insightdark.png"
+                alt="Latest Insight Dark"
+                className="hidden dark:block w-full h-auto"
+              />
+            </>
           )}
         </div>
       </div>
@@ -68,14 +80,30 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
 
       <style jsx>{`
         @keyframes wave {
-          0% { transform: rotate(0.0deg); }
-          10% { transform: rotate(14.0deg); }
-          20% { transform: rotate(-8.0deg); }
-          30% { transform: rotate(14.0deg); }
-          40% { transform: rotate(-4.0deg); }
-          50% { transform: rotate(10.0deg); }
-          60% { transform: rotate(0.0deg); }
-          100% { transform: rotate(0.0deg); }
+          0% {
+            transform: rotate(0.0deg);
+          }
+          10% {
+            transform: rotate(14.0deg);
+          }
+          20% {
+            transform: rotate(-8.0deg);
+          }
+          30% {
+            transform: rotate(14.0deg);
+          }
+          40% {
+            transform: rotate(-4.0deg);
+          }
+          50% {
+            transform: rotate(10.0deg);
+          }
+          60% {
+            transform: rotate(0.0deg);
+          }
+          100% {
+            transform: rotate(0.0deg);
+          }
         }
 
         .animate-waving-hand {

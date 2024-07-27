@@ -5,24 +5,22 @@ import { useRouter } from "next/navigation";
 import useCompleteUserDetails from "@/hooks/useCompleUserDetails"; // Ensure this hook exists and the path is correct
 import Loading from "@/components/Loading";
 import DountChart from "@/components/partials/widget/chart/dount-chart2";
-import ImageBlock1 from "@/components/partials/widget/block/image-block-1";
 import ImageBlock2 from "@/components/partials/widget/block/image-block-2";
 import { supabase } from "@/lib/supabaseclient";
 import "react-toastify/dist/ReactToastify.css";
 import Button from "@/components/ui/Button";
-// import { InvestorsCard, InvestmentCard, GeographicsCard, TransactionsCard } from '@/components/ui/Card';
-
-const rabitWidget = [
-  {
-    bg: "bg-slate-900 dark:bg-slate-800",
-  },
-];
 
 const Fundraising = () => {
-  const { user,companyProfile, loading } = useCompleteUserDetails();
+  const { user, companyProfile, loading } = useCompleteUserDetails();
   if (loading) {
     return <Loading />;
   }
+
+  const cardContent = (imgSrc, link) => (
+    <a href={link} className="block">
+      <img src={imgSrc} alt="" className="rounded w-full h-40 object-cover" />
+    </a>
+  );
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
@@ -90,43 +88,10 @@ const Fundraising = () => {
         </div>
         <br />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            {
-              title: "Equity Fundraising",
-              color: "bg-primary-500",
-              link: "/tools/fundraising/equity",
-            },
-            {
-              title: "Debt Fundraising",
-              color: "bg-success-400",
-              link: "#",
-            },
-            {
-              title: "Mergers and Acquisitions",
-              color: "bg-danger-500",
-              link: "#",
-            },
-            {
-              title: "Sale of Secondary Shares",
-              color: "bg-warning-400",
-              link: "#",
-            },
-          ].map((card, index) => (
-            <div
-              key={index}
-              className={`relative ${card.color} text-white p-4 rounded shadow hover:shadow-lg transition-shadow`}
-            >
-              <h2 className="text-lg font-semibold mb-8 text-center">
-                {card.title}
-              </h2>
-              <a
-                href={card.link}
-                className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white text-black-500 text-xs font-medium rounded px-4 py-2 hover:bg-gray-200 transition"
-              >
-                Explore
-              </a>
-            </div>
-          ))}
+          {cardContent("/assets/images/tools/equity.png", "/tools/fundraising/equity")}
+          {cardContent("/assets/images/tools/dept.png", "#")}
+          {cardContent("/assets/images/tools/m&a.png", "#")}
+          {cardContent("/assets/images/tools/sale.png", "#")}
         </div>
         <div className="flex-1 p-8">
           <div className="text-center">

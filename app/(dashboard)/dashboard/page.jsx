@@ -1,56 +1,29 @@
 "use client";
 
-import Card from "@/components/ui/Card";
-import GroupChart3 from "@/components/partials/widget/chart/group-chart-3";
-import GroupChartNew3 from "@/components/partials/widget/chart/group-chart-new3";
-import SelectMonth from "@/components/partials/SelectMonth";
-import StackBarChart from "@/components/partials/widget/chart/stack-bar";
-import Calculation from "@/components/partials/widget/chart/Calculation";
-import Loading from "@/components/Loading";
-import ExampleTwo from "@/components/partials/table/ExampleTwo";
-import HomeBredCurbs from "@/components/partials/HomeBredCurbs";
-import RecentOrderTable from "@/components/partials/table/recentOrder-table";
-import useUserDetails from "@/hooks/useUserDetails";
-import Customer from "@/components/partials/widget/customer";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseclient";
-import ImageBlock2 from "@/components/partials/widget/block/image-block-2";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseclient';
+import useUserDetails from '@/hooks/useUserDetails';
+import Loading from '@/components/Loading';
+import Card from '@/components/ui/Card';
+import GroupChart3 from '@/components/partials/widget/chart/group-chart-3';
+import GroupChartNew3 from '@/components/partials/widget/chart/group-chart-new3';
+import RecentOrderTable from '@/components/partials/table/recentOrder-table';
+import Calculation from '@/components/partials/widget/chart/Calculation';
+import Customer from '@/components/partials/widget/customer';
+import HomeBredCurbs from '@/components/partials/HomeBredCurbs';
+import Chatbot from '@/components/chatbot'; // Import the Chatbot component
 
 const financials = [
-  {
-    name: "Financials",
-    value: "",
-  },
-  {
-    name: "Revenue",
-    value: "$120,000",
-  },
-  {
-    name: "Expenses",
-    value: "$70,000",
-  },
-  {
-    name: "Profit/Loss",
-    value: "$50,000",
-  },
+  { name: "Financials", value: "" },
+  { name: "Revenue", value: "$120,000" },
+  { name: "Expenses", value: "$70,000" },
+  { name: "Profit/Loss", value: "$50,000" },
 ];
 const Portfolios = [
-  {
-    name: "Portfolio Name",
-    value: "",
-  },
-  {
-    name: "Xellerates",
-    value: "",
-  },
-  {
-    name: "Conqr",
-    value: "",
-  },
-  {
-    name: "Adios",
-    value: "",
-  },
+  { name: "Portfolio Name", value: "" },
+  { name: "Xellerates", value: "" },
+  { name: "Conqr", value: "" },
+  { name: "Adios", value: "" },
 ];
 
 const Dashboard = () => {
@@ -85,11 +58,7 @@ const Dashboard = () => {
     <div className="w-full">
       {user?.user_type === "startup" && (
         <div>
-          <HomeBredCurbs
-            title="Crm"
-            companyName={companyName}
-            userType={user.user_type}
-          />
+          <HomeBredCurbs title="Crm" companyName={companyName} userType={user.user_type} />
           <div className="space-y-5">
             <div className="grid grid-cols-12 gap-5">
               <div className="lg:col-span-8 col-span-12 space-y-5">
@@ -131,19 +100,15 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-
-            {/* <ExampleTwo title="Latest Transaction" /> */}
+            {/* Add the Chatbot component here */}
+            <Chatbot />
           </div>
         </div>
       )}
       {user?.user_type === "investor" && (
         <div>
           <div>
-            <HomeBredCurbs
-              title="Crm"
-              companyName={companyName}
-              userType={user.user_type}
-            />
+            <HomeBredCurbs title="Crm" companyName={companyName} userType={user.user_type} />
             <div className="space-y-5">
               <div className="grid grid-cols-12 gap-5">
                 <div className="lg:col-span-8 col-span-12 space-y-5">
@@ -183,8 +148,8 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-
-              {/* <ExampleTwo title="Latest Transaction" /> */}
+              {/* Add the Chatbot component here */}
+              <Chatbot />
             </div>
           </div>
         </div>
