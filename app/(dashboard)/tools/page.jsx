@@ -116,8 +116,8 @@ const Tools = () => {
           <img
             src="/assets/images/tools/stock.png"
             alt="Wallet"
-            className="absolute inset-0 h-12 w-12 animate-zoom"
-            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
+            className="absolute inset-0 h-10 w-7 animate-zoom"
+            style={{ top: "17%", left: "58%", transform: "translate(-50%, -50%)" }}
           />
         )}
       </div>
