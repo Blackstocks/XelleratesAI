@@ -9,7 +9,7 @@ import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Textarea from '@/components/ui/Textarea';
 
-const GlobalDealflow = () => {
+const CuratedDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
   const { startups, loading: startupsLoading } = useStartups();
   const [showForm, setShowForm] = useState(false);
@@ -174,10 +174,10 @@ const GlobalDealflow = () => {
   return (
     <>
       <Head>
-        <title>Global Dealflow</title>
+        <title>Curated Dealflow</title>
       </Head>
       <main className='container mx-auto p-4'>
-        <h1 className='text-3xl font-bold mb-4 text-center'>Global Dealflow</h1>
+        <h1 className='text-3xl font-bold mb-4 text-center'>Curated Dealflow</h1>
         <p className='mb-6 text-center'>
           Welcome to the Global Dealflow page. Here you can find the latest deal
           flow opportunities from around the world.
@@ -754,4 +754,4 @@ const GlobalDealflow = () => {
   );
 };
 
-export default GlobalDealflow;
+export default CuratedDealflow;

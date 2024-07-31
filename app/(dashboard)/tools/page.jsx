@@ -169,9 +169,9 @@ const Tools = () => {
   return (
     <div className='w-full relative'>
       {isModalOpen && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md z-40'></div>
+        <div className='fixed inset-0 bg-black bg-opacity-50 z-40'></div>
       )}
-      <div className={`w-full ${isModalOpen ? 'blur-md' : ''}`}>
+      <div className='w-full'>
         <div className='container px-4 mx-auto'>
           {user?.user_type === 'startup' && additionalCards()}
         </div>
@@ -226,7 +226,7 @@ const Tools = () => {
                   {cardContent(
                     'Curated Dealflow',
                     '/assets/images/tools/11.png',
-                    '#'
+                    '/tools/global-dealflow'
                   )}
                   {cardContent(
                     'Document Management',
