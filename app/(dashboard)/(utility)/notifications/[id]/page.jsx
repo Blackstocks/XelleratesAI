@@ -97,7 +97,7 @@ const NotificationDetail = () => {
           toast.error('Failed to add event');
         } else {
           toast.success('Event created and investor notified.');
-          router.push('/notifications');
+          router.push('/schedule');
         }
       }
     } else {
