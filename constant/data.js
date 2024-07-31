@@ -1,7 +1,7 @@
 export const menuItems = [
   {
     isHeadr: true,
-    title: 'menu',
+    title: '',
   },
   {
     title: 'Dashboard',

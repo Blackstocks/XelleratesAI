@@ -3,7 +3,8 @@ import axios from 'axios';
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/chat', req.body);
+      const { message, stage } = req.body;
+      const response = await axios.post('http://127.0.0.1:5000/chat', { message, stage });
       res.status(200).json(response.data);
     } catch (error) {
       console.error('Error communicating with the chatbot backend', error);

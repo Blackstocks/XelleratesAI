@@ -16,6 +16,7 @@ import Language from './Tools/Language';
 import useRtl from '@/hooks/useRtl';
 import useMobileMenu from '@/hooks/useMobileMenu';
 import Bloglabel from '../blog';
+import KanbanLabel from '../app/kanban';
 const Header = ({ className = 'custom-class' }) => {
   const [collapsed, setMenuCollapsed] = useSidebar();
   const { width, breakpoints } = useWidth();
@@ -121,9 +122,10 @@ const Header = ({ className = 'custom-class' }) => {
             {/* <Language /> */}
             <SwitchDark />
 
-            {/* {width >= breakpoints.md && <Message />} */}
+            
             {width >= breakpoints.md && <Notification />}
             {width >= breakpoints.md && <Bloglabel />}
+            {width >= breakpoints.md && <KanbanLabel />}
             {width >= breakpoints.md && <Profile />}
 
             {width <= breakpoints.md && (

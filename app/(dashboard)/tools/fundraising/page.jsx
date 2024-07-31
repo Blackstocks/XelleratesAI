@@ -89,7 +89,7 @@ const Fundraising = () => {
         <br />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {cardContent("/assets/images/tools/equity.png", "/tools/fundraising/equity")}
-          {cardContent("/assets/images/tools/dept.png", "#")}
+          {cardContent("/assets/images/tools/dept.png", "/tools/fundraising/debt")}
           {cardContent("/assets/images/tools/m&a.png", "#")}
           {cardContent("/assets/images/tools/sale.png", "#")}
         </div>

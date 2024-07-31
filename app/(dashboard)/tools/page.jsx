@@ -49,96 +49,108 @@ const Tools = () => {
     <a
       href={link}
       onClick={(e) => handleLinkClick(e, link)}
-      className="relative z-[1] rounded-2xl shadow-lg transform transition-transform duration-500"
+      className="relative z-[1] transform transition-transform duration-500"
     >
-      <div className="relative">
-        <img src={imgSrc} alt={title} className="rounded-2xl w-full" />
-        {imgSrc === "/assets/images/tools/uppers2.png" && (
-          <img
-            src="/assets/images/tools/customer.png"
-            alt="Customer Care"
-            className="absolute inset-0 h-12 w-12 animate-zoom"
-            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
-          />
-        )}
-        {imgSrc === "/assets/images/tools/uppers1.png" && (
-          <img
-            src="/assets/images/tools/clickr.png"
-            alt="Click"
-            className="absolute inset-0 h-12 w-12 animate-zoom"
-            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
-          />
-        )}
-        {imgSrc === "/assets/images/tools/uppers3.png" && (
-          <img
-            src="/assets/images/tools/walletr.png"
-            alt="Wallet"
-            className="absolute inset-0 h-12 w-12 animate-zoom"
-            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
-          />
-        )}
-      </div>
+      <img src={imgSrc} alt={title} className="rounded-2xl w-full" />
     </a>
   );
-  const cardContent2 = (title, imgSrc, link) => (
+
+  const cardContentWithDarkMode = (title, imgSrc, darkImgSrc, link, logoSrc, logoAlt) => (
     <a
       href={link}
       onClick={(e) => handleLinkClick(e, link)}
-      className="relative z-[1] rounded-2xl shadow-lg transform transition-transform duration-500"
+      className="relative z-[1] transform transition-transform duration-500"
     >
-      <div className="relative">
-        <img src={imgSrc} alt={title} className="rounded-2xl w-full" />
-        {imgSrc === "/assets/images/tools/upper4.png" && (
-          <img
-            src="/assets/images/tools/customer.png"
-            alt="Customer Care"
-            className="absolute inset-0 h-12 w-12 animate-zoom"
-            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
-          />
-        )}
-        {imgSrc === "/assets/images/tools/upper2.png" && (
-          <img
-            src="/assets/images/tools/clickr.png"
-            alt="Click"
-            className="absolute inset-0 h-12 w-12 animate-zoom"
-            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
-          />
-        )}
-        {imgSrc === "/assets/images/tools/upper1.png" && (
-          <img
-            src="/assets/images/tools/walletr.png"
-            alt="Wallet"
-            className="absolute inset-0 h-12 w-12 animate-zoom"
-            style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
-          />
-        )}
-        {imgSrc === "/assets/images/tools/upper3.png" && (
-          <img
-            src="/assets/images/tools/stock.png"
-            alt="Wallet"
-            className="absolute inset-0 h-10 w-7 animate-zoom"
-            style={{ top: "17%", left: "58%", transform: "translate(-50%, -50%)" }}
-          />
-        )}
-      </div>
+      <img
+        src={imgSrc}
+        alt={title}
+        className="rounded-2xl w-full block dark:hidden"
+      />
+      <img
+        src={darkImgSrc}
+        alt={title}
+        className="rounded-2xl w-full hidden dark:block"
+      />
+      {logoSrc && (
+        <img
+          src={logoSrc}
+          alt={logoAlt}
+          className="absolute inset-0 h-12 w-12 animate-zoom"
+          style={{ top: "15%", left: "54%", transform: "translate(-50%, -50%)" }}
+        />
+      )}
     </a>
   );
 
   const additionalCards = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {cardContent("Few steps away from completing your profile", "/assets/images/tools/uppers4.png")}
-      {cardContent("Connect with investors in a single click", "/assets/images/tools/uppers2.png")}
-      {cardContent("Free consultation with an Investment Banker", "/assets/images/tools/uppers1.png")}
-      {cardContent("Wallet Balance", "/assets/images/tools/uppers3.png")}
+      {cardContentWithDarkMode(
+        "Few steps away from completing your profile",
+        "/assets/images/tools/uppers4.png",
+        "/assets/images/tools/supperl1.png",
+        "#"
+      )}
+      {cardContentWithDarkMode(
+        "Connect with investors in a single click",
+        "/assets/images/tools/uppers2.png",
+        "/assets/images/tools/supperl3.png",
+        "#",
+        "/assets/images/tools/customer.png",
+        "Customer Care"
+      )}
+      {cardContentWithDarkMode(
+        "Free consultation with an Investment Banker",
+        "/assets/images/tools/uppers1.png",
+        "/assets/images/tools/supperl2.png",
+        "#",
+        "/assets/images/tools/clickr.png",
+        "Click"
+      )}
+      {cardContentWithDarkMode(
+        "Wallet Balance",
+        "/assets/images/tools/uppers3.png",
+        "/assets/images/tools/supperl4.png",
+        "#",
+        "/assets/images/tools/walletr.png",
+        "Wallet"
+      )}
     </div>
   );
 
   const additionalCards2 = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {cardContent2("Get free consultation with an Investment Banker", "/assets/images/tools/upper1.png")}
-      {cardContent2("Raise funds for your portfolio startup(s)", "/assets/images/tools/upper2.png")}
-      {cardContent2("Explore exit opportunities", "/assets/images/tools/upper3.png")}
-      {cardContent2("Invest in upcoming IPOs", "/assets/images/tools/upper4.png")}
+      {cardContentWithDarkMode(
+        "Get free consultation with an Investment Banker",
+        "/assets/images/tools/upper1.png",
+        "/assets/images/tools/upperl4.png",
+        "#",
+        "/assets/images/tools/walletr.png",
+        "Wallet"
+      )}
+      {cardContentWithDarkMode(
+        "Raise funds for your portfolio startup(s)",
+        "/assets/images/tools/upper2.png",
+        "/assets/images/tools/upperl2.png",
+        "#",
+        "/assets/images/tools/clickr.png",
+        "Click"
+      )}
+      {cardContentWithDarkMode(
+        "Explore exit opportunities",
+        "/assets/images/tools/upper3.png",
+        "/assets/images/tools/upperl3.png",
+        "#",
+        "/assets/images/tools/stock.png",
+        "Stock"
+      )}
+      {cardContentWithDarkMode(
+        "Invest in upcoming IPOs",
+        "/assets/images/tools/upper4.png",
+        "/assets/images/tools/upperl1.png",
+        "#",
+        "/assets/images/tools/customer.png",
+        "Customer Care"
+      )}
     </div>
   );
 
@@ -199,32 +211,32 @@ const Tools = () => {
             <section className="py-8 w-full">
               <div className="container px-4 mx-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {cardContent2(
+                  {cardContent(
                     "Curated Dealflow",
                     "/assets/images/tools/11.png",
                     "#"
                   )}
-                  {cardContent2(
+                  {cardContent(
                     "Document Management",
                     "/assets/images/tools/12.png",
                     "/tools/document-management"
                   )}
-                  {cardContent2(
+                  {cardContent(
                     "Syndicate",
                     "/assets/images/tools/13.png",
                     "#"
                   )}
-                  {cardContent2(
+                  {cardContent(
                     "Portfolio Management",
                     "/assets/images/tools/15.png",
                     "/tools/portfolio-management"
                   )}
-                  {cardContent2(
+                  {cardContent(
                     "Valuate a Startup",
                     "/assets/images/tools/16.png",
                     "#"
                   )}
-                  {cardContent2(
+                  {cardContent(
                     "Post Term Sheet",
                     "/assets/images/tools/17.png",
                     "#"

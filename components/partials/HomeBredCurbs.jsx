@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ImageBlock2 from "@/components/partials/widget/block/image-block-2";
@@ -8,6 +8,18 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     startDate: new Date(),
     endDate: new Date().setMonth(11),
   });
+  const [greeting, setGreeting] = useState("Good evening");
+
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) {
+      setGreeting("Good Morning");
+    } else if (currentHour < 18) {
+      setGreeting("Good Afternoon");
+    } else {
+      setGreeting("Good Evening");
+    }
+  }, []);
 
   const handleValueChange = (newValue) => {
     setValue(newValue);
@@ -30,7 +42,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
         >
           <div>
             <h4 className="text-xl font-medium text-white mb-2">
-              <span className="block font-normal">Good evening,</span>
+              <span className="block font-normal">{greeting},</span>
               <span className="block">
                 <h5 className="text-white">
                   <b>{companyName ? companyName : "Loading..."}</b>
@@ -42,7 +54,9 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
         <div className="p-4 rounded bg-white shadow-lg text-black flex-1">
           <p>
             <h5>Welcome to Xellerates AI,</h5>
-            I am <b>Zephyr</b><span className="inline-block ml-2 animate-waving-hand">👋🏻</span>, your personal Investment Banker
+            I am <b>Zephyr</b>
+            <span className="inline-block ml-2 animate-waving-hand">👋🏻</span>
+            , your personal Investment Banker
           </p>
         </div>
         <div className="flex items-center justify-end flex-1">

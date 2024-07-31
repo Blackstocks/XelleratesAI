@@ -32,7 +32,7 @@ const SidebarLogo = ({ menuHover }) => {
               src={
                 isDark
                   ? 'assets/images/logo/X (2).png'
-                  : 'assets/images/logo/logo-cb.png'
+                  : 'assets/images/logo/X (11).png'
               }
               alt=''
               style={{ margin: '0 auto', height: '3rem' }}
@@ -42,7 +42,7 @@ const SidebarLogo = ({ menuHover }) => {
               src={
                 isDark
                   ? 'assets/images/logo/X (1).png'
-                  : 'assets/images/logo/X (8).png'
+                  : 'assets/images/logo/X (10).png'
               }
               alt=''
               style={{ height: '3.9rem' }}

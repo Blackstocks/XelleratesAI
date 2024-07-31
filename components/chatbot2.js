@@ -44,39 +44,31 @@ const Chatbot = () => {
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("home");
-  const [stage, setStage] = useState(null);
-  const [isTyping, setIsTyping] = useState(false);
   const messageEndRef = useRef(null);
 
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
       setChatHistory([]); // Reset chat history when closing the chatbot
-      setStage(null); // Reset stage when closing the chatbot
-    } else {
-      sendMessage("Hi", true); // Trigger initial greeting when opening the chatbot
     }
   };
 
-  const sendMessage = async (inputMessage, initial = false) => {
-    const userMessage = { type: "user", text: inputMessage };
-    setChatHistory((prevChatHistory) => [...prevChatHistory, userMessage]);
-    setMessage(""); // Clear the message input immediately
+  const sendMessage = async () => {
+    if (!message) return;
 
-    setIsTyping(true); // Show typing indicator
+    const userMessage = { type: "user", text: message };
+    setChatHistory([...chatHistory, userMessage]);
+
+    setMessage(""); // Clear the message input immediately
 
     try {
       const response = await axios.post("/api/chat", {
         message: userMessage.text,
-        stage: initial ? null : stage,
       });
       const botMessage = { type: "bot", text: response.data.response };
       setChatHistory((prevChatHistory) => [...prevChatHistory, botMessage]);
-      setStage(inputMessage); // Update stage based on user input
     } catch (error) {
       console.error("Error sending message to chatbot", error);
-    } finally {
-      setIsTyping(false); // Hide typing indicator
     }
 
     scrollToBottom();
@@ -84,7 +76,7 @@ const Chatbot = () => {
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
-      sendMessage(message);
+      sendMessage();
     }
   };
 
@@ -94,7 +86,7 @@ const Chatbot = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chatHistory, isTyping]);
+  }, [chatHistory]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -105,24 +97,23 @@ const Chatbot = () => {
       case "messages":
         return (
           <div className="chatbot-messages">
-            {chatHistory.map((msg, index) => (
-              <div
-                key={index}
-                className={`message-container ${
-                  msg.type === "user" ? "user-new-message" : "bot-new-message"
-                }`}
-              >
-                <div className={`message ${msg.type === "user" ? "user" : "bot"}`}>{msg.text}</div>
+            {chatHistory.length === 0 ? (
+              <div className="no-messages">
+                <FaComments size={48} />
+                <p>No messages</p>
+                <p>Messages from the team will be shown here</p>
               </div>
-            ))}
-            {isTyping && (
-              <div className="message-container bot-message">
-                <div className="message bot typing">
-                  <span></span>
-                  <span></span>
-                  <span></span>
+            ) : (
+              chatHistory.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`message-container ${
+                    msg.type === "user" ? "user-message" : "bot-message"
+                  }`}
+                >
+                  <div className={`message ${msg.type}`}>{msg.text}</div>
                 </div>
-              </div>
+              ))
             )}
             <div ref={messageEndRef} />
           </div>
@@ -166,7 +157,7 @@ const Chatbot = () => {
                 onKeyDown={handleKeyDown}
                 placeholder="Enter your message..."
               />
-              <button onClick={() => sendMessage(message)}>Send</button>
+              <button onClick={sendMessage}>Send</button>
             </div>
           )}
 
@@ -272,20 +263,22 @@ const Chatbot = () => {
           display: flex;
           flex-direction: column;
         }
+        .no-messages p {
+          margin: 0;
+        }
         .message-container {
           display: flex;
           margin-bottom: 10px;
         }
-        .user-message {
-          justify-content: flex-end;
-        }
-        .bot-message {
-          justify-content: flex-start;
-        }
-        .user-new-message{
-          text-allign:end;
+        .message-container.user-message {
+          text-align: right;
           background-color: #007bff;
           color: white;
+          margin-left: auto;
+        }
+        .message-container.bot-message {
+          background-color: #f1f1f1;
+          color: #333;
         }
         .message {
           padding: 10px;
@@ -293,43 +286,15 @@ const Chatbot = () => {
           max-width: 80%;
           word-break: break-word;
         }
-        .user {
+        .message.user {
+          text-align: right;
           background-color: #007bff;
           color: white;
+          margin-left: auto;
         }
-        .bot {
+        .message.bot {
           background-color: #f1f1f1;
           color: #333;
-        }
-        .message.typing {
-          display: flex;
-          align-items: center;
-        }
-        .message.typing span {
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          margin: 0 2px;
-          background-color: #333;
-          border-radius: 50%;
-          animation: typing 1s infinite;
-        }
-        .message.typing span:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-        .message.typing span:nth-child(3) {
-          animation-delay: 0.4s;
-        }
-        @keyframes typing {
-          0% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-5px);
-          }
-          100% {
-            transform: translateY(0);
-          }
         }
         .chatbot-input {
           display: flex;

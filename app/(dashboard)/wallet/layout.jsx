@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Xellerates',
+  title: 'Xellerates AI',
   description: 'Dashcode is a popular dashboard template.',
 };
 
