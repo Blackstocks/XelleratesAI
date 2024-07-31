@@ -61,7 +61,7 @@ const CardSlider = () => {
                 <img
                   src='/assets/images/all-img/visa-card-bg.png'
                   alt=''
-                  className='h-full w-full object-cover'
+                  className='h-full w-full object-contain'
                 />
               </div>
               <div className='h-10 w-10 rounded-full'>
@@ -69,13 +69,13 @@ const CardSlider = () => {
                   <img
                     src={document.company_logo}
                     alt='Company Logo'
-                    className='w-full h-full object-cover rounded-full'
+                    className='w-full h-full object-contain rounded-full'
                   />
                 ) : (
                   <img
                     src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                     alt=''
-                    className='w-full h-full object-cover rounded-full'
+                    className='w-full h-full object-contain rounded-full'
                   />
                 )}
               </div>

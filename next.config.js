@@ -1,10 +1,12 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    domains: ['xgusxcqoddybgdkkndvn.supabase.co'], // Add your Supabase storage domain here
+  },
   webpack(config) {
     // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find((rule) =>
-      rule.test?.test?.(".svg")
+      rule.test?.test?.('.svg')
     );
 
     config.module.rules.push(
@@ -19,7 +21,7 @@ const nextConfig = {
         test: /\.svg$/i,
         issuer: /\.[jt]sx?$/,
         resourceQuery: { not: /url/ }, // exclude if *.svg?url
-        use: ["@svgr/webpack"],
+        use: ['@svgr/webpack'],
       }
     );
 

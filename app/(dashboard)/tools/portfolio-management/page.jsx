@@ -65,22 +65,30 @@ const BankingPage = () => {
           <div className='grid xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-5 place-content-center'>
             <div className='flex space-x-4 h-full items-center rtl:space-x-reverse'>
               <div className='flex-none'>
-                <div className='h-20 w-20 rounded-full'>
-                  <div>
-                    {investorSignup?.profile_photo ? (
-                      <img
-                        src={investorSignup.profile_photo}
-                        alt='Company Logo'
-                        className='w-full h-full object-cover rounded-full'
-                      />
-                    ) : (
-                      <img
-                        src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
-                        alt=''
-                        className='w-full h-full object-cover rounded-full'
-                      />
-                    )}
-                  </div>
+                <div className='h-20 w-20 rounded-full relative overflow-hidden'>
+                  {investorSignup?.profile_photo ? (
+                    <img
+                      src={investorSignup.profile_photo}
+                      alt='Profile Photo'
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '50%',
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
+                      alt=''
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '50%',
+                      }}
+                    />
+                  )}
                 </div>
               </div>
 

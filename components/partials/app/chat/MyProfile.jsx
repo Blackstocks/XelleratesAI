@@ -50,13 +50,13 @@ const MyProfile = () => {
                         <img
                           src={details.company_logo}
                           alt='Company Logo'
-                          className='w-full h-full object-cover rounded-full'
+                          className='w-full h-full object-contain rounded-full'
                         />
                       ) : (
                         <img
                           src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                           alt=''
-                          className='w-full h-full object-cover rounded-full'
+                          className='w-full h-full object-contain rounded-full'
                         />
                       )}
                     </div>
@@ -66,13 +66,13 @@ const MyProfile = () => {
                         <img
                           src={details.profile_photo}
                           alt='Company Logo'
-                          className='w-full h-full object-cover rounded-full'
+                          className='w-full h-full object-contain rounded-full'
                         />
                       ) : (
                         <img
                           src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                           alt=''
-                          className='w-full h-full object-cover rounded-full'
+                          className='w-full h-full object-contain rounded-full'
                         />
                       )}
                     </div>

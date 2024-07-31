@@ -71,7 +71,7 @@ const useCompleteUserDetails = () => {
             .select('*')
             .eq('company_id', companyId);
           if (error) throw error;
-          console.log(data);
+          // console.log(data);
           return data;
         };
 

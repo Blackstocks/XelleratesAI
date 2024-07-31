@@ -110,7 +110,7 @@ const Sidebar = () => {
                     <video
                       src={item.img}
                       alt=''
-                      className='w-full h-full object-cover'
+                      className='w-full h-full object-contain'
                       controls
                     ></video>
                   </div>

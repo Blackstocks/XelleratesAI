@@ -80,36 +80,36 @@ const Profile = () => {
           <div className='profile-box flex-none md:text-start text-center'>
             <div className='md:flex items-end md:space-x-6 rtl:space-x-reverse'>
               <div className='flex-none'>
-                <div className='md:h-[186px] md:w-[186px] h-[140px] w-[140px] md:ml-0 md:mr-0 ml-auto mr-auto md:mb-0 mb-4 rounded-full ring-4 ring-slate-100 relative'>
+                <div className='md:h-[186px] md:w-[186px] h-[140px] w-[140px] md:ml-0 md:mr-0 ml-auto mr-auto md:mb-0 mb-4 rounded-full ring-4 ring-slate-100 relative overflow-hidden'>
                   {user?.user_type === 'startup' ? (
-                    <div>
+                    <div className='absolute inset-0'>
                       {companyProfile?.company_logo ? (
                         <img
                           src={companyProfile.company_logo}
                           alt='Company Logo'
-                          className='w-full h-full object-cover rounded-full'
+                          className='w-full h-full object-contain rounded-full'
                         />
                       ) : (
                         <img
                           src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                           alt=''
-                          className='w-full h-full object-cover rounded-full'
+                          className='w-full h-full object-contain rounded-full'
                         />
                       )}
                     </div>
                   ) : (
-                    <div>
+                    <div className='absolute inset-0'>
                       {investorSignup?.profile_photo ? (
                         <img
                           src={investorSignup?.profile_photo}
                           alt='Profile Photo'
-                          className='w-full h-full object-cover rounded-full'
+                          className='w-full h-full object-contain rounded-full'
                         />
                       ) : (
                         <img
                           src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                           alt=''
-                          className='w-full h-full object-cover rounded-full'
+                          className='w-full h-full object-contain rounded-full'
                         />
                       )}
                     </div>

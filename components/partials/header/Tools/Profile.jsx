@@ -12,36 +12,36 @@ const ProfileLabel = ({ user }) => {
   return (
     <div className='flex items-center'>
       <div className='flex-1 ltr:mr-[10px] rtl:ml-[10px]'>
-        <div className='lg:h-8 lg:w-8 h-7 w-7 rounded-full'>
+        <div className='lg:h-8 lg:w-8 h-7 w-7 rounded-full relative overflow-hidden'>
           {details?.type === 'startup' ? (
-            <div>
+            <div className='absolute inset-0'>
               {details?.company_logo ? (
                 <img
                   src={details.company_logo}
                   alt='Company Logo'
-                  className='w-full h-full object-cover rounded-full'
+                  className='w-full h-full object-contain rounded-full'
                 />
               ) : (
                 <img
                   src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                   alt=''
-                  className='w-full h-full object-cover rounded-full'
+                  className='w-full h-full object-contain rounded-full'
                 />
               )}
             </div>
           ) : (
-            <div>
+            <div className='absolute inset-0'>
               {details?.profile_photo ? (
                 <img
                   src={details.profile_photo}
-                  alt='Company Logo'
-                  className='w-full h-full object-cover rounded-full'
+                  alt='Profile Photo'
+                  className='w-full h-full object-contain rounded-full'
                 />
               ) : (
                 <img
                   src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                   alt=''
-                  className='w-full h-full object-cover rounded-full'
+                  className='w-full h-full object-contain rounded-full'
                 />
               )}
             </div>

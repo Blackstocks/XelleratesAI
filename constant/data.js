@@ -6,32 +6,37 @@ export const menuItems = [
   {
     title: 'Dashboard',
     icon: 'heroicons-outline:home',
-    link: 'dashboard',
+    link: '/dashboard', // Ensure this is an absolute path
   },
   {
     title: 'Tools',
     icon: 'heroicons-outline:document-check',
-    link: 'tools',
+    link: '/tools', // Ensure this is an absolute path
   },
   {
     title: 'Profile',
     icon: 'heroicons-outline:user-circle',
-    link: 'profile',
+    link: '/profile', // Ensure this is an absolute path
   },
   {
     title: 'Resources',
     icon: 'heroicons-outline:folder',
-    link: 'resources',
+    link: '/resources', // Ensure this is an absolute path
   },
   {
     title: 'Events',
     icon: 'heroicons-outline:calendar-days',
-    link: 'events',
+    link: '/events', // Ensure this is an absolute path
   },
   {
     title: 'Vault',
     icon: 'heroicons-outline:shield-check',
-    link: 'vault',
+    link: '/vault', // Ensure this is an absolute path
+  },
+  {
+    title: 'Scheduled Meetings',
+    icon: 'heroicons-outline:computer-desktop',
+    link: '/schedule', // Ensure this is an absolute path
   },
 ];
 

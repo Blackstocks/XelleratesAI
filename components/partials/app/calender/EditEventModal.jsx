@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import Textinput from '@/components/ui/Textinput';
 import { useForm, Controller } from 'react-hook-form';
-import CustomSelect from '@/components/ui/Select';
+import Select from '@/components/ui/Select';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useSelector, useDispatch } from 'react-redux';
@@ -123,7 +123,7 @@ const EditEventModal = ({ editModal, onCloseEditModal, editItem }) => {
             />
           </FormGroup>
 
-          <CustomSelect
+          <Select
             label='Basic Select'
             options={categories}
             register={register}

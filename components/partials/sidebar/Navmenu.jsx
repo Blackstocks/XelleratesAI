@@ -23,8 +23,8 @@ const Navmenu = ({ menus }) => {
     }
   };
 
-  const location = usePathname();
-  const locationName = location.replace('/', '');
+  const locationName = usePathname();
+  // const locationName = location.replace('/', '');
 
   const [mobileMenu, setMobileMenu] = useMobileMenu();
   const dispatch = useDispatch();
@@ -59,7 +59,7 @@ const Navmenu = ({ menus }) => {
           menus.map((item, i) => (
             <li
               key={i}
-              className={`single-sidebar-menu 
+              className={` single-sidebar-menu 
               ${item.child ? 'item-has-children' : ''}
               ${activeSubmenu === i ? 'open' : ''}
               ${locationName === item.link ? 'menu-item-active' : ''}`}
