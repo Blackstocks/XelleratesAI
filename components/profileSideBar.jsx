@@ -69,36 +69,6 @@ const sections = [
   },
 ];
 
-const fileFields = [
-  { name: 'company_logo', label: 'Company Logo' },
-  {
-    name: 'certificate_of_incorporation',
-    label: 'Certificate of Incorporation',
-  },
-  { name: 'gst_certificate', label: 'GST Certificate' },
-  { name: 'startup_india_certificate', label: 'Startup India Certificate' },
-  { name: 'due_diligence_report', label: 'Due Diligence Report' },
-  { name: 'business_valuation_report', label: 'Business Valuation Report' },
-  { name: 'mis', label: 'MIS' },
-  { name: 'pitch_deck', label: 'Pitch Deck' },
-  { name: 'video_pitch', label: 'Video Pitch' },
-  // { name: 'current_cap_table', label: 'Current Cap Table' },
-  { name: 'technology_roadmap', label: 'Technology Roadmap' },
-  { name: 'list_of_advisers', label: 'List of Advisers' },
-  { name: 'trademark', label: 'Trademark' },
-  { name: 'copyright', label: 'Copyright' },
-  { name: 'patent', label: 'Patent' },
-  { name: 'financial_projections', label: 'Financial Projections' },
-  { name: 'balance_sheet', label: 'Balance Sheet' },
-  { name: 'pl_statement', label: 'P&L Statement' },
-  { name: 'cashflow_statement', label: 'Cashflow Statement' },
-  { name: 'sha', label: 'SHA' },
-  { name: 'termsheet', label: 'Termsheet' },
-  { name: 'employment_agreement', label: 'Employment Agreement' },
-  { name: 'mou', label: 'MoU' },
-  { name: 'nda', label: 'NDA' },
-];
-
 const companyDocumentsFiles = {
   certificate_of_incorporation: 'certificateOfIncorporation',
   gst_certificate: 'gstCertificate',
@@ -124,7 +94,6 @@ const companyDocumentsFiles = {
 
 const VerticalNavTabs = () => {
   const {
-    profile,
     companyProfile,
     businessDetails,
     founderInformation,
@@ -133,6 +102,7 @@ const VerticalNavTabs = () => {
     companyDocuments,
     updateUserLocally,
   } = useCompleteUserDetails();
+  // console.log('companyDocuments', companyDocuments);
   const {
     control,
     register,
@@ -204,9 +174,7 @@ const VerticalNavTabs = () => {
 
   const handleSave = async (data, section) => {
     try {
-      // console.log('Saving data for section:', section, 'with data:', data);
       let updatedData;
-      let changedData = {};
       const uploadedFiles = {};
 
       // Handle file uploads
@@ -245,52 +213,37 @@ const VerticalNavTabs = () => {
             }
             break;
 
-          case 'company_documents':
-            for (const [formField] of Object.entries(companyDocumentsFiles)) {
-              if (data[formField] && data[formField][0]) {
-                uploadedFiles[formField] = await handleFileUpload(
-                  data[formField][0],
-                  'documents',
-                  companyProfile?.company_name || data.company_name,
-                  formField
-                );
-              }
-            }
+            // case 'company_documents':
+            //   for (const [formField] of Object.entries(companyDocumentsFiles)) {
+            //     if (data[formField] && data[formField][0]) {
+            //       uploadedFiles[formField] = await handleFileUpload(
+            //         data[formField][0],
+            //         'documents',
+            //         companyProfile?.company_name || data.company_name,
+            //         formField
+            //       );
+            //     }
+            //   }
+
             break;
 
-          // case 'funding_info':
-          //   if (data.current_cap_table && data.current_cap_table[0]) {
-          //     uploadedFiles.current_cap_table = await handleFileUpload(
-          //       data.current_cap_table[0],
-          //       'documents',
-          //       companyProfile?.company_name || data.company_name,
-          //       'current_cap_table'
-          //     );
-          //   }
-          //   break;
-
-          // Add more cases for other sections as needed
+          // Additional cases as needed
         }
       };
-
+      console.log('uploadedFiles', uploadedFiles);
       await handleUploads(data);
 
       switch (section) {
         case 'general_info':
-          changedData = { email: data.email, mobile: data.mobile };
-          const generalInfoResponse = await updateGeneralInfo(
-            user.id,
-            changedData
-          );
+          const generalInfoResponse = await updateGeneralInfo(user.id, {
+            email: data.email,
+            mobile: data.mobile,
+          });
           if (generalInfoResponse.error) throw generalInfoResponse.error;
           updatedData = generalInfoResponse.data;
-          updateUserLocally(updatedData);
           break;
 
         case 'startup_details':
-          console.log('companyProfile:', companyProfile);
-          const emptyStartupDetails =
-            !companyProfile?.id || !companyProfileLoc?.id;
           const startupData = {
             company_name: data.company_name || null,
             incorporation_date: data.incorporation_date || null,
@@ -307,21 +260,17 @@ const VerticalNavTabs = () => {
             usp_moat: data.usp_moat || null,
             media: data.media || null,
             company_logo: uploadedFiles.company_logo || null,
-            socialMedia: data.socialMedia || [], // Ensure this is handled correctly as JSONB
+            socialMedia: data.socialMedia || [],
           };
-
           try {
-            console.log('uploadFiles:', uploadedFiles);
             let startupDetailsResponse;
-            console.log('emptyStartupDetails:', emptyStartupDetails);
-            if (emptyStartupDetails) {
+            if (!companyProfile?.id) {
               startupDetailsResponse = await insertStartupDetails(
                 startupData,
                 user.id,
                 uploadedFiles
               );
             } else {
-              console.log('emptyStartupDetails:', emptyStartupDetails);
               startupDetailsResponse = await updateStartupDetails(
                 startupData,
                 user.id,
@@ -332,15 +281,9 @@ const VerticalNavTabs = () => {
             if (startupDetailsResponse?.error) {
               throw startupDetailsResponse.error;
             }
-
             if (startupDetailsResponse) {
               updatedData = startupDetailsResponse;
-              console.log(
-                `${
-                  emptyStartupDetails ? 'Inserted' : 'Updated'
-                } startup details:`,
-                updatedData
-              );
+
               setCompanyProfileLoc(updatedData);
             } else {
               console.error(
@@ -354,8 +297,6 @@ const VerticalNavTabs = () => {
           break;
 
         case 'founder_info':
-          const emptyFounderInfo =
-            !founderInformation?.id || !founderInformationLoc?.id;
           const founderData = {
             company_id: companyProfile?.id,
             founder_name: data.founder_name || null,
@@ -365,51 +306,42 @@ const VerticalNavTabs = () => {
             degree_name: data.degree_name || null,
             college_name: data.college_name || null,
             graduation_year: data.graduation_year || null,
-            advisors: data.advisors || [], // Ensure this is handled correctly as JSONB
-            co_founders: data.co_founders || [], // Ensure this is handled correctly as JSONB
+            advisors: data.advisors || [],
+            co_founders: data.co_founders || [],
             co_founder_agreement: uploadedFiles.co_founder_agreement || null,
           };
 
-          try {
-            let founderInfoResponse;
-            if (emptyFounderInfo) {
-              founderInfoResponse = await insertFounderInformation(
-                companyProfile.id,
-                founderData,
-                uploadedFiles
-              );
-            } else {
-              founderInfoResponse = await updateFounderInformation(
-                companyProfile.id,
-                founderData,
-                uploadedFiles
-              );
-            }
+          let founderInfoResponse;
+          if (!founderInformation?.id) {
+            founderInfoResponse = await insertFounderInformation(
+              companyProfile.id,
+              founderData,
+              uploadedFiles
+            );
+          } else {
+            founderInfoResponse = await updateFounderInformation(
+              companyProfile.id,
+              founderData,
+              uploadedFiles
+            );
+          }
 
-            if (founderInfoResponse?.error) {
-              throw founderInfoResponse.error;
-            }
+          if (founderInfoResponse?.error) {
+            throw founderInfoResponse.error;
+          }
 
-            if (founderInfoResponse) {
-              updatedData = founderInfoResponse;
-              console.log(
-                `${
-                  emptyFounderInfo ? 'Inserted' : 'Updated'
-                } founder information:`,
-                updatedData
-              );
-              setFounderInformationLoc(updatedData);
-            } else {
-              console.error('Unexpected response format:', founderInfoResponse);
-            }
-          } catch (error) {
-            console.error('Error handling founder information:', error);
+          updatedData = founderInfoResponse.data;
+          if (founderInfoResponse) {
+            updatedData = founderInfoResponse;
+
+            setFounderInformationLoc(updatedData);
+          } else {
+            console.error('Unexpected response format:', founderInfoResponse);
           }
           break;
 
         case 'CTO_info':
-          const emptyCtoInfo = !ctoInfo?.id || !ctoInfoLoc?.id;
-          changedData = {
+          const ctoData = {
             company_id: companyProfile?.id,
             cto_name: data.cto_name || null,
             cto_email: data.cto_email || null,
@@ -421,37 +353,28 @@ const VerticalNavTabs = () => {
             technology_roadmap: uploadedFiles.technology_roadmap || null,
           };
 
-          if (emptyCtoInfo) {
-            const ctoInfoResponse = await insertCTODetails(
+          let ctoInfoResponse;
+          if (!ctoInfo?.id) {
+            ctoInfoResponse = await insertCTODetails(
               companyProfile.id,
-              changedData,
+              ctoData,
               uploadedFiles
             );
-            if (ctoInfoResponse.error) {
-              throw ctoInfoResponse.error;
-            }
-            updatedData = ctoInfoResponse;
-            console.log('Inserted CTO details:', updatedData);
-            setCtoInfoLoc(updatedData);
           } else {
-            const ctoInfoResponse = await updateCTODetails(
+            ctoInfoResponse = await updateCTODetails(
               companyProfile.id,
-              changedData,
+              ctoData,
               uploadedFiles
             );
-            if (ctoInfoResponse.error) {
-              throw ctoInfoResponse.error;
-            }
-            updatedData = ctoInfoResponse.data;
-            console.log('Updated CTO details:', updatedData);
-            setCtoInfoLoc(updatedData);
           }
-          break;
 
+          if (ctoInfoResponse?.error) {
+            throw ctoInfoResponse.error;
+          }
+
+          updatedData = ctoInfoResponse.data;
+          break;
         case 'company_documents':
-          console.log(companyDocuments[0]?.id);
-          const emptyCompanyDocuments =
-            !companyDocuments[0]?.id || !companyDocumentsLoc?.id;
           const companyUploadedFiles = {};
           for (const [dbField, formField] of Object.entries(
             companyDocumentsFiles
@@ -466,39 +389,34 @@ const VerticalNavTabs = () => {
             }
           }
 
-          console.log('Changed Data for company_documents:', data);
-          console.log(emptyCompanyDocuments);
-          try {
-            if (emptyCompanyDocuments) {
-              const companyDocumentsResponse = await insertCompanyDocuments(
+          const companyDocumentsResponse = companyDocuments?.id
+            ? await updateCompanyDocuments(
+                companyProfile.id,
+                companyUploadedFiles
+              )
+            : await insertCompanyDocuments(
                 companyProfile.id,
                 companyUploadedFiles
               );
-              if (companyDocumentsResponse.error) {
-                throw companyDocumentsResponse.error;
-              }
-              updatedData = companyDocumentsResponse;
-              console.log('Inserted company documents:', updatedData);
-            } else {
-              const companyDocumentsResponse = await updateCompanyDocuments(
-                companyProfile.id,
-                companyUploadedFiles
-              );
-              if (companyDocumentsResponse.error) {
-                throw companyDocumentsResponse.error;
-              }
-              updatedData = companyDocumentsResponse.data;
-              console.log('Updated company documents:', updatedData);
-            }
-            setCompanyDocumentsLoc(updatedData);
-          } catch (error) {
-            console.error('Error saving company documents:', error);
-          }
-          break;
 
+          if (companyDocumentsResponse?.error) {
+            console.error(
+              'Error saving company documents:',
+              companyDocumentsResponse.error
+            );
+            throw companyDocumentsResponse.error;
+          }
+
+          console.log(
+            'Company Documents saved successfully:',
+            companyDocumentsResponse
+          );
+
+          updatedData = companyDocumentsResponse;
+
+          break;
         case 'business_details':
-          const emptyBusinessDetails =
-            !businessDetails?.id || !businessDetailsLoc?.id;
+          const emptyBusinessDetails = !businessDetails?.id;
           changedData = {
             company_id: companyProfile.id,
             current_traction: data.current_traction || null,
@@ -528,9 +446,9 @@ const VerticalNavTabs = () => {
                 throw businessDetailsResponse.error;
               }
               updatedData = businessDetailsResponse.data;
-              console.log('Updated business details:', updatedData);
-              setBusinessDetailsLoc(updatedData);
-              console.log('Business Details:', businessDetailsLoc);
+              // console.log('Updated business details:', updatedData);
+              // setBusinessDetailsLoc(updatedData);
+              // console.log('Business Details:', businessDetailsLoc);
             }
             console.log('Data saved successfully:', updatedData);
           } catch (error) {
@@ -539,54 +457,44 @@ const VerticalNavTabs = () => {
           break;
 
         case 'funding_info':
-          const emptyFundingInfo = !fundingInformation?.id;
           const fundingData = {
             company_id: companyProfile?.id,
             total_funding_ask: data.total_funding_ask || null,
             amount_committed: data.amount_committed || null,
-            // current_cap_table: uploadedFiles.current_cap_table || null,
             government_grants: data.government_grants || null,
             equity_split: data.equity_split || null,
             fund_utilization: data.fund_utilization || null,
             arr: data.arr || null,
             mrr: data.mrr || null,
-            previous_funding: data.funding || [], // Ensure this is handled correctly as JSONB
-            capTable: data.capTable || [], // Cap table data including role and percentage
+            previous_funding: data.funding || [],
+            capTable: data.capTable || [],
           };
 
-          try {
-            let fundingInfoResponse;
-            if (emptyFundingInfo) {
-              fundingInfoResponse = await insertFundingInformation(
-                companyProfile.id,
-                fundingData,
-                uploadedFiles
-              );
-            } else {
-              fundingInfoResponse = await updateFundingInfo(
-                companyProfile.id,
-                fundingData
-              );
-            }
+          let fundingInfoResponse;
+          if (!fundingInformation?.id) {
+            fundingInfoResponse = await insertFundingInformation(
+              companyProfile.id,
+              fundingData,
+              uploadedFiles
+            );
+          } else {
+            fundingInfoResponse = await updateFundingInfo(
+              companyProfile.id,
+              fundingData
+            );
+          }
 
-            if (fundingInfoResponse?.error) {
-              throw fundingInfoResponse.error;
-            }
+          if (fundingInfoResponse?.error) {
+            throw fundingInfoResponse.error;
+          }
 
-            if (fundingInfoResponse) {
-              updatedData = fundingInfoResponse;
-              console.log(
-                `${
-                  emptyFundingInfo ? 'Inserted' : 'Updated'
-                } funding information:`,
-                updatedData
-              );
-              setFundingInformationLoc(updatedData);
-            } else {
-              console.error('Unexpected response format:', fundingInfoResponse);
-            }
-          } catch (error) {
-            console.error('Error handling funding information:', error);
+          updatedData = fundingInfoResponse.data;
+          if (fundingInfoResponse) {
+            updatedData = fundingInfoResponse;
+
+            setFundingInformationLoc(updatedData);
+          } else {
+            console.error('Unexpected response format:', fundingInfoResponse);
           }
           break;
 
@@ -665,10 +573,13 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Company Name'
                               name='company_name'
-                              defaultValue={user?.company_name}
+                              defaultValue={
+                                companyProfile?.company_name ||
+                                companyProfileLoc?.company_name
+                              }
                               placeholder='Enter your company name'
                               register={register}
-                              readOnly={!!user?.company_name} // This makes the input read-only if there is a default value
+                              // readOnly={!!companyProfile?.company_name} // Read-only if there's a default value
                             />
 
                             <Textinput
@@ -676,6 +587,7 @@ const VerticalNavTabs = () => {
                               type='date'
                               name='incorporation_date'
                               defaultValue={
+                                companyProfile?.incorporation_date ||
                                 companyProfileLoc?.incorporation_date
                               }
                               placeholder='Select the incorporation date'
@@ -697,7 +609,6 @@ const VerticalNavTabs = () => {
                                     isClearable={false}
                                     {...field}
                                     options={countries}
-                                    register={register}
                                     styles={{
                                       option: (provided) => ({
                                         ...provided,
@@ -706,7 +617,9 @@ const VerticalNavTabs = () => {
                                     }}
                                     className='react-select'
                                     classNamePrefix='select'
-                                    defaultValue={countries[0]}
+                                    defaultValue={countries.find(
+                                      (c) => c.value === companyProfile?.country
+                                    )}
                                   />
                                 </div>
                               )}
@@ -715,28 +628,40 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='State/City'
                               name='state_city'
-                              defaultValue={companyProfileLoc?.state_city}
+                              defaultValue={
+                                companyProfile?.state_city ||
+                                companyProfileLoc?.state_city
+                              }
                               placeholder='Enter the state or city'
                               register={register}
                             />
                             <Textinput
                               label='Office Address'
                               name='office_address'
-                              defaultValue={companyProfileLoc?.office_address}
+                              defaultValue={
+                                companyProfile?.office_address ||
+                                companyProfileLoc?.office_address
+                              }
                               placeholder='Enter the office address'
                               register={register}
                             />
                             <Textinput
                               label='Company Website'
                               name='company_website'
-                              defaultValue={companyProfileLoc?.company_website}
+                              defaultValue={
+                                companyProfile?.company_website ||
+                                companyProfileLoc?.company_website
+                              }
                               placeholder='Enter the company website URL'
                               register={register}
                             />
                             <Textinput
                               label='LinkedIn Profile'
                               name='linkedin_profile'
-                              defaultValue={companyProfileLoc?.linkedin_profile}
+                              defaultValue={
+                                companyProfile?.linkedin_profile ||
+                                companyProfileLoc?.linkedin_profile
+                              }
                               placeholder='Enter the LinkedIn profile URL'
                               register={register}
                             />
@@ -744,6 +669,7 @@ const VerticalNavTabs = () => {
                               label='Business Description'
                               name='short_description'
                               defaultValue={
+                                companyProfile?.short_description ||
                                 companyProfileLoc?.short_description
                               }
                               placeholder='Provide a brief business description'
@@ -752,7 +678,10 @@ const VerticalNavTabs = () => {
                             <CustomSelect
                               label='Target Audience'
                               name='target_audience'
-                              defaultValue={companyProfileLoc?.target_audience}
+                              defaultValue={
+                                companyProfile?.target_audience ||
+                                companyProfileLoc?.target_audience
+                              }
                               options={[
                                 { value: 'B2C', label: 'B2C' },
                                 { value: 'B2B', label: 'B2B' },
@@ -767,7 +696,10 @@ const VerticalNavTabs = () => {
                             <CustomSelect
                               label='Industry or Sector'
                               name='industry_sector'
-                              defaultValue={companyProfileLoc?.industry_sector}
+                              defaultValue={
+                                companyProfile?.industry_sector ||
+                                companyProfileLoc?.industry_sector
+                              }
                               options={[
                                 {
                                   value: 'Agriculture and Allied Sectors',
@@ -866,28 +798,40 @@ const VerticalNavTabs = () => {
                               label='Team Size'
                               type='number'
                               name='team_size'
-                              defaultValue={companyProfileLoc?.team_size}
+                              defaultValue={
+                                companyProfile?.team_size ||
+                                companyProfileLoc?.team_size
+                              }
                               placeholder='Enter the team size'
                               register={register}
                             />
                             <Textinput
                               label='Current Stage'
                               name='current_stage'
-                              defaultValue={companyProfileLoc?.current_stage}
+                              defaultValue={
+                                companyProfile?.current_stage ||
+                                companyProfileLoc?.current_stage
+                              }
                               placeholder='Enter the current stage'
                               register={register}
                             />
                             <Textarea
                               label='USP/MOAT'
                               name='usp_moat'
-                              defaultValue={companyProfileLoc?.usp_moat}
+                              defaultValue={
+                                companyProfile?.usp_moat ||
+                                companyProfileLoc?.usp_moat
+                              }
                               placeholder='Describe the USP/MOAT'
                               register={register}
                             />
                             <CustomSelect
                               label='Is your startup in media?'
                               name='media'
-                              defaultValue={companyProfileLoc?.media}
+                              defaultValue={
+                                companyProfile?.media ||
+                                companyProfileLoc?.media
+                              }
                               options={[
                                 { value: 'Yes', label: 'Yes' },
                                 { value: 'No', label: 'No' },
@@ -899,7 +843,7 @@ const VerticalNavTabs = () => {
                               label='Upload Company Logo'
                               type='file'
                               name='company_logo'
-                              error={errors.company_logo}
+                              error={errors.company_logo || null}
                               register={register}
                             />
                             <div className='mt-4'>
@@ -953,13 +897,14 @@ const VerticalNavTabs = () => {
                             </div>
                           </>
                         )}
+
                         {section.key === 'CTO_info' && (
                           <>
                             <Textinput
                               label='CTO Name'
                               name='cto_name'
                               defaultValue={
-                                ctoInfoLoc?.cto_name || ctoInfo?.cto_name
+                                ctoInfo?.cto_name || ctoInfoLoc?.cto_name
                               }
                               register={register}
                               placeholder='Enter CTO name'
@@ -968,7 +913,7 @@ const VerticalNavTabs = () => {
                               label='Email'
                               name='cto_email'
                               defaultValue={
-                                ctoInfoLoc?.cto_email || ctoInfo?.cto_email
+                                ctoInfo?.cto_email || ctoInfoLoc?.cto_email
                               }
                               register={register}
                               placeholder='Enter CTO email'
@@ -977,7 +922,7 @@ const VerticalNavTabs = () => {
                               label='Mobile Number'
                               name='cto_mobile'
                               defaultValue={
-                                ctoInfoLoc?.cto_mobile || ctoInfo?.cto_mobile
+                                ctoInfo?.cto_mobile || ctoInfoLoc?.cto_mobile
                               }
                               register={register}
                               placeholder='Enter CTO mobile number'
@@ -986,8 +931,8 @@ const VerticalNavTabs = () => {
                               label='LinkedIn Profile'
                               name='cto_linkedin'
                               defaultValue={
-                                ctoInfoLoc?.cto_linkedin ||
-                                ctoInfo?.cto_linkedin
+                                ctoInfo?.cto_linkedin ||
+                                ctoInfoLoc?.cto_linkedin
                               }
                               register={register}
                               placeholder='Enter CTO LinkedIn profile URL'
@@ -997,8 +942,8 @@ const VerticalNavTabs = () => {
                               type='number'
                               name='tech_team_size'
                               defaultValue={
-                                ctoInfoLoc?.tech_team_size ||
-                                ctoInfo?.tech_team_size
+                                ctoInfo?.tech_team_size ||
+                                ctoInfoLoc?.tech_team_size
                               }
                               register={register}
                               placeholder='Enter tech team size'
@@ -1007,8 +952,8 @@ const VerticalNavTabs = () => {
                               label='MOBILE APP LINK (IOS)'
                               name='mobile_app_link_ios'
                               defaultValue={
-                                ctoInfoLoc?.mobile_app_link_ios ||
-                                ctoInfo?.mobile_app_link_ios
+                                ctoInfo?.mobile_app_link_ios ||
+                                ctoInfoLoc?.mobile_app_link_ios
                               }
                               register={register}
                               placeholder='Enter mobile app link (iOS)'
@@ -1017,8 +962,8 @@ const VerticalNavTabs = () => {
                               label='MOBILE APP LINK (Android)'
                               name='mobile_app_link_android'
                               defaultValue={
-                                ctoInfoLoc?.mobile_app_link_android ||
-                                ctoInfo?.mobile_app_link_android
+                                ctoInfo?.mobile_app_link_android ||
+                                ctoInfoLoc?.mobile_app_link_android
                               }
                               register={register}
                               placeholder='Enter mobile app link (Android)'
@@ -1028,8 +973,7 @@ const VerticalNavTabs = () => {
                               name='technology_roadmap'
                               type='file'
                               register={register}
-                              defaultValue={ctoInfoLoc?.technology_roadmap}
-                              error={errors.technology_roadmap}
+                              error={errors.technology_roadmap || null}
                             />
                           </>
                         )}
@@ -1039,8 +983,8 @@ const VerticalNavTabs = () => {
                               label='Founder Name'
                               name='founder_name'
                               defaultValue={
-                                founderInformationLoc?.founder_name ||
                                 founderInformation?.founder_name ||
+                                founderInformationLoc?.founder_name ||
                                 'Not provided'
                               }
                               register={register}
@@ -1050,8 +994,8 @@ const VerticalNavTabs = () => {
                               label='Email'
                               name='founder_email'
                               defaultValue={
-                                founderInformationLoc?.founder_email ||
                                 founderInformation?.founder_email ||
+                                founderInformationLoc?.founder_email ||
                                 'Not provided'
                               }
                               register={register}
@@ -1061,8 +1005,8 @@ const VerticalNavTabs = () => {
                               label='Mobile Number'
                               name='founder_mobile'
                               defaultValue={
-                                founderInformationLoc?.founder_mobile ||
                                 founderInformation?.founder_mobile ||
+                                founderInformationLoc?.founder_mobile ||
                                 'Not provided'
                               }
                               register={register}
@@ -1072,8 +1016,8 @@ const VerticalNavTabs = () => {
                               label='LinkedIn Profile'
                               name='founder_linkedin'
                               defaultValue={
-                                founderInformationLoc?.founder_linkedin ||
                                 founderInformation?.founder_linkedin ||
+                                founderInformationLoc?.founder_linkedin ||
                                 'Not provided'
                               }
                               register={register}
@@ -1083,8 +1027,8 @@ const VerticalNavTabs = () => {
                               label='Degree Name'
                               name='degree_name'
                               defaultValue={
-                                founderInformationLoc?.degree_name ||
                                 founderInformation?.degree_name ||
+                                founderInformationLoc?.degree_name ||
                                 'Not provided'
                               }
                               register={register}
@@ -1094,8 +1038,8 @@ const VerticalNavTabs = () => {
                               label='College Name'
                               name='college_name'
                               defaultValue={
-                                founderInformationLoc?.college_name ||
                                 founderInformation?.college_name ||
+                                founderInformationLoc?.college_name ||
                                 'Not provided'
                               }
                               register={register}
@@ -1106,8 +1050,8 @@ const VerticalNavTabs = () => {
                               type='date'
                               name='graduation_year'
                               defaultValue={
-                                founderInformationLoc?.graduation_year ||
                                 founderInformation?.graduation_year ||
+                                founderInformationLoc?.graduation_year ||
                                 'Not provided'
                               }
                               register={register}
@@ -1280,8 +1224,8 @@ const VerticalNavTabs = () => {
                               label='Total Funding Ask'
                               name='total_funding_ask'
                               defaultValue={
-                                fundingInformationLoc?.total_funding_ask ||
-                                fundingInformation?.total_funding_ask
+                                fundingInformation?.total_funding_ask ||
+                                fundingInformationLoc?.total_funding_ask
                               }
                               register={register}
                               placeholder='Enter total funding ask'
@@ -1290,8 +1234,8 @@ const VerticalNavTabs = () => {
                               label='Amount Committed'
                               name='amount_committed'
                               defaultValue={
-                                fundingInformationLoc?.amount_committed ||
-                                fundingInformation?.amount_committed
+                                fundingInformation?.amount_committed ||
+                                fundingInformationLoc?.amount_committed
                               }
                               register={register}
                               placeholder='Enter amount committed'
@@ -1300,8 +1244,8 @@ const VerticalNavTabs = () => {
                               label='Government Grants'
                               name='government_grants'
                               defaultValue={
-                                fundingInformationLoc?.government_grants ||
-                                fundingInformation?.government_grants
+                                fundingInformation?.government_grants ||
+                                fundingInformationLoc?.government_grants
                               }
                               register={register}
                               placeholder='Enter government grants'
@@ -1310,8 +1254,8 @@ const VerticalNavTabs = () => {
                               label='Equity Split'
                               name='equity_split'
                               defaultValue={
-                                fundingInformationLoc?.equity_split ||
-                                fundingInformation?.equity_split
+                                fundingInformation?.equity_split ||
+                                fundingInformationLoc?.equity_split
                               }
                               register={register}
                               placeholder='Enter equity split'
@@ -1320,8 +1264,8 @@ const VerticalNavTabs = () => {
                               label='Fund Utilization'
                               name='fund_utilization'
                               defaultValue={
-                                fundingInformationLoc?.fund_utilization ||
-                                fundingInformation?.fund_utilization
+                                fundingInformation?.fund_utilization ||
+                                fundingInformationLoc?.fund_utilization
                               }
                               register={register}
                               placeholder='Describe fund utilization'
@@ -1330,8 +1274,8 @@ const VerticalNavTabs = () => {
                               label='ARR'
                               name='arr'
                               defaultValue={
-                                fundingInformationLoc?.arr ||
-                                fundingInformation?.arr
+                                fundingInformation?.arr ||
+                                fundingInformationLoc?.arr
                               }
                               register={register}
                               placeholder='Enter ARR'
@@ -1340,8 +1284,8 @@ const VerticalNavTabs = () => {
                               label='MRR'
                               name='mrr'
                               defaultValue={
-                                fundingInformationLoc?.mrr ||
-                                fundingInformation?.mrr
+                                fundingInformation?.mrr ||
+                                fundingInformationLoc?.mrr
                               }
                               register={register}
                               placeholder='Enter MRR'
@@ -1474,9 +1418,6 @@ const VerticalNavTabs = () => {
                               label='Upload Certificate of Incorporation'
                               type='file'
                               name='certificateOfIncorporation'
-                              defaultValue={
-                                companyDocuments?.certificate_of_incorporation
-                              }
                               register={register}
                               placeholder='Upload Certificate of Incorporation'
                             />
@@ -1484,7 +1425,6 @@ const VerticalNavTabs = () => {
                               label='Upload GST Certificate'
                               type='file'
                               name='gstCertificate'
-                              defaultValue={companyDocuments?.gst_certificate}
                               register={register}
                               placeholder='Upload GST Certificate'
                             />
@@ -1492,7 +1432,6 @@ const VerticalNavTabs = () => {
                               label='Upload Trademark'
                               type='file'
                               name='trademark'
-                              defaultValue={companyDocuments?.trademark}
                               register={register}
                               placeholder='Upload Trademark'
                             />
@@ -1500,7 +1439,6 @@ const VerticalNavTabs = () => {
                               label='Upload Copyright'
                               type='file'
                               name='copyright'
-                              defaultValue={companyDocuments?.copyright}
                               register={register}
                               placeholder='Upload Copyright'
                             />
@@ -1508,7 +1446,6 @@ const VerticalNavTabs = () => {
                               label='Upload Patent'
                               type='file'
                               name='patent'
-                              defaultValue={companyDocuments?.patent}
                               register={register}
                               placeholder='Upload Patent'
                             />
@@ -1516,9 +1453,6 @@ const VerticalNavTabs = () => {
                               label='Upload Startup India Certificate'
                               type='file'
                               name='startupIndiaCertificate'
-                              defaultValue={
-                                companyDocuments?.startup_india_certificate
-                              }
                               register={register}
                               placeholder='Upload Startup India Certificate'
                             />
@@ -1526,9 +1460,6 @@ const VerticalNavTabs = () => {
                               label='Upload your Due-Diligence Report'
                               type='file'
                               name='dueDiligenceReport'
-                              defaultValue={
-                                companyDocuments?.due_diligence_report
-                              }
                               register={register}
                               placeholder='Upload Due-Diligence Report'
                             />
@@ -1536,9 +1467,6 @@ const VerticalNavTabs = () => {
                               label='Upload your Business Valuation report'
                               type='file'
                               name='businessValuationReport'
-                              defaultValue={
-                                companyDocuments?.business_valuation_report
-                              }
                               register={register}
                               placeholder='Upload Business Valuation Report'
                             />
@@ -1546,7 +1474,6 @@ const VerticalNavTabs = () => {
                               label='Upload your MIS'
                               type='file'
                               name='mis'
-                              defaultValue={companyDocuments?.mis}
                               register={register}
                               placeholder='Upload MIS'
                             />
@@ -1554,9 +1481,6 @@ const VerticalNavTabs = () => {
                               label='Upload your financial projections'
                               type='file'
                               name='financialProjections'
-                              defaultValue={
-                                companyDocuments?.financial_projections
-                              }
                               register={register}
                               placeholder='Upload Financial Projections'
                             />
@@ -1564,7 +1488,6 @@ const VerticalNavTabs = () => {
                               label='Upload your balance sheet'
                               type='file'
                               name='balanceSheet'
-                              defaultValue={companyDocuments?.balance_sheet}
                               register={register}
                               placeholder='Upload Balance Sheet'
                             />
@@ -1572,7 +1495,6 @@ const VerticalNavTabs = () => {
                               label='Upload your P&L Statement'
                               type='file'
                               name='plStatement'
-                              defaultValue={companyDocuments?.pl_statement}
                               register={register}
                               placeholder='Upload P&L Statement'
                             />
@@ -1580,9 +1502,6 @@ const VerticalNavTabs = () => {
                               label='Upload your cashflow statement'
                               type='file'
                               name='cashflowStatement'
-                              defaultValue={
-                                companyDocuments?.cashflow_statement
-                              }
                               register={register}
                               placeholder='Upload Cashflow Statement'
                             />
@@ -1590,7 +1509,6 @@ const VerticalNavTabs = () => {
                               label='Upload Pitch Deck'
                               type='file'
                               name='pitchDeck'
-                              defaultValue={companyDocuments?.pitch_deck}
                               register={register}
                               placeholder='Upload Pitch Deck'
                             />
@@ -1598,7 +1516,6 @@ const VerticalNavTabs = () => {
                               label='Upload Video Pitch'
                               type='file'
                               name='videoPitch'
-                              defaultValue={companyDocuments?.video_pitch}
                               register={register}
                               placeholder='Upload Video Pitch'
                             />
@@ -1606,7 +1523,6 @@ const VerticalNavTabs = () => {
                               label='Upload your SHA (Previous round/ existing round)'
                               type='file'
                               name='sha'
-                              defaultValue={companyDocuments?.sha}
                               register={register}
                               placeholder='Upload SHA'
                             />
@@ -1614,7 +1530,6 @@ const VerticalNavTabs = () => {
                               label='Upload your Termsheet (previous round/ existing round)'
                               type='file'
                               name='termsheet'
-                              defaultValue={companyDocuments?.termsheet}
                               register={register}
                               placeholder='Upload Termsheet'
                             />
@@ -1622,9 +1537,6 @@ const VerticalNavTabs = () => {
                               label='Upload your employment agreement'
                               type='file'
                               name='employmentAgreement'
-                              defaultValue={
-                                companyDocuments?.employment_agreement
-                              }
                               register={register}
                               placeholder='Upload Employment Agreement'
                             />
@@ -1632,7 +1544,6 @@ const VerticalNavTabs = () => {
                               label='Upload your MoU'
                               type='file'
                               name='mou'
-                              defaultValue={companyDocuments?.mou}
                               register={register}
                               placeholder='Upload MoU'
                             />
@@ -1640,7 +1551,6 @@ const VerticalNavTabs = () => {
                               label='Upload your NDA'
                               type='file'
                               name='nda'
-                              defaultValue={companyDocuments?.nda}
                               register={register}
                               placeholder='Upload NDA'
                             />
@@ -1653,6 +1563,7 @@ const VerticalNavTabs = () => {
                               label='Current Traction'
                               name='current_traction'
                               defaultValue={
+                                businessDetails?.current_traction ||
                                 businessDetailsLoc?.current_traction
                               }
                               register={register}
@@ -1661,7 +1572,10 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='New Customers'
                               name='new_Customers'
-                              defaultValue={businessDetailsLoc?.new_Customers}
+                              defaultValue={
+                                businessDetails?.new_Customers ||
+                                businessDetailsLoc?.new_Customers
+                              }
                               register={register}
                               placeholder='Enter number of new customers'
                             />
@@ -1669,6 +1583,7 @@ const VerticalNavTabs = () => {
                               label='Customer Acquisition Cost'
                               name='customer_AcquisitionCost'
                               defaultValue={
+                                businessDetails?.customer_AcquisitionCost ||
                                 businessDetailsLoc?.customer_AcquisitionCost
                               }
                               register={register}
@@ -1678,6 +1593,7 @@ const VerticalNavTabs = () => {
                               label='Customer Lifetime Value'
                               name='customer_Lifetime_Value'
                               defaultValue={
+                                businessDetails?.customer_Lifetime_Value ||
                                 businessDetailsLoc?.customer_Lifetime_Value
                               }
                               register={register}
@@ -1752,8 +1668,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {user?.company_name ||
-                                      companyProfileLoc?.company_name ||
                                       companyProfile?.company_name ||
+                                      companyDocumentsLoc?.company_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1768,8 +1684,8 @@ const VerticalNavTabs = () => {
                                     INCORPORATION DATE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.incorporation_date ||
-                                      companyProfile?.incorporation_date ||
+                                    {companyProfile?.incorporation_date ||
+                                      companyProfileLoc?.incorporation_date ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1784,13 +1700,13 @@ const VerticalNavTabs = () => {
                                     LOCATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.country ||
-                                      companyProfile?.country ||
-                                      'Not provided'}
+                                    {companyProfile?.country ||
+                                      companyProfileLoc?.country ||
+                                      'Not Provided'}
                                     ,{' '}
-                                    {companyProfileLoc?.state_city ||
-                                      companyProfile?.state_city ||
-                                      'Not provided'}
+                                    {companyProfile?.state_city ||
+                                      companyProfileLoc?.state_city ||
+                                      'Not Provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1804,8 +1720,8 @@ const VerticalNavTabs = () => {
                                     OFFICE ADDRESS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.office_address ||
-                                      companyProfile?.office_address ||
+                                    {companyProfile?.office_address ||
+                                      companyProfileLoc?.office_address ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1821,14 +1737,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyProfileLoc?.company_website ||
                                       companyProfile?.company_website ||
+                                      companyProfileLoc?.company_website ||
                                       '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyProfileLoc?.company_website ||
-                                      companyProfile?.company_website ||
+                                    {companyProfile?.company_website ||
+                                      companyProfileLoc?.company_website ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -1844,14 +1760,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyProfileLoc?.linkedin_profile ||
                                       companyProfile?.linkedin_profile ||
+                                      companyProfileLoc?.linkedin_profile ||
                                       '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyProfileLoc?.linkedin_profile ||
-                                      companyProfile?.linkedin_profile ||
+                                    {companyProfile?.linkedin_profile ||
+                                      companyProfileLoc?.linkedin_profile ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -1866,8 +1782,8 @@ const VerticalNavTabs = () => {
                                     BUSINESS DESCRIPTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.short_description ||
-                                      companyProfile?.short_description ||
+                                    {companyProfile?.short_description ||
+                                      companyProfileLoc?.short_description ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1882,8 +1798,8 @@ const VerticalNavTabs = () => {
                                     TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.team_size ||
-                                      companyProfile?.team_size ||
+                                    {companyProfile?.team_size ||
+                                      companyProfileLoc?.team_size ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1898,8 +1814,8 @@ const VerticalNavTabs = () => {
                                     CURRENT STAGE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.current_stage ||
-                                      companyProfile?.current_stage ||
+                                    {companyProfile?.current_stage ||
+                                      companyProfileLoc?.current_stage ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1914,8 +1830,8 @@ const VerticalNavTabs = () => {
                                     TARGET AUDIENCE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.target_audience ||
-                                      companyProfile?.target_audience ||
+                                    {companyProfile?.target_audience ||
+                                      companyProfileLoc?.target_audience ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1930,8 +1846,8 @@ const VerticalNavTabs = () => {
                                     USP/MOAT
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.usp_moat ||
-                                      companyProfile?.usp_moat ||
+                                    {companyProfile?.usp_moat ||
+                                      companyProfileLoc?.usp_moat ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1946,8 +1862,8 @@ const VerticalNavTabs = () => {
                                     INDUSTRY SECTOR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.industry_sector ||
-                                      companyProfile?.industry_sector ||
+                                    {companyProfile?.industry_sector ||
+                                      companyProfileLoc?.industry_sector ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1962,9 +1878,7 @@ const VerticalNavTabs = () => {
                                     MEDIA PRESENCE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfileLoc?.media ||
-                                      companyProfile?.media ||
-                                      'Not provided'}
+                                    {companyProfile?.media || 'Not provided'}
                                   </div>
                                 </div>
                               </li>
@@ -1979,16 +1893,16 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyProfileLoc?.company_logo ||
                                       companyProfile?.company_logo ||
+                                      companyProfileLoc?.company_logo ||
                                       '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyProfileLoc?.company_logo ||
-                                    companyProfile?.company_logo
+                                    {companyProfile?.company_logo ||
+                                    companyProfileLoc?.company_logo
                                       ? 'View Company Logo'
                                       : 'Not provided'}
                                   </a>
@@ -1996,32 +1910,31 @@ const VerticalNavTabs = () => {
                               </li>
 
                               {/* Social Media Handles */}
-                              {(
-                                companyProfileLoc?.social_media_handles ||
-                                companyProfile?.social_media_handles
-                              )?.map((handle, index) => (
-                                <li
-                                  className='flex space-x-3 rtl:space-x-reverse'
-                                  key={index}
-                                >
-                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                    <Icon icon='heroicons:share' />
-                                  </div>
-                                  <div className='flex-1'>
-                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                      {handle.platform || 'Not provided'}
+                              {companyProfile?.social_media_handles?.map(
+                                (handle, index) => (
+                                  <li
+                                    className='flex space-x-3 rtl:space-x-reverse'
+                                    key={index}
+                                  >
+                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                      <Icon icon='heroicons:share' />
                                     </div>
-                                    <a
-                                      href={handle.url || '#'}
-                                      target='_blank'
-                                      rel='noopener noreferrer'
-                                      className='text-base text-slate-600 dark:text-slate-50'
-                                    >
-                                      {handle.url || 'Not provided'}
-                                    </a>
-                                  </div>
-                                </li>
-                              ))}
+                                    <div className='flex-1'>
+                                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                        {handle.platform || 'Not provided'}
+                                      </div>
+                                      <a
+                                        href={handle.url || '#'}
+                                        target='_blank'
+                                        rel='noopener noreferrer'
+                                        className='text-base text-slate-600 dark:text-slate-50'
+                                      >
+                                        {handle.url || 'Not provided'}
+                                      </a>
+                                    </div>
+                                  </li>
+                                )
+                              )}
                             </>
                           )}
 
@@ -2036,8 +1949,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.founder_name ||
-                                      founderInformation?.founder_name ||
+                                    {founderInformation?.founder_name ||
+                                      founderInformationLoc?.founder_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2051,8 +1964,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.founder_email ||
-                                      founderInformation?.founder_email ||
+                                    {founderInformation?.founder_email ||
+                                      founderInformationLoc?.founder_email ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2066,8 +1979,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER MOBILE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.founder_mobile ||
-                                      founderInformation?.founder_mobile ||
+                                    {founderInformation?.founder_mobile ||
+                                      founderInformationLoc?.founder_mobile ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2081,8 +1994,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER LINKEDIN
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.founder_linkedin ||
-                                      founderInformation?.founder_linkedin ||
+                                    {founderInformation?.founder_linkedin ||
+                                      founderInformationLoc?.founder_linkedin ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2096,8 +2009,8 @@ const VerticalNavTabs = () => {
                                     DEGREE NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.degree_name ||
-                                      founderInformation?.degree_name ||
+                                    {founderInformation?.degree_name ||
+                                      founderInformationLoc?.degree_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2111,8 +2024,8 @@ const VerticalNavTabs = () => {
                                     COLLEGE NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.college_name ||
-                                      founderInformation?.college_name ||
+                                    {founderInformation?.college_name ||
+                                      founderInformationLoc?.college_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2126,98 +2039,16 @@ const VerticalNavTabs = () => {
                                     GRADUATION YEAR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformationLoc?.graduation_year ||
-                                      founderInformation?.graduation_year ||
+                                    {founderInformation?.graduation_year ||
+                                      founderInformationLoc?.graduation_year ||
                                       'Not provided'}
                                   </div>
                                 </div>
                               </li>
-                              {founderInformationLoc ? (
-                                <>
-                                  {founderInformationLoc?.advisors?.map(
-                                    (advisor, index) => (
-                                      <li
-                                        key={index}
-                                        className='flex space-x-3 rtl:space-x-reverse'
-                                      >
-                                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                          <Icon icon='heroicons:user-group' />
-                                        </div>
-                                        <div className='flex-1'>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Advisor Name: ${
-                                              advisor.advisor_name ||
-                                              'Not provided'
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Advisor Email: ${
-                                              advisor.advisor_email ||
-                                              'Not provided'
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Advisor Mobile: ${
-                                              advisor.advisor_mobile ||
-                                              'Not provided'
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Advisor LinkedIn: ${
-                                              advisor.advisor_linkedin ||
-                                              'Not provided'
-                                            }`}
-                                          </div>
-                                        </div>
-                                      </li>
-                                    )
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  {founderInformation?.advisors?.map(
-                                    (advisor, index) => (
-                                      <li
-                                        key={index}
-                                        className='flex space-x-3 rtl:space-x-reverse'
-                                      >
-                                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                          <Icon icon='heroicons:user-group' />
-                                        </div>
-                                        <div className='flex-1'>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Advisor Name: ${
-                                              advisor.advisor_name ||
-                                              'Not provided'
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Advisor Email: ${
-                                              advisor.advisor_email ||
-                                              'Not provided'
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Advisor Mobile: ${
-                                              advisor.advisor_mobile ||
-                                              'Not provided'
-                                            }`}
-                                          </div>
-                                          <div className='text-base text-slate-600 dark:text-slate-50'>
-                                            {`Advisor LinkedIn: ${
-                                              advisor.advisor_linkedin ||
-                                              'Not provided'
-                                            }`}
-                                          </div>
-                                        </div>
-                                      </li>
-                                    )
-                                  )}
-                                </>
-                              )}
 
-                              {founderInformationLoc?.co_founders?.map(
-                                (coFounder, index) => (
+                              {/* Advisors Section */}
+                              {founderInformation?.advisors?.map(
+                                (advisor, index) => (
                                   <li
                                     key={index}
                                     className='flex space-x-3 rtl:space-x-reverse'
@@ -2227,26 +2058,25 @@ const VerticalNavTabs = () => {
                                     </div>
                                     <div className='flex-1'>
                                       <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Name: ${
-                                          coFounder.co_founder_name ||
+                                        {`Advisor Name: ${
+                                          advisor.advisor_name || 'Not provided'
+                                        }`}
+                                      </div>
+                                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                                        {`Advisor Email: ${
+                                          advisor.advisor_email ||
                                           'Not provided'
                                         }`}
                                       </div>
                                       <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Email: ${
-                                          coFounder.co_founder_email ||
+                                        {`Advisor Mobile: ${
+                                          advisor.advisor_mobile ||
                                           'Not provided'
                                         }`}
                                       </div>
                                       <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Mobile: ${
-                                          coFounder.co_founder_mobile ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder LinkedIn: ${
-                                          coFounder.co_founder_linkedin ||
+                                        {`Advisor LinkedIn: ${
+                                          advisor.advisor_linkedin ||
                                           'Not provided'
                                         }`}
                                       </div>
@@ -2254,6 +2084,8 @@ const VerticalNavTabs = () => {
                                   </li>
                                 )
                               )}
+
+                              {/* Co-Founders Section */}
                               {founderInformation?.co_founders?.map(
                                 (coFounder, index) => (
                                   <li
@@ -2292,6 +2124,7 @@ const VerticalNavTabs = () => {
                                   </li>
                                 )
                               )}
+
                               <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:document' />
@@ -2302,9 +2135,9 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      founderInformationLoc?.co_founder_agreement ||
                                       founderInformation?.co_founder_agreement ||
-                                      'Not provided'
+                                      founderInformationLoc?.co_founder_agreement ||
+                                      '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
@@ -2328,8 +2161,8 @@ const VerticalNavTabs = () => {
                                     CTO NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfoLoc?.cto_name ||
-                                      ctoInfo?.cto_name ||
+                                    {ctoInfo?.cto_name ||
+                                      ctoInfoLoc?.cto_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2343,8 +2176,8 @@ const VerticalNavTabs = () => {
                                     EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfoLoc?.cto_email ||
-                                      ctoInfo?.cto_email ||
+                                    {ctoInfo?.cto_email ||
+                                      ctoInfoLoc?.cto_email ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2358,8 +2191,8 @@ const VerticalNavTabs = () => {
                                     MOBILE NUMBER
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfoLoc?.cto_mobile ||
-                                      ctoInfo?.cto_mobile ||
+                                    {ctoInfo?.cto_mobile ||
+                                      ctoInfoLoc?.cto_mobile ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2373,15 +2206,11 @@ const VerticalNavTabs = () => {
                                     LINKEDIN PROFILE
                                   </div>
                                   <a
-                                    href={
-                                      ctoInfoLoc?.cto_linkedin ||
-                                      ctoInfo?.cto_linkedin ||
-                                      '#'
-                                    }
+                                    href={ctoInfo?.cto_linkedin || '#'}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfoLoc?.cto_linkedin ||
-                                      ctoInfo?.cto_linkedin ||
+                                    {ctoInfo?.cto_linkedin ||
+                                      ctoInfoLoc?.cto_linkedin ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -2395,8 +2224,8 @@ const VerticalNavTabs = () => {
                                     TECH TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfoLoc?.tech_team_size ||
-                                      ctoInfo?.tech_team_size ||
+                                    {ctoInfo?.tech_team_size ||
+                                      ctoInfoLoc?.tech_team_size ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2410,15 +2239,10 @@ const VerticalNavTabs = () => {
                                     MOBILE APP LINK (IOS)
                                   </div>
                                   <a
-                                    href={
-                                      ctoInfoLoc?.mobile_app_link_ios ||
-                                      ctoInfo?.mobile_app_link_ios ||
-                                      '#'
-                                    }
+                                    href={ctoInfo?.mobile_app_link_ios || '#'}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfoLoc?.mobile_app_link_ios ||
-                                      ctoInfo?.mobile_app_link_ios ||
+                                    {ctoInfo?.mobile_app_link_ios ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -2433,14 +2257,11 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      ctoInfoLoc?.mobile_app_link_android ||
-                                      ctoInfo?.mobile_app_link_android ||
-                                      '#'
+                                      ctoInfo?.mobile_app_link_android || '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfoLoc?.mobile_app_link_android ||
-                                      ctoInfo?.mobile_app_link_android ||
+                                    {ctoInfo?.mobile_app_link_android ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -2454,17 +2275,12 @@ const VerticalNavTabs = () => {
                                     TECHNOLOGY ROADMAP
                                   </div>
                                   <a
-                                    href={
-                                      ctoInfoLoc?.technology_roadmap ||
-                                      ctoInfo?.technology_roadmap ||
-                                      '#'
-                                    }
+                                    href={ctoInfo?.technology_roadmap || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfoLoc?.technology_roadmap ||
-                                    ctoInfo?.technology_roadmap
+                                    {ctoInfo?.technology_roadmap
                                       ? 'View Technology Roadmap'
                                       : 'Not provided'}
                                   </a>
@@ -2483,8 +2299,8 @@ const VerticalNavTabs = () => {
                                     CURRENT TRACTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetailsLoc?.current_traction ||
-                                      businessDetails?.current_traction ||
+                                    {businessDetails?.current_traction ||
+                                      businessDetailsLoc?.current_traction ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2499,8 +2315,8 @@ const VerticalNavTabs = () => {
                                     MONTHS?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetailsLoc?.new_Customers ||
-                                      businessDetails?.new_Customers ||
+                                    {businessDetails?.new_Customers ||
+                                      businessDetailsLoc?.new_Customers ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2514,8 +2330,8 @@ const VerticalNavTabs = () => {
                                     WHAT IS YOUR CUSTOMER ACQUISITION COST?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetailsLoc?.customer_AcquisitionCost ||
-                                      businessDetails?.customer_AcquisitionCost ||
+                                    {businessDetails?.customer_AcquisitionCost ||
+                                      businessDetailsLoc?.customer_AcquisitionCost ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2529,8 +2345,8 @@ const VerticalNavTabs = () => {
                                     WHAT IS THE LIFETIME VALUE OF YOUR CUSTOMER?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetailsLoc?.customer_Lifetime_Value ||
-                                      businessDetails?.customer_Lifetime_Value ||
+                                    {businessDetails?.customer_Lifetime_Value ||
+                                      businessDetailsLoc?.customer_Lifetime_Value ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2550,18 +2366,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.certificate_of_incorporation ||
-                                      companyDocuments?.[0]
-                                        ?.certificate_of_incorporation ||
+                                      companyDocuments?.certificate_of_incorporation ||
                                       '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.certificate_of_incorporation ||
-                                    companyDocuments?.[0]
-                                      ?.certificate_of_incorporation
+                                    {companyDocuments?.certificate_of_incorporation
                                       ? 'View Certificate'
                                       : 'Not Provided'}
                                   </a>
@@ -2578,16 +2390,13 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.gst_certificate ||
-                                      companyDocuments?.[0]?.gst_certificate ||
-                                      '#'
+                                      companyDocuments?.gst_certificate || '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.gst_certificate ||
-                                    companyDocuments?.[0]?.gst_certificate
+                                    {companyDocuments?.gst_certificate
                                       ? 'View Certificate'
                                       : 'Not Provided'}
                                   </a>
@@ -2603,17 +2412,12 @@ const VerticalNavTabs = () => {
                                     TRADEMARK
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.trademark ||
-                                      companyDocuments?.[0]?.trademark ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.trademark || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.trademark ||
-                                    companyDocuments?.[0]?.trademark
+                                    {companyDocuments?.trademark
                                       ? 'View Trademark'
                                       : 'Not Provided'}
                                   </a>
@@ -2629,17 +2433,12 @@ const VerticalNavTabs = () => {
                                     COPYRIGHT
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.copyright ||
-                                      companyDocuments?.[0]?.copyright ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.copyright || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.copyright ||
-                                    companyDocuments?.[0]?.copyright
+                                    {companyDocuments?.copyright
                                       ? 'View Copyright'
                                       : 'Not Provided'}
                                   </a>
@@ -2655,17 +2454,12 @@ const VerticalNavTabs = () => {
                                     PATENT
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.patent ||
-                                      companyDocuments?.[0]?.patent ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.patent || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.patent ||
-                                    companyDocuments?.[0]?.patent
+                                    {companyDocuments?.patent
                                       ? 'View Patent'
                                       : 'Not Provided'}
                                   </a>
@@ -2682,18 +2476,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.startup_india_certificate ||
-                                      companyDocuments?.[0]
-                                        ?.startup_india_certificate ||
+                                      companyDocuments?.startup_india_certificate ||
                                       '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.startup_india_certificate ||
-                                    companyDocuments?.[0]
-                                      ?.startup_india_certificate
+                                    {companyDocuments?.startup_india_certificate
                                       ? 'View Certificate'
                                       : 'Not Provided'}
                                   </a>
@@ -2710,17 +2500,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.due_diligence_report ||
-                                      companyDocuments?.[0]
-                                        ?.due_diligence_report ||
+                                      companyDocuments?.due_diligence_report ||
                                       '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.due_diligence_report ||
-                                    companyDocuments?.[0]?.due_diligence_report
+                                    {companyDocuments?.due_diligence_report
                                       ? 'View Report'
                                       : 'Not Provided'}
                                   </a>
@@ -2737,18 +2524,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.business_valuation_report ||
-                                      companyDocuments?.[0]
-                                        ?.business_valuation_report ||
+                                      companyDocuments?.business_valuation_report ||
                                       '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.business_valuation_report ||
-                                    companyDocuments?.[0]
-                                      ?.business_valuation_report
+                                    {companyDocuments?.business_valuation_report
                                       ? 'View Report'
                                       : 'Not Provided'}
                                   </a>
@@ -2764,17 +2547,12 @@ const VerticalNavTabs = () => {
                                     MIS
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.mis ||
-                                      companyDocuments?.[0]?.mis ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.mis || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.mis ||
-                                    companyDocuments?.[0]?.mis
+                                    {companyDocuments?.mis
                                       ? 'View MIS'
                                       : 'Not Provided'}
                                   </a>
@@ -2791,17 +2569,15 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.financial_projections ||
-                                      companyDocuments?.[0]
-                                        ?.financial_projections ||
+                                      companyDocuments?.financial_projections ||
                                       '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.financial_projections ||
-                                    companyDocuments?.[0]?.financial_projections
+                                    {companyDocuments?.[0]
+                                      ?.financial_projections
                                       ? 'View Projections'
                                       : 'Not Provided'}
                                   </a>
@@ -2818,16 +2594,13 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.balance_sheet ||
-                                      companyDocuments?.[0]?.balance_sheet ||
-                                      '#'
+                                      companyDocuments?.balance_sheet || '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.balance_sheet ||
-                                    companyDocuments?.[0]?.balance_sheet
+                                    {companyDocuments?.balance_sheet
                                       ? 'View Balance Sheet'
                                       : 'Not Provided'}
                                   </a>
@@ -2843,17 +2616,12 @@ const VerticalNavTabs = () => {
                                     P&L STATEMENT
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.pl_statement ||
-                                      companyDocuments?.[0]?.pl_statement ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.pl_statement || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.pl_statement ||
-                                    companyDocuments?.[0]?.pl_statement
+                                    {companyDocuments?.pl_statement
                                       ? 'View P&L Statement'
                                       : 'Not Provided'}
                                   </a>
@@ -2870,17 +2638,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.cashflow_statement ||
-                                      companyDocuments?.[0]
-                                        ?.cashflow_statement ||
+                                      companyDocuments?.cashflow_statement ||
                                       '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.cashflow_statement ||
-                                    companyDocuments?.[0]?.cashflow_statement
+                                    {companyDocuments?.cashflow_statement
                                       ? 'View Cashflow Statement'
                                       : 'Not Provided'}
                                   </a>
@@ -2896,17 +2661,12 @@ const VerticalNavTabs = () => {
                                     PITCH DECK
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.pitch_deck ||
-                                      companyDocuments?.[0]?.pitch_deck ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.pitch_deck || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.pitch_deck ||
-                                    companyDocuments?.[0]?.pitch_deck
+                                    {companyDocuments?.pitch_deck
                                       ? 'View Pitch Deck'
                                       : 'Not Provided'}
                                   </a>
@@ -2922,17 +2682,12 @@ const VerticalNavTabs = () => {
                                     VIDEO PITCH
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.video_pitch ||
-                                      companyDocuments?.[0]?.video_pitch ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.video_pitch || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.video_pitch ||
-                                    companyDocuments?.[0]?.video_pitch
+                                    {companyDocuments?.video_pitch
                                       ? 'View Video Pitch'
                                       : 'Not Provided'}
                                   </a>
@@ -2948,17 +2703,12 @@ const VerticalNavTabs = () => {
                                     SHA (PREVIOUS/EXISTING ROUND)
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.sha ||
-                                      companyDocuments?.[0]?.sha ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.sha || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.sha ||
-                                    companyDocuments?.[0]?.sha
+                                    {companyDocuments?.sha
                                       ? 'View SHA'
                                       : 'Not Provided'}
                                   </a>
@@ -2974,17 +2724,12 @@ const VerticalNavTabs = () => {
                                     TERMSHEET (PREVIOUS/EXISTING ROUND)
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.termsheet ||
-                                      companyDocuments?.[0]?.termsheet ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.termsheet || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.termsheet ||
-                                    companyDocuments?.[0]?.termsheet
+                                    {companyDocuments?.termsheet
                                       ? 'View Termsheet'
                                       : 'Not Provided'}
                                   </a>
@@ -3001,17 +2746,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyDocumentsLoc?.employment_agreement ||
-                                      companyDocuments?.[0]
-                                        ?.employment_agreement ||
+                                      companyDocuments?.employment_agreement ||
                                       '#'
                                     }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.employment_agreement ||
-                                    companyDocuments?.[0]?.employment_agreement
+                                    {companyDocuments?.employment_agreement
                                       ? 'View Agreement'
                                       : 'Not Provided'}
                                   </a>
@@ -3027,17 +2769,12 @@ const VerticalNavTabs = () => {
                                     MOU
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.mou ||
-                                      companyDocuments?.[0]?.mou ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.mou || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.mou ||
-                                    companyDocuments?.[0]?.mou
+                                    {companyDocuments?.mou
                                       ? 'View MoU'
                                       : 'Not Provided'}
                                   </a>
@@ -3053,17 +2790,12 @@ const VerticalNavTabs = () => {
                                     NDA
                                   </div>
                                   <a
-                                    href={
-                                      companyDocumentsLoc?.nda ||
-                                      companyDocuments?.[0]?.nda ||
-                                      '#'
-                                    }
+                                    href={companyDocuments?.nda || '#'}
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocumentsLoc?.nda ||
-                                    companyDocuments?.[0]?.nda
+                                    {companyDocuments?.nda
                                       ? 'View NDA'
                                       : 'Not Provided'}
                                   </a>
@@ -3083,8 +2815,8 @@ const VerticalNavTabs = () => {
                                     TOTAL FUNDING ASK
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.total_funding_ask ||
-                                      fundingInformation?.total_funding_ask ||
+                                    {fundingInformation?.total_funding_ask ||
+                                      fundingInformationLoc?.total_funding_ask ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3098,8 +2830,8 @@ const VerticalNavTabs = () => {
                                     AMOUNT COMMITTED
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.amount_committed ||
-                                      fundingInformation?.amount_committed ||
+                                    {fundingInformation?.amount_committed ||
+                                      fundingInformationLoc?.amount_committed ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3113,8 +2845,8 @@ const VerticalNavTabs = () => {
                                     GOVERNMENT GRANTS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.government_grants ||
-                                      fundingInformation?.government_grants ||
+                                    {fundingInformation?.government_grants ||
+                                      fundingInformationLoc?.government_grants ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3128,8 +2860,8 @@ const VerticalNavTabs = () => {
                                     EQUITY SPLIT
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.equity_split ||
-                                      fundingInformation?.equity_split ||
+                                    {fundingInformation?.equity_split ||
+                                      fundingInformationLoc?.equity_split ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3143,8 +2875,8 @@ const VerticalNavTabs = () => {
                                     FUND UTILIZATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.fund_utilization ||
-                                      fundingInformation?.fund_utilization ||
+                                    {fundingInformation?.fund_utilization ||
+                                      fundingInformationLoc?.fund_utilization ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3158,8 +2890,8 @@ const VerticalNavTabs = () => {
                                     ARR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.arr ||
-                                      fundingInformation?.arr ||
+                                    {fundingInformation?.arr ||
+                                      fundingInformationLoc?.arr ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3173,8 +2905,8 @@ const VerticalNavTabs = () => {
                                     MRR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.mrr ||
-                                      fundingInformation?.mrr ||
+                                    {fundingInformation?.mrr ||
+                                      fundingInformationLoc?.mrr ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3190,29 +2922,27 @@ const VerticalNavTabs = () => {
                                     PREVIOUS FUNDING INFORMATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.previous_funding
-                                      ?.length > 0 ||
-                                    fundingInformation?.previous_funding
+                                    {fundingInformation?.previous_funding
                                       ?.length > 0 ? (
                                       <ul>
-                                        {(
-                                          fundingInformationLoc?.previous_funding ||
-                                          fundingInformation?.previous_funding
-                                        ).map((funding, index) => (
-                                          <li key={index}>
-                                            Investor Name:{' '}
-                                            {funding.investorName ||
-                                              'Not provided'}
-                                            , Firm Name:{' '}
-                                            {funding.firmName || 'Not provided'}
-                                            , Investor Type:{' '}
-                                            {funding.investorType ||
-                                              'Not provided'}
-                                            , Amount Raised:{' '}
-                                            {funding.amountRaised ||
-                                              'Not provided'}
-                                          </li>
-                                        ))}
+                                        {(fundingInformation?.previous_funding).map(
+                                          (funding, index) => (
+                                            <li key={index}>
+                                              Investor Name:{' '}
+                                              {funding.investorName ||
+                                                'Not provided'}
+                                              , Firm Name:{' '}
+                                              {funding.firmName ||
+                                                'Not provided'}
+                                              , Investor Type:{' '}
+                                              {funding.investorType ||
+                                                'Not provided'}
+                                              , Amount Raised:{' '}
+                                              {funding.amountRaised ||
+                                                'Not provided'}
+                                            </li>
+                                          )
+                                        )}
                                       </ul>
                                     ) : (
                                       'Not provided'
@@ -3229,22 +2959,21 @@ const VerticalNavTabs = () => {
                                     CAP TABLE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformationLoc?.cap_table?.length >
-                                      0 ||
-                                    fundingInformation?.cap_table?.length >
-                                      0 ? (
+                                    {fundingInformation?.cap_table?.length >
+                                    0 ? (
                                       <ul>
-                                        {(
-                                          fundingInformationLoc?.cap_table ||
-                                          fundingInformation?.cap_table
-                                        ).map((entry, index) => (
-                                          <li key={index}>
-                                            {entry.role || 'Role not specified'}
-                                            :{' '}
-                                            {entry.percentage || 'Not provided'}
-                                            %
-                                          </li>
-                                        ))}
+                                        {(fundingInformation?.cap_table).map(
+                                          (entry, index) => (
+                                            <li key={index}>
+                                              {entry.role ||
+                                                'Role not specified'}
+                                              :{' '}
+                                              {entry.percentage ||
+                                                'Not provided'}
+                                              %
+                                            </li>
+                                          )
+                                        )}
                                       </ul>
                                     ) : (
                                       'Not provided'
