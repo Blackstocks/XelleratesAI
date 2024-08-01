@@ -302,12 +302,13 @@ const FormWizard = () => {
               company_id: companyId,
               total_funding_ask: data.totalFundingAsk,
               amount_committed: data.amountCommitted,
-              current_cap_table: uploadedFiles.currentCapTable || '',
+              // current_cap_table: uploadedFiles.currentCapTable || '',
               government_grants: data.governmentGrants,
               equity_split: data.equitySplit,
               fund_utilization: data.fundUtilization,
               arr: data.arr,
               mrr: data.mrr,
+              capTable: data.capTable || [],
             },
           ]);
 

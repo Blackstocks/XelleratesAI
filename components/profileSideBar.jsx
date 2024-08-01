@@ -82,7 +82,7 @@ const fileFields = [
   { name: 'mis', label: 'MIS' },
   { name: 'pitch_deck', label: 'Pitch Deck' },
   { name: 'video_pitch', label: 'Video Pitch' },
-  { name: 'current_cap_table', label: 'Current Cap Table' },
+  // { name: 'current_cap_table', label: 'Current Cap Table' },
   { name: 'technology_roadmap', label: 'Technology Roadmap' },
   { name: 'list_of_advisers', label: 'List of Advisers' },
   { name: 'trademark', label: 'Trademark' },
@@ -175,6 +175,15 @@ const VerticalNavTabs = () => {
     name: 'advisors',
   });
 
+  const {
+    fields: capTableFields,
+    append: appendCapTable,
+    remove: removeCapTable,
+  } = useFieldArray({
+    control,
+    name: 'capTable',
+  });
+
   const { user, loading } = useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const [founderInformationLoc, setFounderInformationLoc] = useState(null);
@@ -249,16 +258,16 @@ const VerticalNavTabs = () => {
             }
             break;
 
-          case 'funding_info':
-            if (data.current_cap_table && data.current_cap_table[0]) {
-              uploadedFiles.current_cap_table = await handleFileUpload(
-                data.current_cap_table[0],
-                'documents',
-                companyProfile?.company_name || data.company_name,
-                'current_cap_table'
-              );
-            }
-            break;
+          // case 'funding_info':
+          //   if (data.current_cap_table && data.current_cap_table[0]) {
+          //     uploadedFiles.current_cap_table = await handleFileUpload(
+          //       data.current_cap_table[0],
+          //       'documents',
+          //       companyProfile?.company_name || data.company_name,
+          //       'current_cap_table'
+          //     );
+          //   }
+          //   break;
 
           // Add more cases for other sections as needed
         }
@@ -407,7 +416,8 @@ const VerticalNavTabs = () => {
             cto_mobile: data.cto_mobile || null,
             cto_linkedin: data.cto_linkedin || null,
             tech_team_size: data.tech_team_size || null,
-            mobile_app_link: data.mobile_app_link || null,
+            mobile_app_link_ios: data.mobile_app_link_ios || null,
+            mobile_app_link_android: data.mobile_app_link_android || null,
             technology_roadmap: uploadedFiles.technology_roadmap || null,
           };
 
@@ -529,19 +539,19 @@ const VerticalNavTabs = () => {
           break;
 
         case 'funding_info':
-          const emptyFundingInfo =
-            !fundingInformation?.id || !fundingInformationLoc?.id;
+          const emptyFundingInfo = !fundingInformation?.id;
           const fundingData = {
             company_id: companyProfile?.id,
             total_funding_ask: data.total_funding_ask || null,
             amount_committed: data.amount_committed || null,
-            current_cap_table: uploadedFiles.current_cap_table || null,
+            // current_cap_table: uploadedFiles.current_cap_table || null,
             government_grants: data.government_grants || null,
             equity_split: data.equity_split || null,
             fund_utilization: data.fund_utilization || null,
             arr: data.arr || null,
             mrr: data.mrr || null,
             previous_funding: data.funding || [], // Ensure this is handled correctly as JSONB
+            capTable: data.capTable || [], // Cap table data including role and percentage
           };
 
           try {
@@ -600,7 +610,7 @@ const VerticalNavTabs = () => {
     <Card>
       <Tab.Group>
         <div className='grid grid-cols-12 lg:gap-5 md:gap-5'>
-          <div className='2xl:col-span-2 lg:col-span-3 lg:gap-5 md:col-span-5 col-span-12'>
+          <div className='2xl:col-span-2 xl:col-span-3 lg:col-span-3 lg:gap-5 md:col-span-5 col-span-12'>
             <Tab.List className='max-w-max'>
               {sections.map((item, i) => (
                 <Tab key={i} as={Fragment}>
@@ -948,28 +958,37 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='CTO Name'
                               name='cto_name'
-                              defaultValue={ctoInfoLoc?.cto_name}
+                              defaultValue={
+                                ctoInfoLoc?.cto_name || ctoInfo?.cto_name
+                              }
                               register={register}
                               placeholder='Enter CTO name'
                             />
                             <Textinput
                               label='Email'
                               name='cto_email'
-                              defaultValue={ctoInfoLoc?.cto_email}
+                              defaultValue={
+                                ctoInfoLoc?.cto_email || ctoInfo?.cto_email
+                              }
                               register={register}
                               placeholder='Enter CTO email'
                             />
                             <Textinput
                               label='Mobile Number'
                               name='cto_mobile'
-                              defaultValue={ctoInfoLoc?.cto_mobile}
+                              defaultValue={
+                                ctoInfoLoc?.cto_mobile || ctoInfo?.cto_mobile
+                              }
                               register={register}
                               placeholder='Enter CTO mobile number'
                             />
                             <Textinput
                               label='LinkedIn Profile'
                               name='cto_linkedin'
-                              defaultValue={ctoInfoLoc?.cto_linkedin}
+                              defaultValue={
+                                ctoInfoLoc?.cto_linkedin ||
+                                ctoInfo?.cto_linkedin
+                              }
                               register={register}
                               placeholder='Enter CTO LinkedIn profile URL'
                             />
@@ -977,16 +996,32 @@ const VerticalNavTabs = () => {
                               label='Tech Team Size'
                               type='number'
                               name='tech_team_size'
-                              defaultValue={ctoInfoLoc?.tech_team_size}
+                              defaultValue={
+                                ctoInfoLoc?.tech_team_size ||
+                                ctoInfo?.tech_team_size
+                              }
                               register={register}
                               placeholder='Enter tech team size'
                             />
                             <Textinput
-                              label='Mobile App Link'
-                              name='mobile_app_link'
-                              defaultValue={ctoInfoLoc?.mobile_app_link}
+                              label='MOBILE APP LINK (IOS)'
+                              name='mobile_app_link_ios'
+                              defaultValue={
+                                ctoInfoLoc?.mobile_app_link_ios ||
+                                ctoInfo?.mobile_app_link_ios
+                              }
                               register={register}
-                              placeholder='Enter mobile app link'
+                              placeholder='Enter mobile app link (iOS)'
+                            />
+                            <Textinput
+                              label='MOBILE APP LINK (Android)'
+                              name='mobile_app_link_android'
+                              defaultValue={
+                                ctoInfoLoc?.mobile_app_link_android ||
+                                ctoInfo?.mobile_app_link_android
+                              }
+                              register={register}
+                              placeholder='Enter mobile app link (Android)'
                             />
                             <InputGroup
                               label='Upload Technology Roadmap'
@@ -1245,7 +1280,8 @@ const VerticalNavTabs = () => {
                               label='Total Funding Ask'
                               name='total_funding_ask'
                               defaultValue={
-                                fundingInformationLoc?.total_funding_ask
+                                fundingInformationLoc?.total_funding_ask ||
+                                fundingInformation?.total_funding_ask
                               }
                               register={register}
                               placeholder='Enter total funding ask'
@@ -1254,7 +1290,8 @@ const VerticalNavTabs = () => {
                               label='Amount Committed'
                               name='amount_committed'
                               defaultValue={
-                                fundingInformationLoc?.amount_committed
+                                fundingInformationLoc?.amount_committed ||
+                                fundingInformation?.amount_committed
                               }
                               register={register}
                               placeholder='Enter amount committed'
@@ -1263,7 +1300,8 @@ const VerticalNavTabs = () => {
                               label='Government Grants'
                               name='government_grants'
                               defaultValue={
-                                fundingInformationLoc?.government_grants
+                                fundingInformationLoc?.government_grants ||
+                                fundingInformation?.government_grants
                               }
                               register={register}
                               placeholder='Enter government grants'
@@ -1271,7 +1309,10 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Equity Split'
                               name='equity_split'
-                              defaultValue={fundingInformationLoc?.equity_split}
+                              defaultValue={
+                                fundingInformationLoc?.equity_split ||
+                                fundingInformation?.equity_split
+                              }
                               register={register}
                               placeholder='Enter equity split'
                             />
@@ -1279,7 +1320,8 @@ const VerticalNavTabs = () => {
                               label='Fund Utilization'
                               name='fund_utilization'
                               defaultValue={
-                                fundingInformationLoc?.fund_utilization
+                                fundingInformationLoc?.fund_utilization ||
+                                fundingInformation?.fund_utilization
                               }
                               register={register}
                               placeholder='Describe fund utilization'
@@ -1287,14 +1329,20 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='ARR'
                               name='arr'
-                              defaultValue={fundingInformationLoc?.arr}
+                              defaultValue={
+                                fundingInformationLoc?.arr ||
+                                fundingInformation?.arr
+                              }
                               register={register}
                               placeholder='Enter ARR'
                             />
                             <Textinput
                               label='MRR'
                               name='mrr'
-                              defaultValue={fundingInformationLoc?.mrr}
+                              defaultValue={
+                                fundingInformationLoc?.mrr ||
+                                fundingInformation?.mrr
+                              }
                               register={register}
                               placeholder='Enter MRR'
                             />
@@ -1364,6 +1412,55 @@ const VerticalNavTabs = () => {
                                       investorType: '',
                                       amountRaised: '',
                                     })
+                                  }
+                                />
+                              </div>
+                            </div>
+                            <div className='mt-4'>
+                              <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
+                                Cap Table
+                              </div>
+                              {capTableFields.map((item, index) => (
+                                <div
+                                  className='lg:grid-cols-5 md:grid-cols-4 grid-cols-1 grid gap-5 mb-5 last:mb-0'
+                                  key={item.id}
+                                >
+                                  <Textinput
+                                    label='Role'
+                                    type='text'
+                                    id={`role${index}`}
+                                    placeholder='e.g., Founder, Investor'
+                                    register={register}
+                                    name={`capTable[${index}].role`}
+                                    defaultValue={item.role || ''}
+                                  />
+                                  <Textinput
+                                    label='Percentage'
+                                    type='number'
+                                    id={`percentage${index}`}
+                                    placeholder='Percentage'
+                                    register={register}
+                                    name={`capTable[${index}].percentage`}
+                                    defaultValue={item.percentage || ''}
+                                  />
+                                  <div className='ml-auto mt-auto relative'>
+                                    <button
+                                      onClick={() => removeCapTable(index)}
+                                      type='button'
+                                      className='inline-flex items-center justify-center h-10 w-10 bg-danger-500 text-lg border rounded border-danger-500 text-white'
+                                    >
+                                      <Icon icon='heroicons-outline:trash' />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                              <div className='mt-4'>
+                                <Button
+                                  text='Add new'
+                                  icon='heroicons-outline:plus'
+                                  className='text-slate-600 p-0 dark:text-slate-300'
+                                  onClick={() =>
+                                    appendCapTable({ role: '', percentage: '' })
                                   }
                                 />
                               </div>
@@ -2310,18 +2407,40 @@ const VerticalNavTabs = () => {
                                 </div>
                                 <div className='flex-1'>
                                   <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    MOBILE APP LINK
+                                    MOBILE APP LINK (IOS)
                                   </div>
                                   <a
                                     href={
-                                      ctoInfoLoc?.mobile_app_link ||
-                                      ctoInfo?.mobile_app_link ||
+                                      ctoInfoLoc?.mobile_app_link_ios ||
+                                      ctoInfo?.mobile_app_link_ios ||
                                       '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfoLoc?.mobile_app_link ||
-                                      ctoInfo?.mobile_app_link ||
+                                    {ctoInfoLoc?.mobile_app_link_ios ||
+                                      ctoInfo?.mobile_app_link_ios ||
+                                      'Not provided'}
+                                  </a>
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:link' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    MOBILE APP LINK (Android)
+                                  </div>
+                                  <a
+                                    href={
+                                      ctoInfoLoc?.mobile_app_link_android ||
+                                      ctoInfo?.mobile_app_link_android ||
+                                      '#'
+                                    }
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {ctoInfoLoc?.mobile_app_link_android ||
+                                      ctoInfo?.mobile_app_link_android ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -3060,6 +3179,47 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </div>
                               </li>
+
+                              {/* Render Previous Funding Information */}
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:banknotes' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    PREVIOUS FUNDING INFORMATION
+                                  </div>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.previous_funding
+                                      ?.length > 0 ||
+                                    fundingInformation?.previous_funding
+                                      ?.length > 0 ? (
+                                      <ul>
+                                        {(
+                                          fundingInformationLoc?.previous_funding ||
+                                          fundingInformation?.previous_funding
+                                        ).map((funding, index) => (
+                                          <li key={index}>
+                                            Investor Name:{' '}
+                                            {funding.investorName ||
+                                              'Not provided'}
+                                            , Firm Name:{' '}
+                                            {funding.firmName || 'Not provided'}
+                                            , Investor Type:{' '}
+                                            {funding.investorType ||
+                                              'Not provided'}
+                                            , Amount Raised:{' '}
+                                            {funding.amountRaised ||
+                                              'Not provided'}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    ) : (
+                                      'Not provided'
+                                    )}
+                                  </div>
+                                </div>
+                              </li>
                               <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:document' />
@@ -3068,95 +3228,30 @@ const VerticalNavTabs = () => {
                                   <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
                                     CAP TABLE
                                   </div>
-                                  <a
-                                    href={
-                                      fundingInformationLoc?.current_cap_table ||
-                                      fundingInformation?.current_cap_table ||
-                                      '#'
-                                    }
-                                    target='_blank'
-                                    rel='noopener noreferrer'
-                                    className='text-base text-slate-600 dark:text-slate-50'
-                                  >
-                                    {fundingInformationLoc?.current_cap_table ||
-                                    fundingInformation?.current_cap_table
-                                      ? 'View Cap Table'
-                                      : 'Not provided'}
-                                  </a>
+                                  <div className='text-base text-slate-600 dark:text-slate-50'>
+                                    {fundingInformationLoc?.cap_table?.length >
+                                      0 ||
+                                    fundingInformation?.cap_table?.length >
+                                      0 ? (
+                                      <ul>
+                                        {(
+                                          fundingInformationLoc?.cap_table ||
+                                          fundingInformation?.cap_table
+                                        ).map((entry, index) => (
+                                          <li key={index}>
+                                            {entry.role || 'Role not specified'}
+                                            :{' '}
+                                            {entry.percentage || 'Not provided'}
+                                            %
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    ) : (
+                                      'Not provided'
+                                    )}
+                                  </div>
                                 </div>
                               </li>
-                              {/* Render Previous Funding Information */}
-                              <div className='mt-4 text-slate-600 dark:text-slate-300 uppercase text-xs font-medium mb-1 leading-[12px]'>
-                                Previous Funding Information
-                              </div>
-                              {fundingInformationLoc?.previous_funding?.map(
-                                (funding, index) => (
-                                  <li
-                                    key={index}
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:banknotes' />
-                                    </div>
-                                    <div className='flex-1'>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Investor Name: ${
-                                          funding.investorName || 'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Firm Name: ${
-                                          funding.firmName || 'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Investor Type: ${
-                                          funding.investorType || 'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Amount Raised: ${
-                                          funding.amountRaised || 'Not provided'
-                                        }`}
-                                      </div>
-                                    </div>
-                                  </li>
-                                )
-                              )}
-                              {fundingInformation?.previous_funding?.map(
-                                (funding, index) => (
-                                  <li
-                                    key={index}
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:banknotes' />
-                                    </div>
-                                    <div className='flex-1'>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Investor Name: ${
-                                          funding.investorName || 'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Firm Name: ${
-                                          funding.firmName || 'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Investor Type: ${
-                                          funding.investorType || 'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Amount Raised: ${
-                                          funding.amountRaised || 'Not provided'
-                                        }`}
-                                      </div>
-                                    </div>
-                                  </li>
-                                )
-                              )}
                             </>
                           )}
                         </ul>

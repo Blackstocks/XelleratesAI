@@ -57,7 +57,7 @@ const useStartups = () => {
               funding_information(
                 total_funding_ask,
                 amount_committed,
-                current_cap_table,
+               cap_table,
                 government_grants,
                 equity_split,
                 fund_utilization,
@@ -71,7 +71,8 @@ const useStartups = () => {
                 cto_mobile,
                 cto_linkedin,
                 tech_team_size,
-                mobile_app_link,
+                mobile_app_link_ios,
+                mobile_app_link_android,
                 technology_roadmap
               ),
               company_documents (
