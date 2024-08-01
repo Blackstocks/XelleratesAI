@@ -17,7 +17,7 @@ import HistoryChart from '@/components/partials/widget/chart/history-chart';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import { DocumentProvider } from '@/context/DocumentContext';
 import Loading from '@/components/Loading';
-import CompetitorsCard from '@/components/partials/widget/CompetitorsCard';
+import CompetitorsCard from '@/components/partials/widget/competitorsCard';
 
 const CardSlider = dynamic(
   () => import('@/components/partials/widget/CardSlider_portfolio'),
