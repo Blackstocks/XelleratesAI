@@ -1,197 +1,112 @@
-// 'use client';
-// import React, { useState } from 'react';
-// import dynamic from 'next/dynamic';
-// import Card from '@/components/ui/Card';
-// import Textinput from '@/components/ui/Textinput';
-// import GroupChart5 from '@/components/partials/widget/chart/group-chart5';
-// import Link from 'next/link';
-// import SimpleBar from 'simplebar-react';
-// import HistoryChart from '@/components/partials/widget/chart/history-chart';
-// import AccountReceivable from '@/components/partials/widget/chart/account-receivable';
-// import AccountPayable from '@/components/partials/widget/chart/account-payable';
+"use client";
+import React, { useEffect, useState } from "react";
+import useCompleteUserDetails from "@/hooks/useCompleUserDetails";
 
-// const CardSlider = dynamic(
-//   () => import('@/components/partials/widget/CardSlider'),
-//   {
-//     ssr: false,
-//   }
-// );
-// import TransactionsTable from '@/components/partials/table/transactions';
-// import SelectMonth from '@/components/partials/SelectMonth';
-// import HomeBredCurbs from '@/components/partials/HomeBredCurbs';
+const Vault = () => {
+  const { companyDocuments, loading, error } = useCompleteUserDetails();
+  const [documents, setDocuments] = useState([]);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState(null);
 
-// const users = [
-//   {
-//     name: 'Ab',
-//   },
-//   {
-//     name: 'Bc',
-//   },
-//   {
-//     name: 'Cd',
-//   },
-//   {
-//     name: 'Df',
-//   },
-//   {
-//     name: 'Ab',
-//   },
-//   {
-//     name: 'Sd',
-//   },
-//   {
-//     name: 'Sg',
-//   },
-// ];
+  useEffect(() => {
+    if (!loading && companyDocuments) {
+      setDocuments(companyDocuments);
+    }
+  }, [loading, companyDocuments]);
 
-// const BankingPage = () => {
-//   const [activeIndex, setActiveIndex] = useState(0);
-//   return (
-//     <div className='space-y-5'>
-//       <HomeBredCurbs title='Banking' />
-//       <Card>
-//         <div className='grid xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-5 place-content-center'>
-//           <div className='flex space-x-4 h-full items-center rtl:space-x-reverse'>
-//             <div className='flex-none'>
-//               <div className='h-20 w-20 rounded-full'>
-//                 <img
-//                   src='/assets/images/all-img/main-user.png'
-//                   alt=''
-//                   className='w-full h-full'
-//                 />
-//               </div>
-//             </div>
-//             <div className='flex-1'>
-//               <h4 className='text-xl font-medium mb-2'>
-//                 <span className='block font-light'>Good evening,</span>
-//                 <span className='block'>Mr. Jone Doe</span>
-//               </h4>
-//               <p className='text-sm dark:text-slate-300'>Welcome to Dashcode</p>
-//             </div>
-//           </div>
-//           <GroupChart5 />
-//         </div>
-//       </Card>
-//       <div className='grid grid-cols-12 gap-5'>
-//         <div className='lg:col-span-4 col-span-12 space-y-5'>
-//           <Card title='My card'>
-//             <div className='max-w-[90%] mx-auto mt-2'>
-//               <CardSlider />
-//             </div>
-//           </Card>
-//           <Card title='Quick transfer'>
-//             <div className='space-y-6'>
-//               <div className='bg-slate-50 dark:bg-slate-900 rounded-md p-4'>
-//                 <div className='flex justify-between mb-2'>
-//                   <span className='text-lg text-slate-900 dark:text-white'>
-//                     Contacts
-//                   </span>
-//                   <Link
-//                     href='#'
-//                     className='font-medium text-slate-900 dark:text-white underline text-sm'
-//                   >
-//                     View all
-//                   </Link>
-//                 </div>
-//                 <SimpleBar>
-//                   <ul className='flex space-x-6 py-3 px-1'>
-//                     {users.map((item, i) => (
-//                       <li
-//                         key={i}
-//                         onClick={() => setActiveIndex(i)}
-//                         className={` h-[42px] w-[42px] cursor-pointer text-xl font-medium capitalize flex-none rounded-full bg-primary-500 text-white flex flex-col items-center justify-center
-//                      ${
-//                        activeIndex === i
-//                          ? 'ring-2 ring-primary-500 ring-offset-2 '
-//                          : ''
-//                      }
-//                       `}
-//                       >
-//                         {item.name}
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 </SimpleBar>
-//               </div>
-//               <div className='bg-slate-100 dark:bg-slate-900 rounded-md p-4'>
-//                 <span
-//                   className='text-xs text-slate-500 dark:text-slate-400 block mb-1 cursor-pointer font-normal'
-//                   htmlFor='cdp'
-//                 >
-//                   Amount
-//                 </span>
-//                 <Textinput
-//                   placeholder='$6547'
-//                   id='cdp'
-//                   className='bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 placeholder:font-medium  h-auto font-medium'
-//                 />
-//               </div>
-//               <div className='bg-slate-100 dark:bg-slate-900 rounded-md p-4'>
-//                 <label
-//                   className='text-xs text-slate-500 dark:text-slate-400 block cursor-pointer mb-1'
-//                   htmlFor='cd'
-//                 >
-//                   Recipient account number
-//                 </label>
+  const openModal = (documentUrl) => {
+    setSelectedDocument(documentUrl);
+    setModalIsOpen(true);
+  };
 
-//                 <Textinput
-//                   placeholder='3458-3548-6548-3244'
-//                   isMask
-//                   id='cd'
-//                   className='bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 h-auto placeholder:font-medium font-medium'
-//                 />
-//               </div>
-//               <div className='flex justify-between'>
-//                 <div>
-//                   <span className='text-xs text-slate-500 dark:text-slate-400 block mb-1'>
-//                     Total amount
-//                   </span>
-//                   <span className='text-lg font-medium text-slate-900 dark:text-white block'>
-//                     $6547
-//                   </span>
-//                 </div>
-//                 <div>
-//                   <button type='button' className='btn btn-dark'>
-//                     Send money
-//                   </button>
-//                 </div>
-//               </div>
-//             </div>
-//           </Card>
-//         </div>
-//         <div className='lg:col-span-8 col-span-12'>
-//           <div className='space-y-5 bank-table'>
-//             <TransactionsTable />
-//             <Card title='History' headerslot={<SelectMonth />}>
-//               <div className='legend-ring4'>
-//                 <HistoryChart />
-//               </div>
-//             </Card>
-//           </div>
-//         </div>
-//       </div>
-//       {/* <div className='grid lg:grid-cols-2 grid-cols-1 gap-5'>
-//         <Card title='Account Receivable' headerslot={<SelectMonth />}>
-//           <AccountReceivable />
-//         </Card>
-//         <Card title='Account Payable' headerslot={<SelectMonth />}>
-//           <AccountPayable />
-//         </Card>
-//       </div> */}
-//     </div>
-//   );
-// };
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedDocument(null);
+  };
 
-// export default BankingPage;
-import React from 'react';
-import ComingSoonPage from '@/components/coming-soon/page';
-
-const page = () => {
   return (
-    <div>
-      <ComingSoonPage />
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4 text-center">Documents Vault</h2>
+      {loading && <p className="text-center">Loading...</p>}
+      {error && <p className="text-center text-red-500">{error}</p>}
+      {!loading && !error && (
+        <table className="min-w-full bg-white dark:bg-slate-800">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center">
+                Document Type
+              </th>
+              <th className="py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center">
+                View Document
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {documents.map((document, index) =>
+              Object.entries(document).map(
+                ([key, value]) =>
+                  key !== "id" &&
+                  key !== "company_id" &&
+                  key !== "created_at" &&
+                  value && (
+                    <tr key={`${index}-${key}`}>
+                      <td className="py-2 px-4 border-b border-slate-200 dark:border-slate-700 capitalize text-center">
+                        {key.replace(/_/g, " ")}
+                      </td>
+                      <td className="py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center">
+                        <button
+                          onClick={() => openModal(value)}
+                          className="text-blue-500 hover:underline"
+                        >
+                          View Document
+                        </button>
+                      </td>
+                    </tr>
+                  )
+              )
+            )}
+          </tbody>
+        </table>
+      )}
+
+      {modalIsOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 mt-10">
+          <div
+            className="fixed inset-0 bg-black opacity-75 z-40 mt-10"
+            onClick={closeModal}
+          ></div>
+          <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all w-3/5 h-4/5 p-6 relative z-50">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 p-2 text-gray-500 hover:text-red-500"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            {selectedDocument && (
+              <iframe
+                src={selectedDocument}
+                className="w-full h-full"
+                title="Document Viewer"
+              ></iframe>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default page;
+export default Vault;

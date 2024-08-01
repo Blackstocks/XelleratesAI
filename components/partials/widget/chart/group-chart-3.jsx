@@ -1,25 +1,45 @@
 "use client";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseclient";
 import Icon from "@/components/ui/Icon";
 
-const statistics = [
-  {
-    title: "Available Investors",
-    count: "10",
-    img: "/assets/images/dashboard/sdash1.png",
-  },
-  {
-    title: "Reach Out",
-    count: "5",
-    img: "/assets/images/dashboard/sdash2.png",
-  },
-  {
-    title: "Interest Received",
-    count: "8",
-    img: "/assets/images/dashboard/sdash3.png",
-  },
-];
-
 const GroupChart3 = () => {
+  const [investorCount, setInvestorCount] = useState(0);
+
+  useEffect(() => {
+    const fetchInvestorCount = async () => {
+      const { count, error } = await supabase
+        .from("investor_signup")
+        .select("*", { count: "exact" });
+
+      if (error) {
+        console.error("Error fetching investor count:", error);
+      } else {
+        setInvestorCount(count);
+      }
+    };
+
+    fetchInvestorCount();
+  }, []);
+
+  const statistics = [
+    {
+      title: "Available Investors",
+      count: investorCount.toString(),
+      img: "/assets/images/dashboard/sdash1.png",
+    },
+    {
+      title: "Reach Out",
+      count: "0",
+      img: "/assets/images/dashboard/sdash2.png",
+    },
+    {
+      title: "Interest Received",
+      count: "0",
+      img: "/assets/images/dashboard/sdash3.png",
+    },
+  ];
+
   return (
     <div className="flex gap-4">
       {statistics.map((item, i) => (

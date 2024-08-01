@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ComingSoonModal from "@/components/ComingSoonModal";
 import ImageBlock2 from "@/components/partials/widget/block/image-block-2";
 
 const HomeBredCurbs = ({ title, companyName, userType }) => {
@@ -9,6 +10,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     endDate: new Date().setMonth(11),
   });
   const [greeting, setGreeting] = useState("Good evening");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const currentHour = new Date().getHours();
@@ -25,10 +27,12 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     setValue(newValue);
   };
 
-  const handleDownloadReport = () => {
-    toast.success(
-      "Your investment readiness report has been successfully sent to your email."
-    );
+  const handleImageClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -65,12 +69,14 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
               <img
                 src="/assets/images/dashboard/investment-readiness.png"
                 alt="Investment Readiness"
-                className="block dark:hidden w-50% h-auto"
+                className="block dark:hidden w-50% h-auto cursor-pointer"
+                onClick={handleImageClick}
               />
               <img
                 src="/assets/images/dashboard/investment-redinessdark.png"
                 alt="Investment Readiness Dark"
-                className="hidden dark:block w-50% h-auto"
+                className="hidden dark:block w-50% h-auto cursor-pointer"
+                onClick={handleImageClick}
               />
             </>
           ) : (
@@ -79,17 +85,20 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
                 src="/assets/images/dashboard/latest-insight.png"
                 alt="Latest Insight"
                 className="block dark:hidden w-full h-auto"
+                onClick={handleImageClick}
               />
               <img
                 src="/assets/images/dashboard/latest-insightdark.png"
                 alt="Latest Insight Dark"
                 className="hidden dark:block w-full h-auto"
+                onClick={handleImageClick}
               />
             </>
           )}
         </div>
       </div>
 
+      <ComingSoonModal isOpen={isModalOpen} onClose={handleCloseModal} />
       <ToastContainer />
 
       <style jsx>{`
