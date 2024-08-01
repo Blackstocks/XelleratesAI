@@ -179,7 +179,7 @@ const CuratedDealflow = () => {
       <main className='container mx-auto p-4'>
         <h1 className='text-3xl font-bold mb-4 text-center'>Curated Dealflow</h1>
         <p className='mb-6 text-center'>
-          Welcome to the Global Dealflow page. Here you can find the latest deal
+          Welcome to the Curated Dealflow page. Here you can find the latest deal
           flow opportunities from around the world.
         </p>
         <div className='flex flex-col lg:flex-row lg:items-center lg:space-x-4 mb-4'>

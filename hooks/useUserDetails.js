@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 
 const useUserDetails = () => {
@@ -9,17 +9,15 @@ const useUserDetails = () => {
   const fetchUserDetails = async () => {
     setLoading(true);
     try {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+      const { data, error } = await supabase.auth.getUser();
       if (error) throw error;
 
-      if (user) {
+      const currentUser = data.user;
+      if (currentUser) {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', user.id)
+          .eq('id', currentUser.id)
           .single();
         if (profileError) throw profileError;
 
@@ -29,13 +27,13 @@ const useUserDetails = () => {
           const { data: investor, error: investorError } = await supabase
             .from('investor_signup')
             .select('*')
-            .eq('profile_id', user.id)
+            .eq('profile_id', profile.id)
             .single();
           if (investorError) throw investorError;
 
           setDetails({ ...investor, type: 'investor' });
         } else if (profile.user_type === 'startup') {
-          await fetchStartupDetails(user.id);
+          await fetchStartupDetails(profile.id);
         }
       }
     } catch (error) {
@@ -64,7 +62,7 @@ const useUserDetails = () => {
           .from(table)
           .select('*')
           .eq('company_id', companyId)
-          .maybeSingle(); // Use maybeSingle to handle zero rows gracefully
+          .single();
         if (error) throw error;
         return data;
       };

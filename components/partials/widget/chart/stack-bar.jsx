@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import useDarkMode from "@/hooks/useDarkMode";
@@ -8,18 +8,15 @@ const StackBarChart = ({ height = 410 }) => {
   const [isDark] = useDarkMode();
   const series = [
     {
-      name: "Sales qualified",
-      data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
+      name: "Previous rounds",
+      data: [1400, 1200, 200, 100, 10, 10], // Your data here
     },
     {
-      name: "Meeting",
-      data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
-    },
-    {
-      name: "In negotiation",
-      data: [35, 41, 36, 26, 45, 48, 52, 53, 41],
+      name: "Last Equity Round Funding",
+      data: [200, 300, 100, 50, 10, 10], // Your data here
     },
   ];
+
   const options = {
     chart: {
       stacked: true,
@@ -29,15 +26,15 @@ const StackBarChart = ({ height = 410 }) => {
     },
     plotOptions: {
       bar: {
-        horizontal: false,
+        horizontal: true,
         endingShape: "rounded",
-        columnWidth: "55%",
+        barHeight: "55%",
       },
     },
     legend: {
       show: true,
-      position: "bottom",
-      horizontalAlign: "center",
+      position: "top",
+      horizontalAlign: "left",
       fontSize: "12px",
       fontFamily: "Inter",
       offsetY: 0,
@@ -49,23 +46,21 @@ const StackBarChart = ({ height = 410 }) => {
         radius: 12,
       },
       itemMargin: {
-        horizontal: 18,
+        horizontal: 10,
         vertical: 0,
       },
       labels: {
         colors: isDark ? "#CBD5E1" : "#475569",
       },
     },
-
     dataLabels: {
       enabled: false,
     },
     stroke: {
       show: true,
-      width: 2,
+      width: 1,
       colors: ["transparent"],
     },
-
     yaxis: {
       labels: {
         style: {
@@ -74,21 +69,16 @@ const StackBarChart = ({ height = 410 }) => {
         },
       },
     },
-
     xaxis: {
       categories: [
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
+        "Xiaomi",
+        "Meizu",
+        "Nothing",
+        "Boat Lifestyle",
+        "MoLife",
+        "Noise"
       ],
       labels: {
-        offsetY: -3,
         style: {
           colors: isDark ? "#CBD5E1" : "#475569",
           fontFamily: "Inter",
@@ -100,19 +90,27 @@ const StackBarChart = ({ height = 410 }) => {
       axisTicks: {
         show: false,
       },
+      title: {
+        text: "Total Equity Funding in Linear Scale",
+        style: {
+          fontSize: '12px',
+          fontWeight: 'normal',
+          fontFamily: "Inter",
+          color: isDark ? "#CBD5E1" : "#475569"
+        },
+      },
     },
-
     fill: {
       opacity: 1,
     },
     tooltip: {
       y: {
         formatter: function (val) {
-          return "$ " + val + " thousands";
+          return "$ " + val + "M";
         },
       },
     },
-    colors: [colors.primary, colors.info, colors.warning],
+    colors: ["#1E3A8A", "#3B82F6"],
     grid: {
       show: true,
       borderColor: isDark ? "#334155" : "#E2E8F0",
@@ -120,6 +118,7 @@ const StackBarChart = ({ height = 410 }) => {
       position: "back",
     },
   };
+
   return (
     <>
       <Chart options={options} series={series} type="bar" height={height} width="100%" />

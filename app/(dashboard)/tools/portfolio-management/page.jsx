@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Card from '@/components/ui/Card';
@@ -16,7 +16,8 @@ import GlobalFilter from '@/components/partials/table/GlobalFilter';
 import HistoryChart from '@/components/partials/widget/chart/history-chart';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import { DocumentProvider } from '@/context/DocumentContext';
-import Loading from '@/components/Loading'; // Import the loading component
+import Loading from '@/components/Loading';
+import CompetitorsCard from '@/components/partials/widget/CompetitorsCard';
 
 const CardSlider = dynamic(
   () => import('@/components/partials/widget/CardSlider_portfolio'),
@@ -33,16 +34,16 @@ const CardSlider2 = dynamic(
 
 const BankingPage = () => {
   const { profile, investorSignup } = useCompleteUserDetails();
-  const { user, loading: userLoading } = useUserDetails(); // Assuming you have a hook to fetch user details
+  const { user, loading: userLoading, details } = useUserDetails();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [globalFilter, setGlobalFilter] = useState('');
   const [selectedCard, setSelectedCard] = useState('portfolio');
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!userLoading && profile) {
-      setIsLoading(false); // Set loading to false when data is ready
+      setIsLoading(false);
     }
   }, [userLoading, profile]);
 
@@ -134,11 +135,11 @@ const BankingPage = () => {
               <div className='flex justify-between mb-6'>
                 <h4 className='card-title'>Activities</h4>
                 <select
-                  onChange={(e) => setSelectedFilter(e.target.value)}
-                  className='form-select block w-full mt-1 text-sm border-gray-300 rounded-md'
+                  onChange={handleSelectChange}
+                  className='form-select block w-1/3 mt-1 text-sm border-gray-300 rounded-md'
                 >
-                  <option value='open transaction'>Open Transaction</option>
-                  <option value='closed transaction'>Closed Transaction</option>
+                  <option value='My Portfolios'>My Portfolios</option>
+                  <option value='Track Potential Startups'>Track Potential Startups</option>
                 </select>
               </div>
             </Card>
@@ -153,6 +154,9 @@ const BankingPage = () => {
               </Card>
             </div>
           </div>
+        </div>
+        <div>
+        <CompetitorsCard />
         </div>
         <div className='grid lg:grid-cols-2 grid-cols-1 gap-5'>
           <Card title='Cap Table' noborder>

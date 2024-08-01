@@ -47,6 +47,15 @@ const COLUMNS = [
       </span>
     ),
   },
+  {
+    Header: 'Request Document',
+    accessor: 'request_document',
+    Cell: () => (
+      <button className="bg-blue-500 text-white px-4 py-2 rounded">
+        Request
+      </button>
+    ),
+  },
 ];
 
 const filters = {
@@ -102,6 +111,7 @@ const PortfolioTable = () => {
             created_at: selectedDocuments.created_at,
             status,
             document_link: selectedDocuments[key],
+            request_document: 'Request', // Adding this to match the new column
           });
         }
       }

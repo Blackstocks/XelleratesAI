@@ -1,101 +1,130 @@
 import React, { useMemo } from "react";
-import { recentOrder } from "@/constant/table-data";
-import Icon from "@/components/ui/Icon";
-import { useTable, useSortBy, useGlobalFilter } from "react-table";
+import { useTable, useSortBy, useExpanded } from "react-table";
 
+// Data with nested rows for the example
+const data = [
+  {
+    name: "Founder",
+    shareHolding: "53.5%",
+    totalShares: "76,740,000",
+    subRows: [
+      {
+        name: "Sameer Mehta",
+        shareHolding: "26.8%",
+        totalShares: "38,370,000",
+      },
+      {
+        name: "Aman Gupta",
+        shareHolding: "26.8%",
+        totalShares: "38,370,000",
+      },
+    ],
+  },
+  {
+    name: "Fund",
+    shareHolding: "45.5%",
+    totalShares: "65,269,291",
+    subRows: [
+      {
+        name: "Warburg Pincus",
+        shareHolding: "38.3%",
+        totalShares: "54,850,232",
+      },
+      {
+        name: "Fireside Ventures",
+        shareHolding: "3.6%",
+        totalShares: "5,100,000",
+      },
+      {
+        name: "Qualcomm Ventures",
+        shareHolding: "2.5%",
+        totalShares: "3,524,000",
+      },
+      {
+        name: "Malabar Investments",
+        shareHolding: "0.9%",
+        totalShares: "1,331,559",
+      },
+      {
+        name: "Innowen Capital",
+        shareHolding: "0.3%",
+        totalShares: "463,500",
+      },
+    ],
+  },
+  {
+    name: "Enterprise",
+    shareHolding: "-",
+    totalShares: "-",
+    subRows: [
+      { name: "Neo Markets Services", shareHolding: "-", totalShares: "6,370" },
+      { name: "Amplify Capitals", shareHolding: "-", totalShares: "5,020" },
+      { name: "Altius Investech", shareHolding: "-", totalShares: "1,200" },
+      { name: "3ADeal", shareHolding: "-", totalShares: "50" },
+    ],
+  },
+  {
+    name: "Other People",
+    shareHolding: "0.2%",
+    totalShares: "363,000",
+  },
+  {
+    name: "ESOP",
+    shareHolding: "0.7%",
+    totalShares: "1,005,200",
+  },
+  {
+    name: "Other Investors",
+    shareHolding: "< 0.1%",
+    totalShares: "13,430",
+  },
+  {
+    name: "Total",
+    shareHolding: "100.0%",
+    totalShares: "143,397,291",
+  },
+];
+
+// Columns definition
 const COLUMNS = [
   {
-    Header: "user",
-    accessor: "user",
-    Cell: (row) => {
-      return (
-        <div>
-          <div className="flex items-center">
-            <div className="flex-none">
-              <div className="w-8 h-8 rounded-[100%] ltr:mr-2 rtl:ml-2">
-                <img
-                  src={row?.cell?.value.image}
-                  alt=""
-                  className="w-full h-full rounded-[100%] object-cover"
-                />
-              </div>
-            </div>
-            <div className="flex-1 text-start">
-              <h4 className="text-sm font-medium text-slate-600">
-                {row?.cell?.value.name}
-              </h4>
-            </div>
-          </div>
-        </div>
-      );
-    },
-  },
-  {
-    Header: "invoice",
-    accessor: "invoice",
-    Cell: (row) => {
-      return <span>{row?.cell?.value}</span>;
-    },
-  },
-  {
-    Header: "price",
-    accessor: "price",
-    Cell: (row) => {
-      return <span>{row?.cell?.value}</span>;
-    },
-  },
-  {
-    Header: "status",
-    accessor: "status",
-    Cell: (row) => {
-      return (
-        <span className="block w-full">
+    Header: "Name",
+    accessor: "name",
+    Cell: ({ row, value }) => (
+      <div className="flex items-center">
+        {row.canExpand ? (
           <span
-            className={` inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
-              row?.cell?.value === "paid"
-                ? "text-success-500 bg-success-500"
-                : ""
-            } 
-            ${
-              row?.cell?.value === "due"
-                ? "text-warning-500 bg-warning-500"
-                : ""
-            }
-            ${
-              row?.cell?.value === "canceled"
-                ? "text-danger-500 bg-danger-500"
-                : ""
-            }
-                ${
-                  row?.cell?.value === "pending"
-                    ? "text-danger-500 bg-danger-500"
-                    : ""
-                } ${
-              row?.cell?.value === "shipped"
-                ? "text-primary-500 bg-primary-500"
-                : ""
-            }
-             `}
+            {...row.getToggleRowExpandedProps()}
+            className="mr-2 cursor-pointer"
           >
-            {row?.cell?.value}
+            {row.isExpanded ? "▼" : "▶"}
           </span>
-        </span>
-      );
-    },
+        ) : null}
+        {value}
+      </div>
+    ),
+  },
+  {
+    Header: "% Share holding",
+    accessor: "shareHolding",
+  },
+  {
+    Header: "Total Outstanding Shares",
+    accessor: "totalShares",
   },
 ];
 
 const RecentOrderTable = () => {
   const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => recentOrder.slice(0, 4), []); // Limiting to 4 rows
+  const dataMemo = useMemo(() => data, []);
 
   const tableInstance = useTable(
     {
       columns,
-      data,
+      data: dataMemo,
     },
-    useGlobalFilter,
-    useSortBy
+    useSortBy,
+    useExpanded // Use the useExpanded plugin hook
   );
 
   const {
@@ -107,38 +136,67 @@ const RecentOrderTable = () => {
   } = tableInstance;
 
   return (
-    <>
-      <div>
-        <div className="overflow-x-auto -mx-6">
-          <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden">
-              <table
-                className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
-                {...getTableProps()}
-              >
-                <tbody
-                  className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
-                  {...getTableBodyProps()}
+    <div className="overflow-x-auto">
+      <table {...getTableProps()} className="min-w-full bg-white divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column) => (
+                <th
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  {rows.map((row) => {
-                    prepareRow(row);
+                  {column.render("Header")}
+                  <span>
+                    {column.isSorted
+                      ? column.isSortedDesc
+                        ? " ▼"
+                        : " ▲"
+                      : ""}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()} className="bg-white divide-y divide-gray-200">
+          {rows.map((row) => {
+            prepareRow(row);
+            return (
+              <React.Fragment key={row.id}>
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <td
+                      {...cell.getCellProps()}
+                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                    >
+                      {cell.render("Cell")}
+                    </td>
+                  ))}
+                </tr>
+                {row.isExpanded && row.subRows && row.subRows.length > 0 ? (
+                  row.subRows.map((subRow, i) => {
+                    prepareRow(subRow);
                     return (
-                      <tr key={row.id} {...row.getRowProps()}>
-                        {row.cells.map((cell) => (
-                          <td key={cell.column.id} {...cell.getCellProps()} className="table-td">
+                      <tr key={subRow.id} {...subRow.getRowProps()}>
+                        {subRow.cells.map((cell) => (
+                          <td
+                            {...cell.getCellProps()}
+                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 pl-10"
+                          >
                             {cell.render("Cell")}
                           </td>
                         ))}
                       </tr>
                     );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+                  })
+                ) : null}
+              </React.Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
