@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseclient';
@@ -14,21 +14,21 @@ import HomeBredCurbs from '@/components/partials/HomeBredCurbs';
 import Chatbot from '@/components/chatbot'; // Import the Chatbot component
 
 const financials = [
-  { name: "Financials", value: "" },
-  { name: "Revenue", value: "$120,000" },
-  { name: "Expenses", value: "$70,000" },
-  { name: "Profit/Loss", value: "$50,000" },
+  { name: 'Financials', value: '' },
+  { name: 'Revenue', value: '$120,000' },
+  { name: 'Expenses', value: '$70,000' },
+  { name: 'Profit/Loss', value: '$50,000' },
 ];
 const Portfolios = [
-  { name: "Portfolio Name", value: "" },
-  { name: "Xellerates", value: "" },
-  { name: "Conqr", value: "" },
-  { name: "Adios", value: "" },
+  { name: 'Portfolio Name', value: '' },
+  { name: 'Xellerates', value: '' },
+  { name: 'Conqr', value: '' },
+  { name: 'Adios', value: '' },
 ];
 
 const Dashboard = () => {
   const { user, details, loading } = useUserDetails();
-  const [companyName, setCompanyName] = useState("");
+  const [companyName, setCompanyName] = useState('');
   const [unlockedCards, setUnlockedCards] = useState({
     topConversations: false,
     currentNumbers: false,
@@ -41,13 +41,13 @@ const Dashboard = () => {
     const fetchCompanyName = async () => {
       if (user) {
         const { data, error } = await supabase
-          .from("profiles")
-          .select("company_name")
-          .eq("id", user.id)
+          .from('profiles')
+          .select('company_name')
+          .eq('id', user.id)
           .single();
 
         if (error) {
-          console.error("Error fetching company name:", error);
+          console.error('Error fetching company name:', error);
         } else {
           setCompanyName(data.company_name);
         }
@@ -58,18 +58,18 @@ const Dashboard = () => {
   }, [user]);
 
   const handleUnlockClick = (cardName) => {
-    setUnlockedCards(prevState => ({ ...prevState, [cardName]: true }));
+    setUnlockedCards((prevState) => ({ ...prevState, [cardName]: true }));
   };
 
   const renderLockedCard = (title, content, cardName) => (
     <Card>
-      <div className="relative">
+      <div className='relative'>
         {!unlockedCards[cardName] && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-10 text-xl font-semibold text-slate-700 bg-opacity-50">
+          <div className='absolute inset-0 flex flex-col items-center justify-center z-10 text-xl font-semibold text-slate-700 bg-opacity-50'>
             <span>Unlock through credits</span>
             <button
               onClick={() => handleUnlockClick(cardName)}
-              className="mt-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700"
+              className='mt-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
             >
               Unlock
             </button>
@@ -87,50 +87,57 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="w-full">
-      {user?.user_type === "startup" && (
+    <div className='w-full'>
+      {user?.user_type === 'startup' && (
         <div>
-          <HomeBredCurbs title="Crm" companyName={companyName} userType={user.user_type} />
-          <div className="space-y-5">
-            <div className="grid grid-cols-12 gap-5">
-              <div className="lg:col-span-8 col-span-12 space-y-5">
+          <HomeBredCurbs
+            title='Crm'
+            companyName={companyName}
+            userType={user.user_type}
+          />
+          <div className='space-y-5'>
+            <div className='grid grid-cols-12 gap-5'>
+              <div className='lg:col-span-8 col-span-12 space-y-5'>
                 <Card>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className='grid grid-cols-3 gap-4'>
                     <GroupChart3 />
                   </div>
                 </Card>
                 {renderLockedCard(
-                  "Top Conversations",
-                  <div className="xl:col-span-6 col-span-12">
+                  'Top Conversations',
+                  <div className='xl:col-span-6 col-span-12'>
                     <RecentOrderTable />
                   </div>,
-                  "topConversations"
+                  'topConversations'
                 )}
               </div>
-              <div className="lg:col-span-4 col-span-12 space-y-5">
+              <div className='lg:col-span-4 col-span-12 space-y-5'>
                 {renderLockedCard(
-                  "Current Numbers",
-                  <ul className="divide-y divide-slate-100 dark:divide-slate-700">
+                  'Current Numbers',
+                  <ul className='divide-y divide-slate-100 dark:divide-slate-700'>
                     {financials.map((item, i) => (
                       <li
                         key={i}
-                        className="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase"
+                        className='first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase'
                       >
-                        <div className="flex justify-between">
+                        <div className='flex justify-between'>
                           <span>{item.name}</span>
                           <span>{item.value}</span>
                         </div>
                       </li>
                     ))}
                   </ul>,
-                  "currentNumbers"
+                  'currentNumbers'
                 )}
                 {renderLockedCard(
-                  "Cap Table",
-                  <div className="legend-ring3">
+                  'Cap Table',
+                  <div className='legend-ring3'>
+                    <div className='flex items-center justify-center font-semibold'>
+                      CAP TABLE
+                    </div>
                     <Calculation />
                   </div>,
-                  "capTable"
+                  'capTable'
                 )}
               </div>
             </div>
@@ -138,49 +145,49 @@ const Dashboard = () => {
           </div>
         </div>
       )}
-      {user?.user_type === "investor" && (
+      {user?.user_type === 'investor' && (
         <div>
           <div>
-            <HomeBredCurbs title="Crm" companyName={companyName} userType={user.user_type} />
-            <div className="space-y-5">
-              <div className="grid grid-cols-12 gap-5">
-                <div className="lg:col-span-8 col-span-12 space-y-5">
+            <HomeBredCurbs
+              title='Crm'
+              companyName={companyName}
+              userType={user.user_type}
+            />
+            <div className='space-y-5'>
+              <div className='grid grid-cols-12 gap-5'>
+                <div className='lg:col-span-8 col-span-12 space-y-5'>
                   <Card>
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className='grid grid-cols-4 gap-4'>
                       <GroupChartNew3 />
                     </div>
                   </Card>
                   {renderLockedCard(
-                    "Top Conversations",
-                    <div className="xl:col-span-6 col-span-12">
+                    'Top Conversations',
+                    <div className='xl:col-span-6 col-span-12'>
                       <RecentOrderTable />
                     </div>,
-                    "topConversations"
+                    'topConversations'
                   )}
                 </div>
-                <div className="lg:col-span-4 col-span-12 space-y-5">
+                <div className='lg:col-span-4 col-span-12 space-y-5'>
                   {renderLockedCard(
-                    "Top Performing Portfolios",
-                    <ul className="divide-y divide-slate-100 dark:divide-slate-700">
+                    'Top Performing Portfolios',
+                    <ul className='divide-y divide-slate-100 dark:divide-slate-700'>
                       {Portfolios.map((item, i) => (
                         <li
                           key={i}
-                          className="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase"
+                          className='first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase'
                         >
-                          <div className="flex justify-between">
+                          <div className='flex justify-between'>
                             <span>{item.name}</span>
                             <span>{item.value}</span>
                           </div>
                         </li>
                       ))}
                     </ul>,
-                    "topPerformingPortfolios"
+                    'topPerformingPortfolios'
                   )}
-                  {renderLockedCard(
-                    "Hot Deals",
-                    <Customer />,
-                    "hotDeals"
-                  )}
+                  {renderLockedCard('Hot Deals', <Customer />, 'hotDeals')}
                 </div>
               </div>
               <Chatbot />

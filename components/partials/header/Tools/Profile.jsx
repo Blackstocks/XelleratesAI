@@ -5,43 +5,43 @@ import { Menu } from '@headlessui/react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
-import useUserDetails from '@/hooks/useUserDetails';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const ProfileLabel = ({ user }) => {
-  const { details } = useUserDetails();
+  const { companyProfile, investorSignup } = useCompleteUserDetails();
   return (
     <div className='flex items-center'>
       <div className='flex-1 ltr:mr-[10px] rtl:ml-[10px]'>
-        <div className='lg:h-8 lg:w-8 h-7 w-7 rounded-full relative overflow-hidden'>
-          {details?.type === 'startup' ? (
-            <div className='absolute inset-0'>
-              {details?.company_logo ? (
+        <div className='lg:h-8 lg:w-8 h-7 w-7 rounded-full'>
+          {user?.user_type === 'startup' ? (
+            <div>
+              {companyProfile?.company_logo ? (
                 <img
-                  src={details.company_logo}
+                  src={companyProfile.company_logo}
                   alt='Company Logo'
-                  className='w-full h-full object-contain rounded-full'
+                  className='w-full h-full object-cover rounded-full'
                 />
               ) : (
                 <img
                   src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                   alt=''
-                  className='w-full h-full object-contain rounded-full'
+                  className='w-full h-full object-cover rounded-full'
                 />
               )}
             </div>
           ) : (
-            <div className='absolute inset-0'>
-              {details?.profile_photo ? (
+            <div>
+              {investorSignup?.profile_photo ? (
                 <img
-                  src={details.profile_photo}
-                  alt='Profile Photo'
-                  className='w-full h-full object-contain rounded-full'
+                  src={investorSignup.profile_photo}
+                  alt='Company Logo'
+                  className='w-full h-full object-cover rounded-full'
                 />
               ) : (
                 <img
                   src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
                   alt=''
-                  className='w-full h-full object-contain rounded-full'
+                  className='w-full h-full object-cover rounded-full'
                 />
               )}
             </div>

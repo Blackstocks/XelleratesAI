@@ -20,11 +20,11 @@ import {
 } from '@/lib/actions/investorActions';
 import FormCompletionBanner from '@/components/FormCompletionBanner';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import Loading from '@/components/Loading';
 
 const Profile = () => {
-  const { user, updateDetailsLocally } = useUserDetails();
-  const { companyProfile, investorSignup, updateUserLocally } =
-    useCompleteUserDetails();
+  const { user, updateDetailsLocally, loading } = useUserDetails();
+  const { companyProfile, investorSignup } = useCompleteUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const {
     register,
@@ -70,6 +70,10 @@ const Profile = () => {
       console.error('Unexpected error:', error);
     }
   };
+
+  if (!user || loading) {
+    return <Loading />;
+  }
 
   return (
     <div className='space-y-5 profile-page'>
