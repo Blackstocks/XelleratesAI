@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails'; // Ensure this hook exists and the path is correct
 import Loading from '@/components/Loading';
 import DountChart from '@/components/partials/widget/chart/dount-chart2';
+import DountChart3 from '@/components/partials/widget/chart/dount-chart3';
 import ImageBlock2 from '@/components/partials/widget/block/image-block-2';
 import { supabase } from '@/lib/supabaseclient';
 import 'react-toastify/dist/ReactToastify.css';
@@ -97,17 +98,22 @@ const Fundraising = () => {
               </h3>
               <DountChart />
             </div>
-            <div className='h-60 flex flex-col items-center justify-center bg-white shadow-lg rounded-lg'>
-              <h3 className='text-lg font-semibold mb-2 text-center'>
+            <div className='h-60 flex flex-col items-center justify-center bg-white shadow-lg rounded-lg relative'>
+              <h3 className='text-lg font-semibold mb-2 text-center text-black'>
                 Investment Readiness Score
               </h3>
-              <DountChart />
+              <div className='absolute inset-0 flex items-center justify-center'>
+                <span className='text-lg font-bold text-gray-700 z-10 mt-16'>Coming Soon</span>
+              </div>
+              <div className='filter blur-sm z-0'>
+                <DountChart />
+              </div>
             </div>
             <div className='h-60 flex flex-col items-center justify-center bg-white shadow-lg rounded-lg'>
               <h3 className='text-lg font-semibold mb-2 text-center'>
                 Equity Available with Founders
               </h3>
-              <DountChart />
+              <DountChart3 />
             </div>
           </div>
         </div>
