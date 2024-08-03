@@ -100,11 +100,11 @@ const VerticalNavTabs = () => {
     fundingInformation,
     ctoInfo,
     companyDocuments,
-    updateUserLocally,
   } = useCompleteUserDetails();
   // console.log('companyDocuments', companyDocuments);
   const {
     control,
+    watch,
     register,
     handleSubmit,
     formState: { errors },
@@ -154,6 +154,15 @@ const VerticalNavTabs = () => {
     name: 'capTable',
   });
 
+  const {
+    fields: presenceFields,
+    append: appendPresence,
+    remove: removePresence,
+  } = useFieldArray({
+    control,
+    name: 'socialMediaPresence',
+  });
+
   const { user, loading } = useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const [founderInformationLoc, setFounderInformationLoc] = useState(null);
@@ -171,6 +180,17 @@ const VerticalNavTabs = () => {
     setBusinessDetailsLoc(businessDetails);
     setCompanyDocumentsLoc(companyDocuments);
   }, [companyProfile]);
+
+  // State to check if media presence is selected
+  const [hasMediaPresence, setHasMediaPresence] = useState(false);
+
+  // Watch the selected media presence option
+  const selectedMedia = watch('media', '');
+
+  // Update the state based on the selected option
+  React.useEffect(() => {
+    setHasMediaPresence(selectedMedia === 'Yes');
+  }, [selectedMedia]);
 
   const handleSave = async (data, section) => {
     try {
@@ -261,6 +281,7 @@ const VerticalNavTabs = () => {
             media: data.media || null,
             company_logo: uploadedFiles.company_logo || null,
             socialMedia: data.socialMedia || [],
+            socialMediaPresence: data.socialMediaPresence || [],
           };
           try {
             let startupDetailsResponse;
@@ -826,26 +847,70 @@ const VerticalNavTabs = () => {
                               register={register}
                             />
                             <CustomSelect
-                              label='Is your startup in media?'
+                              label='Social Media Presence'
                               name='media'
-                              defaultValue={
-                                companyProfile?.media ||
-                                companyProfileLoc?.media
-                              }
+                              defaultValue={companyProfile?.media || ''}
                               options={[
                                 { value: 'Yes', label: 'Yes' },
                                 { value: 'No', label: 'No' },
                               ]}
-                              placeholder='Is your startup in media?'
                               register={register}
                             />
-                            <InputGroup
-                              label='Upload Company Logo'
-                              type='file'
-                              name='company_logo'
-                              error={errors.company_logo || null}
-                              register={register}
-                            />
+
+                            {hasMediaPresence && (
+                              <div className='mt-4'>
+                                {presenceFields.map((item, index) => (
+                                  <div
+                                    className='grid gap-5 mb-5 last:mb-0 grid-cols-1 md:grid-cols-4 lg:grid-cols-5'
+                                    key={item.id}
+                                  >
+                                    <Textinput
+                                      label='Platform'
+                                      type='text'
+                                      placeholder='Platform'
+                                      register={register}
+                                      name={`socialMediaPresence[${index}].platform`}
+                                      defaultValue={item.platform || ''}
+                                    />
+                                    <Textinput
+                                      label='URL'
+                                      type='url'
+                                      placeholder='URL'
+                                      register={register}
+                                      name={`socialMediaPresence[${index}].url`}
+                                      defaultValue={item.url || ''}
+                                    />
+                                    <div className='ml-auto mt-auto'>
+                                      <button
+                                        type='button'
+                                        className='inline-flex items-center justify-center h-10 w-10 bg-red-500 text-white rounded'
+                                        onClick={() => removePresence(index)}
+                                      >
+                                        <Icon icon='heroicons-outline:trash' />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+
+                                <Button
+                                  text='Add new'
+                                  icon='heroicons-outline:plus'
+                                  className='mt-0 p-0'
+                                  onClick={() =>
+                                    appendPresence({ platform: '', url: '' })
+                                  }
+                                />
+                              </div>
+                            )}
+                            <div className='mt-4'>
+                              <InputGroup
+                                label='Upload Company Logo'
+                                type='file'
+                                name='company_logo'
+                                error={errors.company_logo || null}
+                                register={register}
+                              />
+                            </div>
                             <div className='mt-4'>
                               <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
                                 Other Social Media Handles
@@ -1930,6 +1995,35 @@ const VerticalNavTabs = () => {
                                         className='text-base text-slate-600 dark:text-slate-50'
                                       >
                                         {handle.url || 'Not provided'}
+                                      </a>
+                                    </div>
+                                  </li>
+                                )
+                              )}
+                              <h3 className='text-lg font-semibold text-slate-700 dark:text-slate-200'>
+                                Media Presence Links
+                              </h3>
+
+                              {companyProfile?.media_presence?.map(
+                                (presence, index) => (
+                                  <li
+                                    className='flex space-x-3 rtl:space-x-reverse'
+                                    key={index}
+                                  >
+                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                      <Icon icon='heroicons:newspaper' />
+                                    </div>
+                                    <div className='flex-1'>
+                                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                        {presence.platform || 'Not provided'}
+                                      </div>
+                                      <a
+                                        href={presence.url || '#'}
+                                        target='_blank'
+                                        rel='noopener noreferrer'
+                                        className='text-base text-slate-600 dark:text-slate-50'
+                                      >
+                                        {presence.url || 'Not provided'}
                                       </a>
                                     </div>
                                   </li>
