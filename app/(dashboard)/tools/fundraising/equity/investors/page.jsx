@@ -2,15 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import useUserDetails from '@/hooks/useUserDetails';
-import useInvestors from '@/hooks/useInvestors';
+import useCompleteUserDetails from '@/hooks/useCompletionPercentage';
 import Modal from '@/components/Modal';
 import Loading from '@/components/Loading';
 import Textarea from '@/components/ui/Textarea';
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import { supabase } from '@/lib/supabaseclient';
 
 const InvestorDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
-  const { investors, loading: investorsLoading } = useInvestors();
+  const [investors, setInvestors] = useState([]);
+  const [investorsLoading, setInvestorsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,16 +19,34 @@ const InvestorDealflow = () => {
   const [selectedStage, setSelectedStage] = useState('All');
   const [selectedLocation, setSelectedLocation] = useState('All');
   const [selectedInvestmentType, setSelectedInvestmentType] = useState('All');
+  const [selectedChequeSize, setSelectedChequeSize] = useState('All');
   const [selectedInvestor, setSelectedInvestor] = useState(null);
   const { companyProfile } = useCompleteUserDetails();
-
-  console.log('Investors:', investors);
 
   const itemsPerPage = 20;
 
   useEffect(() => {
+    const fetchInvestors = async () => {
+      setInvestorsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('investor_signup')
+          .select('*');
+        if (error) throw error;
+        setInvestors(data);
+      } catch (error) {
+        console.error('Error fetching investors:', error.message);
+      } finally {
+        setInvestorsLoading(false);
+      }
+    };
+
+    fetchInvestors();
+  }, []);
+
+  useEffect(() => {
     setCurrentPage(1);
-  }, [selectedSector, selectedStage, selectedLocation, selectedInvestmentType]);
+  }, [selectedSector, selectedStage, selectedLocation, selectedInvestmentType, selectedChequeSize]);
 
   if (userLoading || investorsLoading) {
     return (
@@ -39,26 +58,13 @@ const InvestorDealflow = () => {
 
   const uniqueSectors = [
     'All',
-    ...new Set(
-      investors
-        .flatMap(
-          (investor) =>
-            investor.investor_signup.map((signup) => signup.sectors) || 'N/A'
-        )
-        .filter((sector) => sector !== 'N/A')
-    ),
+    ...new Set(investors.map((investor) => investor.sectors).filter(Boolean)),
   ];
 
   const uniqueStages = [
     'All',
     ...new Set(
-      investors
-        .flatMap(
-          (investor) =>
-            investor.investor_signup.map((signup) => signup.investment_stage) ||
-            'N/A'
-        )
-        .filter((stage) => stage !== 'N/A')
+      investors.map((investor) => investor.investment_stage).filter(Boolean)
     ),
   ];
 
@@ -66,14 +72,10 @@ const InvestorDealflow = () => {
     'All',
     ...new Set(
       investors
-        .flatMap((investor) => {
+        .map((investor) => {
           try {
-            const geographyData = investor.investor_signup
-              .map((signup) => signup.Geography)
-              .filter(Boolean);
-            return geographyData.length > 0
-              ? JSON.parse(geographyData[0] || '{}').label || 'N/A'
-              : 'N/A';
+            const geographyData = JSON.parse(investor.Geography || '{}').label;
+            return geographyData || 'N/A';
           } catch (error) {
             return 'N/A';
           }
@@ -84,28 +86,29 @@ const InvestorDealflow = () => {
 
   const uniqueInvestmentTypes = [
     'All',
-    ...new Set(
-      investors
-        .flatMap(
-          (investor) =>
-            investor.investor_signup.map((signup) => signup.typeof) || 'N/A'
-        )
-        .filter((type) => type !== 'N/A')
-    ),
+    ...new Set(investors.map((investor) => investor.typeof).filter(Boolean)),
+  ];
+
+  const uniqueChequeSizes = [
+    'All',
+    ...new Set(investors.map((investor) => investor.cheque_size).filter(Boolean)),
   ];
 
   const filteredInvestors = investors.filter((investor) => {
-    const investorData = investor.investor_signup[0] || {};
     return (
-      (selectedSector === 'All' || investorData.sectors === selectedSector) &&
-      (selectedStage === 'All' ||
-        investorData.investment_stage === selectedStage) &&
+      (selectedSector === 'All' || investor.sectors === selectedSector) &&
+      (selectedStage === 'All' || investor.investment_stage === selectedStage) &&
       (selectedLocation === 'All' ||
-        (investorData.Geography &&
-          JSON.parse(investorData.Geography || '{}').label ===
-            selectedLocation)) &&
-      (selectedInvestmentType === 'All' ||
-        investorData.typeof === selectedInvestmentType)
+        (investor.Geography &&
+          (() => {
+            try {
+              return JSON.parse(investor.Geography || '{}').label === selectedLocation;
+            } catch (error) {
+              return false;
+            }
+          })())) &&
+      (selectedInvestmentType === 'All' || investor.typeof === selectedInvestmentType) &&
+      (selectedChequeSize === 'All' || investor.cheque_size === selectedChequeSize)
     );
   });
 
@@ -132,6 +135,7 @@ const InvestorDealflow = () => {
     setSelectedStage('All');
     setSelectedLocation('All');
     setSelectedInvestmentType('All');
+    setSelectedChequeSize('All');
   };
 
   const handleExpressInterest = async (
@@ -172,14 +176,14 @@ const InvestorDealflow = () => {
   return (
     <>
       <Head>
-        <title>Investor Dealflow</title>
+        <title>Investor Connect</title>
       </Head>
       <main className='container mx-auto p-4'>
         <h1 className='text-3xl font-bold mb-4 text-center'>
-          Investor Dealflow
+          Investor Connect
         </h1>
         <p className='mb-6 text-center'>
-          Welcome to the Investor Dealflow page. Here you can find information
+          Welcome to the Investor Connect page. Here you can find information
           about investors interested in various sectors and stages.
         </p>
         <div className='flex flex-col lg:flex-row lg:items-center lg:space-x-4 mb-4'>
@@ -263,6 +267,26 @@ const InvestorDealflow = () => {
               ))}
             </select>
           </div>
+          <div className='mb-4 lg:mb-0'>
+            <label
+              htmlFor='cheque-size-filter'
+              className='block text-sm font-medium text-gray-700'
+            >
+              Cheque Size:
+            </label>
+            <select
+              id='cheque-size-filter'
+              value={selectedChequeSize}
+              onChange={(e) => setSelectedChequeSize(e.target.value)}
+              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
+            >
+              {uniqueChequeSizes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className='mb-4 lg:mb-0 lg:ml-auto'>
             <button
               onClick={handleClearFilters}
@@ -286,6 +310,9 @@ const InvestorDealflow = () => {
                       Investor Info
                     </th>
                     <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                      Sector
+                    </th>
+                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
                       Investment Stage
                     </th>
                     <th className='py-4 px-4 border-b border-gray-300 text-left'>
@@ -300,46 +327,50 @@ const InvestorDealflow = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentInvestors.map((investor, index) => {
-                    const investorData = investor.investor_signup[0] || {};
-                    return (
-                      <tr
-                        key={investor.id}
-                        className={`hover:bg-gray-100 transition-colors ${
-                          index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
-                        }`}
-                        onClick={() => {
-                          setSelectedInvestor(investor);
-                          setShowForm(false);
-                        }}
-                      >
-                        <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          {(currentPage - 1) * itemsPerPage + index + 1}
-                        </td>
-                        <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          <div>
-                            <span className='text-black-500 hover:underline cursor-pointer'>
-                              {investor.name || 'N/A'}
-                            </span>
-                          </div>
-                        </td>
-                        <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          {investorData.investment_stage || 'N/A'}
-                        </td>
-                        <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          {investorData.typeof || 'N/A'}
-                        </td>
-                        <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          {investorData.cheque_size || 'N/A'}
-                        </td>
-                        <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          {investorData.Geography
-                            ? JSON.parse(investorData.Geography).label
-                            : 'N/A'}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {currentInvestors.map((investor, index) => (
+                    <tr
+                      key={investor.id}
+                      className={`hover:bg-gray-100 transition-colors ${
+                        index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
+                      }`}
+                      onClick={() => {
+                        setSelectedInvestor(investor);
+                        setShowForm(false);
+                      }}
+                    >
+                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                        {(currentPage - 1) * itemsPerPage + index + 1}
+                      </td>
+                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                        <div>
+                          <span className='text-black-500 hover:underline cursor-pointer'>
+                            {investor.name || 'N/A'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                        {investor.sectors || 'N/A'}
+                      </td>
+                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                        {investor.investment_stage || 'N/A'}
+                      </td>
+                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                        {investor.typeof || 'N/A'}
+                      </td>
+                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                        {investor.cheque_size || 'N/A'}
+                      </td>
+                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                        {(() => {
+                          try {
+                            return JSON.parse(investor.Geography).label || 'N/A';
+                          } catch (error) {
+                            return 'N/A';
+                          }
+                        })()}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
               <div className='flex justify-between items-center mt-4'>
@@ -422,25 +453,23 @@ const InvestorDealflow = () => {
                   </p>
                   <p>
                     <strong>Type of Investment:</strong>{' '}
-                    {selectedInvestor.investor_signup[0]?.typeof || 'N/A'}
+                    {selectedInvestor.typeof || 'N/A'}
                   </p>
                   <p>
                     <strong>Cheque Size:</strong>{' '}
-                    {selectedInvestor.investor_signup[0]?.cheque_size || 'N/A'}
+                    {selectedInvestor.cheque_size || 'N/A'}
                   </p>
                   <p>
                     <strong>Investment Thesis:</strong>{' '}
-                    {selectedInvestor.investor_signup[0]?.investment_thesis ||
-                      'N/A'}
+                    {selectedInvestor.investment_thesis || 'N/A'}
                   </p>
                   <p>
                     <strong>Sectors:</strong>{' '}
-                    {selectedInvestor.investor_signup[0]?.sectors || 'N/A'}
+                    {selectedInvestor.sectors || 'N/A'}
                   </p>
                   <p>
                     <strong>Investment Strategy:</strong>{' '}
-                    {selectedInvestor.investor_signup[0]?.investment_stage ||
-                      'N/A'}
+                    {selectedInvestor.investment_stage || 'N/A'}
                   </p>
                 </div>
               )}

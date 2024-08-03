@@ -7,10 +7,8 @@ import { supabase } from '../../../../../lib/supabaseclient';
 const Equity = () => {
   const [user, setUser] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
-  const [showPanModal, setShowPanModal] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
-  const [panCard, setPanCard] = useState('');
   const [progress, setProgress] = useState(0);
   const router = useRouter();
 
@@ -49,7 +47,7 @@ const Equity = () => {
     const { data, error: profileError } = await supabase
       .from('profiles')
       .select(
-        'name, email, mobile, user_type, status, linkedin_profile, company_name, pan_number'
+        'name, email, mobile, user_type, status, linkedin_profile, company_name'
       )
       .eq('id', user.id)
       .single();
@@ -72,32 +70,9 @@ const Equity = () => {
       if (!isComplete) {
         setShowCompletionModal(true);
       } else {
-        if (data.pan_number) {
-          setShowProgressModal(true);
-          startProgress();
-        } else {
-          setShowPanModal(true);
-        }
+        setShowProgressModal(true);
+        startProgress();
       }
-    }
-  };
-
-  const handlePanSubmit = async () => {
-    if (user && panCard) {
-      console.log('Submitting PAN card:', panCard);
-      const { error } = await supabase
-        .from('profiles')
-        .update({ pan_number: panCard })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating PAN card:', error);
-        return;
-      }
-
-      setShowPanModal(false);
-      setShowProgressModal(true);
-      startProgress();
     }
   };
 
@@ -122,9 +97,7 @@ const Equity = () => {
     <div className='flex min-h-screen bg-gray-50 relative'>
       <main
         className={`flex-1 p-8 ${
-          showPanModal || showCompletionModal || showProgressModal
-            ? 'blur-sm'
-            : ''
+          showCompletionModal || showProgressModal ? 'blur-sm' : ''
         }`}
       >
         <div className='absolute top-4 left-4'>
@@ -152,33 +125,6 @@ const Equity = () => {
           </div>
         </div>
       </main>
-
-      {showPanModal && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-          <div className='bg-white p-6 rounded shadow-lg relative'>
-            <button
-              className='absolute top-2 right-2'
-              onClick={() => setShowPanModal(false)}
-            >
-              X
-            </button>
-            <h2 className='text-xl font-bold mb-4'>Enter PAN Card Number</h2>
-            <input
-              type='text'
-              value={panCard}
-              onChange={(e) => setPanCard(e.target.value)}
-              className='w-full p-2 border rounded mb-4'
-              placeholder='PAN Card Number'
-            />
-            <button
-              onClick={handlePanSubmit}
-              className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-      )}
 
       {showCompletionModal && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
