@@ -9,11 +9,13 @@ import ImageBlock2 from '@/components/partials/widget/block/image-block-2';
 import { supabase } from '@/lib/supabaseclient';
 import 'react-toastify/dist/ReactToastify.css';
 import Button from '@/components/ui/Button';
+import ComingSoonModal from "@/components/ComingSoonModal";
 import Link from 'next/link';
 
 const Fundraising = () => {
   const { user, companyProfile, loading } = useCompleteUserDetails();
   const [greeting, setGreeting] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const currentHour = new Date().getHours();
@@ -25,6 +27,14 @@ const Fundraising = () => {
       setGreeting('Good evening,');
     }
   }, []);
+
+  const handleImageClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   if (loading) {
     return <Loading />;
@@ -75,6 +85,7 @@ const Fundraising = () => {
                   icon='heroicons-outline:eye'
                   text='View Report'
                   className='btn-light bg-white btn-sm '
+                  onClick={handleImageClick}
                 />
               </div>
             </div>
@@ -128,6 +139,7 @@ const Fundraising = () => {
           </div>
         </div>
       </main>
+      <ComingSoonModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );
 };
