@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails'; // Ensure this hook exists and the path is correct
 import Loading from '@/components/Loading';
 import DountChart from '@/components/partials/widget/chart/dount-chart2';
-import DountChart3 from '@/components/partials/widget/chart/dount-chart3';
+import DountChart4 from '@/components/partials/widget/chart/dount-chart4';
 import ImageBlock2 from '@/components/partials/widget/block/image-block-2';
 import { supabase } from '@/lib/supabaseclient';
 import 'react-toastify/dist/ReactToastify.css';
@@ -113,7 +113,7 @@ const Fundraising = () => {
               <h3 className='text-lg font-semibold mb-2 text-center'>
                 Equity Available with Founders
               </h3>
-              <DountChart3 />
+              <DountChart4 />
             </div>
           </div>
         </div>
