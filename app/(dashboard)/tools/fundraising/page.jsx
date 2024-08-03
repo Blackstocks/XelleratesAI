@@ -13,6 +13,19 @@ import Link from 'next/link';
 
 const Fundraising = () => {
   const { user, companyProfile, loading } = useCompleteUserDetails();
+  const [greeting, setGreeting] = useState('');
+
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) {
+      setGreeting('Good morning,');
+    } else if (currentHour < 16) {
+      setGreeting('Good afternoon,');
+    } else {
+      setGreeting('Good evening,');
+    }
+  }, []);
+
   if (loading) {
     return <Loading />;
   }

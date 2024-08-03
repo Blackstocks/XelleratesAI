@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
@@ -215,15 +215,15 @@ const Equity = () => {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-50 relative">
-      <Slider {...settings} className="w-full h-80">
+      <Slider {...settings} className="w-full h-full">
         <div>
-          <img src="/assets/images/tools/dcrou1.png" alt="Slide 1" className="w-full h-80 object-cover" />
+          <img src="/assets/images/tools/dcrou1.png" alt="Slide 1" className="w-full h-full object-cover" />
         </div>
         <div>
-          <img src="/assets/images/tools/dcrou2.png" alt="Slide 2" className="w-full h-80 object-cover" />
+          <img src="/assets/images/tools/dcrou2.png" alt="Slide 2" className="w-full h-full object-cover" />
         </div>
         <div>
-          <img src="/assets/images/tools/dcrou3.png" alt="Slide 3" className="w-full h-80 object-cover" />
+          <img src="/assets/images/tools/dcrou3.png" alt="Slide 3" className="w-full h-full object-cover" />
         </div>
       </Slider>
 
@@ -249,7 +249,7 @@ const Equity = () => {
         </div>
       </div>
 
-      <div className="mt-12 p-6 bg-white shadow rounded text-center w-full md:w-3/4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="mt-12 p-6 bg-white shadow rounded text-center w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-4">
           <h2 className="text-2xl font-bold">Estimate Your Funding</h2>
           <p className="text-gray-600 mt-2">It takes just 60 seconds to calculate your capital offer with <b>Xellerates AI</b></p>
@@ -343,6 +343,42 @@ const Equity = () => {
             <p><b>Tenure :</b> {tenure}</p>
             <p><b>Collaterals :</b> {collateral}</p>
           </div>
+        </div>
+      </div>
+
+      <div className="mt-12 p-6 bg-white shadow rounded text-center w-full flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col space-y-4">
+          <h4>Our Products</h4>
+          <img src="/assets/images/tools/dpro1.png" alt="Image 1" className="w-full h-48 object-cover shadow-lg" />
+          <img src="/assets/images/tools/dpro2.png" alt="Image 2" className="w-full h-48 object-cover shadow-lg" />
+          <img src="/assets/images/tools/dpro3.png" alt="Image 3" className="w-full h-48 object-cover shadow-lg" />
+        </div>
+        <div className="flex flex-col space-y-4 w-full">
+          <h4>Unlock Capital Now</h4>
+          <div>
+            <label>Enter Company PAN</label>
+            <input type="text" className="border border-gray-300 p-2 rounded w-full" />
+          </div>
+          <div>
+            <label>Enter Required Amount</label>
+            <input type="text" className="border border-gray-300 p-2 rounded w-full" />
+          </div>
+          <div>
+            <label>Upload Company PAN</label>
+            <input type="file" className="border border-gray-300 p-2 rounded w-full" />
+          </div>
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold mb-2">Tentative Timeline</h3>
+            <div className="flex justify-center gap-4">
+              <button className="px-4 py-2 bg-blue-500 text-white rounded">Immediately</button>
+              <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded">Within 1 month</button>
+              <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded">Within 3 months</button>
+            </div>
+          </div>
+          <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Analyzing Your Profile</button>
+          <p className="mt-4 text-gray-600">
+            Currently we only facilitate debt funding for PVT LTD co.
+          </p>
         </div>
       </div>
 
