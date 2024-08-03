@@ -35,6 +35,46 @@ const Profile = () => {
     formState: { errors },
   } = useForm();
   const animatedComponents = makeAnimated();
+  const sectorOptions = [
+    {
+      value: 'Agriculture and Allied Sectors',
+      label: 'Agriculture and Allied Sectors',
+    },
+    { value: 'Manufacturing', label: 'Manufacturing' },
+    { value: 'Services', label: 'Services' },
+    { value: 'Energy', label: 'Energy' },
+    { value: 'Infrastructure', label: 'Infrastructure' },
+    { value: 'Retail and E-commerce', label: 'Retail and E-commerce' },
+    { value: 'Banking and Insurance', label: 'Banking and Insurance' },
+    { value: 'Mining and Minerals', label: 'Mining and Minerals' },
+    { value: 'Food Processing', label: 'Food Processing' },
+    { value: 'Textiles and Apparel', label: 'Textiles and Apparel' },
+    { value: 'Automotive', label: 'Automotive' },
+    { value: 'Chemical and Fertilizers', label: 'Chemical and Fertilizers' },
+    {
+      value: 'Pharmaceuticals and Biotechnology',
+      label: 'Pharmaceuticals and Biotechnology',
+    },
+    { value: 'Media and Entertainment', label: 'Media and Entertainment' },
+    { value: 'Tourism and Hospitality', label: 'Tourism and Hospitality' },
+    { value: 'Education and Training', label: 'Education and Training' },
+    { value: 'Healthcare', label: 'Healthcare' },
+    { value: 'Telecommunications', label: 'Telecommunications' },
+    {
+      value: 'Logistics and Supply Chain',
+      label: 'Logistics and Supply Chain',
+    },
+    { value: 'Aerospace and Defense', label: 'Aerospace and Defense' },
+    { value: 'Environmental Services', label: 'Environmental Services' },
+    { value: 'Fashion and Lifestyle', label: 'Fashion and Lifestyle' },
+    {
+      value: 'Financial Technology (Fintech)',
+      label: 'Financial Technology (Fintech)',
+    },
+    { value: 'Sports and Recreation', label: 'Sports and Recreation' },
+    { value: 'Human Resources', label: 'Human Resources' },
+    { value: 'Others', label: 'Others' },
+  ];
 
   const handleSave = async (data, section) => {
     try {
@@ -74,6 +114,18 @@ const Profile = () => {
   if (!user || loading) {
     return <Loading />;
   }
+
+  const defaultSectors = JSON.parse(investorSignup?.sectors || '[]');
+  const defaultInvestmentStages = investorSignup?.investment_stage.split(',');
+  const parsedSectors = JSON.parse(investorSignup?.sectors || '[]');
+
+  // Map parsed values to corresponding labels
+  const renderedSectors = parsedSectors
+    .map((value) => {
+      const option = sectorOptions.find((option) => option.value === value);
+      return option ? option.label : value;
+    })
+    .join(', ');
 
   return (
     <div className='space-y-5 profile-page'>
@@ -140,111 +192,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        {/* {user?.user_type === 'investor' && (
-            <>
-              {editingSection !== 'general_info' && (
-                <div className='relative lg:col-span-6 col-span-12'>
-                  <Card title='User Info'>
-                    <ul className='list space-y-8'>
-                      <li className='flex space-x-3 rtl:space-x-reverse'>
-                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                          <Icon icon='heroicons:envelope' />
-                        </div>
-                        <div className='flex-1'>
-                          <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                            EMAIL
-                          </div>
-                          <a
-                            href={`mailto:${user?.email}`}
-                            className='text-base text-slate-600 dark:text-slate-50'
-                          >
-                            {user?.email || 'Not provided'}
-                          </a>
-                        </div>
-                      </li>
-                      <li className='flex space-x-3 rtl:space-x-reverse'>
-                        <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                          <Icon icon='heroicons:phone-arrow-up-right' />
-                        </div>
-                        <div className='flex-1'>
-                          <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                            PHONE
-                          </div>
-                          <a
-                            href={`tel:${user?.mobile}`}
-                            className='text-base text-slate-600 dark:text-slate-50'
-                          >
-                            {user?.mobile || 'Not provided'}
-                          </a>
-                        </div>
-                      </li>
-                    </ul>
-                    <Button
-                      onClick={() => setEditingSection('general_info')}
-                      className='absolute right-4 top-16 h-8 w-auto text-white bg-[rgb(30,41,59)] rounded-md shadow-md flex items-center justify-center px-3'
-                    >
-                      <Icon icon='heroicons:pencil-square' className='mr-1' />{' '}
-                      Edit
-                    </Button>
-                  </Card>
-                </div>
-              )}
-              {editingSection === 'general_info' && (
-                <div className='relative lg:col-span-6 col-span-12'>
-                  <Card title='Edit User Info'>
-                    <form
-                      onSubmit={handleSubmit((data) =>
-                        handleSave(data, 'general_info')
-                      )}
-                    >
-                      <div className='space-y-4'>
-                        <div className='mb-4'>
-                          <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                            <Icon
-                              icon='heroicons:envelope'
-                              className='inline-block mr-1 text-xl mb-2'
-                            />
-                            Email
-                          </label>
-                          <Textinput
-                            name='email'
-                            defaultValue={user?.email}
-                            register={register}
-                          />
-                        </div>
-                        <div className='mb-4'>
-                          <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                            <Icon
-                              icon='heroicons:phone-arrow-up-right'
-                              className='inline-block mr-1 text-xl mb-2'
-                            />
-                            Phone
-                          </label>
-                          <Textinput
-                            name='mobile'
-                            defaultValue={user?.mobile}
-                            register={register}
-                          />
-                        </div>
-                      </div>
-                      <div className='flex mt-4'>
-                        <Button
-                          text='Save'
-                          type='submit'
-                          className='btn-dark mr-4'
-                        />
-                        <Button
-                          text='Cancel'
-                          onClick={() => setEditingSection(null)}
-                          className='btn-light'
-                        />
-                      </div>
-                    </form>
-                  </Card>
-                </div>
-              )}
-            </>
-          )} */}
+
         {user?.user_type === 'investor' &&
           editingSection !== 'investor_details' && (
             <div className='relative lg:col-span-6 col-span-12'>
@@ -317,9 +265,7 @@ const Profile = () => {
                         SECTORS
                       </div>
                       <div className='text-base text-slate-600 dark:text-slate-50'>
-                        {Array.isArray(investorSignup?.sectors)
-                          ? investorSignup?.sectors.join(', ')
-                          : investorSignup?.sectors || 'Not provided'}
+                        {renderedSectors || 'Not provided'}
                       </div>
                     </div>
                   </li>
@@ -431,104 +377,6 @@ const Profile = () => {
                     />
                   </div>
                   <div className='mb-4'>
-                    {/* <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                        <Icon
-                          icon='heroicons:chart-bar'
-                          className='inline-block mr-1 text-xl mb-2'
-                        />
-                        Sectors
-                      </label>
-                      <CustomSelect
-                        label='Sectors you are interested in'
-                        name='sectors'
-                        options={[
-                          {
-                            value: 'Agriculture and Allied Sectors',
-                            label: 'Agriculture and Allied Sectors',
-                          },
-                          { value: 'Manufacturing', label: 'Manufacturing' },
-                          { value: 'Services', label: 'Services' },
-                          { value: 'Energy', label: 'Energy' },
-                          { value: 'Infrastructure', label: 'Infrastructure' },
-                          {
-                            value: 'Retail and E-commerce',
-                            label: 'Retail and E-commerce',
-                          },
-                          {
-                            value: 'Banking and Insurance',
-                            label: 'Banking and Insurance',
-                          },
-                          {
-                            value: 'Mining and Minerals',
-                            label: 'Mining and Minerals',
-                          },
-                          {
-                            value: 'Food Processing',
-                            label: 'Food Processing',
-                          },
-                          {
-                            value: 'Textiles and Apparel',
-                            label: 'Textiles and Apparel',
-                          },
-                          { value: 'Automotive', label: 'Automotive' },
-                          {
-                            value: 'Chemical and Fertilizers',
-                            label: 'Chemical and Fertilizers',
-                          },
-                          {
-                            value: 'Pharmaceuticals and Biotechnology',
-                            label: 'Pharmaceuticals and Biotechnology',
-                          },
-                          {
-                            value: 'Media and Entertainment',
-                            label: 'Media and Entertainment',
-                          },
-                          {
-                            value: 'Tourism and Hospitality',
-                            label: 'Tourism and Hospitality',
-                          },
-                          {
-                            value: 'Education and Training',
-                            label: 'Education and Training',
-                          },
-                          { value: 'Healthcare', label: 'Healthcare' },
-                          {
-                            value: 'Telecommunications',
-                            label: 'Telecommunications',
-                          },
-                          {
-                            value: 'Logistics and Supply Chain',
-                            label: 'Logistics and Supply Chain',
-                          },
-                          {
-                            value: 'Aerospace and Defense',
-                            label: 'Aerospace and Defense',
-                          },
-                          {
-                            value: 'Environmental Services',
-                            label: 'Environmental Services',
-                          },
-                          {
-                            value: 'Fashion and Lifestyle',
-                            label: 'Fashion and Lifestyle',
-                          },
-                          {
-                            value: 'Financial Technology (Fintech)',
-                            label: 'Financial Technology (Fintech)',
-                          },
-                          {
-                            value: 'Sports and Recreation',
-                            label: 'Sports and Recreation',
-                          },
-                          {
-                            value: 'Human Resources',
-                            label: 'Human Resources',
-                          },
-                          { value: 'Others', label: 'Others' },
-                        ]}
-                        error={errors.sectors}
-                        register={register}
-                      /> */}
                     <div>
                       <label
                         className='form-label block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'
@@ -543,100 +391,8 @@ const Profile = () => {
                       <Controller
                         name='sectors'
                         control={control}
-                        defaultValue={[]} // Ensure default value is an empty array for a multi-select
+                        defaultValue={defaultSectors} // Ensure default value is an empty array for a multi-select
                         render={({ field }) => {
-                          const sectorOptions = [
-                            {
-                              value: 'Agriculture and Allied Sectors',
-                              label: 'Agriculture and Allied Sectors',
-                            },
-                            {
-                              value: 'Manufacturing',
-                              label: 'Manufacturing',
-                            },
-                            { value: 'Services', label: 'Services' },
-                            { value: 'Energy', label: 'Energy' },
-                            {
-                              value: 'Infrastructure',
-                              label: 'Infrastructure',
-                            },
-                            {
-                              value: 'Retail and E-commerce',
-                              label: 'Retail and E-commerce',
-                            },
-                            {
-                              value: 'Banking and Insurance',
-                              label: 'Banking and Insurance',
-                            },
-                            {
-                              value: 'Mining and Minerals',
-                              label: 'Mining and Minerals',
-                            },
-                            {
-                              value: 'Food Processing',
-                              label: 'Food Processing',
-                            },
-                            {
-                              value: 'Textiles and Apparel',
-                              label: 'Textiles and Apparel',
-                            },
-                            { value: 'Automotive', label: 'Automotive' },
-                            {
-                              value: 'Chemical and Fertilizers',
-                              label: 'Chemical and Fertilizers',
-                            },
-                            {
-                              value: 'Pharmaceuticals and Biotechnology',
-                              label: 'Pharmaceuticals and Biotechnology',
-                            },
-                            {
-                              value: 'Media and Entertainment',
-                              label: 'Media and Entertainment',
-                            },
-                            {
-                              value: 'Tourism and Hospitality',
-                              label: 'Tourism and Hospitality',
-                            },
-                            {
-                              value: 'Education and Training',
-                              label: 'Education and Training',
-                            },
-                            { value: 'Healthcare', label: 'Healthcare' },
-                            {
-                              value: 'Telecommunications',
-                              label: 'Telecommunications',
-                            },
-                            {
-                              value: 'Logistics and Supply Chain',
-                              label: 'Logistics and Supply Chain',
-                            },
-                            {
-                              value: 'Aerospace and Defense',
-                              label: 'Aerospace and Defense',
-                            },
-                            {
-                              value: 'Environmental Services',
-                              label: 'Environmental Services',
-                            },
-                            {
-                              value: 'Fashion and Lifestyle',
-                              label: 'Fashion and Lifestyle',
-                            },
-                            {
-                              value: 'Financial Technology (Fintech)',
-                              label: 'Financial Technology (Fintech)',
-                            },
-                            {
-                              value: 'Sports and Recreation',
-                              label: 'Sports and Recreation',
-                            },
-                            {
-                              value: 'Human Resources',
-                              label: 'Human Resources',
-                            },
-                            { value: 'Others', label: 'Others' },
-                          ];
-
                           return (
                             <ReactSelect
                               {...field}
@@ -676,7 +432,7 @@ const Profile = () => {
                     <Controller
                       name='investmentStage'
                       control={control}
-                      defaultValue={[]} // Ensure default value is an empty array for a multi-select
+                      defaultValue={defaultInvestmentStages} // Ensure default value is an empty array for a multi-select
                       render={({ field }) => {
                         const investmentStageOptions = [
                           { value: 'Pre Seed', label: 'Pre Seed' },

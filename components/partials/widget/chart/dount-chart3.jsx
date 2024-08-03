@@ -1,26 +1,26 @@
-'use client';
+import React from 'react';
 import dynamic from 'next/dynamic';
+import useCompletionPercentage from '@/hooks/useCompletionPercentage';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import useDarkMode from '@/hooks/useDarkMode';
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import Loading from '@/components/Loading'; // Assume you have a Loading component
 
-const Calculation = ({ height = 200 }) => {
+const DonutChart3 = ({ height = 200, colors = ['#0CE7FA', '#E2F6FD'] }) => {
   const [isDark] = useDarkMode();
-  const { fundingInformation } = useCompleteUserDetails();
-  console.log('fundinginfo', fundingInformation);
+  const { completionPercentage, loading } = useCompletionPercentage();
 
-  // Extract the first entry's percentage and role from fundingInformation.cap_table
-  const capTable = fundingInformation?.cap_table || [];
-  const firstEntry = capTable[0] || { percentage: 0, role: 'No Data' };
-  const series = [parseFloat(firstEntry.percentage), 100 - parseFloat(firstEntry.percentage)];
-  const labels = [firstEntry.role, 'Remaining'];
+  if (loading) {
+    return <Loading />; // Show loading component while loading
+  }
+
+  const series = [completionPercentage, 100 - completionPercentage];
 
   const options = {
-    labels: labels,
+    labels: ['Complete', 'Left'],
     dataLabels: {
-      enabled: true,
+      enabled: false,
     },
-    colors: ['#0CE7FA', '#E2F6FD'], // Blue and white
+    colors: [...colors],
     legend: {
       position: 'bottom',
       fontSize: '12px',
@@ -54,42 +54,26 @@ const Calculation = ({ height = 200 }) => {
               fontSize: '10px',
               label: '',
               formatter() {
-                return firstEntry.percentage;
+                return `${completionPercentage}%`;
               },
             },
           },
         },
       },
     },
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          legend: {
-            show: false,
-          },
-        },
-      },
-    ],
   };
 
   return (
-    <>
-      {capTable.length > 0 ? (
-        <Chart
-          options={options}
-          series={series}
-          type='donut'
-          height={height}
-          width='100%'
-        />
-      ) : (
-        <div className='text-center text-gray-600'>
-          Please enter the cap table details in the profile.
-        </div>
-      )}
-    </>
+    <div>
+      <Chart
+        options={options}
+        series={series}
+        type='donut'
+        height={height}
+        width='100%'
+      />
+    </div>
   );
 };
 
-export default Calculation;
+export default DonutChart3;

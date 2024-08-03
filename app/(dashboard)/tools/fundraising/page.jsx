@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails'; // Ensure this hook exists and the path is correct
 import Loading from '@/components/Loading';
 import DountChart from '@/components/partials/widget/chart/dount-chart2';
+import DonutChart3 from '@/components/partials/widget/chart/dount-chart3';
 import DountChart4 from '@/components/partials/widget/chart/dount-chart4';
 import ImageBlock2 from '@/components/partials/widget/block/image-block-2';
 import { supabase } from '@/lib/supabaseclient';
 import 'react-toastify/dist/ReactToastify.css';
 import Button from '@/components/ui/Button';
-import ComingSoonModal from "@/components/ComingSoonModal";
+import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';
 
 const Fundraising = () => {
@@ -96,7 +97,7 @@ const Fundraising = () => {
               <h3 className='text-lg font-semibold mb-2 text-center'>
                 Profile Completion
               </h3>
-              <DountChart />
+              <DonutChart3 />
             </div>
             <div className='h-60 flex flex-col items-center justify-center bg-white shadow-lg rounded-lg relative'>
               <h3 className='text-lg font-semibold mb-2 text-center text-black'>

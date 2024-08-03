@@ -7,7 +7,6 @@ import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 const Calculation = ({ height = 200 }) => {
   const [isDark] = useDarkMode();
   const { fundingInformation } = useCompleteUserDetails();
-  console.log('fundinginfo', fundingInformation);
 
   // Extract the first entry's percentage and role from fundingInformation.cap_table
   const capTable = fundingInformation?.cap_table || [];
@@ -18,7 +17,7 @@ const Calculation = ({ height = 200 }) => {
   const options = {
     labels: labels,
     dataLabels: {
-      enabled: true,
+      enabled: false,
     },
     colors: ['#0CE7FA', '#E2F6FD'], // Blue and white
     legend: {
@@ -54,7 +53,7 @@ const Calculation = ({ height = 200 }) => {
               fontSize: '10px',
               label: '',
               formatter() {
-                return firstEntry.percentage;
+                return `${firstEntry.percentage}%`;
               },
             },
           },
