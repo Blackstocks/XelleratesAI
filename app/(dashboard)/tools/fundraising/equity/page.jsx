@@ -109,7 +109,7 @@ const Equity = () => {
           clearInterval(interval);
           setTimeout(() => {
             setShowProgressModal(false);
-            alert('Hello from equity connect with investor');
+            router.push('/tools/fundraising/equity/investors');
           }, 500);
           return 100;
         }

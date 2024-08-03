@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabaseclient';
 import Loading from '@/components/Loading';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useUserDetails from '@/hooks/useUserDetails';
 
 const NotificationDetail = () => {
   const params = useParams();
@@ -15,6 +16,7 @@ const NotificationDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState('');
+  const { user } = useUserDetails();
 
   useEffect(() => {
     const fetchNotification = async () => {
@@ -38,20 +40,17 @@ const NotificationDetail = () => {
     fetchNotification();
   }, [id]);
 
-  // Inside your function or block scope
-
   const handleUpdateStatus = async (status) => {
-    if (status === 'accepted' && !selectedSlot) {
-      toast.error('Please select a time slot.');
-      return;
-    }
-
     setIsSubmitting(true);
 
-    // Update the current notification status
+    const updateData = { notification_status: status };
+    if (status === 'accepted' && selectedSlot) {
+      updateData.accepted_time_slot = selectedSlot;
+    }
+
     const { error } = await supabase
       .from('notifications')
-      .update({ notification_status: status, accepted_time_slot: selectedSlot })
+      .update(updateData)
       .eq('id', id);
 
     if (error) {
@@ -62,43 +61,51 @@ const NotificationDetail = () => {
     }
 
     if (status === 'accepted') {
-      // Create a new notification for the investor
-      const { error: createError } = await supabase
-        .from('notifications')
-        .insert({
-          sender_id: notification.receiver_id, // Startup's ID
-          receiver_id: notification.sender_id, // Investor's ID
-          notification_status: 'accepted',
-          notification_type: 'startup_accepted',
-          notification_read_status: 'unread',
-          notification_message: `The startup has accepted your request for the time slot: ${selectedSlot}`,
-        });
+      if (
+        user?.user_type === 'startup' &&
+        notification.available_time_slots?.length > 0
+      ) {
+        const { error: createError } = await supabase
+          .from('notifications')
+          .insert({
+            sender_id: notification.receiver_id, // Startup's ID
+            receiver_id: notification.sender_id, // Investor's ID
+            notification_status: 'accepted',
+            notification_type: 'startup_accepted',
+            notification_read_status: 'unread',
+            notification_message: `The startup has accepted your request for the time slot: ${selectedSlot}`,
+          });
 
-      if (createError) {
-        console.error('Error creating investor notification:', createError);
-        toast.error('Failed to notify investor');
-      } else {
-        // Define event data and insert into the database
-        const newEventData = {
-          name: `Meeting scheduled with startup ${notification.receiver_id}`,
-          date: selectedSlot,
-          details: `Meeting between startup and investor at ${new Date(
-            selectedSlot
-          ).toLocaleString()}`,
-          user_id: notification.sender_id, // Assuming the event is for the investor
-        };
-
-        const { data: eventInsertData, error: eventError } = await supabase
-          .from('events') // Replace 'events' with the correct table name
-          .insert([newEventData]);
-
-        if (eventError) {
-          console.error('Error adding event:', eventError);
-          toast.error('Failed to add event');
+        if (createError) {
+          console.error('Error creating investor notification:', createError);
+          toast.error('Failed to notify investor');
         } else {
-          toast.success('Event created and investor notified.');
-          router.push('/schedule');
+          const newEventData = {
+            name: `Meeting scheduled with startup ${notification.receiver_id}`,
+            date: selectedSlot,
+            details: `Meeting between startup and investor at ${new Date(
+              selectedSlot
+            ).toLocaleString()}`,
+            user_id: notification.sender_id, // Assuming the event is for the investor
+          };
+
+          const { error: eventError } = await supabase
+            .from('events')
+            .insert([newEventData]);
+
+          if (eventError) {
+            console.error('Error adding event:', eventError);
+            toast.error('Failed to add event');
+          } else {
+            toast.success('Event created and investor notified.');
+            router.push('/schedule');
+          }
         }
+      } else {
+        toast.success(
+          'You have accepted the interest. You can now interact with the other party.'
+        );
+        router.push('/chat'); // Navigate to chat or another appropriate page
       }
     } else {
       toast.success(`Notification has been ${status}`);
@@ -126,7 +133,7 @@ const NotificationDetail = () => {
         <strong>Status:</strong> {notification.notification_status}
       </p>
 
-      {notification.available_time_slots && (
+      {notification.available_time_slots?.length > 0 && (
         <div>
           <strong>Available Time Slots:</strong>
           <ul className='mt-2'>
@@ -172,8 +179,8 @@ const NotificationDetail = () => {
 
       {notification.notification_status === 'accepted' && (
         <p className='mt-4 text-green-500'>
-          You have accepted the interest. You can now interact with the
-          investor.
+          You have accepted the interest. You can now interact with the other
+          party.
         </p>
       )}
     </div>
