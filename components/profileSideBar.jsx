@@ -105,6 +105,8 @@ const VerticalNavTabs = () => {
   const {
     control,
     watch,
+    setValue,
+    reset,
     register,
     handleSubmit,
     formState: { errors },
@@ -181,23 +183,59 @@ const VerticalNavTabs = () => {
     setCompanyDocumentsLoc(companyDocuments);
   }, [companyProfile]);
 
-  // State to check if media presence is selected
+  // console.log('companyProfile', companyProfile);
+  // console.log('founderInformation', founderInformation);
+
   const [hasMediaPresence, setHasMediaPresence] = useState(false);
 
-  // Watch the selected media presence option
-  const selectedMedia = watch('media', '');
+  useEffect(() => {
+    if (companyProfile?.media === 'Yes') {
+      setValue('media', 'Yes');
+      setHasMediaPresence(true);
+    }
+  }, [companyProfile?.media]);
 
-  // Update the state based on the selected option
-  React.useEffect(() => {
+  const selectedMedia = watch('media', '');
+  // console.log('Social Media Fields:', socialMediaFields);
+
+  useEffect(() => {
     setHasMediaPresence(selectedMedia === 'Yes');
   }, [selectedMedia]);
+
+  useEffect(() => {
+    if (companyProfile) {
+      reset({
+        socialMedia: companyProfile.social_media_handles || [],
+        mediaPresence: companyProfile?.media_presence || [],
+      });
+    }
+    if (founderInformation) {
+      // console.log('Founder Information:', founderInformation);
+
+      reset({
+        advisors: founderInformation?.advisors || [],
+        co_founders: founderInformation?.co_founders || [],
+      });
+    }
+    if (fundingInformation) {
+      reset({
+        capTable: fundingInformation?.cap_table || [],
+        funding: fundingInformation?.funding || [],
+      });
+    }
+  }, [companyProfile, founderInformation, fundingInformation, reset]);
+
+  // console.log('Presence Fields:', presenceFields);
+  // console.log('Social Media Fields:', socialMediaFields);
+  // console.log('Advisor Fields:', advisorFields);
+  // console.log('Co-Founder Fields:', coFounderFields);
+  // console.log('Cap Table Fields:', capTableFields);
 
   const handleSave = async (data, section) => {
     try {
       let updatedData;
       const uploadedFiles = {};
 
-      // Handle file uploads
       const handleUploads = async (data) => {
         switch (section) {
           case 'startup_details':
@@ -232,25 +270,9 @@ const VerticalNavTabs = () => {
               );
             }
             break;
-
-            // case 'company_documents':
-            //   for (const [formField] of Object.entries(companyDocumentsFiles)) {
-            //     if (data[formField] && data[formField][0]) {
-            //       uploadedFiles[formField] = await handleFileUpload(
-            //         data[formField][0],
-            //         'documents',
-            //         companyProfile?.company_name || data.company_name,
-            //         formField
-            //       );
-            //     }
-            //   }
-
-            break;
-
-          // Additional cases as needed
         }
       };
-      console.log('uploadedFiles', uploadedFiles);
+      // console.log('uploadedFiles', uploadedFiles);
       await handleUploads(data);
 
       switch (section) {
@@ -531,6 +553,16 @@ const VerticalNavTabs = () => {
     }
   };
 
+  const parsedCountry = JSON.parse(companyProfile?.country || '{}');
+
+  // Map parsed value to corresponding label in options
+  const defaultCountryValue = countries.find(
+    (c) => c.value === parsedCountry.value
+  );
+
+  // Extract the label for rendering
+  const renderedCountry = parsedCountry.label || '';
+
   if (loading) {
     return <Loading />;
   }
@@ -617,7 +649,7 @@ const VerticalNavTabs = () => {
                             <Controller
                               name='country'
                               control={control}
-                              defaultValue=''
+                              defaultValue={defaultCountryValue || ''}
                               render={({ field }) => (
                                 <div>
                                   <label
@@ -859,6 +891,9 @@ const VerticalNavTabs = () => {
 
                             {hasMediaPresence && (
                               <div className='mt-4'>
+                                <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
+                                  Media Presence
+                                </div>
                                 {presenceFields.map((item, index) => (
                                   <div
                                     className='grid gap-5 mb-5 last:mb-0 grid-cols-1 md:grid-cols-4 lg:grid-cols-5'
@@ -902,6 +937,7 @@ const VerticalNavTabs = () => {
                                 />
                               </div>
                             )}
+
                             <div className='mt-4'>
                               <InputGroup
                                 label='Upload Company Logo'
@@ -1765,7 +1801,7 @@ const VerticalNavTabs = () => {
                                     LOCATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.country ||
+                                    {renderedCountry ||
                                       companyProfileLoc?.country ||
                                       'Not Provided'}
                                     ,{' '}
@@ -1947,33 +1983,6 @@ const VerticalNavTabs = () => {
                                   </div>
                                 </div>
                               </li>
-
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
-                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                  <Icon icon='heroicons:document' />
-                                </div>
-                                <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    COMPANY LOGO
-                                  </div>
-                                  <a
-                                    href={
-                                      companyProfile?.company_logo ||
-                                      companyProfileLoc?.company_logo ||
-                                      '#'
-                                    }
-                                    target='_blank'
-                                    rel='noopener noreferrer'
-                                    className='text-base text-slate-600 dark:text-slate-50'
-                                  >
-                                    {companyProfile?.company_logo ||
-                                    companyProfileLoc?.company_logo
-                                      ? 'View Company Logo'
-                                      : 'Not provided'}
-                                  </a>
-                                </div>
-                              </li>
-
                               {/* Social Media Handles */}
                               {companyProfile?.social_media_handles?.map(
                                 (handle, index) => (
