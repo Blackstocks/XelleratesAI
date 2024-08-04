@@ -1084,6 +1084,7 @@ const VerticalNavTabs = () => {
                               label='Founder Name'
                               name='founder_name'
                               defaultValue={
+                                user?.name ||
                                 founderInformation?.founder_name ||
                                 founderInformationLoc?.founder_name ||
                                 'Not provided'
@@ -1095,6 +1096,7 @@ const VerticalNavTabs = () => {
                               label='Email'
                               name='founder_email'
                               defaultValue={
+                                user?.email ||
                                 founderInformation?.founder_email ||
                                 founderInformationLoc?.founder_email ||
                                 'Not provided'
@@ -1106,6 +1108,7 @@ const VerticalNavTabs = () => {
                               label='Mobile Number'
                               name='founder_mobile'
                               defaultValue={
+                                user?.mobile ||
                                 founderInformation?.founder_mobile ||
                                 founderInformationLoc?.founder_mobile ||
                                 'Not provided'
@@ -1117,6 +1120,7 @@ const VerticalNavTabs = () => {
                               label='LinkedIn Profile'
                               name='founder_linkedin'
                               defaultValue={
+                                user?.linkedin_profile ||
                                 founderInformation?.founder_linkedin ||
                                 founderInformationLoc?.founder_linkedin ||
                                 'Not provided'
@@ -2052,7 +2056,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.founder_name ||
+                                    {user?.name ||
+                                      founderInformation?.founder_name ||
                                       founderInformationLoc?.founder_name ||
                                       'Not provided'}
                                   </div>
@@ -2067,7 +2072,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.founder_email ||
+                                    {user?.email ||
+                                      founderInformation?.founder_email ||
                                       founderInformationLoc?.founder_email ||
                                       'Not provided'}
                                   </div>
@@ -2082,7 +2088,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER MOBILE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.founder_mobile ||
+                                    {user?.mobile ||
+                                      founderInformation?.founder_mobile ||
                                       founderInformationLoc?.founder_mobile ||
                                       'Not provided'}
                                   </div>
@@ -2097,7 +2104,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER LINKEDIN
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.founder_linkedin ||
+                                    {user.linkedin_profile ||
+                                      founderInformation?.founder_linkedin ||
                                       founderInformationLoc?.founder_linkedin ||
                                       'Not provided'}
                                   </div>
