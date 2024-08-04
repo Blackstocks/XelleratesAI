@@ -21,14 +21,22 @@ const Footer = ({ className = 'custom-class' }) => {
             COPYRIGHT &copy; 2024 Xellerates AI, All rights Reserved |
           </div>
           <div className='ltr:md:text-left rtl:md:text-end text-center md:ml-1 text-sm'>
-            {/* Hand-crafted & Made by{' '} */}
             <a
-              href=''
+              href='https://www.xellerates.com/terms-and-conditions'
               target='_blank'
+              rel='noopener noreferrer'
               className='text-primary-500 font-semibold'
             >
-              {' '}
-              Terms and Conditions | Privacy Policy
+              Terms and Conditions
+            </a>{' '}
+            |{' '}
+            <a
+              href='https://www.xellerates.com/privacy-policy'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-primary-500 font-semibold'
+            >
+              Privacy Policy
             </a>
           </div>
         </div>
