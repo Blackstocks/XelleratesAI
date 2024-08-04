@@ -8,6 +8,7 @@ const Loading = () => {
     <div className='flex flex-col items-center justify-center app_height'>
       <div className='mb-3'>
         <img
+          style={{ margin: '0 auto', height: '3em' }}
           src={
             isDark
               ? 'assets/images/logo/X (8).png'

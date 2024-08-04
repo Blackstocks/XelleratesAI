@@ -131,6 +131,18 @@ const AdminDashboard = ({ userType }) => {
     }
   };
 
+  const disapproveUser = async (userId) => {
+    const { error } = await supabase.from('profiles').delete().eq('id', userId);
+
+    if (error) {
+      console.error(error);
+      toast.error('Error disapproving user');
+    } else {
+      toast.success('User disapproved successfully');
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+    }
+  };
+
   const columns = useMemo(
     () => [
       {
@@ -162,19 +174,34 @@ const AdminDashboard = ({ userType }) => {
       },
       {
         Header: 'Actions',
-        Cell: ({ row }) =>
-          row.original.status !== 'approved' ? (
+        Cell: ({ row }) => (
+          <>
+            {row.original.status !== 'approved' ? (
+              <button
+                className='btn btn-primary'
+                onClick={() =>
+                  approveUser(
+                    row.original.id,
+                    row.original.email,
+                    row.original.name
+                  )
+                }
+              >
+                Approve
+              </button>
+            ) : (
+              <button className='btn btn-secondary' disabled>
+                Approved
+              </button>
+            )}
             <button
-              className='btn btn-primary'
-              onClick={() => approveUser(row.original.id, row.original.email, row.original.name)}
+              className='btn btn-danger ml-2'
+              onClick={() => disapproveUser(row.original.id)}
             >
-              Approve
+              Disapprove
             </button>
-          ) : (
-            <button className='btn btn-secondary' disabled>
-              Approved
-            </button>
-          ),
+          </>
+        ),
       },
     ],
     []
