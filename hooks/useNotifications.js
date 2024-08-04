@@ -24,10 +24,10 @@ const useNotifications = () => {
         let query;
         if (user?.user_type === 'startup') {
           if (companyProfile?.id) {
-            console.log(
-              'Fetching notifications for startup:',
-              companyProfile?.id
-            );
+            // console.log(
+            //   'Fetching notifications for startup:',
+            //   companyProfile?.id
+            // );
             query = supabase
               .from('notifications')
               .select('*')
@@ -37,7 +37,7 @@ const useNotifications = () => {
           }
         } else if (user?.user_type === 'investor') {
           if (user?.id) {
-            console.log('Fetching notifications for investor:', user?.id);
+            // console.log('Fetching notifications for investor:', user?.id);
             query = supabase
               .from('notifications')
               .select('*')
@@ -61,7 +61,7 @@ const useNotifications = () => {
           return;
         }
 
-        console.log('Fetched notifications:', data);
+        // console.log('Fetched notifications:', data);
         setNotifications(data);
       } catch (error) {
         console.error('Unexpected error fetching notifications:', error);
@@ -76,13 +76,13 @@ const useNotifications = () => {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notifications' },
         (_payload) => {
-          console.log('Notification change detected, refetching notifications');
+          // console.log('Notification change detected, refetching notifications');
           fetchNotifications();
         }
       )
       .subscribe();
 
-    console.log('Subscribed to notifications channel');
+    // console.log('Subscribed to notifications channel');
 
     return () => {
       //   console.log('Unsubscribing from notifications channel');

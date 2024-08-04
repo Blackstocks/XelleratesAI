@@ -75,6 +75,7 @@ const Profile = () => {
     { value: 'Human Resources', label: 'Human Resources' },
     { value: 'Others', label: 'Others' },
   ];
+  const [investorProfileLoc, setInvestorProfileLoc] = useState(null);
 
   const handleSave = async (data, section) => {
     try {
@@ -95,17 +96,20 @@ const Profile = () => {
             ? await updateInvestorSignupData(user?.id, formData)
             : await insertInvestorSignupData({
                 ...formData,
-                profile_id: user.id,
+                profile_id: user?.id,
               });
-          updateDetailsLocally(formData);
+
+          if (result) {
+            setInvestorProfileLoc(result[0]);
+          }
           break;
         default:
           console.error('Unknown section:', section);
           return;
       }
 
-      reset();
       setEditingSection(null);
+      console.log('investorProfileLoc', investorProfileLoc);
     } catch (error) {
       console.error('Unexpected error:', error);
     }
@@ -239,7 +243,9 @@ const Profile = () => {
                         INVESTOR TYPE
                       </div>
                       <div className='text-base text-slate-600 dark:text-slate-50'>
-                        {investorSignup?.typeof || 'Not provided'}
+                        {investorProfileLoc?.typeof ||
+                          investorSignup?.typeof ||
+                          'Not provided'}
                       </div>
                     </div>
                   </li>
@@ -252,7 +258,9 @@ const Profile = () => {
                         CHEQUE SIZE
                       </div>
                       <div className='text-base text-slate-600 dark:text-slate-50'>
-                        {investorSignup?.cheque_size || 'Not provided'}
+                        {investorProfileLoc?.cheque_size ||
+                          investorSignup?.cheque_size ||
+                          'Not provided'}
                       </div>
                     </div>
                   </li>
@@ -278,7 +286,9 @@ const Profile = () => {
                         INVESTMENT STAGE
                       </div>
                       <div className='text-base text-slate-600 dark:text-slate-50'>
-                        {investorSignup?.investment_stage || 'Not provided'}
+                        {investorProfileLoc?.investment_stage ||
+                          investorSignup?.investment_stage ||
+                          'Not provided'}
                       </div>
                     </div>
                   </li>
@@ -291,7 +301,9 @@ const Profile = () => {
                         INVESTMENT THESIS
                       </div>
                       <div className='text-base text-slate-600 dark:text-slate-50'>
-                        {investorSignup?.investment_thesis || 'Not provided'}
+                        {investorProfileLoc?.investment_thesis ||
+                          investorSignup?.investment_thesis ||
+                          'Not provided'}
                       </div>
                     </div>
                   </li>
