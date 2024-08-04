@@ -184,12 +184,14 @@ const Profile = () => {
                   </div>
                 ) : (
                   <div className='text-2xl font-medium text-slate-900 dark:text-slate-200 mb-[3px]'>
-                    {user?.company_name || 'Not provided'}
+                    {investorProfileLoc?.name || user?.name || 'Not provided'}
                   </div>
                 )}
                 {user?.user_type === 'investor' && (
                   <div className='text-sm font-light text-slate-600 dark:text-slate-400'>
-                    {investorSignup?.typeof || 'Not provided'}
+                    {investorProfileLoc?.typeof ||
+                      investorSignup?.typeof ||
+                      'Not provided'}
                   </div>
                 )}
               </div>
@@ -204,6 +206,22 @@ const Profile = () => {
                 <ul className='list space-y-8'>
                   <li className='flex space-x-3 rtl:space-x-reverse'>
                     <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                      <Icon icon='heroicons:building-library' />
+                    </div>
+                    <div className='flex-1'>
+                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        COMPANY NAME
+                      </div>
+                      <div className='text-base text-slate-600 dark:text-slate-50'>
+                        {investorProfileLoc?.company_name ||
+                          investorSignup?.company_name ||
+                          user?.company_name ||
+                          'Not provided'}
+                      </div>
+                    </div>
+                  </li>
+                  <li className='flex space-x-3 rtl:space-x-reverse'>
+                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                       <Icon icon='heroicons:envelope' />
                     </div>
                     <div className='flex-1'>
@@ -211,10 +229,14 @@ const Profile = () => {
                         EMAIL
                       </div>
                       <a
-                        href={`mailto:${user?.email}`}
+                        href={`mailto:${
+                          investorProfileLoc?.email || user?.email
+                        }`}
                         className='text-base text-slate-600 dark:text-slate-50'
                       >
-                        {user?.email || 'Not provided'}
+                        {investorProfileLoc?.email ||
+                          user?.email ||
+                          'Not provided'}
                       </a>
                     </div>
                   </li>
@@ -227,10 +249,14 @@ const Profile = () => {
                         PHONE
                       </div>
                       <a
-                        href={`tel:${user?.mobile}`}
+                        href={`tel:${
+                          investorProfileLoc?.mobile || user?.mobile
+                        }`}
                         className='text-base text-slate-600 dark:text-slate-50'
                       >
-                        {user?.mobile || 'Not provided'}
+                        {investorProfileLoc?.mobile ||
+                          user?.mobile ||
+                          'Not provided'}
                       </a>
                     </div>
                   </li>
@@ -330,6 +356,36 @@ const Profile = () => {
                     <div className='mb-4'>
                       <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
                         <Icon
+                          icon='heroicons:user'
+                          className='inline-block mr-1 text-xl mb-2'
+                        />
+                        Name
+                      </label>
+                      <Textinput
+                        name='name'
+                        defaultValue={investorProfileLoc?.name || user?.name}
+                        register={register}
+                      />
+                    </div>
+                    <div className='mb-4'>
+                      <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        <Icon
+                          icon='heroicons:user'
+                          className='inline-block mr-1 text-xl mb-2'
+                        />
+                        Company Name
+                      </label>
+                      <Textinput
+                        name='companyname'
+                        defaultValue={
+                          investorProfileLoc?.company_name || user?.company_name
+                        }
+                        register={register}
+                      />
+                    </div>
+                    <div className='mb-4'>
+                      <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                        <Icon
                           icon='heroicons:envelope'
                           className='inline-block mr-1 text-xl mb-2'
                         />
@@ -337,7 +393,7 @@ const Profile = () => {
                       </label>
                       <Textinput
                         name='email'
-                        defaultValue={user?.email}
+                        defaultValue={investorProfileLoc?.email || user?.email}
                         register={register}
                       />
                     </div>
@@ -351,7 +407,9 @@ const Profile = () => {
                       </label>
                       <Textinput
                         name='mobile'
-                        defaultValue={user?.mobile}
+                        defaultValue={
+                          investorProfileLoc?.mobile || user?.mobile
+                        }
                         register={register}
                       />
                     </div>
