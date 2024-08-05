@@ -173,6 +173,7 @@ const VerticalNavTabs = () => {
   const [ctoInfoLoc, setCtoInfoLoc] = useState(null);
   const [businessDetailsLoc, setBusinessDetailsLoc] = useState(null);
   const [companyDocumentsLoc, setCompanyDocumentsLoc] = useState(null);
+  const [generalInformationLoc, setGeneralInformationLoc] = useState(null);
 
   useEffect(() => {
     setFounderInformationLoc(founderInformation);
@@ -181,7 +182,16 @@ const VerticalNavTabs = () => {
     setCtoInfoLoc(ctoInfo);
     setBusinessDetailsLoc(businessDetails);
     setCompanyDocumentsLoc(companyDocuments);
-  }, [companyProfile]);
+    setGeneralInformationLoc(user);
+  }, [
+    user,
+    companyProfile,
+    founderInformation,
+    fundingInformation,
+    ctoInfo,
+    businessDetails,
+    companyDocuments,
+  ]);
 
   // console.log('companyProfile', companyProfile);
   // console.log('founderInformation', founderInformation);
@@ -277,12 +287,35 @@ const VerticalNavTabs = () => {
 
       switch (section) {
         case 'general_info':
-          const generalInfoResponse = await updateGeneralInfo(user.id, {
+          const generalData = {
             email: data.email,
             mobile: data.mobile,
-          });
-          if (generalInfoResponse.error) throw generalInfoResponse.error;
-          updatedData = generalInfoResponse.data;
+            linkedin_profile: data.linkedin_profile,
+          };
+
+          try {
+            const generalInfoResponse = await updateGeneralInfo(
+              user.id,
+              generalData
+            );
+
+            if (generalInfoResponse?.error) {
+              throw generalInfoResponse.error;
+            }
+
+            updatedData = generalInfoResponse.data;
+
+            if (updatedData) {
+              console.log('updatedData', updatedData);
+              setGeneralInformationLoc(updatedData); // Assuming you have a state setter for the updated data
+
+              console.log('generalInformationLoc', generalInformationLoc);
+            } else {
+              console.error('Unexpected response format:', generalInfoResponse);
+            }
+          } catch (error) {
+            console.error('Error updating general information:', error);
+          }
           break;
 
         case 'startup_details':
@@ -460,7 +493,7 @@ const VerticalNavTabs = () => {
           break;
         case 'business_details':
           const emptyBusinessDetails = !businessDetails?.id;
-          changedData = {
+          updatedData = {
             company_id: companyProfile.id,
             current_traction: data.current_traction || null,
             new_Customers: data.new_Customers || null,
@@ -472,7 +505,7 @@ const VerticalNavTabs = () => {
             if (emptyBusinessDetails) {
               const businessDetailsResponse = await insertBusinessDetails(
                 companyProfile.id,
-                changedData
+                updatedData
               );
               if (businessDetailsResponse.error) {
                 throw businessDetailsResponse.error;
@@ -483,7 +516,7 @@ const VerticalNavTabs = () => {
             } else {
               const businessDetailsResponse = await updateBusinessDetails(
                 companyProfile.id,
-                changedData
+                updatedData
               );
               if (businessDetailsResponse.error) {
                 throw businessDetailsResponse.error;
@@ -571,7 +604,7 @@ const VerticalNavTabs = () => {
     <Card>
       <Tab.Group>
         <div className='grid grid-cols-12 lg:gap-5 md:gap-5'>
-          <div className='2xl:col-span-2 xl:col-span-3 lg:col-span-3 lg:gap-5 md:col-span-5 col-span-12'>
+          <div className='2xl:col-span-3 xl:col-span-3 lg:col-span-3 lg:gap-5 md:col-span-5 col-span-12'>
             <Tab.List className='max-w-max'>
               {sections.map((item, i) => (
                 <Tab key={i} as={Fragment}>
@@ -610,13 +643,26 @@ const VerticalNavTabs = () => {
                             <Textinput
                               label='Email'
                               name='email'
-                              defaultValue={user?.email}
+                              defaultValue={
+                                generalInformationLoc?.email || user?.email
+                              }
                               register={register}
                             />
                             <Textinput
                               label='Phone'
                               name='mobile'
-                              defaultValue={user?.mobile}
+                              defaultValue={
+                                generalInformationLoc?.mobile || user?.mobile
+                              }
+                              register={register}
+                            />
+                            <Textinput
+                              label='LinkedIn Profile'
+                              name='linkedin_profile'
+                              defaultValue={
+                                generalInformationLoc?.linkedin_profile ||
+                                user?.linkedin_profile
+                              }
                               register={register}
                             />
                           </>
@@ -627,8 +673,8 @@ const VerticalNavTabs = () => {
                               label='Company Name'
                               name='company_name'
                               defaultValue={
-                                companyProfile?.company_name ||
-                                companyProfileLoc?.company_name
+                                companyProfileLoc?.company_name ||
+                                companyProfile?.company_name
                               }
                               placeholder='Enter your company name'
                               register={register}
@@ -640,8 +686,8 @@ const VerticalNavTabs = () => {
                               type='date'
                               name='incorporation_date'
                               defaultValue={
-                                companyProfile?.incorporation_date ||
-                                companyProfileLoc?.incorporation_date
+                                companyProfileLoc?.incorporation_date ||
+                                companyProfile?.incorporation_date
                               }
                               placeholder='Select the incorporation date'
                               register={register}
@@ -1084,7 +1130,6 @@ const VerticalNavTabs = () => {
                               label='Founder Name'
                               name='founder_name'
                               defaultValue={
-                                user?.name ||
                                 founderInformation?.founder_name ||
                                 founderInformationLoc?.founder_name ||
                                 'Not provided'
@@ -1096,7 +1141,6 @@ const VerticalNavTabs = () => {
                               label='Email'
                               name='founder_email'
                               defaultValue={
-                                user?.email ||
                                 founderInformation?.founder_email ||
                                 founderInformationLoc?.founder_email ||
                                 'Not provided'
@@ -1108,7 +1152,6 @@ const VerticalNavTabs = () => {
                               label='Mobile Number'
                               name='founder_mobile'
                               defaultValue={
-                                user?.mobile ||
                                 founderInformation?.founder_mobile ||
                                 founderInformationLoc?.founder_mobile ||
                                 'Not provided'
@@ -1120,7 +1163,6 @@ const VerticalNavTabs = () => {
                               label='LinkedIn Profile'
                               name='founder_linkedin'
                               defaultValue={
-                                user?.linkedin_profile ||
                                 founderInformation?.founder_linkedin ||
                                 founderInformationLoc?.founder_linkedin ||
                                 'Not provided'
@@ -1520,140 +1562,458 @@ const VerticalNavTabs = () => {
                         {section.key === 'company_documents' && (
                           <>
                             <InputGroup
-                              label='Upload Certificate of Incorporation'
+                              label={
+                                <>
+                                  Upload Certificate of Incorporation&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Certificate of
+                                    Incorporation, you can create one&nbsp;
+                                    <a
+                                      href='link_to_creation_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </>
+                              }
                               type='file'
                               name='certificateOfIncorporation'
                               register={register}
                               placeholder='Upload Certificate of Incorporation'
                             />
+
                             <InputGroup
-                              label='Upload GST Certificate'
+                              label={
+                                <div className='mt-4'>
+                                  Upload GST Certificate&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this GST Certificate, you
+                                    can apply for one&nbsp;
+                                    <a
+                                      href='link_to_application_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='gstCertificate'
                               register={register}
                               placeholder='Upload GST Certificate'
                             />
+
                             <InputGroup
-                              label='Upload Trademark'
+                              label={
+                                <div className='mt-4'>
+                                  Upload Trademark&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Trademark file, you
+                                    can apply for one&nbsp;
+                                    <a
+                                      href='link_to_application_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='trademark'
                               register={register}
                               placeholder='Upload Trademark'
                             />
+
                             <InputGroup
-                              label='Upload Copyright'
+                              label={
+                                <div className='mt-4'>
+                                  Upload Copyright&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Copyright file, you
+                                    can apply for one&nbsp;
+                                    <a
+                                      href='link_to_application_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='copyright'
                               register={register}
                               placeholder='Upload Copyright'
                             />
+
                             <InputGroup
-                              label='Upload Patent'
+                              label={
+                                <div className='mt-4'>
+                                  Upload Patent&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Patent file, you can
+                                    apply for one&nbsp;
+                                    <a
+                                      href='link_to_application_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='patent'
                               register={register}
                               placeholder='Upload Patent'
                             />
+
                             <InputGroup
-                              label='Upload Startup India Certificate'
+                              label={
+                                <div className='mt-4'>
+                                  Upload Startup India Certificate&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Startup India
+                                    Certificate, you can register&nbsp;
+                                    <a
+                                      href='link_to_registration_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='startupIndiaCertificate'
                               register={register}
                               placeholder='Upload Startup India Certificate'
                             />
+
                             <InputGroup
-                              label='Upload your Due-Diligence Report'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your Due-Diligence Report&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Due-Diligence
+                                    Report, you can consult with an expert&nbsp;
+                                    <a
+                                      href='link_to_consultation_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='dueDiligenceReport'
                               register={register}
                               placeholder='Upload Due-Diligence Report'
                             />
+
                             <InputGroup
-                              label='Upload your Business Valuation report'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your Business Valuation Report&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Business Valuation
+                                    Report, you can get one&nbsp;
+                                    <a
+                                      href='link_to_valuation_service'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='businessValuationReport'
                               register={register}
                               placeholder='Upload Business Valuation Report'
                             />
+
                             <InputGroup
-                              label='Upload your MIS'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your MIS&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this MIS file, you can
+                                    consult with your finance team&nbsp;
+                                    <a
+                                      href='link_to_finance_team_contact'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='mis'
                               register={register}
                               placeholder='Upload MIS'
                             />
+
                             <InputGroup
-                              label='Upload your financial projections'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your Financial Projections&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Financial
+                                    Projections file, you can consult with a
+                                    financial advisor&nbsp;
+                                    <a
+                                      href='link_to_financial_advisor'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='financialProjections'
                               register={register}
                               placeholder='Upload Financial Projections'
                             />
+
                             <InputGroup
-                              label='Upload your balance sheet'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your Balance Sheet&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Balance Sheet, you
+                                    can generate one&nbsp;
+                                    <a
+                                      href='link_to_generation_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='balanceSheet'
                               register={register}
                               placeholder='Upload Balance Sheet'
                             />
+
                             <InputGroup
-                              label='Upload your P&L Statement'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your P&L Statement&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this P&L Statement, you
+                                    can generate one&nbsp;
+                                    <a
+                                      href='link_to_generation_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='plStatement'
                               register={register}
                               placeholder='Upload P&L Statement'
                             />
+
                             <InputGroup
-                              label='Upload your cashflow statement'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your Cashflow Statement&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Cashflow Statement,
+                                    you can generate one&nbsp;
+                                    <a
+                                      href='link_to_generation_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='cashflowStatement'
                               register={register}
                               placeholder='Upload Cashflow Statement'
                             />
+
                             <InputGroup
-                              label='Upload Pitch Deck'
+                              label={
+                                <div className='mt-4'>
+                                  Upload Pitch Deck&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have a Pitch Deck, you can
+                                    create one&nbsp;
+                                    <a
+                                      href='link_to_creation_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='pitchDeck'
                               register={register}
                               placeholder='Upload Pitch Deck'
                             />
+
                             <InputGroup
-                              label='Upload Video Pitch'
+                              label={
+                                <div className='mt-4'>
+                                  Upload Video Pitch&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have a Video Pitch, you can
+                                    create one&nbsp;
+                                    <a
+                                      href='link_to_creation_page'
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-blue-500 underline'
+                                    >
+                                      here
+                                    </a>
+                                    )
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='videoPitch'
                               register={register}
                               placeholder='Upload Video Pitch'
                             />
+
                             <InputGroup
-                              label='Upload your SHA (Previous round/ existing round)'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your SHA (Previous round/ existing
+                                  round)&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this SHA, please upload
+                                    the latest document)
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='sha'
                               register={register}
                               placeholder='Upload SHA'
                             />
+
                             <InputGroup
-                              label='Upload your Termsheet (previous round/ existing round)'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your Termsheet (previous round/
+                                  existing round)&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Termsheet, please
+                                    upload the latest document)
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='termsheet'
                               register={register}
                               placeholder='Upload Termsheet'
                             />
+
                             <InputGroup
-                              label='Upload your employment agreement'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your Employment Agreement&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this Employment
+                                    Agreement, please upload the latest
+                                    document)
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='employmentAgreement'
                               register={register}
                               placeholder='Upload Employment Agreement'
                             />
+
                             <InputGroup
-                              label='Upload your MoU'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your MoU&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this MoU, please upload
+                                    the latest document)
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='mou'
                               register={register}
                               placeholder='Upload MoU'
                             />
+
                             <InputGroup
-                              label='Upload your NDA'
+                              label={
+                                <div className='mt-4'>
+                                  Upload your NDA&nbsp;
+                                  <span className='text-xs text-gray-500'>
+                                    (If you don't have this NDA, please upload
+                                    the latest document)
+                                  </span>
+                                </div>
+                              }
                               type='file'
                               name='nda'
                               register={register}
@@ -1739,10 +2099,12 @@ const VerticalNavTabs = () => {
                                     href={`mailto:${user?.email}`}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {user?.email}
+                                    {generalInformationLoc?.email ||
+                                      user?.email}
                                   </a>
                                 </div>
                               </li>
+
                               <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:phone-arrow-up-right' />
@@ -1752,10 +2114,34 @@ const VerticalNavTabs = () => {
                                     PHONE
                                   </div>
                                   <a
-                                    href={`tel:${user?.mobile}`}
+                                    href={`tel:${
+                                      generalInformationLoc?.mobile ||
+                                      user?.mobile
+                                    }`}
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
                                     {user?.mobile}
+                                  </a>
+                                </div>
+                              </li>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:globe-alt' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    LINKEDIN
+                                  </div>
+                                  <a
+                                    href={
+                                      generalInformationLoc?.linkedin_profile ||
+                                      user?.linkedin_profile
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-base text-slate-600 dark:text-slate-50'
+                                  >
+                                    {user?.linkedin_profile || 'Not provided'}
                                   </a>
                                 </div>
                               </li>
@@ -1772,9 +2158,9 @@ const VerticalNavTabs = () => {
                                     COMPANY NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {user?.company_name ||
+                                    {companyProfileLoc?.company_name ||
+                                      user?.company_name ||
                                       companyProfile?.company_name ||
-                                      companyDocumentsLoc?.company_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1789,8 +2175,8 @@ const VerticalNavTabs = () => {
                                     INCORPORATION DATE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.incorporation_date ||
-                                      companyProfileLoc?.incorporation_date ||
+                                    {companyProfileLoc?.incorporation_date ||
+                                      companyProfile?.incorporation_date ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1809,8 +2195,8 @@ const VerticalNavTabs = () => {
                                       companyProfileLoc?.country ||
                                       'Not Provided'}
                                     ,{' '}
-                                    {companyProfile?.state_city ||
-                                      companyProfileLoc?.state_city ||
+                                    {companyProfileLoc?.state_city ||
+                                      companyProfile?.state_city ||
                                       'Not Provided'}
                                   </div>
                                 </div>
@@ -1825,8 +2211,8 @@ const VerticalNavTabs = () => {
                                     OFFICE ADDRESS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.office_address ||
-                                      companyProfileLoc?.office_address ||
+                                    {companyProfileLoc?.office_address ||
+                                      companyProfile?.office_address ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1842,14 +2228,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyProfile?.company_website ||
                                       companyProfileLoc?.company_website ||
+                                      companyProfile?.company_website ||
                                       '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyProfile?.company_website ||
-                                      companyProfileLoc?.company_website ||
+                                    {companyProfileLoc?.company_website ||
+                                      companyProfile?.company_website ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -1865,14 +2251,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      companyProfile?.linkedin_profile ||
                                       companyProfileLoc?.linkedin_profile ||
+                                      companyProfile?.linkedin_profile ||
                                       '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyProfile?.linkedin_profile ||
-                                      companyProfileLoc?.linkedin_profile ||
+                                    {companyProfileLoc?.linkedin_profile ||
+                                      companyProfile?.linkedin_profile ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -1887,8 +2273,8 @@ const VerticalNavTabs = () => {
                                     BUSINESS DESCRIPTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.short_description ||
-                                      companyProfileLoc?.short_description ||
+                                    {companyProfileLoc?.short_description ||
+                                      companyProfile?.short_description ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1903,8 +2289,8 @@ const VerticalNavTabs = () => {
                                     TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.team_size ||
-                                      companyProfileLoc?.team_size ||
+                                    {companyProfileLoc?.team_size ||
+                                      companyProfile?.team_size ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1919,8 +2305,8 @@ const VerticalNavTabs = () => {
                                     CURRENT STAGE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.current_stage ||
-                                      companyProfileLoc?.current_stage ||
+                                    {companyProfileLoc?.current_stage ||
+                                      companyProfile?.current_stage ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1935,8 +2321,8 @@ const VerticalNavTabs = () => {
                                     TARGET AUDIENCE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.target_audience ||
-                                      companyProfileLoc?.target_audience ||
+                                    {companyProfileLoc?.target_audience ||
+                                      companyProfile?.target_audience ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1951,8 +2337,8 @@ const VerticalNavTabs = () => {
                                     USP/MOAT
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.usp_moat ||
-                                      companyProfileLoc?.usp_moat ||
+                                    {companyProfileLoc?.usp_moat ||
+                                      companyProfile?.usp_moat ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1967,8 +2353,8 @@ const VerticalNavTabs = () => {
                                     INDUSTRY SECTOR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.industry_sector ||
-                                      companyProfileLoc?.industry_sector ||
+                                    {companyProfileLoc?.industry_sector ||
+                                      companyProfile?.industry_sector ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -1983,65 +2369,70 @@ const VerticalNavTabs = () => {
                                     MEDIA PRESENCE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {companyProfile?.media || 'Not provided'}
+                                    {companyProfileLoc?.media ||
+                                      companyProfile?.media ||
+                                      'Not provided'}
                                   </div>
                                 </div>
                               </li>
                               {/* Social Media Handles */}
-                              {companyProfile?.social_media_handles?.map(
-                                (handle, index) => (
-                                  <li
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                    key={index}
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:share' />
+                              {(
+                                companyProfileLoc?.social_media_handles ||
+                                companyProfile?.social_media_handles
+                              )?.map((handle, index) => (
+                                <li
+                                  className='flex space-x-3 rtl:space-x-reverse'
+                                  key={index}
+                                >
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:share' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      {handle.platform || 'Not provided'}
                                     </div>
-                                    <div className='flex-1'>
-                                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                        {handle.platform || 'Not provided'}
-                                      </div>
-                                      <a
-                                        href={handle.url || '#'}
-                                        target='_blank'
-                                        rel='noopener noreferrer'
-                                        className='text-base text-slate-600 dark:text-slate-50'
-                                      >
-                                        {handle.url || 'Not provided'}
-                                      </a>
-                                    </div>
-                                  </li>
-                                )
-                              )}
+                                    <a
+                                      href={handle.url || '#'}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      {handle.url || 'Not provided'}
+                                    </a>
+                                  </div>
+                                </li>
+                              ))}
+
                               <h3 className='text-lg font-semibold text-slate-700 dark:text-slate-200'>
                                 Media Presence Links
                               </h3>
 
-                              {companyProfile?.media_presence?.map(
-                                (presence, index) => (
-                                  <li
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                    key={index}
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:newspaper' />
+                              {(
+                                companyProfileLoc?.media_presence ||
+                                companyProfile?.media_presence
+                              )?.map((presence, index) => (
+                                <li
+                                  className='flex space-x-3 rtl:space-x-reverse'
+                                  key={index}
+                                >
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:newspaper' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                      {presence.platform || 'Not provided'}
                                     </div>
-                                    <div className='flex-1'>
-                                      <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                        {presence.platform || 'Not provided'}
-                                      </div>
-                                      <a
-                                        href={presence.url || '#'}
-                                        target='_blank'
-                                        rel='noopener noreferrer'
-                                        className='text-base text-slate-600 dark:text-slate-50'
-                                      >
-                                        {presence.url || 'Not provided'}
-                                      </a>
-                                    </div>
-                                  </li>
-                                )
-                              )}
+                                    <a
+                                      href={presence.url || '#'}
+                                      target='_blank'
+                                      rel='noopener noreferrer'
+                                      className='text-base text-slate-600 dark:text-slate-50'
+                                    >
+                                      {presence.url || 'Not provided'}
+                                    </a>
+                                  </div>
+                                </li>
+                              ))}
                             </>
                           )}
 
@@ -2056,9 +2447,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {user?.name ||
+                                    {founderInformationLoc?.founder_name ||
                                       founderInformation?.founder_name ||
-                                      founderInformationLoc?.founder_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2072,9 +2462,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {user?.email ||
+                                    {founderInformationLoc?.founder_email ||
                                       founderInformation?.founder_email ||
-                                      founderInformationLoc?.founder_email ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2088,9 +2477,8 @@ const VerticalNavTabs = () => {
                                     FOUNDER MOBILE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {user?.mobile ||
+                                    {founderInformationLoc?.founder_mobile ||
                                       founderInformation?.founder_mobile ||
-                                      founderInformationLoc?.founder_mobile ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2104,9 +2492,9 @@ const VerticalNavTabs = () => {
                                     FOUNDER LINKEDIN
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {user.linkedin_profile ||
+                                    {founderInformationLoc?.founder_linkedin ||
+                                      user.linkedin_profile ||
                                       founderInformation?.founder_linkedin ||
-                                      founderInformationLoc?.founder_linkedin ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2120,8 +2508,8 @@ const VerticalNavTabs = () => {
                                     DEGREE NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.degree_name ||
-                                      founderInformationLoc?.degree_name ||
+                                    {founderInformationLoc?.degree_name ||
+                                      founderInformation?.degree_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2135,8 +2523,8 @@ const VerticalNavTabs = () => {
                                     COLLEGE NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.college_name ||
-                                      founderInformationLoc?.college_name ||
+                                    {founderInformationLoc?.college_name ||
+                                      founderInformation?.college_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2150,8 +2538,8 @@ const VerticalNavTabs = () => {
                                     GRADUATION YEAR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {founderInformation?.graduation_year ||
-                                      founderInformationLoc?.graduation_year ||
+                                    {founderInformationLoc?.graduation_year ||
+                                      founderInformation?.graduation_year ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2246,8 +2634,8 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      founderInformation?.co_founder_agreement ||
                                       founderInformationLoc?.co_founder_agreement ||
+                                      founderInformation?.co_founder_agreement ||
                                       '#'
                                     }
                                     target='_blank'
@@ -2272,8 +2660,8 @@ const VerticalNavTabs = () => {
                                     CTO NAME
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfo?.cto_name ||
-                                      ctoInfoLoc?.cto_name ||
+                                    {ctoInfoLoc?.cto_name ||
+                                      ctoInfo?.cto_name ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2287,8 +2675,8 @@ const VerticalNavTabs = () => {
                                     EMAIL
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfo?.cto_email ||
-                                      ctoInfoLoc?.cto_email ||
+                                    {ctoInfoLoc?.cto_email ||
+                                      ctoInfo?.cto_email ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2302,8 +2690,8 @@ const VerticalNavTabs = () => {
                                     MOBILE NUMBER
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfo?.cto_mobile ||
-                                      ctoInfoLoc?.cto_mobile ||
+                                    {ctoInfoLoc?.cto_mobile ||
+                                      ctoInfo?.cto_mobile ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2317,11 +2705,15 @@ const VerticalNavTabs = () => {
                                     LINKEDIN PROFILE
                                   </div>
                                   <a
-                                    href={ctoInfo?.cto_linkedin || '#'}
+                                    href={
+                                      ctoInfoLoc?.cto_linkedin ||
+                                      ctoInfo?.cto_linkedin ||
+                                      '#'
+                                    }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfo?.cto_linkedin ||
-                                      ctoInfoLoc?.cto_linkedin ||
+                                    {ctoInfoLoc?.cto_linkedin ||
+                                      ctoInfo?.cto_linkedin ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -2335,8 +2727,8 @@ const VerticalNavTabs = () => {
                                     TECH TEAM SIZE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {ctoInfo?.tech_team_size ||
-                                      ctoInfoLoc?.tech_team_size ||
+                                    {ctoInfoLoc?.tech_team_size ||
+                                      ctoInfo?.tech_team_size ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2350,10 +2742,15 @@ const VerticalNavTabs = () => {
                                     MOBILE APP LINK (IOS)
                                   </div>
                                   <a
-                                    href={ctoInfo?.mobile_app_link_ios || '#'}
+                                    href={
+                                      ctoInfoLoc?.mobile_app_link_ios ||
+                                      ctoInfo?.mobile_app_link_ios ||
+                                      '#'
+                                    }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfo?.mobile_app_link_ios ||
+                                    {ctoInfoLoc?.mobile_app_link_ios ||
+                                      ctoInfo?.mobile_app_link_ios ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -2368,11 +2765,14 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <a
                                     href={
-                                      ctoInfo?.mobile_app_link_android || '#'
+                                      ctoInfoLoc?.mobile_app_link_android ||
+                                      ctoInfo?.mobile_app_link_android ||
+                                      '#'
                                     }
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfo?.mobile_app_link_android ||
+                                    {ctoInfoLoc?.mobile_app_link_android ||
+                                      ctoInfo?.mobile_app_link_android ||
                                       'Not provided'}
                                   </a>
                                 </div>
@@ -2386,12 +2786,16 @@ const VerticalNavTabs = () => {
                                     TECHNOLOGY ROADMAP
                                   </div>
                                   <a
-                                    href={ctoInfo?.technology_roadmap || '#'}
+                                    href={
+                                      ctoInfoLoc?.technology_roadmap ||
+                                      ctoInfo?.technology_roadmap ||
+                                      '#'
+                                    }
                                     target='_blank'
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {ctoInfo?.technology_roadmap
+                                    {ctoInfoLoc?.technology_roadmap
                                       ? 'View Technology Roadmap'
                                       : 'Not provided'}
                                   </a>
@@ -2399,6 +2803,7 @@ const VerticalNavTabs = () => {
                               </li>
                             </>
                           )}
+
                           {section.key === 'business_details' && (
                             <>
                               <li className='flex space-x-3 rtl:space-x-reverse'>
@@ -2410,8 +2815,8 @@ const VerticalNavTabs = () => {
                                     CURRENT TRACTION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetails?.current_traction ||
-                                      businessDetailsLoc?.current_traction ||
+                                    {businessDetailsLoc?.current_traction ||
+                                      businessDetails?.current_traction ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2426,8 +2831,8 @@ const VerticalNavTabs = () => {
                                     MONTHS?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetails?.new_Customers ||
-                                      businessDetailsLoc?.new_Customers ||
+                                    {businessDetailsLoc?.new_Customers ||
+                                      businessDetails?.new_Customers ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2441,8 +2846,8 @@ const VerticalNavTabs = () => {
                                     WHAT IS YOUR CUSTOMER ACQUISITION COST?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetails?.customer_AcquisitionCost ||
-                                      businessDetailsLoc?.customer_AcquisitionCost ||
+                                    {businessDetailsLoc?.customer_AcquisitionCost ||
+                                      businessDetails?.customer_AcquisitionCost ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2456,8 +2861,8 @@ const VerticalNavTabs = () => {
                                     WHAT IS THE LIFETIME VALUE OF YOUR CUSTOMER?
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {businessDetails?.customer_Lifetime_Value ||
-                                      businessDetailsLoc?.customer_Lifetime_Value ||
+                                    {businessDetailsLoc?.customer_Lifetime_Value ||
+                                      businessDetails?.customer_Lifetime_Value ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2914,7 +3319,6 @@ const VerticalNavTabs = () => {
                               </li>
                             </>
                           )}
-
                           {section.key === 'funding_info' && (
                             <>
                               <li className='flex space-x-3 rtl:space-x-reverse'>
@@ -2926,8 +3330,8 @@ const VerticalNavTabs = () => {
                                     TOTAL FUNDING ASK
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.total_funding_ask ||
-                                      fundingInformationLoc?.total_funding_ask ||
+                                    {fundingInformationLoc?.total_funding_ask ||
+                                      fundingInformation?.total_funding_ask ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2941,8 +3345,8 @@ const VerticalNavTabs = () => {
                                     AMOUNT COMMITTED
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.amount_committed ||
-                                      fundingInformationLoc?.amount_committed ||
+                                    {fundingInformationLoc?.amount_committed ||
+                                      fundingInformation?.amount_committed ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2956,8 +3360,8 @@ const VerticalNavTabs = () => {
                                     GOVERNMENT GRANTS
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.government_grants ||
-                                      fundingInformationLoc?.government_grants ||
+                                    {fundingInformationLoc?.government_grants ||
+                                      fundingInformation?.government_grants ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2971,8 +3375,8 @@ const VerticalNavTabs = () => {
                                     EQUITY SPLIT
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.equity_split ||
-                                      fundingInformationLoc?.equity_split ||
+                                    {fundingInformationLoc?.equity_split ||
+                                      fundingInformation?.equity_split ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -2986,8 +3390,8 @@ const VerticalNavTabs = () => {
                                     FUND UTILIZATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.fund_utilization ||
-                                      fundingInformationLoc?.fund_utilization ||
+                                    {fundingInformationLoc?.fund_utilization ||
+                                      fundingInformation?.fund_utilization ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3001,8 +3405,8 @@ const VerticalNavTabs = () => {
                                     ARR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.arr ||
-                                      fundingInformationLoc?.arr ||
+                                    {fundingInformationLoc?.arr ||
+                                      fundingInformation?.arr ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3016,8 +3420,8 @@ const VerticalNavTabs = () => {
                                     MRR
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.mrr ||
-                                      fundingInformationLoc?.mrr ||
+                                    {fundingInformationLoc?.mrr ||
+                                      fundingInformation?.mrr ||
                                       'Not provided'}
                                   </div>
                                 </div>
@@ -3033,10 +3437,10 @@ const VerticalNavTabs = () => {
                                     PREVIOUS FUNDING INFORMATION
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.previous_funding
+                                    {fundingInformationLoc?.previous_funding
                                       ?.length > 0 ? (
                                       <ul>
-                                        {(fundingInformation?.previous_funding).map(
+                                        {fundingInformationLoc.previous_funding.map(
                                           (funding, index) => (
                                             <li key={index}>
                                               Investor Name:{' '}
@@ -3070,10 +3474,10 @@ const VerticalNavTabs = () => {
                                     CAP TABLE
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
-                                    {fundingInformation?.cap_table?.length >
+                                    {fundingInformationLoc?.cap_table?.length >
                                     0 ? (
                                       <ul>
-                                        {(fundingInformation?.cap_table).map(
+                                        {fundingInformationLoc.cap_table.map(
                                           (entry, index) => (
                                             <li key={index}>
                                               {entry.role ||
