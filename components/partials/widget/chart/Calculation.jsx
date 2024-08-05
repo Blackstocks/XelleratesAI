@@ -49,7 +49,7 @@ const Calculation = ({ height = 300 }) => {
 
   return (
     <>
-      {capTable.length > 0 ? (
+      {capTable?.length > 0 ? (
         <Chart
           options={options}
           series={series}

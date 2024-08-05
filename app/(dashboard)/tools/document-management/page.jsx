@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import useWidth from '@/hooks/useWidth';
 import Button from '@/components/ui/Button';
 import ProjectGrid from '@/components/partials/app/projects/ProjectGrid';
@@ -12,43 +12,21 @@ import { toggleAddModal } from '@/components/partials/app/projects/store';
 import AddProject from '@/components/partials/app/projects/AddProject';
 import { ToastContainer } from 'react-toastify';
 import EditProject from '@/components/partials/app/projects/EditProject';
-import { fetchInvestorDocuments } from '@/lib/actions/investorActions';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import Loading from '@/components/Loading';
+import useFetchDocuments from '@/hooks/useFetchDocuments';
 
 const DocumentManagement = () => {
   const [filler, setFiller] = useState('grid');
   const { width, breakpoints } = useWidth();
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [documents, setDocuments] = useState([]);
-  const [error, setError] = useState(null);
   const { profile } = useCompleteUserDetails();
   const [isProfileLoading, setIsProfileLoading] = useState(true);
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (profile?.id) {
-      fetchDocuments(profile.id);
-    } else {
-      setIsProfileLoading(true);
-    }
-  }, [profile]);
+  const { documents, isLoaded, error } = useFetchDocuments(profile?.id);
 
-  const fetchDocuments = async (profileId) => {
-    setIsLoaded(true);
-    const result = await fetchInvestorDocuments(profileId);
-    console.log('Fetched documents:', result); // Debugging
-    if (result.error) {
-      setError(result.error);
-      setDocuments([]); // Ensure documents is always an array
-    } else {
-      setDocuments(Array.isArray(result) ? result : [result]); // Ensure the result is an array
-    }
-    setIsLoaded(false);
-  };
-
-  useEffect(() => {
+  React.useEffect(() => {
     if (profile) {
       setIsProfileLoading(false);
     }

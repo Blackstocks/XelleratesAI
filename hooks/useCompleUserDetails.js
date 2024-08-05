@@ -7,7 +7,6 @@ const useCompleteUserDetails = () => {
   const [companyProfile, setCompanyProfile] = useState(null);
   const [businessDetails, setBusinessDetails] = useState(null);
   const [founderInformation, setFounderInformation] = useState(null);
-  const [cofounderInformation, setCofounderInformation] = useState(null);
   const [fundingInformation, setFundingInformation] = useState(null);
   const [ctoInfo, setCtoInfo] = useState(null);
   const [companyDocuments, setCompanyDocuments] = useState(null);
@@ -30,7 +29,7 @@ const useCompleteUserDetails = () => {
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', user.id)
+            .eq('id', user?.id)
             .single();
           if (profileError) throw profileError;
           setProfile(profileData);
@@ -68,14 +67,12 @@ const useCompleteUserDetails = () => {
         const [
           businessDetailsData,
           founderInformationData,
-          cofounderInformationData,
           fundingInformationData,
           ctoInfoData,
           companyDocumentsData,
         ] = await Promise.all([
           fetchDetails('business_details', companyId),
           fetchDetails('founder_information', companyId),
-          fetchDetails('cofounder_information', companyId),
           fetchDetails('funding_information', companyId),
           fetchDetails('CTO_info', companyId),
           fetchDetails('company_documents', companyId),
@@ -83,7 +80,6 @@ const useCompleteUserDetails = () => {
 
         setBusinessDetails(businessDetailsData[0]);
         setFounderInformation(founderInformationData[0]);
-        setCofounderInformation(cofounderInformationData[0]);
         setFundingInformation(fundingInformationData[0]);
         setCtoInfo(ctoInfoData[0]);
         setCompanyDocuments(companyDocumentsData[0]);
@@ -132,9 +128,6 @@ const useCompleteUserDetails = () => {
             case 'business_details':
               setBusinessDetails(payload.new);
               break;
-            case 'cofounder_information':
-              setCofounderInformation(payload.new);
-              break;
             case 'funding_information':
               setFundingInformation(payload.new);
               break;
@@ -165,7 +158,6 @@ const useCompleteUserDetails = () => {
     companyProfile,
     businessDetails,
     founderInformation,
-    cofounderInformation,
     fundingInformation,
     ctoInfo,
     companyDocuments,

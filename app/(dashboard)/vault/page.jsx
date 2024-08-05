@@ -1,20 +1,19 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails'; // Corrected the import path
 import Loading from '@/components/Loading';
+import RecentOrderTable from '@/components/vaultDocuments'; // Import the RecentOrderTable component
 
 const Vault = () => {
-  const { companyDocuments, loading, error } = useCompleteUserDetails();
-  console.log('Company Documents', companyDocuments);
-  const [documents, setDocuments] = useState({});
+  const {
+    founderInformation = {}, // Default to an empty object if undefined
+    ctoInfo = {}, // Default to an empty object if undefined
+    companyDocuments = {}, // Default to an empty object if undefined
+    loading,
+    error,
+  } = useCompleteUserDetails();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
-
-  useEffect(() => {
-    if (!loading && companyDocuments) {
-      setDocuments(companyDocuments);
-    }
-  }, [loading, companyDocuments]);
 
   const openModal = (documentUrl) => {
     setSelectedDocument(documentUrl);
@@ -31,42 +30,54 @@ const Vault = () => {
       <h2 className='text-2xl font-bold mb-4 text-center'>Documents Vault</h2>
       {loading && <Loading />}
       {error && <p className='text-center text-red-500'>{error}</p>}
+
       {!loading && !error && (
-        <table className='min-w-full bg-white dark:bg-slate-800'>
-          <thead>
-            <tr>
-              <th className='py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center'>
-                Document Type
-              </th>
-              <th className='py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center'>
-                View Document
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(documents).map(
-              ([key, value]) =>
-                key !== 'id' &&
-                key !== 'company_id' &&
-                key !== 'created_at' &&
-                value && (
-                  <tr key={key}>
-                    <td className='py-2 px-4 border-b border-slate-200 dark:border-slate-700 capitalize text-center'>
-                      {key.replace(/_/g, ' ')}
-                    </td>
-                    <td className='py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center'>
-                      <button
-                        onClick={() => openModal(value)}
-                        className='text-blue-500 hover:underline'
-                      >
-                        View Document
-                      </button>
-                    </td>
-                  </tr>
-                )
-            )}
-          </tbody>
-        </table>
+        <>
+          <RecentOrderTable
+            founderInformation={founderInformation}
+            ctoInfo={ctoInfo}
+            companyDocuments={companyDocuments}
+          />
+
+          {/* <h3 className='text-xl font-semibold mt-6 mb-4 text-center'>
+            Company Documents
+          </h3>
+          <table className='min-w-full bg-white dark:bg-slate-800'>
+            <thead>
+              <tr>
+                <th className='py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center'>
+                  Document Type
+                </th>
+                <th className='py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center'>
+                  View Document
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(companyDocuments).map(
+                ([key, value]) =>
+                  key !== 'id' &&
+                  key !== 'company_id' &&
+                  key !== 'created_at' &&
+                  value && (
+                    <tr key={key}>
+                      <td className='py-2 px-4 border-b border-slate-200 dark:border-slate-700 capitalize text-center'>
+                        {key.replace(/_/g, ' ')}
+                      </td>
+                      <td className='py-2 px-4 border-b border-slate-200 dark:border-slate-700 text-center'>
+                        <button
+                          onClick={() => openModal(value)}
+                          className='text-blue-500 hover:underline'
+                        >
+                          View Document
+                        </button>
+                      </td>
+                    </tr>
+                  )
+              )}
+            </tbody>
+          </table> */}
+        </>
       )}
 
       {modalIsOpen && (
