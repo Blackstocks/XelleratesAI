@@ -15,11 +15,6 @@ const InvestorDealflow = () => {
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedSector, setSelectedSector] = useState('All');
-  const [selectedStage, setSelectedStage] = useState('All');
-  const [selectedLocation, setSelectedLocation] = useState('All');
-  const [selectedInvestmentType, setSelectedInvestmentType] = useState('All');
-  const [selectedChequeSize, setSelectedChequeSize] = useState('All');
   const [selectedInvestor, setSelectedInvestor] = useState(null);
   const { companyProfile } = useCompleteUserDetails();
 
@@ -44,10 +39,6 @@ const InvestorDealflow = () => {
     fetchInvestors();
   }, []);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedSector, selectedStage, selectedLocation, selectedInvestmentType, selectedChequeSize]);
-
   if (userLoading || investorsLoading) {
     return (
       <div>
@@ -56,64 +47,8 @@ const InvestorDealflow = () => {
     );
   }
 
-  const uniqueSectors = [
-    'All',
-    ...new Set(investors.map((investor) => investor.sectors).filter(Boolean)),
-  ];
-
-  const uniqueStages = [
-    'All',
-    ...new Set(
-      investors.map((investor) => investor.investment_stage).filter(Boolean)
-    ),
-  ];
-
-  const uniqueLocations = [
-    'All',
-    ...new Set(
-      investors
-        .map((investor) => {
-          try {
-            const geographyData = JSON.parse(investor.Geography || '{}').label;
-            return geographyData || 'N/A';
-          } catch (error) {
-            return 'N/A';
-          }
-        })
-        .filter((location) => location !== 'N/A')
-    ),
-  ];
-
-  const uniqueInvestmentTypes = [
-    'All',
-    ...new Set(investors.map((investor) => investor.typeof).filter(Boolean)),
-  ];
-
-  const uniqueChequeSizes = [
-    'All',
-    ...new Set(investors.map((investor) => investor.cheque_size).filter(Boolean)),
-  ];
-
-  const filteredInvestors = investors.filter((investor) => {
-    return (
-      (selectedSector === 'All' || investor.sectors === selectedSector) &&
-      (selectedStage === 'All' || investor.investment_stage === selectedStage) &&
-      (selectedLocation === 'All' ||
-        (investor.Geography &&
-          (() => {
-            try {
-              return JSON.parse(investor.Geography || '{}').label === selectedLocation;
-            } catch (error) {
-              return false;
-            }
-          })())) &&
-      (selectedInvestmentType === 'All' || investor.typeof === selectedInvestmentType) &&
-      (selectedChequeSize === 'All' || investor.cheque_size === selectedChequeSize)
-    );
-  });
-
-  const totalPages = Math.ceil(filteredInvestors.length / itemsPerPage);
-  const currentInvestors = filteredInvestors.slice(
+  const totalPages = Math.ceil(investors.length / itemsPerPage);
+  const currentInvestors = investors.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -128,14 +63,6 @@ const InvestorDealflow = () => {
 
   const handleCloseModal = () => {
     setSelectedInvestor(null);
-  };
-
-  const handleClearFilters = () => {
-    setSelectedSector('All');
-    setSelectedStage('All');
-    setSelectedLocation('All');
-    setSelectedInvestmentType('All');
-    setSelectedChequeSize('All');
   };
 
   const handleExpressInterest = async (
@@ -186,116 +113,6 @@ const InvestorDealflow = () => {
           Welcome to the Investor Connect page. Here you can find information
           about investors interested in various sectors and stages.
         </p>
-        <div className='flex flex-col lg:flex-row lg:items-center lg:space-x-4 mb-4'>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='sector-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Sector:
-            </label>
-            <select
-              id='sector-filter'
-              value={selectedSector}
-              onChange={(e) => setSelectedSector(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueSectors.map((sector) => (
-                <option key={sector} value={sector}>
-                  {sector}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='stage-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Stage:
-            </label>
-            <select
-              id='stage-filter'
-              value={selectedStage}
-              onChange={(e) => setSelectedStage(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueStages.map((stage) => (
-                <option key={stage} value={stage}>
-                  {stage}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='location-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Location:
-            </label>
-            <select
-              id='location-filter'
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueLocations.map((location) => (
-                <option key={location} value={location}>
-                  {location}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='investment-type-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Investment Type:
-            </label>
-            <select
-              id='investment-type-filter'
-              value={selectedInvestmentType}
-              onChange={(e) => setSelectedInvestmentType(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueInvestmentTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='cheque-size-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Cheque Size:
-            </label>
-            <select
-              id='cheque-size-filter'
-              value={selectedChequeSize}
-              onChange={(e) => setSelectedChequeSize(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueChequeSizes.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0 lg:ml-auto'>
-            <button
-              onClick={handleClearFilters}
-              className='mt-6 lg:mt-4 py-2 px-4 bg-black-500 hover:bg-red-600 text-white rounded-md transition duration-200'
-            >
-              Clear All Filters
-            </button>
-          </div>
-        </div>
         <div className='mb-4'>
           <h2 className='text-xl font-bold'>Registered Investors</h2>
           {currentInvestors.length > 0 ? (
@@ -310,19 +127,16 @@ const InvestorDealflow = () => {
                       Investor Info
                     </th>
                     <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Sector
-                    </th>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Investment Stage
+                      Location
                     </th>
                     <th className='py-4 px-4 border-b border-gray-300 text-left'>
                       Investment Type
                     </th>
                     <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Cheque Size
+                      Sector
                     </th>
                     <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Location
+                      Investment Stage
                     </th>
                   </tr>
                 </thead>
@@ -349,53 +163,44 @@ const InvestorDealflow = () => {
                         </div>
                       </td>
                       <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {investor.sectors || 'N/A'}
-                      </td>
-                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {investor.investment_stage || 'N/A'}
+                        {investor.Geography || 'N/A'}
                       </td>
                       <td className='py-2 px-4 border-b border-gray-300 text-sm'>
                         {investor.typeof || 'N/A'}
                       </td>
                       <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {investor.cheque_size || 'N/A'}
+                        {investor.sectors || 'N/A'}
                       </td>
                       <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {(() => {
-                          try {
-                            return JSON.parse(investor.Geography).label || 'N/A';
-                          } catch (error) {
-                            return 'N/A';
-                          }
-                        })()}
+                        {investor.investment_stage || 'N/A'}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <div className='flex justify-between items-center mt-4'>
-                <button
-                  onClick={handlePreviousPage}
-                  className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </button>
-                <span className='text-gray-700'>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={handleNextPage}
-                  className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </button>
-              </div>
             </div>
           ) : (
             <p>No investors registered.</p>
           )}
+          <div className='flex justify-between items-center mt-4'>
+            <button
+              onClick={handlePreviousPage}
+              className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span className='text-gray-700'>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </main>
       <Modal isOpen={!!selectedInvestor} onClose={handleCloseModal}>
