@@ -1,13 +1,13 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import Head from "next/head";
-import { useRouter } from "next/navigation";
-import useUserDetails from "@/hooks/useUserDetails";
-import useCompleteUserDetails from "@/hooks/useCompletionPercentage";
-import Modal from "@/components/Modal";
-import Loading from "@/components/Loading";
-import Textarea from "@/components/ui/Textarea";
-import { supabase } from "@/lib/supabaseclient";
+'use client';
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { useRouter } from 'next/navigation';
+import useUserDetails from '@/hooks/useUserDetails';
+import useCompleteUserDetails from '@/hooks/useCompletionPercentage';
+import Modal from '@/components/Modal';
+import Loading from '@/components/Loading';
+import Textarea from '@/components/ui/Textarea';
+import { supabase } from '@/lib/supabaseclient';
 
 const InvestorDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
@@ -15,7 +15,7 @@ const InvestorDealflow = () => {
   const [filteredInvestors, setFilteredInvestors] = useState([]);
   const [investorsLoading, setInvestorsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedInvestor, setSelectedInvestor] = useState(null);
   const { companyProfile } = useCompleteUserDetails();
@@ -26,10 +26,10 @@ const InvestorDealflow = () => {
     investmentStage: [],
   });
   const [selectedFilters, setSelectedFilters] = useState({
-    location: "",
-    investmentType: "",
-    sector: "",
-    investmentStage: "",
+    location: '',
+    investmentType: '',
+    sector: '',
+    investmentStage: '',
   });
   const [connectClicked, setConnectClicked] = useState(false);
 
@@ -40,9 +40,7 @@ const InvestorDealflow = () => {
     const fetchInvestors = async () => {
       setInvestorsLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("investor_signup")
-          .select("*");
+        const { data, error } = await supabase.from('investor_signup').select('*');
         if (error) throw error;
 
         const locations = new Set();
@@ -51,16 +49,10 @@ const InvestorDealflow = () => {
         const investmentStages = new Set();
 
         data.forEach((item) => {
-          item.Geography?.split(",").forEach((loc) =>
-            locations.add(loc.trim())
-          );
-          item.typeof
-            ?.split(",")
-            .forEach((type) => investmentTypes.add(type.trim()));
-          item.sectors?.split(",").forEach((sec) => sectors.add(sec.trim()));
-          item.investment_stage
-            ?.split(",")
-            .forEach((stage) => investmentStages.add(stage.trim()));
+          item.Geography?.split(',').forEach((loc) => locations.add(loc.trim()));
+          item.typeof?.split(',').forEach((type) => investmentTypes.add(type.trim()));
+          item.sectors?.split(',').forEach((sec) => sectors.add(sec.trim()));
+          item.investment_stage?.split(',').forEach((stage) => investmentStages.add(stage.trim()));
         });
 
         setFilters({
@@ -73,7 +65,7 @@ const InvestorDealflow = () => {
         setInvestors(data);
         setFilteredInvestors(data);
       } catch (error) {
-        console.error("Error fetching investors:", error.message);
+        console.error('Error fetching investors:', error.message);
       } finally {
         setInvestorsLoading(false);
       }
@@ -86,34 +78,23 @@ const InvestorDealflow = () => {
     let filtered = investors;
 
     if (selectedFilters.location) {
-      filtered = filtered.filter((investor) =>
-        investor.Geography?.split(",")
-          .map((loc) => loc.trim())
-          .includes(selectedFilters.location)
+      filtered = filtered.filter(investor =>
+        investor.Geography?.split(',').map(loc => loc.trim()).includes(selectedFilters.location)
       );
     }
     if (selectedFilters.investmentType) {
-      filtered = filtered.filter((investor) =>
-        investor.typeof
-          ?.split(",")
-          .map((type) => type.trim())
-          .includes(selectedFilters.investmentType)
+      filtered = filtered.filter(investor =>
+        investor.typeof?.split(',').map(type => type.trim()).includes(selectedFilters.investmentType)
       );
     }
     if (selectedFilters.sector) {
-      filtered = filtered.filter((investor) =>
-        investor.sectors
-          ?.split(",")
-          .map((sec) => sec.trim())
-          .includes(selectedFilters.sector)
+      filtered = filtered.filter(investor =>
+        investor.sectors?.split(',').map(sec => sec.trim()).includes(selectedFilters.sector)
       );
     }
     if (selectedFilters.investmentStage) {
-      filtered = filtered.filter((investor) =>
-        investor.investment_stage
-          ?.split(",")
-          .map((stage) => stage.trim())
-          .includes(selectedFilters.investmentStage)
+      filtered = filtered.filter(investor =>
+        investor.investment_stage?.split(',').map(stage => stage.trim()).includes(selectedFilters.investmentStage)
       );
     }
 
@@ -140,10 +121,10 @@ const InvestorDealflow = () => {
     dateTime
   ) => {
     try {
-      const response = await fetch("/api/express-interest_startup", {
-        method: "POST",
+      const response = await fetch('/api/express-interest_startup', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           senderId: startupId,
@@ -155,16 +136,16 @@ const InvestorDealflow = () => {
 
       if (!response.ok) {
         const error = await response.json();
-        console.error("Error sending interest notification:", error.error);
+        console.error('Error sending interest notification:', error.error);
         return;
       }
 
       const data = await response.json();
-      console.log("Interest notification sent:", data.message);
-      setMessage("");
+      console.log('Interest notification sent:', data.message);
+      setMessage('');
       setShowForm(false);
     } catch (error) {
-      console.error("Unexpected error sending interest notification:", error);
+      console.error('Unexpected error sending interest notification:', error);
     }
   };
 
@@ -178,10 +159,10 @@ const InvestorDealflow = () => {
 
   const handleClearFilters = () => {
     setSelectedFilters({
-      location: "",
-      investmentType: "",
-      sector: "",
-      investmentStage: "",
+      location: '',
+      investmentType: '',
+      sector: '',
+      investmentStage: '',
     });
   };
 
@@ -196,34 +177,34 @@ const InvestorDealflow = () => {
       <Head>
         <title>Investor Connect</title>
       </Head>
-      <main className="container mx-auto p-4 relative">
-      <div className="absolute top-4 left-4 z-10">
-        <button
-          onClick={() => router.back()}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Back
-        </button>
-      </div>
-        <h1 className="text-3xl font-bold mb-4 text-center">
+      <main className='container mx-auto p-4 relative'>
+        <div className='absolute top-4 left-4 z-20'>
+          <button
+            onClick={() => router.back()}
+            className='bg-blue-500 text-white px-4 py-2 rounded'
+          >
+            Back
+          </button>
+        </div>
+        <h1 className='text-3xl font-bold mb-4 text-center'>
           Investor Connect
         </h1>
-        <p className="mb-6 text-center">
+        <p className='mb-6 text-center'>
           Welcome to the Investor Connect page. Here you can find information
           about investors interested in various sectors and stages.
         </p>
-        <div className="mb-4">
-          <h2 className="text-xl font-bold mb-2">Filters</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <div className='mb-4'>
+          <h2 className='text-xl font-bold mb-2'>Filters</h2>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2'>
             <div>
-              <label className="block text-sm font-medium mb-1">Location</label>
+              <label className='block text-sm font-medium mb-1'>Location</label>
               <select
-                name="location"
+                name='location'
                 value={selectedFilters.location}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                className='w-full px-3 py-2 border border-gray-300 rounded'
               >
-                <option value="">Select Location</option>
+                <option value=''>Select Location</option>
                 {filters.location.map((location, index) => (
                   <option key={index} value={location}>
                     {location}
@@ -232,16 +213,14 @@ const InvestorDealflow = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Investment Type
-              </label>
+              <label className='block text-sm font-medium mb-1'>Investment Type</label>
               <select
-                name="investmentType"
+                name='investmentType'
                 value={selectedFilters.investmentType}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                className='w-full px-3 py-2 border border-gray-300 rounded'
               >
-                <option value="">Select Investment Type</option>
+                <option value=''>Select Investment Type</option>
                 {filters.investmentType.map((type, index) => (
                   <option key={index} value={type}>
                     {type}
@@ -250,14 +229,14 @@ const InvestorDealflow = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Sector</label>
+              <label className='block text-sm font-medium mb-1'>Sector</label>
               <select
-                name="sector"
+                name='sector'
                 value={selectedFilters.sector}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                className='w-full px-3 py-2 border border-gray-300 rounded'
               >
-                <option value="">Select Sector</option>
+                <option value=''>Select Sector</option>
                 {filters.sector.map((sector, index) => (
                   <option key={index} value={sector}>
                     {sector}
@@ -266,16 +245,14 @@ const InvestorDealflow = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Investment Stage
-              </label>
+              <label className='block text-sm font-medium mb-1'>Investment Stage</label>
               <select
-                name="investmentStage"
+                name='investmentStage'
                 value={selectedFilters.investmentStage}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                className='w-full px-3 py-2 border border-gray-300 rounded'
               >
-                <option value="">Select Investment Stage</option>
+                <option value=''>Select Investment Stage</option>
                 {filters.investmentStage.map((stage, index) => (
                   <option key={index} value={stage}>
                     {stage}
@@ -283,10 +260,10 @@ const InvestorDealflow = () => {
                 ))}
               </select>
             </div>
-            <div className="flex items-end">
+            <div className='flex items-end'>
               <button
                 onClick={handleClearFilters}
-                className="py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded transition duration-200 w-1/2"
+                className='py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded transition duration-200 w-1/2'
               >
                 Clear All Filters
               </button>
@@ -294,73 +271,71 @@ const InvestorDealflow = () => {
           </div>
         </div>
 
-        <div className="relative mb-4">
-          {filteredInvestors.length > 0 ? (
-            <div className="absolute inset-0 flex justify-center items-center flex-col z-10">
-              <div className="bg-[#1a235e] text-white p-4 rounded shadow text-center message-container">
-                <p className="text-lg font-bold mb-2">
-                  We have identified {filteredInvestors.length} investors for
-                  you.
+        <div className='relative mb-4'>
+          {connectClicked ? (
+            <div className='absolute inset-0 flex justify-center items-center flex-col z-10'>
+              <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center'>
+                <p className='text-lg font-bold mb-2'>
+                  Our Investment Banker will connect with you soon.
                 </p>
-                <p className="text-md mb-4">
+              </div>
+            </div>
+          ) : filteredInvestors.length > 0 ? (
+            <div className='absolute inset-0 flex justify-center items-center flex-col z-10'>
+              <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center message-container'>
+                <p className='text-lg font-bold mb-2'>
+                  We have identified {filteredInvestors.length} investors for you.
+                </p>
+                <p className='text-md mb-4'>
                   Connect with our investment banker.
                 </p>
                 <button
                   onClick={() => setConnectClicked(true)}
-                  className="py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200"
+                  className='py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200'
                 >
                   Connect
                 </button>
               </div>
             </div>
           ) : (
-            <div className="absolute inset-0 flex justify-center items-center flex-col z-10">
-              <div className="bg-[#1a235e] text-white p-4 rounded shadow text-center message-container">
-                <p className="text-lg font-bold mb-2">
+            <div className='absolute inset-0 flex justify-center items-center flex-col z-10'>
+              <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center message-container'>
+                <p className='text-lg font-bold mb-2'>
                   We have identified 0 investors for you.
                 </p>
-                <p className="text-md mb-4">
+                <p className='text-md mb-4'>
                   Connect with our investment banker.
                 </p>
                 <button
                   onClick={() => setConnectClicked(true)}
-                  className="py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200"
+                  className='py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200'
                 >
                   Connect
                 </button>
               </div>
             </div>
           )}
-          {connectClicked && (
-            <div className="absolute inset-0 flex justify-center items-center flex-col z-10">
-              <div className="bg-[#1a235e] text-white p-4 rounded shadow text-center">
-                <p className="text-lg font-bold mb-2">
-                  Our Investment Banker will connect with you soon.
-                </p>
-              </div>
-            </div>
-          )}
 
-          <div className="overflow-x-auto filter blur-sm blur-container">
-            <table className="min-w-full bg-white border border-gray-300">
+          <div className='overflow-x-auto filter blur-sm blur-container'>
+            <table className='min-w-full bg-white border border-gray-300'>
               <thead>
                 <tr>
-                  <th className="py-4 px-4 border-b border-gray-300 text-left">
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
                     S.No
                   </th>
-                  <th className="py-4 px-4 border-b border-gray-300 text-left">
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
                     Investor Info
                   </th>
-                  <th className="py-4 px-4 border-b border-gray-300 text-left">
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
                     Location
                   </th>
-                  <th className="py-4 px-4 border-b border-gray-300 text-left">
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
                     Investment Type
                   </th>
-                  <th className="py-4 px-4 border-b border-gray-300 text-left">
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
                     Sector
                   </th>
-                  <th className="py-4 px-4 border-b border-gray-300 text-left">
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
                     Investment Stage
                   </th>
                 </tr>
@@ -370,34 +345,34 @@ const InvestorDealflow = () => {
                   <tr
                     key={investor.id}
                     className={`hover:bg-gray-100 transition-colors ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-100"
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
                     }`}
                     onClick={() => {
                       setSelectedInvestor(investor);
                       setShowForm(false);
                     }}
                   >
-                    <td className="py-2 px-4 border-b border-gray-300 text-sm">
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
                       {(currentPage - 1) * itemsPerPage + index + 1}
                     </td>
-                    <td className="py-2 px-4 border-b border-gray-300 text-sm">
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
                       <div>
-                        <span className="text-black-500 hover:underline cursor-pointer">
-                          {investor.name || "N/A"}
+                        <span className='text-black-500 hover:underline cursor-pointer'>
+                          {investor.name || 'N/A'}
                         </span>
                       </div>
                     </td>
-                    <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                      {investor.Geography || "N/A"}
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {investor.Geography || 'N/A'}
                     </td>
-                    <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                      {investor.typeof || "N/A"}
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {investor.typeof || 'N/A'}
                     </td>
-                    <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                      {investor.sectors || "N/A"}
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {investor.sectors || 'N/A'}
                     </td>
-                    <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                      {investor.investment_stage || "N/A"}
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {investor.investment_stage || 'N/A'}
                     </td>
                   </tr>
                 ))}
@@ -406,20 +381,20 @@ const InvestorDealflow = () => {
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-4">
+        <div className='flex justify-between items-center mt-4'>
           <button
             onClick={handlePreviousPage}
-            className="py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200"
+            className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
             disabled={currentPage === 1}
           >
             Previous
           </button>
-          <span className="text-gray-700">
+          <span className='text-gray-700'>
             Page {currentPage} of {totalPages}
           </span>
           <button
             onClick={handleNextPage}
-            className="py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200"
+            className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
             disabled={currentPage === totalPages}
           >
             Next
@@ -428,34 +403,34 @@ const InvestorDealflow = () => {
       </main>
       <Modal isOpen={!!selectedInvestor} onClose={handleCloseModal}>
         {selectedInvestor && (
-          <div className="flex flex-col lg:flex-row lg:space-x-4 w-full h-full overflow-auto">
-            <div className="flex-none lg:w-2/5 p-4 border-r border-gray-300 flex flex-col items-center">
-              <div className="mb-4 flex flex-col items-center">
-                <h2 className="text-2xl font-bold mb-2 text-center">
-                  {selectedInvestor.name || "N/A"}
+          <div className='flex flex-col lg:flex-row lg:space-x-4 w-full h-full overflow-auto'>
+            <div className='flex-none lg:w-2/5 p-4 border-r border-gray-300 flex flex-col items-center'>
+              <div className='mb-4 flex flex-col items-center'>
+                <h2 className='text-2xl font-bold mb-2 text-center'>
+                  {selectedInvestor.name || 'N/A'}
                 </h2>
               </div>
-              <div className="space-y-2 w-full">
+              <div className='space-y-2 w-full'>
                 <button
-                  className="w-full rounded-lg py-2 px-4 border bg-[#14213d] text-white"
+                  className='w-full rounded-lg py-2 px-4 border bg-[#14213d] text-white'
                   onClick={() => setShowForm(true)}
                 >
                   Express Interest
                 </button>
               </div>
             </div>
-            <div className="flex-1 p-4 overflow-y-auto">
+            <div className='flex-1 p-4 overflow-y-auto'>
               {showForm ? (
-                <div className="express-interest-form mt-4">
+                <div className='express-interest-form mt-4'>
                   <Textarea
-                    label={"Message to the Investor"}
+                    label={'Message to the Investor'}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Write your message here"
-                    className="w-full p-2 border rounded"
+                    placeholder='Write your message here'
+                    className='w-full p-2 border rounded'
                   ></Textarea>
                   <button
-                    className="mr-1rem rounded-md py-2 px-4 border bg-[#14213d] text-white"
+                    className='mr-1rem rounded-md py-2 px-4 border bg-[#14213d] text-white'
                     onClick={() => {
                       handleExpressInterest(
                         companyProfile?.id,
@@ -467,7 +442,7 @@ const InvestorDealflow = () => {
                     Send Interest
                   </button>
                   <button
-                    className="rounded-md py-2 px-4 border bg-[#14213d] text-white"
+                    className='rounded-md py-2 px-4 border bg-[#14213d] text-white'
                     onClick={() => setShowForm(false)}
                   >
                     Cancel
@@ -475,29 +450,29 @@ const InvestorDealflow = () => {
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-xl font-bold mb-4">Investor Profile</h3>
-                  <p className="mb-4">
-                    <strong>Name:</strong> {selectedInvestor.name || "N/A"}
+                  <h3 className='text-xl font-bold mb-4'>Investor Profile</h3>
+                  <p className='mb-4'>
+                    <strong>Name:</strong> {selectedInvestor.name || 'N/A'}
                   </p>
                   <p>
-                    <strong>Type of Investment:</strong>{" "}
-                    {selectedInvestor.typeof || "N/A"}
+                    <strong>Type of Investment:</strong>{' '}
+                    {selectedInvestor.typeof || 'N/A'}
                   </p>
                   <p>
-                    <strong>Cheque Size:</strong>{" "}
-                    {selectedInvestor.cheque_size || "N/A"}
+                    <strong>Cheque Size:</strong>{' '}
+                    {selectedInvestor.cheque_size || 'N/A'}
                   </p>
                   <p>
-                    <strong>Investment Thesis:</strong>{" "}
-                    {selectedInvestor.investment_thesis || "N/A"}
+                    <strong>Investment Thesis:</strong>{' '}
+                    {selectedInvestor.investment_thesis || 'N/A'}
                   </p>
                   <p>
-                    <strong>Sectors:</strong>{" "}
-                    {selectedInvestor.sectors || "N/A"}
+                    <strong>Sectors:</strong>{' '}
+                    {selectedInvestor.sectors || 'N/A'}
                   </p>
                   <p>
-                    <strong>Investment Strategy:</strong>{" "}
-                    {selectedInvestor.investment_stage || "N/A"}
+                    <strong>Investment Strategy:</strong>{' '}
+                    {selectedInvestor.investment_stage || 'N/A'}
                   </p>
                 </div>
               )}
