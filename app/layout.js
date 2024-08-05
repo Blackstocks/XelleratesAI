@@ -10,7 +10,7 @@ import { ToastContainer } from 'react-toastify';
 
 export const metadata = {
   title: 'Xellerates',
-  description: 'Dashcode is a popular dashboard template.',
+  description: '',
 };
 
 export default function RootLayout({ children }) {
