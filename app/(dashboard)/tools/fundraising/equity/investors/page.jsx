@@ -11,29 +11,57 @@ import { supabase } from '@/lib/supabaseclient';
 const InvestorDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
   const [investors, setInvestors] = useState([]);
+  const [filteredInvestors, setFilteredInvestors] = useState([]);
   const [investorsLoading, setInvestorsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedSector, setSelectedSector] = useState('All');
-  const [selectedStage, setSelectedStage] = useState('All');
-  const [selectedLocation, setSelectedLocation] = useState('All');
-  const [selectedInvestmentType, setSelectedInvestmentType] = useState('All');
-  const [selectedChequeSize, setSelectedChequeSize] = useState('All');
   const [selectedInvestor, setSelectedInvestor] = useState(null);
   const { companyProfile } = useCompleteUserDetails();
+  const [filters, setFilters] = useState({
+    location: [],
+    investmentType: [],
+    sector: [],
+    investmentStage: [],
+  });
+  const [selectedFilters, setSelectedFilters] = useState({
+    location: '',
+    investmentType: '',
+    sector: '',
+    investmentStage: '',
+  });
+  const [connectClicked, setConnectClicked] = useState(false);
 
-  const itemsPerPage = 20;
+  const itemsPerPage = 8;
 
   useEffect(() => {
     const fetchInvestors = async () => {
       setInvestorsLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('investor_signup')
-          .select('*');
+        const { data, error } = await supabase.from('investor_signup').select('*');
         if (error) throw error;
+
+        const locations = new Set();
+        const investmentTypes = new Set();
+        const sectors = new Set();
+        const investmentStages = new Set();
+
+        data.forEach((item) => {
+          item.Geography?.split(',').forEach((loc) => locations.add(loc.trim()));
+          item.typeof?.split(',').forEach((type) => investmentTypes.add(type.trim()));
+          item.sectors?.split(',').forEach((sec) => sectors.add(sec.trim()));
+          item.investment_stage?.split(',').forEach((stage) => investmentStages.add(stage.trim()));
+        });
+
+        setFilters({
+          location: Array.from(locations).sort(),
+          investmentType: Array.from(investmentTypes).sort(),
+          sector: Array.from(sectors).sort(),
+          investmentStage: Array.from(investmentStages).sort(),
+        });
+
         setInvestors(data);
+        setFilteredInvestors(data);
       } catch (error) {
         console.error('Error fetching investors:', error.message);
       } finally {
@@ -45,78 +73,32 @@ const InvestorDealflow = () => {
   }, []);
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedSector, selectedStage, selectedLocation, selectedInvestmentType, selectedChequeSize]);
+    let filtered = investors;
 
-  if (userLoading || investorsLoading) {
-    return (
-      <div>
-        <Loading />
-      </div>
-    );
-  }
+    if (selectedFilters.location) {
+      filtered = filtered.filter(investor =>
+        investor.Geography?.split(',').map(loc => loc.trim()).includes(selectedFilters.location)
+      );
+    }
+    if (selectedFilters.investmentType) {
+      filtered = filtered.filter(investor =>
+        investor.typeof?.split(',').map(type => type.trim()).includes(selectedFilters.investmentType)
+      );
+    }
+    if (selectedFilters.sector) {
+      filtered = filtered.filter(investor =>
+        investor.sectors?.split(',').map(sec => sec.trim()).includes(selectedFilters.sector)
+      );
+    }
+    if (selectedFilters.investmentStage) {
+      filtered = filtered.filter(investor =>
+        investor.investment_stage?.split(',').map(stage => stage.trim()).includes(selectedFilters.investmentStage)
+      );
+    }
 
-  const uniqueSectors = [
-    'All',
-    ...new Set(investors.map((investor) => investor.sectors).filter(Boolean)),
-  ];
-
-  const uniqueStages = [
-    'All',
-    ...new Set(
-      investors.map((investor) => investor.investment_stage).filter(Boolean)
-    ),
-  ];
-
-  const uniqueLocations = [
-    'All',
-    ...new Set(
-      investors
-        .map((investor) => {
-          try {
-            const geographyData = JSON.parse(investor.Geography || '{}').label;
-            return geographyData || 'N/A';
-          } catch (error) {
-            return 'N/A';
-          }
-        })
-        .filter((location) => location !== 'N/A')
-    ),
-  ];
-
-  const uniqueInvestmentTypes = [
-    'All',
-    ...new Set(investors.map((investor) => investor.typeof).filter(Boolean)),
-  ];
-
-  const uniqueChequeSizes = [
-    'All',
-    ...new Set(investors.map((investor) => investor.cheque_size).filter(Boolean)),
-  ];
-
-  const filteredInvestors = investors.filter((investor) => {
-    return (
-      (selectedSector === 'All' || investor.sectors === selectedSector) &&
-      (selectedStage === 'All' || investor.investment_stage === selectedStage) &&
-      (selectedLocation === 'All' ||
-        (investor.Geography &&
-          (() => {
-            try {
-              return JSON.parse(investor.Geography || '{}').label === selectedLocation;
-            } catch (error) {
-              return false;
-            }
-          })())) &&
-      (selectedInvestmentType === 'All' || investor.typeof === selectedInvestmentType) &&
-      (selectedChequeSize === 'All' || investor.cheque_size === selectedChequeSize)
-    );
-  });
-
-  const totalPages = Math.ceil(filteredInvestors.length / itemsPerPage);
-  const currentInvestors = filteredInvestors.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+    setFilteredInvestors(filtered);
+    setCurrentPage(1); // Reset to first page whenever filters change
+  }, [selectedFilters, investors]);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -128,14 +110,6 @@ const InvestorDealflow = () => {
 
   const handleCloseModal = () => {
     setSelectedInvestor(null);
-  };
-
-  const handleClearFilters = () => {
-    setSelectedSector('All');
-    setSelectedStage('All');
-    setSelectedLocation('All');
-    setSelectedInvestmentType('All');
-    setSelectedChequeSize('All');
   };
 
   const handleExpressInterest = async (
@@ -173,6 +147,29 @@ const InvestorDealflow = () => {
     }
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setSelectedFilters({
+      location: '',
+      investmentType: '',
+      sector: '',
+      investmentStage: '',
+    });
+  };
+
+  const totalPages = Math.ceil(filteredInvestors.length / itemsPerPage);
+  const currentInvestors = filteredInvestors.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <>
       <Head>
@@ -186,216 +183,199 @@ const InvestorDealflow = () => {
           Welcome to the Investor Connect page. Here you can find information
           about investors interested in various sectors and stages.
         </p>
-        <div className='flex flex-col lg:flex-row lg:items-center lg:space-x-4 mb-4'>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='sector-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Sector:
-            </label>
-            <select
-              id='sector-filter'
-              value={selectedSector}
-              onChange={(e) => setSelectedSector(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueSectors.map((sector) => (
-                <option key={sector} value={sector}>
-                  {sector}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='stage-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Stage:
-            </label>
-            <select
-              id='stage-filter'
-              value={selectedStage}
-              onChange={(e) => setSelectedStage(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueStages.map((stage) => (
-                <option key={stage} value={stage}>
-                  {stage}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='location-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Location:
-            </label>
-            <select
-              id='location-filter'
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueLocations.map((location) => (
-                <option key={location} value={location}>
-                  {location}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='investment-type-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Investment Type:
-            </label>
-            <select
-              id='investment-type-filter'
-              value={selectedInvestmentType}
-              onChange={(e) => setSelectedInvestmentType(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueInvestmentTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0'>
-            <label
-              htmlFor='cheque-size-filter'
-              className='block text-sm font-medium text-gray-700'
-            >
-              Cheque Size:
-            </label>
-            <select
-              id='cheque-size-filter'
-              value={selectedChequeSize}
-              onChange={(e) => setSelectedChequeSize(e.target.value)}
-              className='mt-1 block w-full lg:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-            >
-              {uniqueChequeSizes.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-4 lg:mb-0 lg:ml-auto'>
-            <button
-              onClick={handleClearFilters}
-              className='mt-6 lg:mt-4 py-2 px-4 bg-black-500 hover:bg-red-600 text-white rounded-md transition duration-200'
-            >
-              Clear All Filters
-            </button>
+        
+        <div className='mb-4'>
+          <h2 className='text-xl font-bold mb-2'>Filters</h2>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2'>
+            <div>
+              <label className='block text-sm font-medium mb-1'>Location</label>
+              <select
+                name='location'
+                value={selectedFilters.location}
+                onChange={handleFilterChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded'
+              >
+                <option value=''>Select Location</option>
+                {filters.location.map((location, index) => (
+                  <option key={index} value={location}>
+                    {location}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className='block text-sm font-medium mb-1'>Investment Type</label>
+              <select
+                name='investmentType'
+                value={selectedFilters.investmentType}
+                onChange={handleFilterChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded'
+              >
+                <option value=''>Select Investment Type</option>
+                {filters.investmentType.map((type, index) => (
+                  <option key={index} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className='block text-sm font-medium mb-1'>Sector</label>
+              <select
+                name='sector'
+                value={selectedFilters.sector}
+                onChange={handleFilterChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded'
+              >
+                <option value=''>Select Sector</option>
+                {filters.sector.map((sector, index) => (
+                  <option key={index} value={sector}>
+                    {sector}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className='block text-sm font-medium mb-1'>Investment Stage</label>
+              <select
+                name='investmentStage'
+                value={selectedFilters.investmentStage}
+                onChange={handleFilterChange}
+                className='w-full px-3 py-2 border border-gray-300 rounded'
+              >
+                <option value=''>Select Investment Stage</option>
+                {filters.investmentStage.map((stage, index) => (
+                  <option key={index} value={stage}>
+                    {stage}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className='flex items-end'>
+              <button
+                onClick={handleClearFilters}
+                className='py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded transition duration-200 w-full'
+              >
+                Clear All Filters
+              </button>
+            </div>
           </div>
         </div>
-        <div className='mb-4'>
-          <h2 className='text-xl font-bold'>Registered Investors</h2>
-          {currentInvestors.length > 0 ? (
-            <div className='overflow-x-auto'>
-              <table className='min-w-full bg-white border border-gray-300'>
-                <thead>
-                  <tr>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      S.No
-                    </th>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Investor Info
-                    </th>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Sector
-                    </th>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Investment Stage
-                    </th>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Investment Type
-                    </th>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Cheque Size
-                    </th>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Location
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentInvestors.map((investor, index) => (
-                    <tr
-                      key={investor.id}
-                      className={`hover:bg-gray-100 transition-colors ${
-                        index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
-                      }`}
-                      onClick={() => {
-                        setSelectedInvestor(investor);
-                        setShowForm(false);
-                      }}
-                    >
-                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {(currentPage - 1) * itemsPerPage + index + 1}
-                      </td>
-                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        <div>
-                          <span className='text-black-500 hover:underline cursor-pointer'>
-                            {investor.name || 'N/A'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {investor.sectors || 'N/A'}
-                      </td>
-                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {investor.investment_stage || 'N/A'}
-                      </td>
-                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {investor.typeof || 'N/A'}
-                      </td>
-                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {investor.cheque_size || 'N/A'}
-                      </td>
-                      <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                        {(() => {
-                          try {
-                            return JSON.parse(investor.Geography).label || 'N/A';
-                          } catch (error) {
-                            return 'N/A';
-                          }
-                        })()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className='flex justify-between items-center mt-4'>
-                <button
-                  onClick={handlePreviousPage}
-                  className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </button>
-                <span className='text-gray-700'>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={handleNextPage}
-                  className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </button>
+
+        <div className='relative mb-4'>
+          <div className={`absolute inset-0 flex justify-center items-center flex-col z-10 ${connectClicked ? 'hidden' : 'message-container'}`}>
+            <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center'>
+              <p className='text-lg font-bold mb-2'>
+                {filteredInvestors.length > 0
+                  ? `We have identified ${filteredInvestors.length} investors for you.`
+                  : 'We have identified 0 investors for you.'}
+              </p>
+              <p className='text-md mb-4'>
+                Connect with our investment banker.
+              </p>
+              <button
+                onClick={() => {
+                  setConnectClicked(true);
+                }}
+                className='py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200'
+              >
+                Connect
+              </button>
+            </div>
+          </div>
+          {connectClicked && (
+            <div className='absolute inset-0 flex justify-center items-center flex-col z-10'>
+              <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center'>
+                <p className='text-lg font-bold mb-2'>
+                  Our Investment Banker will connect with you soon.
+                </p>
               </div>
             </div>
-          ) : (
-            <p>No investors registered.</p>
           )}
+
+          <div className='overflow-x-auto filter blur-sm'>
+            <table className='min-w-full bg-white border border-gray-300'>
+              <thead>
+                <tr>
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                    S.No
+                  </th>
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                    Investor Info
+                  </th>
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                    Location
+                  </th>
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                    Investment Type
+                  </th>
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                    Sector
+                  </th>
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                    Investment Stage
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentInvestors.map((investor, index) => (
+                  <tr
+                    key={investor.id}
+                    className={`hover:bg-gray-100 transition-colors ${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
+                    }`}
+                    onClick={() => {
+                      setSelectedInvestor(investor);
+                      setShowForm(false);
+                    }}
+                  >
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {(currentPage - 1) * itemsPerPage + index + 1}
+                    </td>
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      <div>
+                        <span className='text-black-500 hover:underline cursor-pointer'>
+                          {investor.name || 'N/A'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {investor.Geography || 'N/A'}
+                    </td>
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {investor.typeof || 'N/A'}
+                    </td>
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {investor.sectors || 'N/A'}
+                    </td>
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {investor.investment_stage || 'N/A'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className='flex justify-between items-center mt-4'>
+          <button
+            onClick={handlePreviousPage}
+            className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className='text-gray-700'>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            className='py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded text-gray-700 transition duration-200'
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
         </div>
       </main>
       <Modal isOpen={!!selectedInvestor} onClose={handleCloseModal}>
@@ -477,6 +457,11 @@ const InvestorDealflow = () => {
           </div>
         )}
       </Modal>
+      <style jsx>{`
+        .z-10 {
+          z-index: 10;
+        }
+      `}</style>
     </>
   );
 };
