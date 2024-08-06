@@ -1,8 +1,10 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/navigation';
 import useUserDetails from '@/hooks/useUserDetails';
-import useCompleteUserDetails from '@/hooks/useCompletionPercentage';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import Modal from '@/components/Modal';
 import Loading from '@/components/Loading';
 import Textarea from '@/components/ui/Textarea';
@@ -10,6 +12,7 @@ import { supabase } from '@/lib/supabaseclient';
 
 const InvestorDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
+  const { profile, loading: profileLoading } = useCompleteUserDetails();
   const [investors, setInvestors] = useState([]);
   const [filteredInvestors, setFilteredInvestors] = useState([]);
   const [investorsLoading, setInvestorsLoading] = useState(true);
@@ -17,7 +20,6 @@ const InvestorDealflow = () => {
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedInvestor, setSelectedInvestor] = useState(null);
-  const { companyProfile } = useCompleteUserDetails();
   const [filters, setFilters] = useState({
     location: [],
     investmentType: [],
@@ -33,6 +35,7 @@ const InvestorDealflow = () => {
   const [connectClicked, setConnectClicked] = useState(false);
 
   const itemsPerPage = 8;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchInvestors = async () => {
@@ -112,38 +115,37 @@ const InvestorDealflow = () => {
     setSelectedInvestor(null);
   };
 
-  const handleExpressInterest = async (
-    startupId,
-    investorId,
-    message,
-    dateTime
-  ) => {
-    try {
-      const response = await fetch('/api/express-interest_startup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          senderId: startupId,
-          receiverId: investorId,
-          message,
-          dateTime,
-        }),
-      });
+  const handleConnect = async (userType) => {
+    console.log('Connect button clicked');
+    console.log('User Details:', {
+      name: profile.name,
+      email: profile.email,
+      mobile: profile.mobile,
+      companyName: profile.company_name,
+      linkedinProfile: profile.linkedin_profile,
+      userType: userType,
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Error sending interest notification:', error.error);
-        return;
+    try {
+      const { data, error } = await supabase.from('connected_startups').insert([
+        {
+          startup_name: profile.company_name,
+          founder_name: profile.name,
+          linkedin_profile: profile.linkedin_profile,
+          email: profile.email,
+          mobile: profile.mobile,
+          user_type: userType,
+        },
+      ]);
+
+      if (error) {
+        throw error;
       }
 
-      const data = await response.json();
-      console.log('Interest notification sent:', data.message);
-      setMessage('');
-      setShowForm(false);
+      console.log('Data inserted:', data);
+      setConnectClicked(true);
     } catch (error) {
-      console.error('Unexpected error sending interest notification:', error);
+      console.error('Error inserting data:', error.message);
     }
   };
 
@@ -170,12 +172,24 @@ const InvestorDealflow = () => {
     currentPage * itemsPerPage
   );
 
+  if (userLoading || profileLoading || investorsLoading) {
+    return <Loading />;
+  }
+
   return (
     <>
       <Head>
         <title>Investor Connect</title>
       </Head>
-      <main className='container mx-auto p-4'>
+      <main className='container mx-auto p-4 relative'>
+        <div className='absolute top-4 left-4 z-20'>
+          <button
+            onClick={() => router.back()}
+            className='bg-blue-500 text-white px-4 py-2 rounded'
+          >
+            Back
+          </button>
+        </div>
         <h1 className='text-3xl font-bold mb-4 text-center'>
           Investor Connect
         </h1>
@@ -183,7 +197,6 @@ const InvestorDealflow = () => {
           Welcome to the Investor Connect page. Here you can find information
           about investors interested in various sectors and stages.
         </p>
-        
         <div className='mb-4'>
           <h2 className='text-xl font-bold mb-2'>Filters</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2'>
@@ -254,7 +267,7 @@ const InvestorDealflow = () => {
             <div className='flex items-end'>
               <button
                 onClick={handleClearFilters}
-                className='py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded transition duration-200 w-full'
+                className='py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded transition duration-200 w-1/2'
               >
                 Clear All Filters
               </button>
@@ -263,27 +276,7 @@ const InvestorDealflow = () => {
         </div>
 
         <div className='relative mb-4'>
-          <div className={`absolute inset-0 flex justify-center items-center flex-col z-10 ${connectClicked ? 'hidden' : 'message-container'}`}>
-            <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center'>
-              <p className='text-lg font-bold mb-2'>
-                {filteredInvestors.length > 0
-                  ? `We have identified ${filteredInvestors.length} investors for you.`
-                  : 'We have identified 0 investors for you.'}
-              </p>
-              <p className='text-md mb-4'>
-                Connect with our investment banker.
-              </p>
-              <button
-                onClick={() => {
-                  setConnectClicked(true);
-                }}
-                className='py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200'
-              >
-                Connect
-              </button>
-            </div>
-          </div>
-          {connectClicked && (
+          {connectClicked ? (
             <div className='absolute inset-0 flex justify-center items-center flex-col z-10'>
               <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center'>
                 <p className='text-lg font-bold mb-2'>
@@ -291,9 +284,43 @@ const InvestorDealflow = () => {
                 </p>
               </div>
             </div>
+          ) : filteredInvestors.length > 0 ? (
+            <div className='absolute inset-0 flex justify-center items-center flex-col z-10'>
+              <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center message-container'>
+                <p className='text-lg font-bold mb-2'>
+                  We have identified {filteredInvestors.length} investors for you.
+                </p>
+                <p className='text-md mb-4'>
+                  Connect with our investment banker.
+                </p>
+                <button
+                  onClick={() => handleConnect('equity')}
+                  className='py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200'
+                >
+                  Connect
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className='absolute inset-0 flex justify-center items-center flex-col z-10'>
+              <div className='bg-[#1a235e] text-white p-4 rounded shadow text-center message-container'>
+                <p className='text-lg font-bold mb-2'>
+                  We have identified 0 investors for you.
+                </p>
+                <p className='text-md mb-4'>
+                  Connect with our investment banker.
+                </p>
+                <button
+                  onClick={() => handleConnect('equity')}
+                  className='py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200'
+                >
+                  Connect
+                </button>
+              </div>
+            </div>
           )}
 
-          <div className='overflow-x-auto filter blur-sm'>
+          <div className='overflow-x-auto filter blur-sm blur-container'>
             <table className='min-w-full bg-white border border-gray-300'>
               <thead>
                 <tr>
