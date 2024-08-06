@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import useUserDetails from '@/hooks/useUserDetails';
 import Loading from '@/components/Loading';
 import { supabase } from '@/lib/supabaseclient';
-import ComingSoonModal from "@/components/ComingSoonModal";
+import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';
 
 const Tools = () => {
@@ -65,7 +65,9 @@ const Tools = () => {
         src={imgSrc}
         alt={title}
         className='rounded-2xl w-full'
-        onClick={imgSrc === '/assets/images/tools/1.png' ? handleImageClick : undefined}
+        onClick={
+          imgSrc === '/assets/images/tools/1.png' ? handleImageClick : undefined
+        }
       />
     </Link>
   );
@@ -209,7 +211,7 @@ const Tools = () => {
                   {cardContent(
                     'Connect with Incubators',
                     '/assets/images/tools/6.png',
-                    '#'
+                    '/tools/incubators'
                   )}
                 </div>
               </div>
