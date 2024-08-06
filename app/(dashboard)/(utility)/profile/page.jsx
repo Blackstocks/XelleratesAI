@@ -121,7 +121,9 @@ const Profile = () => {
 
   const defaultSectors = JSON.parse(investorSignup?.sectors || '[]');
   const defaultInvestmentStages = investorSignup?.investment_stage.split(',');
-  const parsedSectors = JSON.parse(investorSignup?.sectors || '[]');
+  const parsedSectors = JSON.parse(
+    investorProfileLoc?.sectors || investorSignup?.sectors || '[]'
+  );
 
   // Map parsed values to corresponding labels
   const renderedSectors = parsedSectors
