@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseclient';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 const useIncubatorConnections = (companyProfileId) => {
   const [connectedIncubators, setConnectedIncubators] = useState([]);
@@ -37,15 +39,23 @@ const useIncubatorConnections = (companyProfileId) => {
       setConnecting((prev) => ({ ...prev, [incubatorId]: true })); // Set connecting state for this incubator
       const { data, error } = await supabase
         .from('connect_startup_incubator')
-        .insert([{ startup_id: companyProfileId, incubator_id: incubatorId }]);
+        .insert([
+          {
+            startup_id: companyProfileId,
+            incubator_id: incubatorId,
+            status: 'pending',
+          },
+        ]);
 
       if (error) throw error;
 
       setConnectedIncubators((prev) => [...prev, incubatorId]);
       setModalContent('Connection successful. We will get back to you soon.');
       setShowConnectionModal(true); // Show the modal after successful connection
+      toast.success('Connection request sent successfully');
     } catch (error) {
       console.error('Error connecting to incubator:', error.message);
+      toast.error('Error connecting to incubator');
     } finally {
       setConnecting((prev) => ({ ...prev, [incubatorId]: false })); // Reset connecting state for this incubator
     }

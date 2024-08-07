@@ -231,14 +231,14 @@ const IncubatorDetails = () => {
               </select>
             </div>
             <div>
-              <label className='block text-sm font-medium mb-1'>Category</label>
+              <label className='block text-sm font-medium mb-1'>Sector</label>
               <select
                 name='category'
                 value={selectedFilters.category}
                 onChange={handleFilterChange}
                 className='w-full px-3 py-2 border border-gray-300 rounded'
               >
-                <option value=''>Select Category</option>
+                <option value=''>Select Sector</option>
                 {filters.category.map((category, index) => (
                   <option key={index} value={category}>
                     {category}
@@ -284,7 +284,7 @@ const IncubatorDetails = () => {
                     Incubator Name
                   </th>
                   <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                    Category
+                    Sector
                   </th>
                   <th className='py-4 px-4 border-b border-gray-300 text-left'>
                     City

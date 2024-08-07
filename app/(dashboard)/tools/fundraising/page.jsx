@@ -8,7 +8,6 @@ import DountChart from '@/components/partials/widget/chart/dount-chart2';
 import DonutChart3 from '@/components/partials/widget/chart/dount-chart3';
 import DountChart4 from '@/components/partials/widget/chart/dount-chart4';
 import ImageBlock2 from '@/components/partials/widget/block/image-block-2';
-import { supabase } from '@/lib/supabaseclient';
 import 'react-toastify/dist/ReactToastify.css';
 import Button from '@/components/ui/Button';
 import ComingSoonModal from '@/components/ComingSoonModal';
@@ -104,7 +103,9 @@ const Fundraising = () => {
                 Investment Readiness Score
               </h3>
               <div className='absolute inset-0 flex items-center justify-center'>
-                <span className='text-lg font-bold text-gray-700 z-10 mt-16'>Coming Soon</span>
+                <span className='text-lg font-bold text-gray-700 z-10 mt-16'>
+                  Coming Soon
+                </span>
               </div>
               <div className='filter blur-sm z-0'>
                 <DountChart />
