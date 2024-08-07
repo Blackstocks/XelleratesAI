@@ -1,14 +1,12 @@
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import useUserDetails from '@/hooks/useUserDetails';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-import Modal from '@/components/Modal';
 import Loading from '@/components/Loading';
-import Textarea from '@/components/ui/Textarea';
 import { supabase } from '@/lib/supabaseclient';
+import AddDealflow from '@/components/AddDealflow';
 
 const InvestorDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
@@ -16,7 +14,8 @@ const InvestorDealflow = () => {
   const [investors, setInvestors] = useState([]);
   const [filteredInvestors, setFilteredInvestors] = useState([]);
   const [investorsLoading, setInvestorsLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [dealflowEntries, setDealflowEntries] = useState([]);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedInvestor, setSelectedInvestor] = useState(null);
@@ -76,32 +75,25 @@ const InvestorDealflow = () => {
   }, []);
 
   useEffect(() => {
-    let filtered = investors;
+    const fetchDealflowEntries = async () => {
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from('add_dealflow')
+            .select('*')
+            .eq('user_id', user.id);
 
-    if (selectedFilters.location) {
-      filtered = filtered.filter(investor =>
-        investor.Geography?.split(',').map(loc => loc.trim()).includes(selectedFilters.location)
-      );
-    }
-    if (selectedFilters.investmentType) {
-      filtered = filtered.filter(investor =>
-        investor.typeof?.split(',').map(type => type.trim()).includes(selectedFilters.investmentType)
-      );
-    }
-    if (selectedFilters.sector) {
-      filtered = filtered.filter(investor =>
-        investor.sectors?.split(',').map(sec => sec.trim()).includes(selectedFilters.sector)
-      );
-    }
-    if (selectedFilters.investmentStage) {
-      filtered = filtered.filter(investor =>
-        investor.investment_stage?.split(',').map(stage => stage.trim()).includes(selectedFilters.investmentStage)
-      );
-    }
+          if (error) throw error;
 
-    setFilteredInvestors(filtered);
-    setCurrentPage(1); // Reset to first page whenever filters change
-  }, [selectedFilters, investors]);
+          setDealflowEntries(data);
+        } catch (error) {
+          console.error('Error fetching dealflow entries:', error.message);
+        }
+      }
+    };
+
+    fetchDealflowEntries();
+  }, [user]);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -166,6 +158,16 @@ const InvestorDealflow = () => {
     });
   };
 
+  const handleAddDealflow = (newEntry) => {
+    setDealflowEntries((prevEntries) => [...prevEntries, newEntry]);
+  };
+
+  const handleUpdateDealflow = (updatedEntry) => {
+    setDealflowEntries((prevEntries) =>
+      prevEntries.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry))
+    );
+  };
+
   const totalPages = Math.ceil(filteredInvestors.length / itemsPerPage);
   const currentInvestors = filteredInvestors.slice(
     (currentPage - 1) * itemsPerPage,
@@ -181,7 +183,7 @@ const InvestorDealflow = () => {
       <Head>
         <title>Investor Connect</title>
       </Head>
-      <main className='container mx-auto p-4 relative'>
+      <main className={`container mb-1 p-4 relative ${showModal ? 'blur' : ''}`}>
         <div className='absolute top-4 left-4 z-20'>
           <button
             onClick={() => router.back()}
@@ -190,13 +192,22 @@ const InvestorDealflow = () => {
             Back
           </button>
         </div>
+        <div className="flex justify-end mb-1">
+          <button
+            onClick={() => setShowModal(true)}
+            className="py-2 px-4 bg-red-500 text-white rounded"
+          >
+            Add Dealflow
+          </button>
+        </div>
         <h1 className='text-3xl font-bold mb-4 text-center'>
           Investor Connect
         </h1>
-        <p className='mb-6 text-center'>
+        <p className='mb-2 text-center'>
           Welcome to the Investor Connect page. Here you can find information
           about investors interested in various sectors and stages.
         </p>
+        
         <div className='mb-4'>
           <h2 className='text-xl font-bold mb-2'>Filters</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2'>
@@ -405,86 +416,18 @@ const InvestorDealflow = () => {
           </button>
         </div>
       </main>
-      <Modal isOpen={!!selectedInvestor} onClose={handleCloseModal}>
-        {selectedInvestor && (
-          <div className='flex flex-col lg:flex-row lg:space-x-4 w-full h-full overflow-auto'>
-            <div className='flex-none lg:w-2/5 p-4 border-r border-gray-300 flex flex-col items-center'>
-              <div className='mb-4 flex flex-col items-center'>
-                <h2 className='text-2xl font-bold mb-2 text-center'>
-                  {selectedInvestor.name || 'N/A'}
-                </h2>
-              </div>
-              <div className='space-y-2 w-full'>
-                <button
-                  className='w-full rounded-lg py-2 px-4 border bg-[#14213d] text-white'
-                  onClick={() => setShowForm(true)}
-                >
-                  Express Interest
-                </button>
-              </div>
-            </div>
-            <div className='flex-1 p-4 overflow-y-auto'>
-              {showForm ? (
-                <div className='express-interest-form mt-4'>
-                  <Textarea
-                    label={'Message to the Investor'}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder='Write your message here'
-                    className='w-full p-2 border rounded'
-                  ></Textarea>
-                  <button
-                    className='mr-1rem rounded-md py-2 px-4 border bg-[#14213d] text-white'
-                    onClick={() => {
-                      handleExpressInterest(
-                        companyProfile?.id,
-                        selectedInvestor?.id,
-                        message
-                      );
-                    }}
-                  >
-                    Send Interest
-                  </button>
-                  <button
-                    className='rounded-md py-2 px-4 border bg-[#14213d] text-white'
-                    onClick={() => setShowForm(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <h3 className='text-xl font-bold mb-4'>Investor Profile</h3>
-                  <p className='mb-4'>
-                    <strong>Name:</strong> {selectedInvestor.name || 'N/A'}
-                  </p>
-                  <p>
-                    <strong>Type of Investment:</strong>{' '}
-                    {selectedInvestor.typeof || 'N/A'}
-                  </p>
-                  <p>
-                    <strong>Cheque Size:</strong>{' '}
-                    {selectedInvestor.cheque_size || 'N/A'}
-                  </p>
-                  <p>
-                    <strong>Investment Thesis:</strong>{' '}
-                    {selectedInvestor.investment_thesis || 'N/A'}
-                  </p>
-                  <p>
-                    <strong>Sectors:</strong>{' '}
-                    {selectedInvestor.sectors || 'N/A'}
-                  </p>
-                  <p>
-                    <strong>Investment Strategy:</strong>{' '}
-                    {selectedInvestor.investment_stage || 'N/A'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
+      <AddDealflow
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onAddDealflow={handleAddDealflow}
+        onUpdateDealflow={handleUpdateDealflow}
+        user={user}
+        dealflowEntries={dealflowEntries}
+      />
       <style jsx>{`
+        .blur {
+          filter: blur(5px);
+        }
         .z-10 {
           z-index: 10;
         }
