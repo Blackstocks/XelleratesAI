@@ -10,7 +10,10 @@ import { ToastContainer } from 'react-toastify';
 
 export const metadata = {
   title: 'Xellerates',
-  description: '',
+  description: 'Global platform for startups to be investment ready',
+  icons: {
+    icon: '/assets/images/logo/favicon.png', // Path to your SVG icon
+  },
 };
 
 export default function RootLayout({ children }) {
