@@ -321,10 +321,10 @@ const IncubatorDetails = () => {
                       }` || 'N/A'}
                     </td>
                     <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                      {incubator.portCity?.split(', ')[1] || 'N/A'}
+                      {incubator.portCity?.split(', ')[0] || 'N/A'}
                     </td>
                     <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                      {incubator.portCity?.split(', ')[0] || 'N/A'}
+                      {incubator.portCity?.split(', ')[1] || 'N/A'}
                     </td>
                     <td className='py-2 px-4 border-b border-gray-300 text-sm'>
                       {connectedIncubators.includes(incubator.id) ? (
