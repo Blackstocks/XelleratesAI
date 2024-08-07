@@ -195,7 +195,7 @@ const ConnectWithIncubators = () => {
           Welcome to the Incubator Connect page. Here you can find information
           about various incubators.
         </p>
-        <div className='mb-4'>
+        {/* <div className='mb-4'>
           <h2 className='text-xl font-bold mb-2'>Filters</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2'>
             <div>
@@ -255,7 +255,7 @@ const ConnectWithIncubators = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className='relative mb-4'>
           <div className='overflow-x-auto'>

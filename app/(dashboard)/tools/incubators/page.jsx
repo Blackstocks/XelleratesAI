@@ -316,15 +316,15 @@ const IncubatorDetails = () => {
                       </div>
                     </td>
                     <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                      {`${incubator.portTag || ''}${
+                        incubator.portTag2 ? ', ' + incubator.portTag2 : ''
+                      }` || 'N/A'}
+                    </td>
+                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
                       {incubator.portCity?.split(', ')[1] || 'N/A'}
                     </td>
                     <td className='py-2 px-4 border-b border-gray-300 text-sm'>
                       {incubator.portCity?.split(', ')[0] || 'N/A'}
-                    </td>
-                    <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                      {`${incubator.portTag || ''}${
-                        incubator.portTag2 ? ', ' + incubator.portTag2 : ''
-                      }` || 'N/A'}
                     </td>
                     <td className='py-2 px-4 border-b border-gray-300 text-sm'>
                       {connectedIncubators.includes(incubator.id) ? (
