@@ -10,7 +10,6 @@ import { toast } from 'react-toastify';
 
 const ConnectWithIncubators = () => {
   const [incubators, setIncubators] = useState([]);
-
   const [connections, setConnections] = useState([]);
   const [incubatorsLoading, setIncubatorsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,12 +35,14 @@ const ConnectWithIncubators = () => {
     const fetchIncubatorsAndConnections = async () => {
       setIncubatorsLoading(true);
       try {
-        // Fetch connections between startups and incubators
+        // Fetch connections between startups and incubators, including the unique identifier (id)
         const { data: connectionsData, error: connectionsError } =
           await supabase
             .from('connect_startup_incubator')
-            .select('incubator_id, startup_id');
+            .select('id, incubator_id, startup_id, status'); // Ensure 'id' and 'status' are selected
         if (connectionsError) throw connectionsError;
+
+        // console.log('Connections Data:', connectionsData); // Log connections data to verify
 
         setConnections(connectionsData);
 
@@ -52,6 +53,8 @@ const ConnectWithIncubators = () => {
           .select('*')
           .in('id', incubatorIds);
         if (incubatorsError) throw incubatorsError;
+
+        setIncubators(incubatorsData);
 
         // Fetch all startups
         const startupIds = connectionsData.map((conn) => conn.startup_id);
@@ -69,7 +72,7 @@ const ConnectWithIncubators = () => {
           await supabase.from('profiles').select('*').in('id', profileIds);
         if (startupsProfilesError) throw startupsProfilesError;
 
-        console.log('startupsProfileData:', startupsProfileData);
+        // console.log('startupsProfilesData:', startupsProfilesData);
         setStartupsProfileData(startupsProfilesData);
 
         // Process filters
@@ -93,7 +96,6 @@ const ConnectWithIncubators = () => {
           category: Array.from(categories).sort(),
         });
 
-        setIncubators(incubatorsData);
         setIncubatorsLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error.message);
@@ -284,6 +286,9 @@ const ConnectWithIncubators = () => {
                   <th className='py-4 px-4 border-b border-gray-300 text-left'>
                     Mobile
                   </th>
+                  <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -291,6 +296,7 @@ const ConnectWithIncubators = () => {
                   const connection = connections.find(
                     (conn) => conn.incubator_id === incubator.id
                   );
+
                   const startup = connection
                     ? startupsData.find(
                         (startup) => startup.id === connection.startup_id
