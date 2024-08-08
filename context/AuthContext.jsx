@@ -15,7 +15,11 @@ const AuthProvider = ({ children }) => {
     const checkSession = async () => {
       const {
         data: { session },
+        error,
       } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error fetching session:', error);
+      }
       setUser(session?.user || null);
       setLoading(false);
     };

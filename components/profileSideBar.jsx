@@ -101,7 +101,9 @@ const VerticalNavTabs = () => {
     ctoInfo,
     companyDocuments,
   } = useCompleteUserDetails();
-  // console.log('companyDocuments', companyDocuments);
+  // console.log('companyDocuments', companyDocuments)
+  console.log('companyProfile', companyProfile);
+  console.log('founderInformation', founderInformation);
   const {
     control,
     watch,
@@ -373,6 +375,7 @@ const VerticalNavTabs = () => {
           break;
 
         case 'founder_info':
+          console.log('Founder Information:', founderInformation);
           const founderData = {
             company_id: companyProfile?.id,
             founder_name: data.founder_name || null,
@@ -1131,8 +1134,7 @@ const VerticalNavTabs = () => {
                               name='founder_name'
                               defaultValue={
                                 founderInformation?.founder_name ||
-                                founderInformationLoc?.founder_name ||
-                                'Not provided'
+                                founderInformationLoc?.founder_name
                               }
                               register={register}
                               placeholder='Enter founder name'
@@ -1142,8 +1144,7 @@ const VerticalNavTabs = () => {
                               name='founder_email'
                               defaultValue={
                                 founderInformation?.founder_email ||
-                                founderInformationLoc?.founder_email ||
-                                'Not provided'
+                                founderInformationLoc?.founder_email
                               }
                               register={register}
                               placeholder='Enter founder email'
@@ -1153,8 +1154,7 @@ const VerticalNavTabs = () => {
                               name='founder_mobile'
                               defaultValue={
                                 founderInformation?.founder_mobile ||
-                                founderInformationLoc?.founder_mobile ||
-                                'Not provided'
+                                founderInformationLoc?.founder_mobile
                               }
                               register={register}
                               placeholder='Enter founder mobile number'
@@ -1164,8 +1164,7 @@ const VerticalNavTabs = () => {
                               name='founder_linkedin'
                               defaultValue={
                                 founderInformation?.founder_linkedin ||
-                                founderInformationLoc?.founder_linkedin ||
-                                'Not provided'
+                                founderInformationLoc?.founder_linkedin
                               }
                               register={register}
                               placeholder='Enter founder LinkedIn profile URL'
@@ -1175,8 +1174,7 @@ const VerticalNavTabs = () => {
                               name='degree_name'
                               defaultValue={
                                 founderInformation?.degree_name ||
-                                founderInformationLoc?.degree_name ||
-                                'Not provided'
+                                founderInformationLoc?.degree_name
                               }
                               register={register}
                               placeholder='Enter degree name'
@@ -1186,8 +1184,7 @@ const VerticalNavTabs = () => {
                               name='college_name'
                               defaultValue={
                                 founderInformation?.college_name ||
-                                founderInformationLoc?.college_name ||
-                                'Not provided'
+                                founderInformationLoc?.college_name
                               }
                               register={register}
                               placeholder='Enter college name'
@@ -1198,8 +1195,7 @@ const VerticalNavTabs = () => {
                               name='graduation_year'
                               defaultValue={
                                 founderInformation?.graduation_year ||
-                                founderInformationLoc?.graduation_year ||
-                                'Not provided'
+                                founderInformationLoc?.graduation_year
                               }
                               register={register}
                               placeholder='Enter year of graduation'

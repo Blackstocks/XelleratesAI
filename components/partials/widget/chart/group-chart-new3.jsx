@@ -1,6 +1,6 @@
 'use client';
-import Icon from '@/components/ui/Icon';
 import useStartups from '@/hooks/useStartups'; // Adjust the import path as needed
+import useMatchingStartups from '@/hooks/useMatchingStartups';
 
 const statisticsTemplate = [
   {
@@ -15,7 +15,7 @@ const statisticsTemplate = [
   },
   {
     title: 'Curated Startups',
-    count: '15',
+    count: '0', // Placeholder, will be dynamically updated
     bg: 'bg-info-500',
     text: 'text-primary-500',
     percent: '7.50%',
@@ -45,21 +45,23 @@ const statisticsTemplate = [
   },
 ];
 
-const GroupChartNew3 = () => {
-  const { startups, loading, startupCount } = useStartups();
-
-  console.log('Loading state:', loading); // Log loading state
-  console.log('Startup count:', startupCount); // Log startup count
-  console.log('Startups data:', startups); // Log startups data
+const GroupChartNew3 = ({ investorId }) => {
+  const { startups, loading: startupsLoading, startupCount } = useStartups();
+  const {
+    matchingStartups,
+    loading: matchingLoading,
+    count: curatedCount,
+  } = useMatchingStartups(investorId);
 
   const statistics = statisticsTemplate.map((stat) => {
     if (stat.title === 'Total Startups') {
       return { ...stat, count: startupCount };
     }
+    if (stat.title === 'Curated Startups') {
+      return { ...stat, count: matchingLoading ? 'Loading...' : curatedCount };
+    }
     return stat;
   });
-
-  console.log('Statistics with updated total startups:', statistics); // Log updated statistics
 
   return (
     <>
@@ -82,7 +84,7 @@ const GroupChartNew3 = () => {
             </h7>
           </span>
           <span className='block text-2xl text-slate-900 dark:text-white font-medium mb-6'>
-            {loading ? 'Loading...' : item.count}
+            {startupsLoading || matchingLoading ? 'Loading...' : item.count}
           </span>
         </div>
       ))}

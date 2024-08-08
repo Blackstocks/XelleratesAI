@@ -3,29 +3,25 @@ import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const useCompletionPercentage = () => {
   const [completionPercentage, setCompletionPercentage] = useState(0);
-  const [loading, setLoading] = useState(true);
   const {
     profile,
     companyProfile,
     businessDetails,
     founderInformation,
-    cofounderInformation,
     fundingInformation,
     ctoInfo,
     companyDocuments,
     investorSignup,
-    loading: detailsLoading,
+    loading,
   } = useCompleteUserDetails();
 
   useEffect(() => {
-    if (detailsLoading || !profile) return;
+    if (loading || !profile) return;
 
     let fields = [];
-    let data = null;
     let completedFields = 0;
 
     if (profile.user_type === 'investor' && investorSignup) {
-      data = investorSignup;
       fields = [
         'name',
         'email',
@@ -36,8 +32,10 @@ const useCompletionPercentage = () => {
         'sectors',
         'investment_stage',
       ];
+
+      const filledFields = fields.filter((field) => investorSignup[field]);
+      completedFields = filledFields.length;
     } else if (profile.user_type === 'startup') {
-      data = {};
       const startupData = [
         {
           details: companyProfile,
@@ -58,6 +56,8 @@ const useCompletionPercentage = () => {
             'usp_moat',
             'industry_sector',
             'media',
+            'social_media_handles',
+            'media_presence',
           ],
         },
         {
@@ -79,16 +79,9 @@ const useCompletionPercentage = () => {
             'degree_name',
             'college_name',
             'graduation_year',
-            'list_of_advisers',
-          ],
-        },
-        {
-          details: cofounderInformation,
-          fields: [
-            'cofounder_name',
-            'cofounder_email',
-            'cofounder_mobile',
-            'cofounder_linkedin',
+            'advisors',
+            'co_founders',
+            'co_founder_agreement',
           ],
         },
         {
@@ -96,12 +89,13 @@ const useCompletionPercentage = () => {
           fields: [
             'total_funding_ask',
             'amount_committed',
-            'current_cap_table',
             'government_grants',
             'equity_split',
             'fund_utilization',
             'arr',
             'mrr',
+            'previous_funding',
+            'cap_table',
           ],
         },
         {
@@ -112,7 +106,8 @@ const useCompletionPercentage = () => {
             'cto_mobile',
             'cto_linkedin',
             'tech_team_size',
-            'mobile_app_link',
+            'mobile_app_link_ios',
+            'mobile_app_link_android',
             'technology_roadmap',
           ],
         },
@@ -145,32 +140,26 @@ const useCompletionPercentage = () => {
 
       startupData.forEach(({ details, fields: detailFields }) => {
         if (details) {
-          data = { ...data, ...details };
           fields.push(...detailFields);
+          const filledFields = detailFields.filter((field) => details[field]);
+          completedFields += filledFields.length;
         }
       });
     }
 
-    if (data) {
-      const filledFields = fields.filter((field) => data[field]);
-      completedFields = filledFields.length;
-      setCompletionPercentage(
-        Math.round((completedFields / fields.length) * 100)
-      );
-    }
-
-    setLoading(false);
+    setCompletionPercentage(
+      Math.round((completedFields / fields.length) * 100)
+    );
   }, [
     profile,
     companyProfile,
     businessDetails,
     founderInformation,
-    cofounderInformation,
     fundingInformation,
     ctoInfo,
     companyDocuments,
     investorSignup,
-    detailsLoading,
+    loading,
   ]);
 
   return { completionPercentage, loading };

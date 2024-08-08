@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Card from '@/components/ui/Card';
@@ -34,7 +34,7 @@ const CardSlider2 = dynamic(
 
 const BankingPage = () => {
   const { profile, investorSignup } = useCompleteUserDetails();
-  const { user, loading: userLoading, details } = useUserDetails();
+  const { user, loading: userLoading } = useUserDetails();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [globalFilter, setGlobalFilter] = useState('');
@@ -139,7 +139,9 @@ const BankingPage = () => {
                   className='form-select block w-1/3 mt-1 text-sm border-gray-300 rounded-md'
                 >
                   <option value='My Portfolios'>My Portfolios</option>
-                  <option value='Track Potential Startups'>Track Potential Startups</option>
+                  <option value='Track Potential Startups'>
+                    Track Potential Startups
+                  </option>
                 </select>
               </div>
             </Card>
@@ -156,7 +158,7 @@ const BankingPage = () => {
           </div>
         </div>
         <div>
-        <CompetitorsCard />
+          <CompetitorsCard />
         </div>
         <div className='grid lg:grid-cols-2 grid-cols-1 gap-5'>
           <Card title='Cap Table' noborder>
