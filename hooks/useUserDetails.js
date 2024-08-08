@@ -24,7 +24,7 @@ const useUserDetails = () => {
         setUser(profile);
       }
     } catch (error) {
-      console.error('Error fetching user details:', error.message);
+      console.error('Error fetching user profile details:', error.message);
     } finally {
       setLoading(false);
     }

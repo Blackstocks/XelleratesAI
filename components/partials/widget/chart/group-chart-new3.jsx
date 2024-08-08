@@ -45,23 +45,33 @@ const statisticsTemplate = [
   },
 ];
 
-const GroupChartNew3 = ({ investorId }) => {
+const GroupChartNew3 = () => {
   const { startups, loading: startupsLoading, startupCount } = useStartups();
   const {
     matchingStartups,
     loading: matchingLoading,
     count: curatedCount,
-  } = useMatchingStartups(investorId);
+  } = useMatchingStartups();
+
+  // console.log('Loading state:', startupsLoading); // Log loading state
+  // console.log('Startup count:', startupCount); // Log startup count
+  // console.log('Startups data:', startups); // Log startups data
 
   const statistics = statisticsTemplate.map((stat) => {
     if (stat.title === 'Total Startups') {
-      return { ...stat, count: startupCount };
+      return { ...stat, count: startupsLoading ? 'Loading...' : startupCount };
     }
     if (stat.title === 'Curated Startups') {
+      // console.log('Curated startups count:', curatedCount); // Log curated startups count
       return { ...stat, count: matchingLoading ? 'Loading...' : curatedCount };
     }
     return stat;
   });
+
+  // console.log(
+  //   'Statistics with updated total startups and curated startups:',
+  //   statistics
+  // ); // Log updated statistics
 
   return (
     <>
@@ -84,7 +94,7 @@ const GroupChartNew3 = ({ investorId }) => {
             </h7>
           </span>
           <span className='block text-2xl text-slate-900 dark:text-white font-medium mb-6'>
-            {startupsLoading || matchingLoading ? 'Loading...' : item.count}
+            {item.count}
           </span>
         </div>
       ))}

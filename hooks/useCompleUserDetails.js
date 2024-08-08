@@ -34,16 +34,19 @@ const useCompleteUserDetails = () => {
         });
         const data = await response.json();
 
-        setProfile(data.profile);
-        setCompanyProfile(data.companyProfile);
-        setBusinessDetails(data.businessDetails[0]);
-        setFounderInformation(data.founderInformation[0]);
-        setFundingInformation(data.fundingInformation[0]);
-        setCtoInfo(data.ctoInfo[0]);
-        setCompanyDocuments(data.companyDocuments[0]);
-        setInvestorSignup(data.investorSignup);
+        setProfile(data.profile ?? null);
+        setInvestorSignup(data?.investorSignupData ?? null);
+        setCompanyProfile(data?.companyProfile ?? null);
+        setBusinessDetails(data?.businessDetails?.[0] ?? null);
+        setFounderInformation(data?.founderInformation?.[0] ?? null);
+        setFundingInformation(data?.fundingInformation?.[0] ?? null);
+        setCtoInfo(data?.ctoInfo?.[0] ?? null);
+        setCompanyDocuments(data?.companyDocuments?.[0] ?? null);
       } catch (error) {
-        console.error('Error fetching user details:', error.message);
+        console.error(
+          'Error fetching user details, contact the administrator:',
+          error
+        );
       } finally {
         setLoading(false);
       }

@@ -1,4 +1,3 @@
-import { supabase } from '@/lib/supabaseclient';
 import { createClient } from '@supabase/supabase-js';
 
 const getUserDetails = async (supabaseToken) => {
@@ -38,9 +37,9 @@ const getUserDetails = async (supabaseToken) => {
 
   let additionalDetails = {};
   if (profile.user_type === 'startup') {
-    additionalDetails = await getStartupDetails(supabaseClient, profile.id);
+    additionalDetails = await getStartupDetails(supabaseClient, profile?.id);
   } else if (profile.user_type === 'investor') {
-    additionalDetails = await getInvestorDetails(supabaseClient, profile.id);
+    additionalDetails = await getInvestorDetails(supabaseClient, profile?.id);
   }
 
   return { user, profile, ...additionalDetails };
@@ -100,20 +99,20 @@ const fetchDetails = async (supabaseClient, table, companyId) => {
 };
 
 const getInvestorDetails = async (supabaseClient, profileId) => {
-  const { data: investorSignup, error: investorSignupError } =
+  const { data: investorSignupData, error: investorSignupDataError } =
     await supabaseClient
       .from('investor_signup')
       .select('*')
       .eq('profile_id', profileId)
       .maybeSingle();
-  if (investorSignupError) {
+  if (investorSignupDataError) {
     console.error(
       'Error fetching investor signup:',
-      investorSignupError.message
+      investorSignupDataError.message
     );
-    throw investorSignupError;
+    throw investorSignupDataError;
   }
-  return { investorSignup };
+  return { investorSignupData };
 };
 
 export default async function handler(req, res) {

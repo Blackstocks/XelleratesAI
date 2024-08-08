@@ -1,23 +1,33 @@
 import { supabase } from '@/lib/supabaseclient';
-
 export default async function handler(req, res) {
-  const { investorId } = req.query;
+  const supabaseToken = req.headers['supabasetoken'];
 
-  if (!investorId) {
-    return res.status(400).json({ error: 'Investor ID is required' });
+  console.log('supabaseToken', supabaseToken);
+
+  if (!supabaseToken) {
+    return res.status(400).json({ error: 'Authorization token is required' });
   }
 
   try {
+    // Fetch the user details using the token
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(supabaseToken);
+
+    if (authError) throw authError;
+
     // Fetch investor sectors
     const { data: investorData, error: investorError } = await supabase
       .from('investor_signup')
-      .select('sector')
-      .eq('id', investorId)
+      .select('sectors')
+      .eq('profile_id', user?.id)
       .single();
 
     if (investorError) throw investorError;
 
-    const investorSectors = investorData.sector;
+    const investorSectors = investorData.sectors;
+    console.log(investorSectors);
 
     // Fetch startups
     const { data: startupData, error: startupError } = await supabase.from(
@@ -31,9 +41,24 @@ export default async function handler(req, res) {
     if (startupError) throw startupError;
 
     // Filter startups based on matching sectors
-    const matchingStartups = startupData.filter((startup) =>
-      startup.industry_sector.some((sector) => investorSectors.includes(sector))
-    );
+    const matchingStartups = startupData.filter((startup) => {
+      if (!startup.industry_sector) {
+        console.warn(
+          `Startup ${
+            startup.company_name || startup.id
+          } has no industry sector defined.`
+        );
+        return false;
+      }
+
+      // Convert industry_sector to an array if it's not already one
+      const industrySectors = Array.isArray(startup.industry_sector)
+        ? startup.industry_sector
+        : [startup.industry_sector];
+
+      // Check if any sector from investorSectors matches the startup's industry_sector
+      return industrySectors.some((sector) => investorSectors.includes(sector));
+    });
 
     res.status(200).json({
       count: matchingStartups.length,
