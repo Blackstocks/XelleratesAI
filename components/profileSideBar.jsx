@@ -197,7 +197,7 @@ const VerticalNavTabs = () => {
 
   // console.log('companyProfile', companyProfile);
   // console.log('founderInformation', founderInformation);
-
+  // console.log('ctoInfoloc', ctoInfoLoc);
   const [hasMediaPresence, setHasMediaPresence] = useState(false);
 
   useEffect(() => {
@@ -216,7 +216,7 @@ const VerticalNavTabs = () => {
 
   useEffect(() => {
     if (companyProfile) {
-      console.log('Company Profile:', companyProfile);
+      // console.log('Company Profile:', companyProfile);
       reset({
         socialMedia: companyProfile.social_media_handles || [],
         socialMediaPresence: companyProfile?.media_presence || [],
@@ -454,8 +454,11 @@ const VerticalNavTabs = () => {
           if (ctoInfoResponse?.error) {
             throw ctoInfoResponse.error;
           }
+          if (ctoInfoResponse) {
+            updatedData = ctoInfoResponse.data;
 
-          updatedData = ctoInfoResponse.data;
+            setCtoInfoLoc(updatedData);
+          }
           break;
         case 'company_documents':
           const companyUploadedFiles = {};
@@ -2242,7 +2245,7 @@ const VerticalNavTabs = () => {
                                 </div>
                               </li>
 
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                              {/* <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:globe-alt' />
                                 </div>
@@ -2263,7 +2266,7 @@ const VerticalNavTabs = () => {
                                       'Not provided'}
                                   </a>
                                 </div>
-                              </li>
+                              </li> */}
 
                               <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
