@@ -2494,7 +2494,6 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {founderInformationLoc?.founder_linkedin ||
-                                      user.linkedin_profile ||
                                       founderInformation?.founder_linkedin ||
                                       'Not provided'}
                                   </div>
@@ -2547,83 +2546,83 @@ const VerticalNavTabs = () => {
                               </li>
 
                               {/* Advisors Section */}
-                              {founderInformation?.advisors?.map(
-                                (advisor, index) => (
-                                  <li
-                                    key={index}
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:user-group' />
+                              {(
+                                founderInformationLoc?.advisors ||
+                                founderInformation?.advisors
+                              )?.map((advisor, index) => (
+                                <li
+                                  key={index}
+                                  className='flex space-x-3 rtl:space-x-reverse'
+                                >
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:user-group' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Advisor Name: ${
+                                        advisor.advisor_name || 'Not provided'
+                                      }`}
                                     </div>
-                                    <div className='flex-1'>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Advisor Name: ${
-                                          advisor.advisor_name || 'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Advisor Email: ${
-                                          advisor.advisor_email ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Advisor Mobile: ${
-                                          advisor.advisor_mobile ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Advisor LinkedIn: ${
-                                          advisor.advisor_linkedin ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Advisor Email: ${
+                                        advisor.advisor_email || 'Not provided'
+                                      }`}
                                     </div>
-                                  </li>
-                                )
-                              )}
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Advisor Mobile: ${
+                                        advisor.advisor_mobile || 'Not provided'
+                                      }`}
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Advisor LinkedIn: ${
+                                        advisor.advisor_linkedin ||
+                                        'Not provided'
+                                      }`}
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
 
                               {/* Co-Founders Section */}
-                              {founderInformation?.co_founders?.map(
-                                (coFounder, index) => (
-                                  <li
-                                    key={index}
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:user-group' />
+                              {(
+                                founderInformationLoc?.co_founders ||
+                                founderInformation?.co_founders
+                              )?.map((coFounder, index) => (
+                                <li
+                                  key={index}
+                                  className='flex space-x-3 rtl:space-x-reverse'
+                                >
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:user-group' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Co-Founder Name: ${
+                                        coFounder.co_founder_name ||
+                                        'Not provided'
+                                      }`}
                                     </div>
-                                    <div className='flex-1'>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Name: ${
-                                          coFounder.co_founder_name ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Email: ${
-                                          coFounder.co_founder_email ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Mobile: ${
-                                          coFounder.co_founder_mobile ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder LinkedIn: ${
-                                          coFounder.co_founder_linkedin ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Co-Founder Email: ${
+                                        coFounder.co_founder_email ||
+                                        'Not provided'
+                                      }`}
                                     </div>
-                                  </li>
-                                )
-                              )}
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Co-Founder Mobile: ${
+                                        coFounder.co_founder_mobile ||
+                                        'Not provided'
+                                      }`}
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Co-Founder LinkedIn: ${
+                                        coFounder.co_founder_linkedin ||
+                                        'Not provided'
+                                      }`}
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
 
                               <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
