@@ -380,13 +380,6 @@ const Dashboard = () => {
                         <GroupChartNew3 />
                       </div>
                     </Card>
-                    {renderLockedCard(
-                      'Top Conversations',
-                      <div className='xl:col-span-6 col-span-12'>
-                        <RecentOrderTable2 />
-                      </div>,
-                      'topConversations'
-                    )}
                   </div>
                   <div className='lg:col-span-4 col-span-12 space-y-5'>
                     {renderLockedCard(
@@ -406,6 +399,19 @@ const Dashboard = () => {
                       </ul>,
                       'topPerformingPortfolios'
                     )}
+                  </div>
+                </div>
+                <div className='grid grid-cols-12 gap-5'>
+                  <div className='lg:col-span-7 col-span-12 space-y-5'>
+                    {renderLockedCard(
+                      'Top Conversations',
+                      <div className='xl:col-span-6 col-span-12'>
+                        <RecentOrderTable2 />
+                      </div>,
+                      'topConversations'
+                    )}
+                  </div>
+                  <div className='lg:col-span-5 col-span-12 space-y-5'>
                     {renderLockedCard('Hot Deals', <Customer />, 'hotDeals')}
                   </div>
                 </div>

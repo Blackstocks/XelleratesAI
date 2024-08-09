@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabaseclient';
 export default async function handler(req, res) {
   const supabaseToken = req.headers['supabasetoken'];
 
-  console.log('supabaseToken', supabaseToken);
+  // console.log('supabaseToken', supabaseToken);
 
   if (!supabaseToken) {
     return res.status(400).json({ error: 'Authorization token is required' });
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     if (investorError) throw investorError;
 
     const investorSectors = investorData.sectors;
-    console.log(investorSectors);
+    // console.log(investorSectors);
 
     // Fetch startups
     const { data: startupData, error: startupError } = await supabase.from(

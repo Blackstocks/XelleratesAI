@@ -23,7 +23,7 @@ import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import Loading from '@/components/Loading';
 
 const Profile = () => {
-  const { user, updateDetailsLocally, loading } = useUserDetails();
+  const { user, loading } = useUserDetails();
   const { companyProfile, investorSignup } = useCompleteUserDetails();
   // console.log('investorSignup in profile', investorSignup);
   console.log('investorSignup in profile', investorSignup);
@@ -33,7 +33,7 @@ const Profile = () => {
     handleSubmit,
     setValue,
     control,
-    reset,
+
     formState: { errors },
   } = useForm();
   const animatedComponents = makeAnimated();
@@ -100,6 +100,7 @@ const Profile = () => {
                 ...formData,
                 profile_id: user?.id,
               });
+          console.log('result', result);
 
           if (result) {
             setInvestorProfileLoc(result[0]);
@@ -109,9 +110,9 @@ const Profile = () => {
           console.error('Unknown section:', section);
           return;
       }
+      console.log('investorProfileLoc', investorProfileLoc);
 
       setEditingSection(null);
-      console.log('investorProfileLoc', investorProfileLoc);
     } catch (error) {
       console.error('Unexpected error:', error);
     }
