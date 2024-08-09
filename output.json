@@ -1,0 +1,149 @@
+{
+    "revenue": {
+        "Q1": [
+            {
+                "month": "01",
+                "calculation": "Net Sale + GST",
+                "value": "1066330.60"
+            },
+            {
+                "month": "02",
+                "calculation": "Sale After GST",
+                "value": "983199.00"
+            },
+            {
+                "month": "03",
+                "calculation": "Sale After GST",
+                "value": "968635.60"
+            }
+        ],
+        "Q2": [
+            {
+                "month": "04",
+                "calculation": "Sale After GST",
+                "value": "1100314.69"
+            },
+            {
+                "month": "05",
+                "calculation": "Sale After GST",
+                "value": "1005178.02"
+            },
+            {
+                "month": "06",
+                "calculation": "Sale After GST",
+                "value": "1058851.31"
+            }
+        ],
+        "Q3": [
+            {
+                "month": "07",
+                "calculation": "Sale After Gst",
+                "value": "926540.17"
+            },
+            {
+                "month": "08",
+                "calculation": "Sale After Gst",
+                "value": "1132665.00"
+            }
+        ],
+        "Q4": []
+    },
+    "expense": {
+        "Q1": [
+            {
+                "month": "01",
+                "calculation": "Purchase + Total Indirect Exp",
+                "value": "1170454.30"
+            },
+            {
+                "month": "02",
+                "calculation": "Purchase + Total Indirect Exp",
+                "value": "869843.89"
+            },
+            {
+                "month": "03",
+                "calculation": "Purchase + Total Indirect Exp",
+                "value": "938248.00"
+            }
+        ],
+        "Q2": [
+            {
+                "month": "04",
+                "calculation": "Purchase + Total Indirect Exp",
+                "value": "1151070.16"
+            },
+            {
+                "month": "05",
+                "calculation": "Purchase + Total Indirect Exp",
+                "value": "1068565.00"
+            },
+            {
+                "month": "06",
+                "calculation": "Purchase + Total Indirect Exp",
+                "value": "1164867.58"
+            }
+        ],
+        "Q3": [
+            {
+                "month": "07",
+                "calculation": "Purchase + Total Indirect Exp",
+                "value": "783565.75"
+            },
+            {
+                "month": "08",
+                "calculation": "Purchase + Total Indirect Exp",
+                "value": "915981.00"
+            }
+        ],
+        "Q4": []
+    },
+    "profit": {
+        "Q1": [
+            {
+                "month": "01",
+                "calculation": "Net Profit",
+                "value": "-391209.30"
+            },
+            {
+                "month": "02",
+                "calculation": "Net Profit",
+                "value": "43130.11"
+            },
+            {
+                "month": "03",
+                "calculation": "Net Profit",
+                "value": "-63205.40"
+            }
+        ],
+        "Q2": [
+            {
+                "month": "04",
+                "calculation": "Net Profit",
+                "value": "-183568.16"
+            },
+            {
+                "month": "05",
+                "calculation": "Net Profit",
+                "value": "-135352.00"
+            },
+            {
+                "month": "06",
+                "calculation": "Net Profit",
+                "value": "-211862.58"
+            }
+        ],
+        "Q3": [
+            {
+                "month": "07",
+                "calculation": "Net Profit",
+                "value": "49381.25"
+            },
+            {
+                "month": "08",
+                "calculation": "Net Profit",
+                "value": "73123.00"
+            }
+        ],
+        "Q4": []
+    }
+}

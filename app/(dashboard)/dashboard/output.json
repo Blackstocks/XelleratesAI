@@ -1,0 +1,8 @@
+{
+  "financials": [
+    { "name": "Financials", "value": "Updated Financial Data" },
+    { "name": "Revenue", "value": "1132664.88" },
+    { "name": "Expenses", "value": "315535.77" },
+    { "name": "Profit/Loss", "value": "817129.11" }
+  ]
+}
