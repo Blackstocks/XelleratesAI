@@ -102,8 +102,8 @@ const VerticalNavTabs = () => {
     companyDocuments,
   } = useCompleteUserDetails();
   // console.log('companyDocuments', companyDocuments)
-  console.log('companyProfile', companyProfile);
-  console.log('founderInformation', founderInformation);
+  // console.log('companyProfile', companyProfile);
+  // console.log('founderInformation', founderInformation);
   const {
     control,
     watch,
