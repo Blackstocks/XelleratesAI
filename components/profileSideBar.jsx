@@ -216,10 +216,14 @@ const VerticalNavTabs = () => {
 
   useEffect(() => {
     if (companyProfile) {
+      console.log('Company Profile:', companyProfile);
       reset({
         socialMedia: companyProfile.social_media_handles || [],
-        mediaPresence: companyProfile?.media_presence || [],
+        socialMediaPresence: companyProfile?.media_presence || [],
       });
+
+      // console.log('media_presence', presenceFields);
+      // console.log('social_media_handles', socialMediaFields);
     }
     if (founderInformation) {
       // console.log('Founder Information:', founderInformation);
@@ -328,7 +332,7 @@ const VerticalNavTabs = () => {
             state_city: data.state_city || null,
             office_address: data.office_address || null,
             company_website: data.company_website || null,
-            linkedin_profile: data.linkedin_profile || null,
+            // linkedin_profile: data.linkedin_profile || null,
             short_description: data.short_description || null,
             target_audience: data.target_audience || null,
             industry_sector: data.industry_sector || null,
@@ -676,6 +680,7 @@ const VerticalNavTabs = () => {
                               label='Company Name'
                               name='company_name'
                               defaultValue={
+                                user?.company_name ||
                                 companyProfileLoc?.company_name ||
                                 companyProfile?.company_name
                               }
@@ -757,7 +762,7 @@ const VerticalNavTabs = () => {
                               placeholder='Enter the company website URL'
                               register={register}
                             />
-                            <Textinput
+                            {/* <Textinput
                               label='LinkedIn Profile'
                               name='linkedin_profile'
                               defaultValue={
@@ -766,7 +771,7 @@ const VerticalNavTabs = () => {
                               }
                               placeholder='Enter the LinkedIn profile URL'
                               register={register}
-                            />
+                            /> */}
                             <Textarea
                               label='Business Description'
                               name='short_description'
