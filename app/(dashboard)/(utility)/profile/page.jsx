@@ -26,7 +26,7 @@ const Profile = () => {
   const { user, loading } = useUserDetails();
   const { companyProfile, investorSignup } = useCompleteUserDetails();
   // console.log('investorSignup in profile', investorSignup);
-  console.log('investorSignup in profile', investorSignup);
+  // console.log('investorSignup in profile', investorSignup);
   const [editingSection, setEditingSection] = useState(null);
   const {
     register,
