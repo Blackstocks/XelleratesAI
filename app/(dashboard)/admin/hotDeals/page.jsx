@@ -26,21 +26,43 @@ const HotDeals = ({ userType = 'startup' }) => {
   const fetchCompanies = async () => {
     const { data, error } = await supabase
       .from('company_profile')
-      .select('id, company_name');
+      .select('id, company_name, profile_id');
+
     if (error) {
       console.error(error);
-    } else {
-      setCompanies(data);
+    } else if (data) {
+      // Fetch the company logos for the associated profile_ids
+      const profileIds = data.map((company) => company.profile_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, company_logo')
+        .in('id', profileIds);
+
+      if (profilesError) {
+        console.error(profilesError);
+      } else if (profilesData) {
+        const companiesWithLogos = data.map((company) => {
+          const profile = profilesData.find(
+            (profile) => profile.id === company.profile_id
+          );
+          return {
+            ...company,
+            company_logo: profile ? profile.company_logo : null,
+          };
+        });
+        setCompanies(companiesWithLogos);
+      }
     }
   };
 
   const fetchHotDeals = async () => {
     const { data, error } = await supabase
       .from('hot_deals')
-      .select('startup_id, name');
+      .select('startup_id');
+
     if (error) {
       console.error(error);
-    } else {
+    } else if (data) {
       setHotDeals(data);
     }
   };
@@ -103,7 +125,7 @@ const HotDeals = ({ userType = 'startup' }) => {
     };
   }, [userType]);
 
-  const addStartupToHotDeals = async (companyId, name) => {
+  const addStartupToHotDeals = async (companyId, name, profileId) => {
     try {
       // Fetch current hot deals to determine the next rank
       const { data: currentHotDeals, error: fetchError } = await supabase
@@ -124,6 +146,7 @@ const HotDeals = ({ userType = 'startup' }) => {
       const { error } = await supabase.from('hot_deals').upsert({
         startup_id: companyId,
         name,
+        profile_id: profileId, // Add the profile_id here
         rank: nextRank, // Assign the rank based on the current count
       });
 
@@ -167,6 +190,20 @@ const HotDeals = ({ userType = 'startup' }) => {
         Header: 'Company Name',
         accessor: 'company_name',
       },
+      // {
+      //   Header: 'Company Logo',
+      //   accessor: 'company_logo',
+      //   Cell: ({ value }) =>
+      //     value ? (
+      //       <img
+      //         src={value}
+      //         alt='Company Logo'
+      //         style={{ width: '50px', height: '50px' }}
+      //       />
+      //     ) : (
+      //       'No Logo'
+      //     ),
+      // },
       {
         Header: 'Actions',
         Cell: ({ row }) => {
@@ -188,7 +225,8 @@ const HotDeals = ({ userType = 'startup' }) => {
                   onClick={() =>
                     addStartupToHotDeals(
                       row.original.id,
-                      row.original.company_name
+                      row.original.company_name,
+                      row.original.profile_id // Pass the profile_id when adding to hot deals
                     )
                   }
                 >

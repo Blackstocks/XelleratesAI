@@ -28,10 +28,10 @@ const useStartups = () => {
             email,
             mobile,
             user_type,
+            company_logo,
             company_profile (
               id,
               company_name,
-              company_logo,
               incorporation_date,
               country,
               state_city,

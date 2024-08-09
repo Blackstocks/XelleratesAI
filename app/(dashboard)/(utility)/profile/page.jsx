@@ -31,7 +31,6 @@ const Profile = () => {
   const {
     register,
     handleSubmit,
-    setValue,
     control,
 
     formState: { errors },
@@ -81,14 +80,14 @@ const Profile = () => {
 
   const handleSave = async (data, section) => {
     try {
-      let profilePhotoUrl = null;
-      if (data.profilePhoto && data.profilePhoto[0]) {
-        profilePhotoUrl = await handleFileUpload(data.profilePhoto[0]);
-      }
+      // let profilePhotoUrl = null;
+      // if (data.profilePhoto && data.profilePhoto[0]) {
+      //   profilePhotoUrl = await handleFileUpload(data.profilePhoto[0]);
+      // }
 
       const formData = {
         ...data,
-        profilePhoto: profilePhotoUrl,
+        // profilePhoto: profilePhotoUrl,
       };
 
       let result;
@@ -148,9 +147,9 @@ const Profile = () => {
                 <div className='md:h-[186px] md:w-[186px] h-[140px] w-[140px] md:ml-0 md:mr-0 ml-auto mr-auto md:mb-0 mb-4 rounded-full ring-4 ring-slate-100 relative overflow-hidden'>
                   {user?.user_type === 'startup' ? (
                     <div className='absolute inset-0'>
-                      {companyProfile?.company_logo ? (
+                      {user?.company_logo ? (
                         <img
-                          src={companyProfile.company_logo}
+                          src={user.company_logo}
                           alt='Company Logo'
                           className='w-full h-full object-contain rounded-full'
                         />
@@ -164,9 +163,9 @@ const Profile = () => {
                     </div>
                   ) : (
                     <div className='absolute inset-0'>
-                      {investorSignup?.profile_photo ? (
+                      {user?.company_logo ? (
                         <img
-                          src={investorSignup?.profile_photo}
+                          src={user?.company_logo}
                           alt='Profile Photo'
                           className='w-full h-full object-contain rounded-full'
                         />
@@ -566,21 +565,27 @@ const Profile = () => {
                       register={register}
                     />
                   </div>
-                  <div className='mb-4'>
-                    <label className='block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                  <div className='mb-6'>
+                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                       <Icon
                         icon='heroicons:document-text'
-                        className='inline-block mr-1 text-xl mb-2'
+                        className='inline-block mr-2 text-xl align-middle'
                       />
                       Profile Photo
                     </label>
-                    <InputGroup
-                      type='file'
-                      name='profilePhoto'
-                      error={errors.profilePhoto}
-                      register={register}
-                      className='upload-animation'
-                    />
+                    <div className='flex items-center'>
+                      <input
+                        type='file'
+                        name='profilePhoto'
+                        {...register('profilePhoto')}
+                        className='border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm p-2 focus:ring focus:ring-indigo-200 focus:outline-none w-full text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100'
+                      />
+                    </div>
+                    {errors.profilePhoto && (
+                      <p className='text-red-500 text-xs mt-1'>
+                        {errors.profilePhoto.message}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className='flex mt-4'>

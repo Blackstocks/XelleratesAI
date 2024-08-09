@@ -49,7 +49,6 @@ const useCompletionPercentage = () => {
             'pin_code',
             'company_website',
             'linkedin_profile',
-            'company_logo',
             'current_stage',
             'team_size',
             'target_audience',

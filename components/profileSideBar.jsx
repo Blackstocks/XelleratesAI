@@ -250,16 +250,16 @@ const VerticalNavTabs = () => {
 
       const handleUploads = async (data) => {
         switch (section) {
-          case 'startup_details':
-            if (data.company_logo && data.company_logo[0]) {
-              uploadedFiles.company_logo = await handleFileUpload(
-                data.company_logo[0],
-                'documents',
-                companyProfile?.company_name || data.company_name,
-                'company_logo'
-              );
-            }
-            break;
+          // case 'startup_details':
+          //   if (data.company_logo && data.company_logo[0]) {
+          //     uploadedFiles.company_logo = await handleFileUpload(
+          //       data.company_logo[0],
+          //       'documents',
+          //       companyProfile?.company_name || data.company_name,
+          //       'company_logo'
+          //     );
+          //   }
+          //   break;
 
           case 'founder_info':
             if (data.co_founder_agreement && data.co_founder_agreement[0]) {
@@ -336,7 +336,7 @@ const VerticalNavTabs = () => {
             current_stage: data.current_stage || null,
             usp_moat: data.usp_moat || null,
             media: data.media || null,
-            company_logo: uploadedFiles.company_logo || null,
+            // company_logo: uploadedFiles.company_logo || null,
             socialMedia: data.socialMedia || [],
             socialMediaPresence: data.socialMediaPresence || [],
           };
@@ -987,7 +987,7 @@ const VerticalNavTabs = () => {
                               </div>
                             )}
 
-                            <div className='mt-4'>
+                            {/* <div className='mt-4'>
                               <InputGroup
                                 label='Upload Company Logo'
                                 type='file'
@@ -995,7 +995,7 @@ const VerticalNavTabs = () => {
                                 error={errors.company_logo || null}
                                 register={register}
                               />
-                            </div>
+                            </div> */}
                             <div className='mt-4'>
                               <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
                                 Other Social Media Handles

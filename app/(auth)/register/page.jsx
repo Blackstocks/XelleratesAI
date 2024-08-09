@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import useDarkMode from '@/hooks/useDarkMode';
 import RegForm1 from '@/components/partials/auth/reg-form1';
-import Social from '@/components/partials/auth/social';
 import Globe from '@/components/globe'; // Import the Globe component
 
 const Register = () => {

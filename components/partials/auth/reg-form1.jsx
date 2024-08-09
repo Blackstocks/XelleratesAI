@@ -7,17 +7,33 @@ import * as yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseclient';
 import Dropdowntype from '@/components/ui/Dropdown1';
+import InputGroup from '@/components/ui/InputGroup';
+import { handleFileUpload } from '@/lib/actions/insertformdetails'; // Assuming this is the path where your function is located
 
-const schema = yup.object({
-  name: yup.string().required('Name is Required'),
-  companyName: yup.string(),
-  email: yup.string().email('Invalid email').required('Email is Required'),
-  mobile: yup.string().required('Mobile number is Required').matches(/^[0-9]+$/, 'Mobile number must be numeric'),
-  password: yup.string().min(8, 'Password must be at least 8 characters').max(20, "Password shouldn't be more than 20 characters").required('Please enter password'),
-  confirmpassword: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match'),
-  user_type: yup.string().required('User type is required'),
-  linkedinProfile: yup.string().url('Invalid URL').required('LinkedIn profile is required'),
-}).required();
+const schema = yup
+  .object({
+    name: yup.string().required('Name is Required'),
+    companyName: yup.string().required('Company Name is required'),
+    email: yup.string().email('Invalid email').required('Email is Required'),
+    mobile: yup
+      .string()
+      .required('Mobile number is Required')
+      .matches(/^[0-9]+$/, 'Mobile number must be numeric'),
+    password: yup
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .max(20, "Password shouldn't be more than 20 characters")
+      .required('Please enter password'),
+    confirmpassword: yup
+      .string()
+      .oneOf([yup.ref('password'), null], 'Passwords must match'),
+    user_type: yup.string().required('User type is required'),
+    linkedinProfile: yup
+      .string()
+      .url('Invalid URL')
+      .required('LinkedIn profile is required'),
+  })
+  .required();
 
 const RegForm1 = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,91 +51,131 @@ const RegForm1 = () => {
   const router = useRouter();
 
   const onSubmit = async (data) => {
+    console.log(data);
     setIsSubmitting(true);
 
-    // Check if the user already exists in the profiles table
-    const { data: existingUsers, error: existingUserError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', data.email);
+    // Ensure the company_logo field is a valid FileList and contains at least one file
+    const logoFile =
+      data?.company_logo && data.company_logo.length > 0
+        ? data.company_logo[0]
+        : null;
 
-    if (existingUserError) {
-      toast.error(existingUserError.message);
+    if (!logoFile) {
+      toast.error('Please upload a company logo.');
       setIsSubmitting(false);
       return;
     }
 
-    if (existingUsers.length > 0) {
-      toast.error('User already registered with this email');
-      setIsSubmitting(false);
-      return;
-    }
+    const companyName = data?.companyName || 'not_mentioned';
+    const bucket = 'company-logos';
 
-    // Proceed with signing up the new user
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-    });
+    try {
+      const logoUrl = await handleFileUpload(
+        logoFile,
+        bucket,
+        companyName,
+        'logo'
+      );
 
-    if (signUpError) {
-      toast.error(signUpError.message);
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (signUpData?.user) {
-      const userId = signUpData.user.id;
-
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: {
-          display_name: data.name,
-        },
-      });
-
-      if (updateError) {
-        toast.error(updateError.message);
+      if (!logoUrl) {
+        toast.error('Failed to upload company logo.');
         setIsSubmitting(false);
         return;
       }
 
-      const { error: insertError } = await supabase.from('profiles').insert([
-        {
-          id: userId,
-          name: data.name,
-          company_name: data.companyName,
-          email: data.email,
-          mobile: data.mobile,
-          user_type: data.user_type,
-          linkedin_profile: data.linkedinProfile,
-          role: 'user',
-          status: 'pending',
-        },
-      ]);
+      // Check if the user already exists in the profiles table
+      const { data: existingUsers, error: existingUserError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', data.email);
 
-      if (insertError) {
-        toast.error(insertError.message);
+      if (existingUserError) {
+        toast.error(existingUserError.message);
         setIsSubmitting(false);
-      } else {
-        try {
-          const response = await fetch('/api/send-registration-email', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ to: data.email, name: data.name }),
-          });
+        return;
+      }
 
-          if (response.ok) {
-            toast.success('Account created successfully! Please wait for approval.');
-            router.push('/');
-          } else {
-            const errorData = await response.json();
-            toast.error(errorData.error || 'Failed to send registration email.');
+      if (existingUsers.length > 0) {
+        toast.error('User already registered with this email');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Proceed with signing up the new user
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+        });
+
+      if (signUpError) {
+        toast.error(signUpError.message);
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (signUpData?.user) {
+        const userId = signUpData.user.id;
+
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: {
+            display_name: data.name,
+          },
+        });
+
+        if (updateError) {
+          toast.error(updateError.message);
+          setIsSubmitting(false);
+          return;
+        }
+
+        const { error: insertError } = await supabase.from('profiles').insert([
+          {
+            id: userId,
+            name: data.name,
+            company_name: data.companyName,
+            email: data.email,
+            mobile: data.mobile,
+            user_type: data.user_type,
+            linkedin_profile: data.linkedinProfile,
+            company_logo: logoUrl,
+            role: 'user',
+            status: 'pending',
+          },
+        ]);
+
+        if (insertError) {
+          toast.error(insertError.message);
+          setIsSubmitting(false);
+        } else {
+          try {
+            const response = await fetch('/api/send-registration-email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ to: data.email, name: data.name }),
+            });
+
+            if (response.ok) {
+              toast.success(
+                'Account created successfully! Please wait for approval.'
+              );
+              router.push('/');
+            } else {
+              const errorData = await response.json();
+              toast.error(
+                errorData.error || 'Failed to send registration email.'
+              );
+            }
+          } catch (error) {
+            toast.error('Failed to send registration email.');
           }
-        } catch (error) {
-          toast.error('Failed to send registration email.');
         }
       }
+    } catch (error) {
+      toast.error('An error occurred during file upload.');
+      setIsSubmitting(false);
     }
   };
 
@@ -195,10 +251,26 @@ const RegForm1 = () => {
         error={errors.linkedinProfile}
         register={register}
       />
+      <div className='mb-6'>
+        <InputGroup
+          label='Upload Company Logo'
+          type='file'
+          name='company_logo'
+          error={errors.company_logo || null}
+          register={register}
+          className='border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm p-2 focus:ring focus:ring-indigo-200 focus:outline-none w-full text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100'
+        />
+        {errors.company_logo && (
+          <p className='text-red-500 text-xs mt-1'>
+            {errors.company_logo.message}
+          </p>
+        )}
+      </div>
+
       <button
         className='btn btn-dark block w-full text-center'
         type='submit'
-        disabled={isSubmitting}
+        // disabled={isSubmitting}
       >
         {isSubmitting ? 'Submitting...' : 'Create an account'}
       </button>

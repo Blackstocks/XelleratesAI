@@ -3,7 +3,6 @@ import { supabase } from '@/lib/supabaseclient';
 
 const useUserDetails = () => {
   const [user, setUser] = useState(null);
-  const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchUserDetails = async () => {
