@@ -1,15 +1,19 @@
-"use client";
+"use client";  // Add this line at the top
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseclient";
+import AssignInvestorsModal from "@/components/AssignInvestorsModal";
+import ViewAssignedInvestorsModal from "@/components/ViewAssignedInvestorsModal";
 
 const Fundraising = () => {
   const [connectedStartups, setConnectedStartups] = useState([]);
+  const [newDealflows, setNewDealflows] = useState([]); // State for new dealflow entries
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState("equity");
-  const [newDealflows, setNewDealflows] = useState([]);
-  const [showNewDealflows, setShowNewDealflows] = useState(false);
-  const [updatedDealflowIds, setUpdatedDealflowIds] = useState([]);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedStartup, setSelectedStartup] = useState(null);
+  const [comments, setComments] = useState({}); // State to track comments
 
   useEffect(() => {
     const fetchConnectedStartups = async () => {
@@ -23,6 +27,12 @@ const Fundraising = () => {
         if (error) throw error;
 
         setConnectedStartups(data);
+        // Initialize comments state from the fetched data
+        const initialComments = data.reduce((acc, startup) => {
+          acc[startup.id] = startup.comment || "";
+          return acc;
+        }, {});
+        setComments(initialComments);
       } catch (error) {
         console.error("Error fetching connected startups:", error.message);
       } finally {
@@ -30,22 +40,13 @@ const Fundraising = () => {
       }
     };
 
-    fetchConnectedStartups();
-  }, []);
-
-  useEffect(() => {
     const fetchNewDealflows = async () => {
+      setLoading(true);
       try {
         const { data, error } = await supabase
           .from("add_dealflow")
-          .select(
-            `
-            *,
-            profiles (
-              company_name
-            )
-          `
-          )
+          .select("*")
+          .eq("is_updated", false)  // Only fetch entries that haven't been updated
           .order("created_at", { ascending: false });
 
         if (error) throw error;
@@ -53,76 +54,112 @@ const Fundraising = () => {
         setNewDealflows(data);
       } catch (error) {
         console.error("Error fetching new dealflows:", error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchNewDealflows();
+    fetchConnectedStartups();
+    fetchNewDealflows(); // Fetch new dealflows when component mounts
   }, []);
 
-  const handleStatusChange = async (id, newStatus) => {
-    try {
-      const { error } = await supabase
-        .from("connected_startups")
-        .update({ status: newStatus })
-        .eq("id", id);
-
-      if (error) throw error;
-
-      setConnectedStartups((prevStartups) =>
-        prevStartups.map((startup) =>
-          startup.id === id ? { ...startup, status: newStatus } : startup
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error.message);
-    }
+  const openAssignModal = (startup) => {
+    setSelectedStartup(startup);
+    setShowAssignModal(true);
   };
 
-  const handleCommentChange = async (id, newComment) => {
+  const openViewModal = (startup) => {
+    setSelectedStartup(startup);
+    setShowViewModal(true);
+  };
+
+  const handleSaveAssignedInvestors = async (investors) => {
+    if (!selectedStartup) {
+      console.error("No startup selected");
+      return;
+    }
+
+    const selectedStartupId = selectedStartup.id;
+
+    const assignedData = investors.map((investor) => ({
+      startup_id: selectedStartupId,
+      investor_id: investor.id,
+      created_at: new Date(),
+    }));
+
     try {
-      const { error } = await supabase
-        .from("connected_startups")
-        .update({ comment: newComment })
-        .eq("id", id);
+      const { error } = await supabase.from("assigned_dealflow").insert(assignedData);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      setConnectedStartups((prevStartups) =>
-        prevStartups.map((startup) =>
-          startup.id === id ? { ...startup, comment: newComment } : startup
-        )
-      );
+      setShowAssignModal(false);
     } catch (error) {
-      console.error("Error updating comment:", error.message);
+      console.error("Error saving assigned investors:", error.message);
     }
   };
 
   const handleUpdateDealflow = async (dealflow) => {
     try {
-      const { error } = await supabase.from("investor_signup").insert([
+      // Insert the dealflow entry into the investor_signup table
+      const { error: insertError } = await supabase.from("investor_signup").insert([
         {
           name: dealflow.name,
           email: dealflow.email,
           mobile: dealflow.mobile,
-          typeof:dealflow.typeof,
+          typeof: dealflow.typeof,
           investment_thesis: dealflow.investment_thesis,
           cheque_size: dealflow.cheque_size,
           sectors: dealflow.sector,
           investment_stage: dealflow.investment_stage,
           created_at: new Date(),
           profile_id: dealflow.user_id,
-          profile_photo: "", // You can add profile photo if available
           id: dealflow.id,
-          Geography: dealflow.Geography, // Updated field
+          Geography: dealflow.Geography,
           company_name: dealflow.company_name,
         },
       ]);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      setUpdatedDealflowIds((prevIds) => [...prevIds, dealflow.id]);
+      // Update the is_updated status in the add_dealflow table
+      const { error: updateError } = await supabase
+        .from("add_dealflow")
+        .update({ is_updated: true })
+        .eq("id", dealflow.id);
+
+      if (updateError) throw updateError;
+
+      // Remove the entry from the newDealflows state
+      setNewDealflows((prevDealflows) =>
+        prevDealflows.filter((df) => df.id !== dealflow.id)
+      );
     } catch (error) {
       console.error("Error updating dealflow:", error.message);
+    }
+  };
+
+  const handleCommentChange = (startupId, comment) => {
+    setComments((prevComments) => ({
+      ...prevComments,
+      [startupId]: comment,
+    }));
+  };
+
+  const saveComment = async (startupId) => {
+    try {
+      const comment = comments[startupId];
+      const { error } = await supabase
+        .from("connected_startups")
+        .update({ comment })
+        .eq("id", startupId);
+
+      if (error) throw error;
+
+      console.log("Comment saved successfully");
+    } catch (error) {
+      console.error("Error saving comment:", error.message);
     }
   };
 
@@ -130,159 +167,73 @@ const Fundraising = () => {
     (startup) => startup.user_type === selectedType
   );
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "Introduction":
-        return "bg-red-500 text-white";
-      case "Pitch":
-        return "bg-yellow-500 text-white";
-      case "Meeting":
-        return "bg-yellow-500 text-white";
-      case "Term Sheet":
-        return "bg-yellow-500 text-white";
-      case "Transaction Documents":
-        return "bg-green-500 text-white";
-      case "Deal closed won":
-        return "bg-green-500 text-white";
-      case "Deal closed lost":
-        return "bg-gray-500 text-white";
-      case "Rejected":
-        return "bg-gray-500 text-white";
-      default:
-        return "";
-    }
-  };
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Fundraising</h1>
       <div className="mb-4">
         <button
-          onClick={() => setShowNewDealflows(false)}
+          onClick={() => setSelectedType("equity")}
           className={`py-2 px-4 rounded mr-2 ${
-            !showNewDealflows && selectedType === "equity"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
+            selectedType === "equity" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
         >
           Equity
         </button>
         <button
-          onClick={() => setShowNewDealflows(false)}
+          onClick={() => setSelectedType("debt")}
           className={`py-2 px-4 rounded mr-2 ${
-            !showNewDealflows && selectedType === "debt"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
+            selectedType === "debt" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
         >
           Debt
         </button>
         <button
-          onClick={() => setShowNewDealflows(true)}
+          onClick={() => setSelectedType("newDealflow")}
           className={`py-2 px-4 rounded ${
-            showNewDealflows ? "bg-blue-500 text-white" : "bg-gray-200"
+            selectedType === "newDealflow" ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
         >
           New Dealflow
         </button>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : showNewDealflows ? (
-        <div className="max-h-[65vh] overflow-y-auto">
+      {selectedType === "newDealflow" ? (
+        <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Added by
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Name
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Email
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Mobile
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Investment Thesis
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Cheque Size
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Sector
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Investment Stage
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Company Name
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Investor Type
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Location
-                </th>
-                <th className="py-4 px-4 border-b border-gray-300 text-left text-sm">
-                  Update Status
-                </th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Name</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Email</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Mobile</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Investment Thesis</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Cheque Size</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Sector</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Investment Stage</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Company Name</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Type Of</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Geography</th>
+                <th className="py-4 px-4 border-b border-gray-300 text-left">Update</th>
               </tr>
             </thead>
             <tbody>
               {newDealflows.map((dealflow, index) => (
-                <tr
-                  key={dealflow.id}
-                  className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
-                >
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.profiles?.company_name || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.name || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.email || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.mobile || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.investment_thesis || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.cheque_size || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.sector || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.investment_stage || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.company_name || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.typeof || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
-                    {dealflow.Geography || "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300 text-sm">
+                <tr key={dealflow.id} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.name}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.email}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.mobile}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.investment_thesis}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.cheque_size}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.sector}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.investment_stage}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.company_name}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.typeof}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">{dealflow.Geography}</td>
+                  <td className="py-2 px-4 border-b border-gray-300">
                     <button
                       onClick={() => handleUpdateDealflow(dealflow)}
-                      className={`py-1 px-2 rounded ${
-                        updatedDealflowIds.includes(dealflow.id)
-                          ? "bg-green-500 text-white"
-                          : "bg-blue-500 text-white"
-                      }`}
+                      className="py-1 px-2 bg-blue-500 text-white rounded"
                     >
-                      {updatedDealflowIds.includes(dealflow.id)
-                        ? "Updated"
-                        : "Update"}
+                      Update
                     </button>
                   </td>
                 </tr>
@@ -294,47 +245,23 @@ const Fundraising = () => {
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
             <tr>
-              <th className="py-4 px-4 border-b border-gray-300 text-left">
-                Company Name
-              </th>
-              <th className="py-4 px-4 border-b border-gray-300 text-left">
-                Founder Name
-              </th>
-              <th className="py-4 px-4 border-b border-gray-300 text-left">
-                Email
-              </th>
-              <th className="py-4 px-4 border-b border-gray-300 text-left">
-                Mobile
-              </th>
-              <th className="py-4 px-4 border-b border-gray-300 text-left">
-                LinkedIn
-              </th>
-              <th className="py-4 px-4 border-b border-gray-300 text-left">
-                Status
-              </th>
-              <th className="py-4 px-4 border-b border-gray-300 text-left">
-                Comment
-              </th>
+              <th className="py-4 px-4 border-b border-gray-300 text-left">Company Name</th>
+              <th className="py-4 px-4 border-b border-gray-300 text-left">Founder Name</th>
+              <th className="py-4 px-4 border-b border-gray-300 text-left">Email</th>
+              <th className="py-4 px-4 border-b border-gray-300 text-left">Mobile</th>
+              <th className="py-4 px-4 border-b border-gray-300 text-left">LinkedIn</th>
+              <th className="py-4 px-4 border-b border-gray-300 text-left">Comment</th>
+              <th className="py-4 px-4 border-b border-gray-300 text-left">Assign</th>
+              <th className="py-4 px-4 border-b border-gray-300 text-left">Assigned</th>
             </tr>
           </thead>
           <tbody>
             {filteredStartups.map((startup, index) => (
-              <tr
-                key={startup.id}
-                className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
-              >
-                <td className="py-2 px-4 border-b border-gray-300">
-                  {startup.startup_name}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-300">
-                  {startup.founder_name}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-300">
-                  {startup.email}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-300">
-                  {startup.mobile}
-                </td>
+              <tr key={startup.id} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                <td className="py-2 px-4 border-b border-gray-300">{startup.startup_name}</td>
+                <td className="py-2 px-4 border-b border-gray-300">{startup.founder_name}</td>
+                <td className="py-2 px-4 border-b border-gray-300">{startup.email}</td>
+                <td className="py-2 px-4 border-b border-gray-300">{startup.mobile}</td>
                 <td className="py-2 px-4 border-b border-gray-300">
                   <a
                     href={startup.linkedin_profile}
@@ -346,66 +273,50 @@ const Fundraising = () => {
                   </a>
                 </td>
                 <td className="py-2 px-4 border-b border-gray-300">
-                  <select
-                    value={startup.status}
-                    onChange={(e) =>
-                      handleStatusChange(startup.id, e.target.value)
-                    }
-                    className={`w-full px-2 py-1 border rounded ${getStatusClass(
-                      startup.status
-                    )}`}
-                  >
-                    <option
-                      value="Introduction"
-                      className="bg-white text-black"
-                    >
-                      Introduction
-                    </option>
-                    <option value="Pitch" className="bg-white text-black">
-                      Pitch
-                    </option>
-                    <option value="Meeting" className="bg-white text-black">
-                      Meeting
-                    </option>
-                    <option value="Term Sheet" className="bg-white text-black">
-                      Term Sheet
-                    </option>
-                    <option
-                      value="Transaction Documents"
-                      className="bg-white text-black"
-                    >
-                      Transaction Documents
-                    </option>
-                    <option
-                      value="Deal closed won"
-                      className="bg-white text-black"
-                    >
-                      Deal closed won
-                    </option>
-                    <option
-                      value="Deal closed lost"
-                      className="bg-white text-black"
-                    >
-                      Deal closed lost
-                    </option>
-                    <option value="Rejected" className="bg-white text-black">
-                      Rejected
-                    </option>
-                  </select>
+                  <textarea
+                    value={comments[startup.id] || ""}
+                    onChange={(e) => handleCommentChange(startup.id, e.target.value)}
+                    onBlur={() => saveComment(startup.id)} // Save the comment on blur (when focus leaves the textarea)
+                    className="w-full p-1 border rounded"
+                    rows="2"
+                  />
                 </td>
                 <td className="py-2 px-4 border-b border-gray-300">
-                  <textarea
-                    value={startup.comment || ""}
-                    onChange={(e) =>
-                      handleCommentChange(startup.id, e.target.value)
-                    }
-                    className="w-full px-2 py-1 border rounded"
-                  />
+                  <button
+                    onClick={() => openAssignModal(startup)}
+                    className="py-1 px-2 bg-blue-500 text-white rounded"
+                  >
+                    Assign
+                  </button>
+                </td>
+                <td className="py-2 px-4 border-b border-gray-300">
+                  <button
+                    onClick={() => openViewModal(startup)}
+                    className="py-1 px-2 bg-green-500 text-white rounded"
+                  >
+                    View
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+
+      {showAssignModal && (
+        <AssignInvestorsModal
+          isOpen={showAssignModal}
+          onClose={() => setShowAssignModal(false)}
+          onSave={handleSaveAssignedInvestors}
+        />
+      )}
+
+      {showViewModal && (
+        <ViewAssignedInvestorsModal
+          isOpen={showViewModal}
+          onClose={() => setShowViewModal(false)}
+          startupId={selectedStartup ? selectedStartup.id : null}
+        />
       )}
     </div>
   );
