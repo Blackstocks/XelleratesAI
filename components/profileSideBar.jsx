@@ -100,6 +100,7 @@ const VerticalNavTabs = () => {
     fundingInformation,
     ctoInfo,
     companyDocuments,
+    fetchData,
   } = useCompleteUserDetails();
   // console.log('companyDocuments', companyDocuments)
   // console.log('companyProfile', companyProfile);
@@ -247,7 +248,351 @@ const VerticalNavTabs = () => {
   // console.log('Advisor Fields:', advisorFields);
   // console.log('Co-Founder Fields:', coFounderFields);
   // console.log('Cap Table Fields:', capTableFields);
+  // const handleSave = async (data, section) => {
+  //   try {
+  //     let updatedData;
+  //     const uploadedFiles = {};
 
+  //     const handleUploads = async (data) => {
+  //       switch (section) {
+  //         case 'founder_info':
+  //           if (data.co_founder_agreement && data.co_founder_agreement[0]) {
+  //             uploadedFiles.co_founder_agreement = await handleFileUpload(
+  //               data.co_founder_agreement[0],
+  //               'documents',
+  //               companyProfile?.company_name || data.company_name,
+  //               'list_of_advisers'
+  //             );
+  //           }
+  //           break;
+
+  //         case 'CTO_info':
+  //           if (data.technology_roadmap && data.technology_roadmap[0]) {
+  //             uploadedFiles.technology_roadmap = await handleFileUpload(
+  //               data.technology_roadmap[0],
+  //               'documents',
+  //               companyProfile?.company_name || data.company_name,
+  //               'technology_roadmap'
+  //             );
+  //           }
+  //           break;
+  //       }
+  //     };
+
+  //     await handleUploads(data);
+
+  //     switch (section) {
+  //       case 'general_info':
+  //         const generalData = {
+  //           email: data.email,
+  //           mobile: data.mobile,
+  //           linkedin_profile: data.linkedin_profile,
+  //         };
+
+  //         try {
+  //           const generalInfoResponse = await updateGeneralInfo(
+  //             user.id,
+  //             generalData
+  //           );
+
+  //           if (generalInfoResponse?.error) {
+  //             throw generalInfoResponse.error;
+  //           }
+
+  //           updatedData = generalInfoResponse.data;
+
+  //           if (updatedData) {
+  //             setGeneralInformationLoc(updatedData);
+  //           } else {
+  //             console.error('Unexpected response format:', generalInfoResponse);
+  //           }
+  //         } catch (error) {
+  //           console.error('Error updating general information:', error);
+  //         }
+  //         break;
+
+  //       case 'startup_details': {
+  //         const startupData = {
+  //           company_name: data.company_name || null,
+  //           incorporation_date: data.incorporation_date || null,
+  //           country: data.country || null,
+  //           state_city: data.state_city || null,
+  //           office_address: data.office_address || null,
+  //           company_website: data.company_website || null,
+  //           short_description: data.short_description || null,
+  //           target_audience: data.target_audience || null,
+  //           industry_sector: data.industry_sector || null,
+  //           team_size: data.team_size || null,
+  //           current_stage: data.current_stage || null,
+  //           usp_moat: data.usp_moat || null,
+  //           media: data.media || null,
+  //           socialMedia: data.socialMedia || [],
+  //           socialMediaPresence: data.socialMediaPresence || [],
+  //         };
+
+  //         try {
+  //           let startupDetailsResponse;
+  //           if (!companyProfile?.id || !companyProfileLoc?.company_name) {
+  //             startupDetailsResponse = await insertStartupDetails(
+  //               startupData,
+  //               user.id,
+  //               uploadedFiles
+  //             );
+
+  //             if (startupDetailsResponse && !startupDetailsResponse.error) {
+  //               companyProfile = {
+  //                 id: startupDetailsResponse?.id,
+  //               };
+  //             }
+  //           } else {
+  //             startupDetailsResponse = await updateStartupDetails(
+  //               startupData,
+  //               user.id,
+  //               uploadedFiles
+  //             );
+  //           }
+
+  //           if (startupDetailsResponse?.error) {
+  //             throw startupDetailsResponse.error;
+  //           }
+
+  //           if (startupDetailsResponse) {
+  //             updatedData = startupDetailsResponse;
+  //             setCompanyProfileLoc(updatedData);
+  //           } else {
+  //             console.error('Unexpected response format:', startupDetailsResponse);
+  //           }
+  //         } catch (error) {
+  //           console.error('Error handling startup details:', error);
+  //         }
+  //         break;
+  //       }
+
+  //       case 'founder_info':
+  //         const founderData = {
+  //           company_id: companyProfile?.id,
+  //           founder_name: data.founder_name || null,
+  //           founder_email: data.founder_email || null,
+  //           founder_mobile: data.founder_mobile || null,
+  //           founder_linkedin: data.founder_linkedin || null,
+  //           degree_name: data.degree_name || null,
+  //           college_name: data.college_name || null,
+  //           graduation_year: data.graduation_year || null,
+  //           advisors: data.advisors || [],
+  //           co_founders: data.co_founders || [],
+  //           co_founder_agreement: uploadedFiles.co_founder_agreement || null,
+  //         };
+
+  //         let founderInfoResponse;
+  //         if (!founderInformationLoc?.company_id || !founderInformation?.id) {
+  //           founderInfoResponse = await insertFounderInformation(
+  //             companyProfile.id,
+  //             founderData,
+  //             uploadedFiles
+  //           );
+
+  //           if (founderInfoResponse && !founderInfoResponse.error) {
+  //             founderInformation = {
+  //               id: founderInfoResponse?.id,
+  //             };
+  //           }
+  //         } else {
+  //           founderInfoResponse = await updateFounderInformation(
+  //             companyProfile.id,
+  //             founderData,
+  //             uploadedFiles
+  //           );
+  //         }
+
+  //         if (founderInfoResponse?.error) {
+  //           throw founderInfoResponse.error;
+  //         }
+
+  //         if (founderInfoResponse) {
+  //           updatedData = founderInfoResponse;
+  //           setFounderInformationLoc(updatedData);
+  //         } else {
+  //           console.error('Unexpected response format:', founderInfoResponse);
+  //         }
+  //         break;
+
+  //       case 'CTO_info': {
+  //         const ctoData = {
+  //           company_id: companyProfile?.id,
+  //           cto_name: data.cto_name || null,
+  //           cto_email: data.cto_email || null,
+  //           cto_mobile: data.cto_mobile || null,
+  //           cto_linkedin: data.cto_linkedin || null,
+  //           tech_team_size: data.tech_team_size || null,
+  //           mobile_app_link_ios: data.mobile_app_link_ios || null,
+  //           mobile_app_link_android: data.mobile_app_link_android || null,
+  //           technology_roadmap: uploadedFiles.technology_roadmap || null,
+  //         };
+
+  //         let ctoInfoResponse;
+  //         if (!ctoInfoLoc?.company_id || !ctoInfo?.id) {
+  //           ctoInfoResponse = await insertCTODetails(
+  //             companyProfile.id,
+  //             ctoData,
+  //             uploadedFiles
+  //           );
+
+  //           if (ctoInfoResponse && !ctoInfoResponse.error) {
+  //             ctoInfo = {
+  //               id: ctoInfoResponse?.id,
+  //             };
+  //           }
+  //         } else {
+  //           ctoInfoResponse = await updateCTODetails(
+  //             companyProfile.id,
+  //             ctoData,
+  //             uploadedFiles
+  //           );
+  //         }
+
+  //         if (ctoInfoResponse?.error) {
+  //           throw ctoInfoResponse.error;
+  //         }
+
+  //         if (ctoInfoResponse) {
+  //           updatedData = ctoInfoResponse;
+  //           setCtoInfoLoc(updatedData);
+  //         }
+  //         break;
+  //       }
+
+  //       case 'company_documents':
+  //         const companyUploadedFiles = {};
+  //         for (const [dbField, formField] of Object.entries(
+  //           companyDocumentsFiles
+  //         )) {
+  //           if (data[formField] && data[formField][0]) {
+  //             companyUploadedFiles[formField] = await handleFileUpload(
+  //               data[formField][0],
+  //               'documents',
+  //               companyProfile?.company_name || data.company_name,
+  //               formField
+  //             );
+  //           }
+  //         }
+
+  //         const companyDocumentsResponse = companyDocuments?.id
+  //           ? await updateCompanyDocuments(
+  //               companyProfile.id,
+  //               companyUploadedFiles
+  //             )
+  //           : await insertCompanyDocuments(
+  //               companyProfile.id,
+  //               companyUploadedFiles
+  //             );
+
+  //         if (companyDocumentsResponse?.error) {
+  //           throw companyDocumentsResponse.error;
+  //         }
+
+  //         updatedData = companyDocumentsResponse;
+  //         break;
+
+  //       case 'business_details':
+  //         const emptyBusinessDetails =
+  //           !businessDetails?.id || !businessDetailsLoc?.company_id;
+  //         updatedData = {
+  //           company_id: companyProfile.id,
+  //           current_traction: data.current_traction || null,
+  //           new_Customers: data.new_Customers || null,
+  //           customer_AcquisitionCost: data.customer_AcquisitionCost || null,
+  //           customer_Lifetime_Value: data.customer_Lifetime_Value || null,
+  //         };
+
+  //         try {
+  //           if (emptyBusinessDetails) {
+  //             const businessDetailsResponse = await insertBusinessDetails(
+  //               companyProfile.id,
+  //               updatedData
+  //             );
+  //             if (businessDetailsResponse.error) {
+  //               throw businessDetailsResponse.error;
+  //             }
+  //             updatedData = businessDetailsResponse.data;
+  //             setBusinessDetailsLoc(updatedData);
+  //           } else {
+  //             const businessDetailsResponse = await updateBusinessDetails(
+  //               companyProfile.id,
+  //               updatedData
+  //             );
+  //             if (businessDetailsResponse.error) {
+  //               throw businessDetailsResponse.error;
+  //             }
+  //             updatedData = businessDetailsResponse.data;
+  //             setBusinessDetailsLoc(updatedData);
+  //           }
+  //         } catch (error) {
+  //           console.error('Error saving business details:', error);
+  //         }
+  //         break;
+
+  //       case 'funding_info': {
+  //         const fundingData = {
+  //           company_id: companyProfile?.id,
+  //           total_funding_ask: data.total_funding_ask || null,
+  //           amount_committed: data.amount_committed || null,
+  //           government_grants: data.government_grants || null,
+  //           equity_split: data.equity_split || null,
+  //           fund_utilization: data.fund_utilization || null,
+  //           arr: data.arr || null,
+  //           mrr: data.mrr || null,
+  //           previous_funding: data.funding || [],
+  //           capTable: data.capTable || [],
+  //         };
+
+  //         let fundingInfoResponse;
+
+  //         if (!fundingInformationLoc?.company_id || !fundingInformation?.id) {
+  //           fundingInfoResponse = await insertFundingInformation(
+  //             companyProfile.id,
+  //             fundingData,
+  //             uploadedFiles
+  //           );
+
+  //           if (fundingInfoResponse && !fundingInfoResponse.error) {
+  //             fundingInformation = {
+  //               id: fundingInfoResponse?.id,
+  //             };
+  //           }
+  //         } else {
+  //           fundingInfoResponse = await updateFundingInfo(
+  //             companyProfile.id,
+  //             fundingData
+  //           );
+  //         }
+
+  //         if (fundingInfoResponse?.error) {
+  //           throw fundingInfoResponse.error;
+  //         }
+
+  //         if (fundingInfoResponse) {
+  //           updatedData = fundingInfoResponse;
+  //           setFundingInformationLoc(updatedData);
+  //         } else {
+  //           console.error('Unexpected response format:', fundingInfoResponse);
+  //         }
+  //         break;
+  //       }
+
+  //       default:
+  //         console.warn(`Unknown section: ${section}`);
+  //         return;
+  //     }
+
+  //     console.log('Data saved successfully:', updatedData);
+  //     setEditingSection(null);
+
+  //     // Add page reload here
+  //     window.location.reload();
+  //   } catch (error) {
+  //     console.error('Error saving data:', error);
+  //   }
+  // };
   const handleSave = async (data, section) => {
     try {
       let updatedData;
@@ -255,17 +600,6 @@ const VerticalNavTabs = () => {
 
       const handleUploads = async (data) => {
         switch (section) {
-          // case 'startup_details':
-          //   if (data.company_logo && data.company_logo[0]) {
-          //     uploadedFiles.company_logo = await handleFileUpload(
-          //       data.company_logo[0],
-          //       'documents',
-          //       companyProfile?.company_name || data.company_name,
-          //       'company_logo'
-          //     );
-          //   }
-          //   break;
-
           case 'founder_info':
             if (data.co_founder_agreement && data.co_founder_agreement[0]) {
               uploadedFiles.co_founder_agreement = await handleFileUpload(
@@ -289,7 +623,7 @@ const VerticalNavTabs = () => {
             break;
         }
       };
-      // console.log('uploadedFiles', uploadedFiles);
+
       await handleUploads(data);
 
       switch (section) {
@@ -346,8 +680,7 @@ const VerticalNavTabs = () => {
 
           try {
             let startupDetailsResponse;
-            if (!companyProfile?.id || !companyProfileLoc?.company_name) {
-              // console.log('Inserting startup details:');
+            if (!companyProfile?.id) {
               startupDetailsResponse = await insertStartupDetails(
                 startupData,
                 user.id,
@@ -355,8 +688,9 @@ const VerticalNavTabs = () => {
               );
 
               if (startupDetailsResponse && !startupDetailsResponse.error) {
-                companyProfile.id = startupDetailsResponse?.id;
-                // Update other properties if needed
+                companyProfile = {
+                  id: startupDetailsResponse?.id,
+                };
               }
             } else {
               startupDetailsResponse = await updateStartupDetails(
@@ -372,7 +706,6 @@ const VerticalNavTabs = () => {
 
             if (startupDetailsResponse) {
               updatedData = startupDetailsResponse;
-              setCompanyProfileLoc(updatedData);
             } else {
               console.error(
                 'Unexpected response format:',
@@ -386,7 +719,6 @@ const VerticalNavTabs = () => {
         }
 
         case 'founder_info':
-          // console.log('Founder Information:', founderInformation);
           const founderData = {
             company_id: companyProfile?.id,
             founder_name: data.founder_name || null,
@@ -402,21 +734,16 @@ const VerticalNavTabs = () => {
           };
 
           let founderInfoResponse;
-          if (!founderInformationLoc?.company_id || !founderInformation?.id) {
-            console.log('Inserting founder information:');
+          if (!founderInformation?.id) {
             founderInfoResponse = await insertFounderInformation(
               companyProfile.id,
               founderData,
               uploadedFiles
             );
-            // console.log('founderInfoResponse', founderInfoResponse);
 
-            // After inserting, manually update founderInformation to prevent a second insert
             if (founderInfoResponse && !founderInfoResponse.error) {
               founderInformation = {
-                // Update founderInformation manually
                 id: founderInfoResponse?.id,
-                // ...other fields you might want to sync
               };
             }
           } else {
@@ -433,12 +760,12 @@ const VerticalNavTabs = () => {
 
           if (founderInfoResponse) {
             updatedData = founderInfoResponse;
-
             setFounderInformationLoc(updatedData);
           } else {
             console.error('Unexpected response format:', founderInfoResponse);
           }
           break;
+
         case 'CTO_info': {
           const ctoData = {
             company_id: companyProfile?.id,
@@ -453,8 +780,7 @@ const VerticalNavTabs = () => {
           };
 
           let ctoInfoResponse;
-          if (!ctoInfoLoc?.company_id || !ctoInfo?.id) {
-            console.log('Inserting CTO information:');
+          if (!ctoInfo?.id) {
             ctoInfoResponse = await insertCTODetails(
               companyProfile.id,
               ctoData,
@@ -462,8 +788,9 @@ const VerticalNavTabs = () => {
             );
 
             if (ctoInfoResponse && !ctoInfoResponse.error) {
-              ctoInfo.id = ctoInfoResponse?.id;
-              // Update other properties if needed
+              ctoInfo = {
+                id: ctoInfoResponse?.id,
+              };
             }
           } else {
             ctoInfoResponse = await updateCTODetails(
@@ -478,8 +805,7 @@ const VerticalNavTabs = () => {
           }
 
           if (ctoInfoResponse) {
-            updatedData = ctoInfoResponse.data;
-
+            updatedData = ctoInfoResponse;
             setCtoInfoLoc(updatedData);
           }
           break;
@@ -511,24 +837,14 @@ const VerticalNavTabs = () => {
               );
 
           if (companyDocumentsResponse?.error) {
-            console.error(
-              'Error saving company documents:',
-              companyDocumentsResponse.error
-            );
             throw companyDocumentsResponse.error;
           }
 
-          console.log(
-            'Company Documents saved successfully:',
-            companyDocumentsResponse
-          );
-
           updatedData = companyDocumentsResponse;
-
           break;
+
         case 'business_details':
-          const emptyBusinessDetails =
-            !businessDetails?.id || !businessDetailsLoc?.company_id;
+          const emptyBusinessDetails = !businessDetails?.id;
           updatedData = {
             company_id: companyProfile.id,
             current_traction: data.current_traction || null,
@@ -547,8 +863,6 @@ const VerticalNavTabs = () => {
                 throw businessDetailsResponse.error;
               }
               updatedData = businessDetailsResponse.data;
-              console.log('Inserted business details:', updatedData);
-              setBusinessDetailsLoc(updatedData);
             } else {
               const businessDetailsResponse = await updateBusinessDetails(
                 companyProfile.id,
@@ -558,11 +872,7 @@ const VerticalNavTabs = () => {
                 throw businessDetailsResponse.error;
               }
               updatedData = businessDetailsResponse.data;
-              // console.log('Updated business details:', updatedData);
-              setBusinessDetailsLoc(updatedData);
-              // console.log('Business Details:', businessDetailsLoc);
             }
-            console.log('Data saved successfully:', updatedData);
           } catch (error) {
             console.error('Error saving business details:', error);
           }
@@ -583,8 +893,8 @@ const VerticalNavTabs = () => {
           };
 
           let fundingInfoResponse;
-          if (!fundingInformationLoc?.company_id || !fundingInformation?.id) {
-            // console.log('Inserting funding information:');
+
+          if (!fundingInformation?.id) {
             fundingInfoResponse = await insertFundingInformation(
               companyProfile.id,
               fundingData,
@@ -592,8 +902,9 @@ const VerticalNavTabs = () => {
             );
 
             if (fundingInfoResponse && !fundingInfoResponse.error) {
-              fundingInformation.id = fundingInfoResponse?.id;
-              // Update other properties if needed
+              fundingInformation = {
+                id: fundingInfoResponse?.id,
+              };
             }
           } else {
             fundingInfoResponse = await updateFundingInfo(
@@ -607,7 +918,7 @@ const VerticalNavTabs = () => {
           }
 
           if (fundingInfoResponse) {
-            updatedData = fundingInfoResponse.data;
+            updatedData = fundingInfoResponse;
             setFundingInformationLoc(updatedData);
           } else {
             console.error('Unexpected response format:', fundingInfoResponse);
@@ -622,6 +933,9 @@ const VerticalNavTabs = () => {
 
       console.log('Data saved successfully:', updatedData);
       setEditingSection(null);
+
+      // Add page reload here
+      fetchData();
     } catch (error) {
       console.error('Error saving data:', error);
     }
@@ -796,7 +1110,7 @@ const VerticalNavTabs = () => {
                               placeholder='Enter the company website URL'
                               register={register}
                             />
-                            {/* <Textinput
+                            <Textinput
                               label='LinkedIn Profile'
                               name='linkedin_profile'
                               defaultValue={
@@ -805,7 +1119,7 @@ const VerticalNavTabs = () => {
                               }
                               placeholder='Enter the LinkedIn profile URL'
                               register={register}
-                            /> */}
+                            />
                             <Textarea
                               label='Business Description'
                               name='short_description'
@@ -1552,13 +1866,22 @@ const VerticalNavTabs = () => {
                                   key={item.id}
                                 >
                                   <Textinput
-                                    label='Role'
+                                    label='Designation'
                                     type='text'
-                                    id={`role${index}`}
-                                    placeholder='e.g., Founder, Investor'
+                                    id={`designation${index}`}
+                                    placeholder='e.g., Founder, CEO'
                                     register={register}
-                                    name={`capTable[${index}].role`}
-                                    defaultValue={item.role || ''}
+                                    name={`capTable[${index}].designation`}
+                                    defaultValue={item.designation || ''}
+                                  />
+                                  <Textinput
+                                    label='First Name'
+                                    type='text'
+                                    id={`firstName${index}`}
+                                    placeholder='First Name'
+                                    register={register}
+                                    name={`capTable[${index}].firstName`}
+                                    defaultValue={item.firstName || ''}
                                   />
                                   <Textinput
                                     label='Percentage'
@@ -1586,7 +1909,11 @@ const VerticalNavTabs = () => {
                                   icon='heroicons-outline:plus'
                                   className='text-slate-600 p-0 dark:text-slate-300'
                                   onClick={() =>
-                                    appendCapTable({ role: '', percentage: '' })
+                                    appendCapTable({
+                                      designation: '',
+                                      firstName: '',
+                                      percentage: '',
+                                    })
                                   }
                                 />
                               </div>
@@ -2276,7 +2603,7 @@ const VerticalNavTabs = () => {
                                 </div>
                               </li>
 
-                              {/* <li className='flex space-x-3 rtl:space-x-reverse'>
+                              <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:globe-alt' />
                                 </div>
@@ -2297,7 +2624,7 @@ const VerticalNavTabs = () => {
                                       'Not provided'}
                                   </a>
                                 </div>
-                              </li> */}
+                              </li>
 
                               <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
@@ -3465,7 +3792,7 @@ const VerticalNavTabs = () => {
                               </li>
 
                               {/* Render Previous Funding Information */}
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                              {/* <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:banknotes' />
                                 </div>
@@ -3501,8 +3828,81 @@ const VerticalNavTabs = () => {
                                     )}
                                   </div>
                                 </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                              </li> */}
+                              <div className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:banknotes' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px] mb-4'>
+                                    PREVIOUS FUNDING INFORMATION
+                                  </div>
+                                  <div className='overflow-x-auto'>
+                                    <div className='inline-block min-w-full align-middle'>
+                                      <div className='overflow-hidden'>
+                                        <table className='min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700'>
+                                          <thead className='bg-slate-200 dark:bg-slate-700'>
+                                            <tr>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Investor Name
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Firm Name
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Investor Type
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Amount Raised
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                            {(
+                                              fundingInformationLoc?.previous_funding ||
+                                              fundingInformation?.previous_funding
+                                            )?.map((funding, index) => (
+                                              <tr key={index}>
+                                                <td className='table-td'>
+                                                  {funding.investorName ||
+                                                    'Not provided'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {funding.firmName ||
+                                                    'Not provided'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {funding.investorType ||
+                                                    'Not provided'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {funding.amountRaised
+                                                    ? `$${funding.amountRaised}`
+                                                    : 'Not provided'}
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:document' />
                                 </div>
@@ -3532,7 +3932,69 @@ const VerticalNavTabs = () => {
                                     )}
                                   </div>
                                 </div>
-                              </li>
+                              </li> */}
+                              <div className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px] mb-3'>
+                                    CAP TABLE
+                                  </div>
+                                  <div className='overflow-x-auto'>
+                                    <div className='inline-block min-w-full align-middle'>
+                                      <div className='overflow-hidden'>
+                                        <table className='min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700'>
+                                          <thead className='bg-slate-200 dark:bg-slate-700'>
+                                            <tr>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Designation
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Name
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Percentage
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                            {(
+                                              fundingInformationLoc?.cap_table ||
+                                              fundingInformation?.cap_table
+                                            )?.map((entry, index) => (
+                                              <tr key={index}>
+                                                <td className='table-td'>
+                                                  {entry.designation ||
+                                                    'Designation not specified'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {entry.firstName ||
+                                                    'Name not specified'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {entry.percentage
+                                                    ? `${entry.percentage}%`
+                                                    : 'Not provided'}
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             </>
                           )}
                         </ul>

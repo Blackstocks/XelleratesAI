@@ -8,18 +8,28 @@ const Calculation = ({ height = 200 }) => {
   const [isDark] = useDarkMode();
   const { fundingInformation } = useCompleteUserDetails();
 
-  // Extract the first entry's percentage and role from fundingInformation.cap_table
+  // Extract the cap_table from fundingInformation
   const capTable = fundingInformation?.cap_table || [];
-  const firstEntry = capTable[0] || { percentage: 0, role: 'No Data' };
-  const series = [parseFloat(firstEntry.percentage), 100 - parseFloat(firstEntry.percentage)];
-  const labels = [firstEntry.role, 'Remaining'];
+
+  // Prepare the data for the pie chart
+  const series = capTable.map((entry) => parseFloat(entry.percentage) || 0);
+  const labels = capTable.map(
+    (entry) => entry.designation || 'No Designation Specified'
+  );
+
+  // Handle the case where there might be leftover percentage
+  const totalPercentage = series.reduce((total, num) => total + num, 0);
+  if (totalPercentage < 100) {
+    series.push(100 - totalPercentage);
+    labels.push('Remaining');
+  }
 
   const options = {
     labels: labels,
     dataLabels: {
       enabled: false,
     },
-    colors: ['#0CE7FA', '#E2F6FD'], // Blue and white
+    colors: ['#0CE7FA', '#E2F6FD', '#FFD700', '#FF6347'], // Array of colors for different slices
     legend: {
       position: 'bottom',
       fontSize: '12px',
@@ -51,9 +61,9 @@ const Calculation = ({ height = 200 }) => {
             total: {
               show: true,
               fontSize: '10px',
-              label: '',
+              label: 'Total',
               formatter() {
-                return `${firstEntry.percentage}%`;
+                return `${totalPercentage}%`;
               },
             },
           },
