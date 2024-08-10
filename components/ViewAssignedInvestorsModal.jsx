@@ -29,6 +29,7 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
               id,
               status,
               investor_id,
+              input_to_startup,
               investor_signup (
                 name,
                 email,
@@ -77,6 +78,26 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
     }
   };
 
+  const handleInputChange = async (investorId, newInput) => {
+    try {
+      const { error } = await supabase
+        .from("assigned_dealflow")
+        .update({ input_to_startup: newInput })
+        .eq("startup_id", startupId)
+        .eq("investor_id", investorId);
+
+      if (error) throw error;
+
+      setAssignedInvestors((prevInvestors) =>
+        prevInvestors.map((investor) =>
+          investor.investor_id === investorId ? { ...investor, input_to_startup: newInput } : investor
+        )
+      );
+    } catch (error) {
+      console.error("Error updating input to startup:", error.message);
+    }
+  };
+
   const getStatusColorClass = (status) => {
     const statusOption = statusOptions.find(option => option.label === status);
     return statusOption ? statusOption.color : "";
@@ -102,6 +123,7 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
                   <th className="py-2 px-2 border-b border-gray-300 text-left">Investment Stage</th>
                   <th className="py-2 px-2 border-b border-gray-300 text-left">Geography</th>
                   <th className="py-2 px-2 border-b border-gray-300 text-left">Company Name</th>
+                  <th className="py-2 px-2 border-b border-gray-300 text-left">Input to Startup</th>
                   <th className="py-2 px-4 border-b border-gray-300 text-left" style={{ minWidth: '150px' }}>Status</th>
                 </tr>
               </thead>
@@ -117,6 +139,15 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
                     <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.investment_stage}</td>
                     <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.Geography}</td>
                     <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.company_name}</td>
+                    <td className="py-2 px-2 border-b border-gray-300">
+                      <textarea
+                        value={investor.input_to_startup || ""}
+                        onChange={(e) => handleInputChange(investor.investor_id, e.target.value)}
+                        className="w-full p-1 border rounded"
+                        style={{ minWidth: '150px' }}
+                        rows="2"
+                      />
+                    </td>
                     <td className="py-2 px-4 border-b border-gray-300">
                       <select
                         value={investor.status || "Introduction"}
