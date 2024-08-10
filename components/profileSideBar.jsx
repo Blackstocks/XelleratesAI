@@ -93,7 +93,7 @@ const companyDocumentsFiles = {
 };
 
 const VerticalNavTabs = () => {
-  const {
+  let {
     companyProfile,
     businessDetails,
     founderInformation,
@@ -194,6 +194,7 @@ const VerticalNavTabs = () => {
     businessDetails,
     companyDocuments,
   ]);
+  // console.log('Founder Information:', founderInformationLoc);
 
   // console.log('companyProfile', companyProfile);
   // console.log('founderInformation', founderInformation);
@@ -324,7 +325,7 @@ const VerticalNavTabs = () => {
           }
           break;
 
-        case 'startup_details':
+        case 'startup_details': {
           const startupData = {
             company_name: data.company_name || null,
             incorporation_date: data.incorporation_date || null,
@@ -332,7 +333,6 @@ const VerticalNavTabs = () => {
             state_city: data.state_city || null,
             office_address: data.office_address || null,
             company_website: data.company_website || null,
-            // linkedin_profile: data.linkedin_profile || null,
             short_description: data.short_description || null,
             target_audience: data.target_audience || null,
             industry_sector: data.industry_sector || null,
@@ -340,18 +340,24 @@ const VerticalNavTabs = () => {
             current_stage: data.current_stage || null,
             usp_moat: data.usp_moat || null,
             media: data.media || null,
-            // company_logo: uploadedFiles.company_logo || null,
             socialMedia: data.socialMedia || [],
             socialMediaPresence: data.socialMediaPresence || [],
           };
+
           try {
             let startupDetailsResponse;
-            if (!companyProfile?.id) {
+            if (!companyProfile?.id || !companyProfileLoc?.company_name) {
+              // console.log('Inserting startup details:');
               startupDetailsResponse = await insertStartupDetails(
                 startupData,
                 user.id,
                 uploadedFiles
               );
+
+              if (startupDetailsResponse && !startupDetailsResponse.error) {
+                companyProfile.id = startupDetailsResponse?.id;
+                // Update other properties if needed
+              }
             } else {
               startupDetailsResponse = await updateStartupDetails(
                 startupData,
@@ -363,9 +369,9 @@ const VerticalNavTabs = () => {
             if (startupDetailsResponse?.error) {
               throw startupDetailsResponse.error;
             }
+
             if (startupDetailsResponse) {
               updatedData = startupDetailsResponse;
-
               setCompanyProfileLoc(updatedData);
             } else {
               console.error(
@@ -377,9 +383,10 @@ const VerticalNavTabs = () => {
             console.error('Error handling startup details:', error);
           }
           break;
+        }
 
         case 'founder_info':
-          console.log('Founder Information:', founderInformation);
+          // console.log('Founder Information:', founderInformation);
           const founderData = {
             company_id: companyProfile?.id,
             founder_name: data.founder_name || null,
@@ -395,12 +402,23 @@ const VerticalNavTabs = () => {
           };
 
           let founderInfoResponse;
-          if (!founderInformation?.id) {
+          if (!founderInformationLoc?.company_id || !founderInformation?.id) {
+            console.log('Inserting founder information:');
             founderInfoResponse = await insertFounderInformation(
               companyProfile.id,
               founderData,
               uploadedFiles
             );
+            // console.log('founderInfoResponse', founderInfoResponse);
+
+            // After inserting, manually update founderInformation to prevent a second insert
+            if (founderInfoResponse && !founderInfoResponse.error) {
+              founderInformation = {
+                // Update founderInformation manually
+                id: founderInfoResponse?.id,
+                // ...other fields you might want to sync
+              };
+            }
           } else {
             founderInfoResponse = await updateFounderInformation(
               companyProfile.id,
@@ -413,7 +431,6 @@ const VerticalNavTabs = () => {
             throw founderInfoResponse.error;
           }
 
-          updatedData = founderInfoResponse.data;
           if (founderInfoResponse) {
             updatedData = founderInfoResponse;
 
@@ -422,8 +439,7 @@ const VerticalNavTabs = () => {
             console.error('Unexpected response format:', founderInfoResponse);
           }
           break;
-
-        case 'CTO_info':
+        case 'CTO_info': {
           const ctoData = {
             company_id: companyProfile?.id,
             cto_name: data.cto_name || null,
@@ -437,12 +453,18 @@ const VerticalNavTabs = () => {
           };
 
           let ctoInfoResponse;
-          if (!ctoInfo?.id) {
+          if (!ctoInfoLoc?.company_id || !ctoInfo?.id) {
+            console.log('Inserting CTO information:');
             ctoInfoResponse = await insertCTODetails(
               companyProfile.id,
               ctoData,
               uploadedFiles
             );
+
+            if (ctoInfoResponse && !ctoInfoResponse.error) {
+              ctoInfo.id = ctoInfoResponse?.id;
+              // Update other properties if needed
+            }
           } else {
             ctoInfoResponse = await updateCTODetails(
               companyProfile.id,
@@ -454,12 +476,15 @@ const VerticalNavTabs = () => {
           if (ctoInfoResponse?.error) {
             throw ctoInfoResponse.error;
           }
+
           if (ctoInfoResponse) {
             updatedData = ctoInfoResponse.data;
 
             setCtoInfoLoc(updatedData);
           }
           break;
+        }
+
         case 'company_documents':
           const companyUploadedFiles = {};
           for (const [dbField, formField] of Object.entries(
@@ -502,7 +527,8 @@ const VerticalNavTabs = () => {
 
           break;
         case 'business_details':
-          const emptyBusinessDetails = !businessDetails?.id;
+          const emptyBusinessDetails =
+            !businessDetails?.id || !businessDetailsLoc?.company_id;
           updatedData = {
             company_id: companyProfile.id,
             current_traction: data.current_traction || null,
@@ -533,7 +559,7 @@ const VerticalNavTabs = () => {
               }
               updatedData = businessDetailsResponse.data;
               // console.log('Updated business details:', updatedData);
-              // setBusinessDetailsLoc(updatedData);
+              setBusinessDetailsLoc(updatedData);
               // console.log('Business Details:', businessDetailsLoc);
             }
             console.log('Data saved successfully:', updatedData);
@@ -542,7 +568,7 @@ const VerticalNavTabs = () => {
           }
           break;
 
-        case 'funding_info':
+        case 'funding_info': {
           const fundingData = {
             company_id: companyProfile?.id,
             total_funding_ask: data.total_funding_ask || null,
@@ -557,12 +583,18 @@ const VerticalNavTabs = () => {
           };
 
           let fundingInfoResponse;
-          if (!fundingInformation?.id) {
+          if (!fundingInformationLoc?.company_id || !fundingInformation?.id) {
+            // console.log('Inserting funding information:');
             fundingInfoResponse = await insertFundingInformation(
               companyProfile.id,
               fundingData,
               uploadedFiles
             );
+
+            if (fundingInfoResponse && !fundingInfoResponse.error) {
+              fundingInformation.id = fundingInfoResponse?.id;
+              // Update other properties if needed
+            }
           } else {
             fundingInfoResponse = await updateFundingInfo(
               companyProfile.id,
@@ -574,15 +606,14 @@ const VerticalNavTabs = () => {
             throw fundingInfoResponse.error;
           }
 
-          updatedData = fundingInfoResponse.data;
           if (fundingInfoResponse) {
-            updatedData = fundingInfoResponse;
-
+            updatedData = fundingInfoResponse.data;
             setFundingInformationLoc(updatedData);
           } else {
             console.error('Unexpected response format:', fundingInfoResponse);
           }
           break;
+        }
 
         default:
           console.warn(`Unknown section: ${section}`);
@@ -2645,7 +2676,10 @@ const VerticalNavTabs = () => {
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    View Agreement
+                                    {founderInformationLoc?.co_founder_agreement ||
+                                    founderInformation?.co_founder_agreement
+                                      ? 'View Technology Roadmap'
+                                      : 'Not provided'}
                                   </a>
                                 </div>
                               </li>
