@@ -6,6 +6,7 @@ import Loading from '@/components/Loading';
 import { supabase } from '@/lib/supabaseclient';
 import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';
+import Chatbot from '@/components/chatbot';
 
 const Tools = () => {
   const { user, loading } = useUserDetails();
@@ -216,6 +217,7 @@ const Tools = () => {
                 </div>
               </div>
             </section>
+            <Chatbot />
           </div>
         )}
         <div className='container px-4 mx-auto'>
@@ -255,6 +257,7 @@ const Tools = () => {
                 </div>
               </div>
             </section>
+            <Chatbot />
           </div>
         )}
       </div>

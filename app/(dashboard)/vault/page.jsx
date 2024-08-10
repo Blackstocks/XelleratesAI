@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails'; // Corrected the import path
 import Loading from '@/components/Loading';
 import RecentOrderTable from '@/components/vaultDocuments'; // Import the RecentOrderTable component
+import Chatbot from '@/components/chatbot';
 
 const Vault = () => {
   const {
@@ -116,6 +117,7 @@ const Vault = () => {
           </div>
         </div>
       )}
+      <Chatbot />
     </div>
   );
 };

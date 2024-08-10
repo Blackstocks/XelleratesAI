@@ -10,6 +10,7 @@ import EventModal from '@/components/partials/app/calender/EventModal';
 import EditEventModal from '@/components/partials/app/calender/EditEventModal';
 import { supabase } from '@/lib/supabaseclient';
 import Loading from '@/components/Loading'; // Assuming you have a Loading component
+import Chatbot from '@/components/chatbot';
 
 const CalenderPage = () => {
   const { calendarEvents, categories } = useSelector((state) => state.calendar);
@@ -104,6 +105,7 @@ const CalenderPage = () => {
             />
           )}
         </Card>
+        <Chatbot />
       </div>
 
       <EventModal
@@ -116,6 +118,7 @@ const CalenderPage = () => {
         onCloseEditModal={() => setEditModal(false)}
         editItem={editItem}
       />
+     
     </div>
   );
 };
