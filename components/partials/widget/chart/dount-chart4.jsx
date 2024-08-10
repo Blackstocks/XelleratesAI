@@ -11,25 +11,33 @@ const Calculation = ({ height = 200 }) => {
   // Extract the cap_table from fundingInformation
   const capTable = fundingInformation?.cap_table || [];
 
-  // Prepare the data for the pie chart
-  const series = capTable.map((entry) => parseFloat(entry.percentage) || 0);
-  const labels = capTable.map(
-    (entry) => entry.designation || 'No Designation Specified'
-  );
+  let founderPercentage = 0;
+  let othersPercentage = 0;
 
-  // Handle the case where there might be leftover percentage
-  const totalPercentage = series.reduce((total, num) => total + num, 0);
-  if (totalPercentage < 100) {
-    series.push(100 - totalPercentage);
-    labels.push('Remaining');
+  // Calculate the founder's percentage and the percentage for others
+  capTable.forEach((entry) => {
+    if (entry.designation?.toLowerCase() === 'founder') {
+      founderPercentage += parseFloat(entry.percentage) || 0;
+    } else {
+      othersPercentage += parseFloat(entry.percentage) || 0;
+    }
+  });
+
+  // Handle the case where the total percentage doesn't sum to 100%
+  const remainingPercentage = 100 - (founderPercentage + othersPercentage);
+  if (remainingPercentage > 0) {
+    othersPercentage += remainingPercentage;
   }
+
+  const series = [founderPercentage, othersPercentage];
+  const labels = ['Founder', 'Others'];
 
   const options = {
     labels: labels,
     dataLabels: {
       enabled: false,
     },
-    colors: ['#0CE7FA', '#E2F6FD', '#FFD700', '#FF6347'], // Array of colors for different slices
+    colors: ['#0CE7FA', '#E2F6FD'], // Colors for Founder and Others
     legend: {
       position: 'bottom',
       fontSize: '12px',
@@ -63,7 +71,7 @@ const Calculation = ({ height = 200 }) => {
               fontSize: '10px',
               label: 'Total',
               formatter() {
-                return `${totalPercentage}%`;
+                return `${founderPercentage}%`;
               },
             },
           },
