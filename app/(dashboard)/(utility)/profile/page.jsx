@@ -24,7 +24,8 @@ import Loading from '@/components/Loading';
 
 const Profile = () => {
   const { user, loading } = useUserDetails();
-  const { companyProfile, investorSignup } = useCompleteUserDetails();
+  const { companyProfile, investorSignup, fetchData } =
+    useCompleteUserDetails();
   // console.log('investorSignup in profile', investorSignup);
   // console.log('investorSignup in profile', investorSignup);
   const [editingSection, setEditingSection] = useState(null);
@@ -111,6 +112,7 @@ const Profile = () => {
       }
       console.log('investorProfileLoc', investorProfileLoc);
 
+      fetchData();
       setEditingSection(null);
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -565,7 +567,7 @@ const Profile = () => {
                       register={register}
                     />
                   </div>
-                  <div className='mb-6'>
+                  {/* <div className='mb-6'>
                     <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                       <Icon
                         icon='heroicons:document-text'
@@ -586,7 +588,7 @@ const Profile = () => {
                         {errors.profilePhoto.message}
                       </p>
                     )}
-                  </div>
+                  </div> */}
                 </div>
                 <div className='flex mt-4'>
                   <Button text='Save' type='submit' className='btn-dark mr-4' />

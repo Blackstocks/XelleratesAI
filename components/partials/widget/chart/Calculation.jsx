@@ -1,5 +1,4 @@
 'use client';
-import { colors } from '@/constant/data';
 import dynamic from 'next/dynamic';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import useDarkMode from '@/hooks/useDarkMode';
@@ -12,8 +11,19 @@ const Calculation = ({ height = 300 }) => {
 
   // Extract series and labels from fundingInformation.cap_table
   const capTable = fundingInformation?.cap_table || [];
+
+  // Prepare the data for the pie chart
   const series = capTable.map((item) => parseFloat(item.percentage));
-  const labels = capTable.map((item) => item.role);
+  const labels = capTable.map((item) => item.designation || 'No Designation');
+
+  // Calculate total percentage
+  const totalPercentage = series.reduce((total, num) => total + num, 0);
+
+  // If total percentage is less than 100%, add the "Others" category
+  if (totalPercentage < 100) {
+    series.push(100 - totalPercentage);
+    labels.push('Others');
+  }
 
   const options = {
     labels: labels,
@@ -21,16 +31,20 @@ const Calculation = ({ height = 300 }) => {
       enabled: true,
     },
     colors: [
+      '#FF5722', // Deep Orange
+      '#FFEB3B', // Yellow (for emphasis)
+      '#CDDC39', // Lime
       '#009688', // Teal
       '#34A853', // Green (lighter green for a prominent share)
-      '#FFEB3B', // Yellow (for emphasis)
+
       '#FF9800', // Orange
-      '#FF5722', // Deep Orange
+
       '#673AB7', // Deep Purple
       '#2196F3', // Blue
       '#FFC107', // Amber
-      '#CDDC39', // Lime
+
       '#00BCD4', // Cyan
+      '#607D8B', // Blue Grey for "Others"
     ],
     legend: {
       show: false, // Hide the legend
