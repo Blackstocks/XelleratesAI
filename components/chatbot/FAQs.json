@@ -1,0 +1,48 @@
+{
+  "faqs": [
+      {
+          "question": "What is Xellerates AI?",
+          "answer": "Xellerates AI is an investment tech platform and a one-stop solution for startups and investors to streamline the fundraising journey through artificial intelligence."
+      },
+      {
+          "question": "Who can become a part of Xellerates AI?",
+          "answer": "Anyone who is a startup, investor, or incubator can become a part of Xellerates AI."
+      },
+      {
+          "question": "Does Xellerates AI help startups with financial research and projections?",
+          "answer": "Yes, our Financial Insights tool helps with market studies, financial projections, and startup valuation. It provides accurate TAM, SAM, and SOM for your business, integrated with our Pitch Deck tool."
+      },
+      {
+          "question": "How can Xellerates AI help me in fundraising?",
+          "answer": "We offer a Fundraising tool for equity funding, debt funding, M&A, and sale of secondary shares. It matches you with investors based on your profile."
+      },
+      {
+          "question": "How does the fundraising tool work?",
+          "answer": "After analyzing your profile, you receive a list of investors aligned with your sector, stage, and geography. You can send connection requests to investors, and if they show interest, a meeting is scheduled."
+      },
+      {
+          "question": "How does Xellerates AI address legal needs for startups?",
+          "answer": "Our legal tech solution offers legal agreements, a compliance library, and streamlined compliance management from day one."
+      },
+      {
+          "question": "I am at the ideation stage and looking to avail grants from the government. Can Xellerates AI help?",
+          "answer": "Yes, first register your startup and obtain the Startup India certification through our Investment Readiness tool. We then help you connect with incubators for government grants and guide you through the application process."
+      },
+      {
+          "question": "What kind of market research tools does Xellerates AI offer?",
+          "answer": "Our platform provides comprehensive market research tools that analyze your industry, competitors, and market trends to help you make informed decisions."
+      },
+      {
+          "question": "Can Xellerates AI assist in networking with other startups and investors?",
+          "answer": "Yes, our platform includes networking features that allow you to connect with other startups, investors, and industry experts to build valuable relationships."
+      },
+      {
+          "question": "Does Xellerates AI offer mentorship programs?",
+          "answer": "Yes, we provide access to a network of experienced mentors who can guide you through various stages of your startup journey."
+      },
+      {
+          "question": "How can Xellerates AI help with my startup's compliance requirements?",
+          "answer": "Our compliance tools help you stay updated with regulatory requirements and streamline the process of maintaining compliance documentation."
+      }
+  ]
+}

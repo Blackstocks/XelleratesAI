@@ -273,7 +273,7 @@ const Dashboard = () => {
         throw new Error('Failed to fetch company ID');
       }
 
-      const company_id = companyData.id;
+      const company_id = companyData?.id;
       console.log('Company ID:', company_id);
 
       if (!company_id) {
@@ -295,7 +295,7 @@ const Dashboard = () => {
       }
 
       const data = await response.json();
-      console.log('Financial Data:', data);
+      //console.log('Financial Data:', data);
 
       // Update financialData state
       setFinancialData(data);
