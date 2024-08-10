@@ -10,86 +10,86 @@ import {
 } from "react-table";
 
 const COLUMNS = [
-  {
-    Header: "user",
-    accessor: "user",
-    Cell: (row) => {
-      return (
-        <div>
-          <div className="flex items-center">
-            <div className="flex-none">
-              <div className="w-8 h-8 rounded-[100%] ltr:mr-2 rtl:ml-2">
-                <img
-                  src={row?.cell?.value.image}
-                  alt=""
-                  className="w-full h-full rounded-[100%] object-cover"
-                />
-              </div>
-            </div>
-            <div className="flex-1 text-start">
-              <h4 className="text-sm font-medium text-slate-600">
-                {row?.cell?.value.name}
-              </h4>
-            </div>
-          </div>
-        </div>
-      );
-    },
-  },
-  {
-    Header: "invoice",
-    accessor: "invoice",
-    Cell: (row) => {
-      return <span>{row?.cell?.value}</span>;
-    },
-  },
-  {
-    Header: "price",
-    accessor: "price",
-    Cell: (row) => {
-      return <span>{row?.cell?.value}</span>;
-    },
-  },
-  {
-    Header: "status",
-    accessor: "status",
-    Cell: (row) => {
-      return (
-        <span className="block w-full">
-          <span
-            className={` inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
-              row?.cell?.value === "paid"
-                ? "text-success-500 bg-success-500"
-                : ""
-            } 
-            ${
-              row?.cell?.value === "due"
-                ? "text-warning-500 bg-warning-500"
-                : ""
-            }
-            ${
-              row?.cell?.value === "canceled"
-                ? "text-danger-500 bg-danger-500"
-                : ""
-            }
-                ${
-                  row?.cell?.value === "pending"
-                    ? "text-danger-500 bg-danger-500"
-                    : ""
-                } ${
-              row?.cell?.value === "shipped"
-                ? "text-primary-500 bg-primary-500"
-                : ""
-            }
+  // {
+  //   Header: "user",
+  //   accessor: "user",
+  //   Cell: (row) => {
+  //     return (
+  //       <div>
+  //         <div className="flex items-center">
+  //           <div className="flex-none">
+  //             <div className="w-8 h-8 rounded-[100%] ltr:mr-2 rtl:ml-2">
+  //               <img
+  //                 src={row?.cell?.value.image}
+  //                 alt=""
+  //                 className="w-full h-full rounded-[100%] object-cover"
+  //               />
+  //             </div>
+  //           </div>
+  //           <div className="flex-1 text-start">
+  //             <h4 className="text-sm font-medium text-slate-600">
+  //               {row?.cell?.value.name}
+  //             </h4>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     );
+  //   },
+  // },
+  // {
+  //   Header: "invoice",
+  //   accessor: "invoice",
+  //   Cell: (row) => {
+  //     return <span>{row?.cell?.value}</span>;
+  //   },
+  // },
+  // {
+  //   Header: "price",
+  //   accessor: "price",
+  //   Cell: (row) => {
+  //     return <span>{row?.cell?.value}</span>;
+  //   },
+  // },
+  // {
+  //   Header: "status",
+  //   accessor: "status",
+  //   Cell: (row) => {
+  //     return (
+  //       <span className="block w-full">
+  //         <span
+  //           className={` inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+  //             row?.cell?.value === "paid"
+  //               ? "text-success-500 bg-success-500"
+  //               : ""
+  //           } 
+  //           ${
+  //             row?.cell?.value === "due"
+  //               ? "text-warning-500 bg-warning-500"
+  //               : ""
+  //           }
+  //           ${
+  //             row?.cell?.value === "canceled"
+  //               ? "text-danger-500 bg-danger-500"
+  //               : ""
+  //           }
+  //               ${
+  //                 row?.cell?.value === "pending"
+  //                   ? "text-danger-500 bg-danger-500"
+  //                   : ""
+  //               } ${
+  //             row?.cell?.value === "shipped"
+  //               ? "text-primary-500 bg-primary-500"
+  //               : ""
+  //           }
             
-             `}
-          >
-            {row?.cell?.value}
-          </span>
-        </span>
-      );
-    },
-  },
+  //            `}
+  //         >
+  //           {row?.cell?.value}
+  //         </span>
+  //       </span>
+  //     );
+  //   },
+  // },
 ];
 
 const RecentOrderTable2 = () => {

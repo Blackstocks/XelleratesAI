@@ -16,15 +16,15 @@ import Chatbot from '@/components/chatbot';
 
 const financials = [
   { name: 'Financials', value: '' },
-  { name: 'Revenue', value: '$120,000' },
-  { name: 'Expenses', value: '$70,000' },
-  { name: 'Profit/Loss', value: '$50,000' },
+  // { name: 'Revenue', value: '$120,000' },
+  // { name: 'Expenses', value: '$70,000' },
+  // { name: 'Profit/Loss', value: '$50,000' },
 ];
 const Portfolios = [
   { name: 'Portfolio Name', value: '' },
-  { name: 'Xellerates', value: '' },
-  { name: 'Conqr', value: '' },
-  { name: 'Adios', value: '' },
+  // { name: 'Xellerates', value: '' },
+  // { name: 'Conqr', value: '' },
+  // { name: 'Adios', value: '' },
 ];
 
 const data = [
@@ -412,7 +412,12 @@ const Dashboard = () => {
                     )}
                   </div>
                   <div className='lg:col-span-5 col-span-12 space-y-5'>
-                    {renderLockedCard('Hot Deals', <Customer />, 'hotDeals')}
+                    {renderLockedCard(
+                      'Hot Deals', 
+                      <div>
+                        <Customer />
+                      </div>,
+                      'hotDeals')}
                   </div>
                 </div>
                 <Chatbot />

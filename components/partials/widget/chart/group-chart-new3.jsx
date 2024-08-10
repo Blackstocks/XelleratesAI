@@ -25,7 +25,7 @@ const statisticsTemplate = [
   },
   {
     title: 'Open Conversations',
-    count: '10',
+    count: '0',
     bg: 'bg-success-500',
     text: 'text-primary-500',
     percent: '5.00%',
@@ -35,7 +35,7 @@ const statisticsTemplate = [
   },
   {
     title: 'Closed Transactions',
-    count: '5',
+    count: '0',
     bg: 'bg-danger-500',
     text: 'text-primary-500',
     percent: '2.50%',
