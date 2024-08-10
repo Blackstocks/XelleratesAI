@@ -252,7 +252,7 @@ const Dashboard = () => {
   }, [user]);
 
   //
-  const { companyDocuments } = useCompleteUserDetails();
+  // const { companyDocuments } = useCompleteUserDetails();
 
   const [selectedQuarter, setSelectedQuarter] = useState('Q1');
   const [financialData, setFinancialData] = useState({});
@@ -261,42 +261,42 @@ const Dashboard = () => {
     try {
       setLoadingFinancials(true);
       console.log('Company Name:', companyName);
-  
+
       // Fetch company ID from Supabase
       const { data: companyData, error: companyError } = await supabase
         .from('company_profile')
         .select('id')
         .eq('company_name', companyName)
         .single();
-  
+
       if (companyError || !companyData) {
         throw new Error('Failed to fetch company ID');
       }
-  
+
       const company_id = companyData.id;
       console.log('Company ID:', company_id);
-  
+
       if (!company_id) {
         throw new Error('Company ID is not available');
       }
-  
+
       // API request to extract financial data
       const response = await fetch('/api/apiDataExtraction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company_id }),
       });
-  
+
       console.log('Response status:', response.status);
-  
+
       if (!response.ok) {
         console.error('Response status text:', response.statusText);
         throw new Error('Network response was not ok');
       }
-  
+
       const data = await response.json();
       console.log('Financial Data:', data);
-  
+
       // Update financialData state
       setFinancialData(data);
     } catch (error) {
@@ -305,8 +305,7 @@ const Dashboard = () => {
       setLoadingFinancials(false);
     }
   };
-  
-  
+
   const handleQuarterChange = (e) => {
     setSelectedQuarter(e.target.value);
   };
@@ -318,23 +317,20 @@ const Dashboard = () => {
     setUnlockedCards((prevState) => ({ ...prevState, [cardName]: true }));
   };
 
-
   const monthNames = {
-    "01": "January",
-    "02": "February",
-    "03": "March",
-    "04": "April",
-    "05": "May",
-    "06": "June",
-    "07": "July",
-    "08": "August",
-    "09": "September",
-    "10": "October",
-    "11": "November",
-    "12": "December"
+    '01': 'January',
+    '02': 'February',
+    '03': 'March',
+    '04': 'April',
+    '05': 'May',
+    '06': 'June',
+    '07': 'July',
+    '08': 'August',
+    '09': 'September',
+    10: 'October',
+    11: 'November',
+    12: 'December',
   };
-  
-
 
   const renderFinancialData = () => {
     // Extract data for the selected quarter
@@ -342,10 +338,10 @@ const Dashboard = () => {
     const expenseData = financialData.expense?.[selectedQuarter] || [];
     const profitData = financialData.profit?.[selectedQuarter] || [];
 
-    console.log("Revenue Data:", revenueData);
-    console.log("Expense Data:", expenseData);
-    console.log("Profit Data:", profitData);
-    
+    console.log('Revenue Data:', revenueData);
+    console.log('Expense Data:', expenseData);
+    console.log('Profit Data:', profitData);
+
     return (
       <ul className='divide-y divide-slate-100 dark:divide-slate-700'>
         {['revenue', 'expense', 'profit'].map((type) => {
@@ -439,34 +435,31 @@ const Dashboard = () => {
                   )}
                 </div>
                 <div className='lg:col-span-4 col-span-12 space-y-5'>
-
-                {renderLockedCard(
-  'Current Numbers',
-  <div>
-    <div className='flex justify-between items-center mb-4'>
-      <span>Select Time Frame:</span>
-      <select
-        value={selectedQuarter}
-        onChange={handleQuarterChange}
-        className='border p-2 rounded'
-      >
-        {["Q1", "Q2", "Q3", "Q4", "Yearly"].map((quarter) => (
-          <option key={quarter} value={quarter}>
-            {quarter}
-          </option>
-        ))}
-      </select>
-    </div>
-    {loadingFinancials ? (
-      <div className='py-4 text-center'>Loading...</div>
-    ) : (
-      renderFinancialData()
-    )}
-  </div>,
-  'currentNumbers'
-)}
-
-
+                  {renderLockedCard(
+                    'Current Numbers',
+                    <div>
+                      <div className='flex justify-between items-center mb-4'>
+                        <span>Select Time Frame:</span>
+                        <select
+                          value={selectedQuarter}
+                          onChange={handleQuarterChange}
+                          className='border p-2 rounded'
+                        >
+                          {['Q1', 'Q2', 'Q3', 'Q4', 'Yearly'].map((quarter) => (
+                            <option key={quarter} value={quarter}>
+                              {quarter}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      {loadingFinancials ? (
+                        <div className='py-4 text-center'>Loading...</div>
+                      ) : (
+                        renderFinancialData()
+                      )}
+                    </div>,
+                    'currentNumbers'
+                  )}
 
                   {renderLockedCard(
                     'Cap Table',
@@ -544,11 +537,12 @@ const Dashboard = () => {
                   </div>
                   <div className='lg:col-span-5 col-span-12 space-y-5'>
                     {renderLockedCard(
-                      'Hot Deals', 
+                      'Hot Deals',
                       <div>
                         <Customer />
                       </div>,
-                      'hotDeals')}
+                      'hotDeals'
+                    )}
                   </div>
                 </div>
                 <Chatbot />
