@@ -1,15 +1,16 @@
-'use client';
-
+'use client'
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // Ensure correct import from 'next/navigation'
+import { useRouter } from 'next/navigation';
 import { supabase } from '../../../../../lib/supabaseclient';
 
 const Equity = () => {
   const [user, setUser] = useState(null);
-  const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [showConnectionModal, setShowConnectionModal] = useState(false);
+  const [showBankerMessage, setShowBankerMessage] = useState(false);
+  const [progress, setProgress] = useState(0); // State to track progress
+  const [filteredInvestors, setFilteredInvestors] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const Equity = () => {
     console.log('User found:', user);
   };
 
+  // Check if the user's profile is complete
   const checkProfileCompletion = async () => {
     if (!user) {
       console.error('User is not defined');
@@ -65,39 +67,121 @@ const Equity = () => {
         'company_name',
       ];
       const isComplete = requiredFields.every((field) => data[field]);
-      setIsProfileComplete(isComplete);
-      console.log('Profile completion status:', isComplete);
       if (!isComplete) {
-        setShowCompletionModal(true);
+        setShowCompletionModal(true); // Show modal if profile is incomplete
       } else {
-        setShowProgressModal(true);
-        startProgress();
+        setShowProgressModal(true); // Show progress modal if profile is complete
+        startProgress(); // Start progress bar
       }
     }
   };
 
+  // Function to handle the progress bar animation
   const startProgress = () => {
-    setProgress(0);
+    setProgress(0); // Initialize progress to 0
     const interval = setInterval(() => {
       setProgress((oldProgress) => {
-        if (oldProgress === 100) {
-          clearInterval(interval);
+        if (oldProgress >= 100) {
+          clearInterval(interval); // Stop the interval when progress reaches 100%
           setTimeout(() => {
-            setShowProgressModal(false);
-            router.push('/tools/fundraising/equity/investors');
+            setShowProgressModal(false); // Hide the progress modal
+            router.push('/tools/fundraising/equity/investors'); // Redirect after progress completes
           }, 500);
           return 100;
         }
-        return Math.min(oldProgress + 5, 100);
+        return Math.min(oldProgress + 5, 100); // Increment progress by 5 every 500ms
       });
     }, 500);
+  };
+
+  // Check the connection status and show appropriate modal
+  const checkConnectionStatus = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('connected_startups')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('No rows found for the specified user_id.');
+          setShowConnectionModal(true); // Show connect modal if user_id is not found
+        } else {
+          console.error('Error checking connection status:', error.message);
+        }
+        return;
+      }
+
+      if (data) {
+        setShowBankerMessage(true); // Show message if user_id is found
+      }
+    } catch (error) {
+      console.error('Error checking connection status:', error.message);
+    }
+  };
+
+  const handleConnect = async (userType) => {
+    if (!user) return;
+
+    // Fetch the user's profile data from the profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('company_name, name, email, mobile, linkedin_profile')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching profile data:', profileError.message);
+      return;
+    }
+
+    // Destructure the necessary fields from the profile
+    const { company_name, name, email, mobile, linkedin_profile } = profile;
+
+    console.log({
+      startup_name: company_name,
+      founder_name: name,
+      linkedin_profile: linkedin_profile,
+      email: email,
+      mobile: mobile,
+      user_type: userType,
+      user_id: user.id,
+    });
+
+    try {
+      const { data, error } = await supabase
+        .from('connected_startups')
+        .insert({
+          startup_name: company_name,
+          founder_name: name,
+          linkedin_profile: linkedin_profile,
+          email: email,
+          mobile: mobile,
+          user_type: userType,
+          user_id: user.id,
+          has_connected: true,
+          // Add any other fields you need to insert here
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      setShowConnectionModal(false);
+      router.push('/tools/fundraising/equity/investors');
+    } catch (error) {
+      console.error('Error inserting connection data:', error.message);
+    }
   };
 
   return (
     <div className='flex min-h-screen bg-gray-50 relative'>
       <main
         className={`flex-1 p-8 ${
-          showCompletionModal || showProgressModal ? 'blur-sm' : ''
+          showCompletionModal || showProgressModal || showConnectionModal || showBankerMessage ? 'blur-sm' : ''
         }`}
       >
         <div className='absolute top-4 left-4'>
@@ -116,7 +200,7 @@ const Equity = () => {
               className='rounded w-full h-50 object-contain'
             />
           </div>
-          <div className='cursor-pointer'>
+          <div className='cursor-pointer' onClick={checkConnectionStatus}>
             <img
               src='/assets/images/tools/equityInvestment.png'
               alt='Equity Investment'
@@ -166,6 +250,41 @@ const Equity = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showConnectionModal && (
+        <div className="absolute inset-0 flex justify-center items-center flex-col z-10">
+          <div className="bg-[#1a235e] text-white p-4 rounded shadow text-center message-container">
+            <p className="text-lg font-bold mb-2">
+            Our Investment banker will reach out to you soon!!
+            </p>
+            <button
+              onClick={() => handleConnect('equity')} // Pass userType as 'equity' or your desired type
+              className="py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showBankerMessage && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+          <div className='bg-[#1a235e] text-white p-6 rounded shadow-lg relative justify-center'>
+            <h2 className='text-xl font-bold mb-4 text-white text-center'>
+              Our Investment banker will reach out to you soon!!
+            </h2>
+            <button
+              onClick={() => {
+                setShowBankerMessage(false);
+                router.push('/tools/fundraising/equity/investors');
+              }}
+              className='py-2 px-4 bg-[#e7ad6c] text-white rounded transition duration-200'
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

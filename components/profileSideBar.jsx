@@ -93,15 +93,18 @@ const companyDocumentsFiles = {
 };
 
 const VerticalNavTabs = () => {
-  const {
+  let {
     companyProfile,
     businessDetails,
     founderInformation,
     fundingInformation,
     ctoInfo,
     companyDocuments,
+    fetchData,
   } = useCompleteUserDetails();
-  // console.log('companyDocuments', companyDocuments);
+  // console.log('companyDocuments', companyDocuments)
+  // console.log('companyProfile', companyProfile);
+  // console.log('founderInformation', founderInformation);
   const {
     control,
     watch,
@@ -192,10 +195,11 @@ const VerticalNavTabs = () => {
     businessDetails,
     companyDocuments,
   ]);
+  // console.log('Founder Information:', founderInformationLoc);
 
   // console.log('companyProfile', companyProfile);
   // console.log('founderInformation', founderInformation);
-
+  // console.log('ctoInfoloc', ctoInfoLoc);
   const [hasMediaPresence, setHasMediaPresence] = useState(false);
 
   useEffect(() => {
@@ -214,10 +218,14 @@ const VerticalNavTabs = () => {
 
   useEffect(() => {
     if (companyProfile) {
+      // console.log('Company Profile:', companyProfile);
       reset({
         socialMedia: companyProfile.social_media_handles || [],
-        mediaPresence: companyProfile?.media_presence || [],
+        socialMediaPresence: companyProfile?.media_presence || [],
       });
+
+      // console.log('media_presence', presenceFields);
+      // console.log('social_media_handles', socialMediaFields);
     }
     if (founderInformation) {
       // console.log('Founder Information:', founderInformation);
@@ -240,7 +248,351 @@ const VerticalNavTabs = () => {
   // console.log('Advisor Fields:', advisorFields);
   // console.log('Co-Founder Fields:', coFounderFields);
   // console.log('Cap Table Fields:', capTableFields);
+  // const handleSave = async (data, section) => {
+  //   try {
+  //     let updatedData;
+  //     const uploadedFiles = {};
 
+  //     const handleUploads = async (data) => {
+  //       switch (section) {
+  //         case 'founder_info':
+  //           if (data.co_founder_agreement && data.co_founder_agreement[0]) {
+  //             uploadedFiles.co_founder_agreement = await handleFileUpload(
+  //               data.co_founder_agreement[0],
+  //               'documents',
+  //               companyProfile?.company_name || data.company_name,
+  //               'list_of_advisers'
+  //             );
+  //           }
+  //           break;
+
+  //         case 'CTO_info':
+  //           if (data.technology_roadmap && data.technology_roadmap[0]) {
+  //             uploadedFiles.technology_roadmap = await handleFileUpload(
+  //               data.technology_roadmap[0],
+  //               'documents',
+  //               companyProfile?.company_name || data.company_name,
+  //               'technology_roadmap'
+  //             );
+  //           }
+  //           break;
+  //       }
+  //     };
+
+  //     await handleUploads(data);
+
+  //     switch (section) {
+  //       case 'general_info':
+  //         const generalData = {
+  //           email: data.email,
+  //           mobile: data.mobile,
+  //           linkedin_profile: data.linkedin_profile,
+  //         };
+
+  //         try {
+  //           const generalInfoResponse = await updateGeneralInfo(
+  //             user.id,
+  //             generalData
+  //           );
+
+  //           if (generalInfoResponse?.error) {
+  //             throw generalInfoResponse.error;
+  //           }
+
+  //           updatedData = generalInfoResponse.data;
+
+  //           if (updatedData) {
+  //             setGeneralInformationLoc(updatedData);
+  //           } else {
+  //             console.error('Unexpected response format:', generalInfoResponse);
+  //           }
+  //         } catch (error) {
+  //           console.error('Error updating general information:', error);
+  //         }
+  //         break;
+
+  //       case 'startup_details': {
+  //         const startupData = {
+  //           company_name: data.company_name || null,
+  //           incorporation_date: data.incorporation_date || null,
+  //           country: data.country || null,
+  //           state_city: data.state_city || null,
+  //           office_address: data.office_address || null,
+  //           company_website: data.company_website || null,
+  //           short_description: data.short_description || null,
+  //           target_audience: data.target_audience || null,
+  //           industry_sector: data.industry_sector || null,
+  //           team_size: data.team_size || null,
+  //           current_stage: data.current_stage || null,
+  //           usp_moat: data.usp_moat || null,
+  //           media: data.media || null,
+  //           socialMedia: data.socialMedia || [],
+  //           socialMediaPresence: data.socialMediaPresence || [],
+  //         };
+
+  //         try {
+  //           let startupDetailsResponse;
+  //           if (!companyProfile?.id || !companyProfileLoc?.company_name) {
+  //             startupDetailsResponse = await insertStartupDetails(
+  //               startupData,
+  //               user.id,
+  //               uploadedFiles
+  //             );
+
+  //             if (startupDetailsResponse && !startupDetailsResponse.error) {
+  //               companyProfile = {
+  //                 id: startupDetailsResponse?.id,
+  //               };
+  //             }
+  //           } else {
+  //             startupDetailsResponse = await updateStartupDetails(
+  //               startupData,
+  //               user.id,
+  //               uploadedFiles
+  //             );
+  //           }
+
+  //           if (startupDetailsResponse?.error) {
+  //             throw startupDetailsResponse.error;
+  //           }
+
+  //           if (startupDetailsResponse) {
+  //             updatedData = startupDetailsResponse;
+  //             setCompanyProfileLoc(updatedData);
+  //           } else {
+  //             console.error('Unexpected response format:', startupDetailsResponse);
+  //           }
+  //         } catch (error) {
+  //           console.error('Error handling startup details:', error);
+  //         }
+  //         break;
+  //       }
+
+  //       case 'founder_info':
+  //         const founderData = {
+  //           company_id: companyProfile?.id,
+  //           founder_name: data.founder_name || null,
+  //           founder_email: data.founder_email || null,
+  //           founder_mobile: data.founder_mobile || null,
+  //           founder_linkedin: data.founder_linkedin || null,
+  //           degree_name: data.degree_name || null,
+  //           college_name: data.college_name || null,
+  //           graduation_year: data.graduation_year || null,
+  //           advisors: data.advisors || [],
+  //           co_founders: data.co_founders || [],
+  //           co_founder_agreement: uploadedFiles.co_founder_agreement || null,
+  //         };
+
+  //         let founderInfoResponse;
+  //         if (!founderInformationLoc?.company_id || !founderInformation?.id) {
+  //           founderInfoResponse = await insertFounderInformation(
+  //             companyProfile.id,
+  //             founderData,
+  //             uploadedFiles
+  //           );
+
+  //           if (founderInfoResponse && !founderInfoResponse.error) {
+  //             founderInformation = {
+  //               id: founderInfoResponse?.id,
+  //             };
+  //           }
+  //         } else {
+  //           founderInfoResponse = await updateFounderInformation(
+  //             companyProfile.id,
+  //             founderData,
+  //             uploadedFiles
+  //           );
+  //         }
+
+  //         if (founderInfoResponse?.error) {
+  //           throw founderInfoResponse.error;
+  //         }
+
+  //         if (founderInfoResponse) {
+  //           updatedData = founderInfoResponse;
+  //           setFounderInformationLoc(updatedData);
+  //         } else {
+  //           console.error('Unexpected response format:', founderInfoResponse);
+  //         }
+  //         break;
+
+  //       case 'CTO_info': {
+  //         const ctoData = {
+  //           company_id: companyProfile?.id,
+  //           cto_name: data.cto_name || null,
+  //           cto_email: data.cto_email || null,
+  //           cto_mobile: data.cto_mobile || null,
+  //           cto_linkedin: data.cto_linkedin || null,
+  //           tech_team_size: data.tech_team_size || null,
+  //           mobile_app_link_ios: data.mobile_app_link_ios || null,
+  //           mobile_app_link_android: data.mobile_app_link_android || null,
+  //           technology_roadmap: uploadedFiles.technology_roadmap || null,
+  //         };
+
+  //         let ctoInfoResponse;
+  //         if (!ctoInfoLoc?.company_id || !ctoInfo?.id) {
+  //           ctoInfoResponse = await insertCTODetails(
+  //             companyProfile.id,
+  //             ctoData,
+  //             uploadedFiles
+  //           );
+
+  //           if (ctoInfoResponse && !ctoInfoResponse.error) {
+  //             ctoInfo = {
+  //               id: ctoInfoResponse?.id,
+  //             };
+  //           }
+  //         } else {
+  //           ctoInfoResponse = await updateCTODetails(
+  //             companyProfile.id,
+  //             ctoData,
+  //             uploadedFiles
+  //           );
+  //         }
+
+  //         if (ctoInfoResponse?.error) {
+  //           throw ctoInfoResponse.error;
+  //         }
+
+  //         if (ctoInfoResponse) {
+  //           updatedData = ctoInfoResponse;
+  //           setCtoInfoLoc(updatedData);
+  //         }
+  //         break;
+  //       }
+
+  //       case 'company_documents':
+  //         const companyUploadedFiles = {};
+  //         for (const [dbField, formField] of Object.entries(
+  //           companyDocumentsFiles
+  //         )) {
+  //           if (data[formField] && data[formField][0]) {
+  //             companyUploadedFiles[formField] = await handleFileUpload(
+  //               data[formField][0],
+  //               'documents',
+  //               companyProfile?.company_name || data.company_name,
+  //               formField
+  //             );
+  //           }
+  //         }
+
+  //         const companyDocumentsResponse = companyDocuments?.id
+  //           ? await updateCompanyDocuments(
+  //               companyProfile.id,
+  //               companyUploadedFiles
+  //             )
+  //           : await insertCompanyDocuments(
+  //               companyProfile.id,
+  //               companyUploadedFiles
+  //             );
+
+  //         if (companyDocumentsResponse?.error) {
+  //           throw companyDocumentsResponse.error;
+  //         }
+
+  //         updatedData = companyDocumentsResponse;
+  //         break;
+
+  //       case 'business_details':
+  //         const emptyBusinessDetails =
+  //           !businessDetails?.id || !businessDetailsLoc?.company_id;
+  //         updatedData = {
+  //           company_id: companyProfile.id,
+  //           current_traction: data.current_traction || null,
+  //           new_Customers: data.new_Customers || null,
+  //           customer_AcquisitionCost: data.customer_AcquisitionCost || null,
+  //           customer_Lifetime_Value: data.customer_Lifetime_Value || null,
+  //         };
+
+  //         try {
+  //           if (emptyBusinessDetails) {
+  //             const businessDetailsResponse = await insertBusinessDetails(
+  //               companyProfile.id,
+  //               updatedData
+  //             );
+  //             if (businessDetailsResponse.error) {
+  //               throw businessDetailsResponse.error;
+  //             }
+  //             updatedData = businessDetailsResponse.data;
+  //             setBusinessDetailsLoc(updatedData);
+  //           } else {
+  //             const businessDetailsResponse = await updateBusinessDetails(
+  //               companyProfile.id,
+  //               updatedData
+  //             );
+  //             if (businessDetailsResponse.error) {
+  //               throw businessDetailsResponse.error;
+  //             }
+  //             updatedData = businessDetailsResponse.data;
+  //             setBusinessDetailsLoc(updatedData);
+  //           }
+  //         } catch (error) {
+  //           console.error('Error saving business details:', error);
+  //         }
+  //         break;
+
+  //       case 'funding_info': {
+  //         const fundingData = {
+  //           company_id: companyProfile?.id,
+  //           total_funding_ask: data.total_funding_ask || null,
+  //           amount_committed: data.amount_committed || null,
+  //           government_grants: data.government_grants || null,
+  //           equity_split: data.equity_split || null,
+  //           fund_utilization: data.fund_utilization || null,
+  //           arr: data.arr || null,
+  //           mrr: data.mrr || null,
+  //           previous_funding: data.funding || [],
+  //           capTable: data.capTable || [],
+  //         };
+
+  //         let fundingInfoResponse;
+
+  //         if (!fundingInformationLoc?.company_id || !fundingInformation?.id) {
+  //           fundingInfoResponse = await insertFundingInformation(
+  //             companyProfile.id,
+  //             fundingData,
+  //             uploadedFiles
+  //           );
+
+  //           if (fundingInfoResponse && !fundingInfoResponse.error) {
+  //             fundingInformation = {
+  //               id: fundingInfoResponse?.id,
+  //             };
+  //           }
+  //         } else {
+  //           fundingInfoResponse = await updateFundingInfo(
+  //             companyProfile.id,
+  //             fundingData
+  //           );
+  //         }
+
+  //         if (fundingInfoResponse?.error) {
+  //           throw fundingInfoResponse.error;
+  //         }
+
+  //         if (fundingInfoResponse) {
+  //           updatedData = fundingInfoResponse;
+  //           setFundingInformationLoc(updatedData);
+  //         } else {
+  //           console.error('Unexpected response format:', fundingInfoResponse);
+  //         }
+  //         break;
+  //       }
+
+  //       default:
+  //         console.warn(`Unknown section: ${section}`);
+  //         return;
+  //     }
+
+  //     console.log('Data saved successfully:', updatedData);
+  //     setEditingSection(null);
+
+  //     // Add page reload here
+  //     window.location.reload();
+  //   } catch (error) {
+  //     console.error('Error saving data:', error);
+  //   }
+  // };
   const handleSave = async (data, section) => {
     try {
       let updatedData;
@@ -248,17 +600,6 @@ const VerticalNavTabs = () => {
 
       const handleUploads = async (data) => {
         switch (section) {
-          case 'startup_details':
-            if (data.company_logo && data.company_logo[0]) {
-              uploadedFiles.company_logo = await handleFileUpload(
-                data.company_logo[0],
-                'documents',
-                companyProfile?.company_name || data.company_name,
-                'company_logo'
-              );
-            }
-            break;
-
           case 'founder_info':
             if (data.co_founder_agreement && data.co_founder_agreement[0]) {
               uploadedFiles.co_founder_agreement = await handleFileUpload(
@@ -282,7 +623,7 @@ const VerticalNavTabs = () => {
             break;
         }
       };
-      // console.log('uploadedFiles', uploadedFiles);
+
       await handleUploads(data);
 
       switch (section) {
@@ -318,7 +659,7 @@ const VerticalNavTabs = () => {
           }
           break;
 
-        case 'startup_details':
+        case 'startup_details': {
           const startupData = {
             company_name: data.company_name || null,
             incorporation_date: data.incorporation_date || null,
@@ -334,10 +675,10 @@ const VerticalNavTabs = () => {
             current_stage: data.current_stage || null,
             usp_moat: data.usp_moat || null,
             media: data.media || null,
-            company_logo: uploadedFiles.company_logo || null,
             socialMedia: data.socialMedia || [],
             socialMediaPresence: data.socialMediaPresence || [],
           };
+
           try {
             let startupDetailsResponse;
             if (!companyProfile?.id) {
@@ -346,6 +687,12 @@ const VerticalNavTabs = () => {
                 user.id,
                 uploadedFiles
               );
+
+              if (startupDetailsResponse && !startupDetailsResponse.error) {
+                companyProfile = {
+                  id: startupDetailsResponse?.id,
+                };
+              }
             } else {
               startupDetailsResponse = await updateStartupDetails(
                 startupData,
@@ -357,10 +704,9 @@ const VerticalNavTabs = () => {
             if (startupDetailsResponse?.error) {
               throw startupDetailsResponse.error;
             }
+
             if (startupDetailsResponse) {
               updatedData = startupDetailsResponse;
-
-              setCompanyProfileLoc(updatedData);
             } else {
               console.error(
                 'Unexpected response format:',
@@ -371,6 +717,7 @@ const VerticalNavTabs = () => {
             console.error('Error handling startup details:', error);
           }
           break;
+        }
 
         case 'founder_info':
           const founderData = {
@@ -394,6 +741,12 @@ const VerticalNavTabs = () => {
               founderData,
               uploadedFiles
             );
+
+            if (founderInfoResponse && !founderInfoResponse.error) {
+              founderInformation = {
+                id: founderInfoResponse?.id,
+              };
+            }
           } else {
             founderInfoResponse = await updateFounderInformation(
               companyProfile.id,
@@ -406,17 +759,15 @@ const VerticalNavTabs = () => {
             throw founderInfoResponse.error;
           }
 
-          updatedData = founderInfoResponse.data;
           if (founderInfoResponse) {
             updatedData = founderInfoResponse;
-
             setFounderInformationLoc(updatedData);
           } else {
             console.error('Unexpected response format:', founderInfoResponse);
           }
           break;
 
-        case 'CTO_info':
+        case 'CTO_info': {
           const ctoData = {
             company_id: companyProfile?.id,
             cto_name: data.cto_name || null,
@@ -436,6 +787,12 @@ const VerticalNavTabs = () => {
               ctoData,
               uploadedFiles
             );
+
+            if (ctoInfoResponse && !ctoInfoResponse.error) {
+              ctoInfo = {
+                id: ctoInfoResponse?.id,
+              };
+            }
           } else {
             ctoInfoResponse = await updateCTODetails(
               companyProfile.id,
@@ -448,8 +805,13 @@ const VerticalNavTabs = () => {
             throw ctoInfoResponse.error;
           }
 
-          updatedData = ctoInfoResponse.data;
+          if (ctoInfoResponse) {
+            updatedData = ctoInfoResponse;
+            setCtoInfoLoc(updatedData);
+          }
           break;
+        }
+
         case 'company_documents':
           const companyUploadedFiles = {};
           for (const [dbField, formField] of Object.entries(
@@ -476,21 +838,12 @@ const VerticalNavTabs = () => {
               );
 
           if (companyDocumentsResponse?.error) {
-            console.error(
-              'Error saving company documents:',
-              companyDocumentsResponse.error
-            );
             throw companyDocumentsResponse.error;
           }
 
-          console.log(
-            'Company Documents saved successfully:',
-            companyDocumentsResponse
-          );
-
           updatedData = companyDocumentsResponse;
-
           break;
+
         case 'business_details':
           const emptyBusinessDetails = !businessDetails?.id;
           updatedData = {
@@ -511,8 +864,6 @@ const VerticalNavTabs = () => {
                 throw businessDetailsResponse.error;
               }
               updatedData = businessDetailsResponse.data;
-              console.log('Inserted business details:', updatedData);
-              setBusinessDetailsLoc(updatedData);
             } else {
               const businessDetailsResponse = await updateBusinessDetails(
                 companyProfile.id,
@@ -522,17 +873,13 @@ const VerticalNavTabs = () => {
                 throw businessDetailsResponse.error;
               }
               updatedData = businessDetailsResponse.data;
-              // console.log('Updated business details:', updatedData);
-              // setBusinessDetailsLoc(updatedData);
-              // console.log('Business Details:', businessDetailsLoc);
             }
-            console.log('Data saved successfully:', updatedData);
           } catch (error) {
             console.error('Error saving business details:', error);
           }
           break;
 
-        case 'funding_info':
+        case 'funding_info': {
           const fundingData = {
             company_id: companyProfile?.id,
             total_funding_ask: data.total_funding_ask || null,
@@ -547,12 +894,19 @@ const VerticalNavTabs = () => {
           };
 
           let fundingInfoResponse;
+
           if (!fundingInformation?.id) {
             fundingInfoResponse = await insertFundingInformation(
               companyProfile.id,
               fundingData,
               uploadedFiles
             );
+
+            if (fundingInfoResponse && !fundingInfoResponse.error) {
+              fundingInformation = {
+                id: fundingInfoResponse?.id,
+              };
+            }
           } else {
             fundingInfoResponse = await updateFundingInfo(
               companyProfile.id,
@@ -564,15 +918,14 @@ const VerticalNavTabs = () => {
             throw fundingInfoResponse.error;
           }
 
-          updatedData = fundingInfoResponse.data;
           if (fundingInfoResponse) {
             updatedData = fundingInfoResponse;
-
             setFundingInformationLoc(updatedData);
           } else {
             console.error('Unexpected response format:', fundingInfoResponse);
           }
           break;
+        }
 
         default:
           console.warn(`Unknown section: ${section}`);
@@ -581,6 +934,9 @@ const VerticalNavTabs = () => {
 
       console.log('Data saved successfully:', updatedData);
       setEditingSection(null);
+
+      // Add page reload here
+      fetchData();
     } catch (error) {
       console.error('Error saving data:', error);
     }
@@ -673,6 +1029,7 @@ const VerticalNavTabs = () => {
                               label='Company Name'
                               name='company_name'
                               defaultValue={
+                                user?.company_name ||
                                 companyProfileLoc?.company_name ||
                                 companyProfile?.company_name
                               }
@@ -738,8 +1095,8 @@ const VerticalNavTabs = () => {
                               label='Office Address'
                               name='office_address'
                               defaultValue={
-                                companyProfile?.office_address ||
-                                companyProfileLoc?.office_address
+                                companyProfileLoc?.office_address ||
+                                companyProfile?.office_address
                               }
                               placeholder='Enter the office address'
                               register={register}
@@ -984,7 +1341,7 @@ const VerticalNavTabs = () => {
                               </div>
                             )}
 
-                            <div className='mt-4'>
+                            {/* <div className='mt-4'>
                               <InputGroup
                                 label='Upload Company Logo'
                                 type='file'
@@ -992,7 +1349,7 @@ const VerticalNavTabs = () => {
                                 error={errors.company_logo || null}
                                 register={register}
                               />
-                            </div>
+                            </div> */}
                             <div className='mt-4'>
                               <div className='text-slate-600 dark:text-slate-300 text-xs font-medium uppercase mb-4'>
                                 Other Social Media Handles
@@ -1131,8 +1488,7 @@ const VerticalNavTabs = () => {
                               name='founder_name'
                               defaultValue={
                                 founderInformation?.founder_name ||
-                                founderInformationLoc?.founder_name ||
-                                'Not provided'
+                                founderInformationLoc?.founder_name
                               }
                               register={register}
                               placeholder='Enter founder name'
@@ -1142,8 +1498,7 @@ const VerticalNavTabs = () => {
                               name='founder_email'
                               defaultValue={
                                 founderInformation?.founder_email ||
-                                founderInformationLoc?.founder_email ||
-                                'Not provided'
+                                founderInformationLoc?.founder_email
                               }
                               register={register}
                               placeholder='Enter founder email'
@@ -1153,8 +1508,7 @@ const VerticalNavTabs = () => {
                               name='founder_mobile'
                               defaultValue={
                                 founderInformation?.founder_mobile ||
-                                founderInformationLoc?.founder_mobile ||
-                                'Not provided'
+                                founderInformationLoc?.founder_mobile
                               }
                               register={register}
                               placeholder='Enter founder mobile number'
@@ -1164,8 +1518,7 @@ const VerticalNavTabs = () => {
                               name='founder_linkedin'
                               defaultValue={
                                 founderInformation?.founder_linkedin ||
-                                founderInformationLoc?.founder_linkedin ||
-                                'Not provided'
+                                founderInformationLoc?.founder_linkedin
                               }
                               register={register}
                               placeholder='Enter founder LinkedIn profile URL'
@@ -1175,8 +1528,7 @@ const VerticalNavTabs = () => {
                               name='degree_name'
                               defaultValue={
                                 founderInformation?.degree_name ||
-                                founderInformationLoc?.degree_name ||
-                                'Not provided'
+                                founderInformationLoc?.degree_name
                               }
                               register={register}
                               placeholder='Enter degree name'
@@ -1186,8 +1538,7 @@ const VerticalNavTabs = () => {
                               name='college_name'
                               defaultValue={
                                 founderInformation?.college_name ||
-                                founderInformationLoc?.college_name ||
-                                'Not provided'
+                                founderInformationLoc?.college_name
                               }
                               register={register}
                               placeholder='Enter college name'
@@ -1198,8 +1549,7 @@ const VerticalNavTabs = () => {
                               name='graduation_year'
                               defaultValue={
                                 founderInformation?.graduation_year ||
-                                founderInformationLoc?.graduation_year ||
-                                'Not provided'
+                                founderInformationLoc?.graduation_year
                               }
                               register={register}
                               placeholder='Enter year of graduation'
@@ -1517,13 +1867,22 @@ const VerticalNavTabs = () => {
                                   key={item.id}
                                 >
                                   <Textinput
-                                    label='Role'
+                                    label='Designation'
                                     type='text'
-                                    id={`role${index}`}
-                                    placeholder='e.g., Founder, Investor'
+                                    id={`designation${index}`}
+                                    placeholder='e.g., Founder, CEO'
                                     register={register}
-                                    name={`capTable[${index}].role`}
-                                    defaultValue={item.role || ''}
+                                    name={`capTable[${index}].designation`}
+                                    defaultValue={item.designation || ''}
+                                  />
+                                  <Textinput
+                                    label='First Name'
+                                    type='text'
+                                    id={`firstName${index}`}
+                                    placeholder='First Name'
+                                    register={register}
+                                    name={`capTable[${index}].firstName`}
+                                    defaultValue={item.firstName || ''}
                                   />
                                   <Textinput
                                     label='Percentage'
@@ -1551,7 +1910,11 @@ const VerticalNavTabs = () => {
                                   icon='heroicons-outline:plus'
                                   className='text-slate-600 p-0 dark:text-slate-300'
                                   onClick={() =>
-                                    appendCapTable({ role: '', percentage: '' })
+                                    appendCapTable({
+                                      designation: '',
+                                      firstName: '',
+                                      percentage: '',
+                                    })
                                   }
                                 />
                               </div>
@@ -2493,7 +2856,6 @@ const VerticalNavTabs = () => {
                                   </div>
                                   <div className='text-base text-slate-600 dark:text-slate-50'>
                                     {founderInformationLoc?.founder_linkedin ||
-                                      user.linkedin_profile ||
                                       founderInformation?.founder_linkedin ||
                                       'Not provided'}
                                   </div>
@@ -2546,83 +2908,83 @@ const VerticalNavTabs = () => {
                               </li>
 
                               {/* Advisors Section */}
-                              {founderInformation?.advisors?.map(
-                                (advisor, index) => (
-                                  <li
-                                    key={index}
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:user-group' />
+                              {(
+                                founderInformationLoc?.advisors ||
+                                founderInformation?.advisors
+                              )?.map((advisor, index) => (
+                                <li
+                                  key={index}
+                                  className='flex space-x-3 rtl:space-x-reverse'
+                                >
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:user-group' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Advisor Name: ${
+                                        advisor.advisor_name || 'Not provided'
+                                      }`}
                                     </div>
-                                    <div className='flex-1'>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Advisor Name: ${
-                                          advisor.advisor_name || 'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Advisor Email: ${
-                                          advisor.advisor_email ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Advisor Mobile: ${
-                                          advisor.advisor_mobile ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Advisor LinkedIn: ${
-                                          advisor.advisor_linkedin ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Advisor Email: ${
+                                        advisor.advisor_email || 'Not provided'
+                                      }`}
                                     </div>
-                                  </li>
-                                )
-                              )}
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Advisor Mobile: ${
+                                        advisor.advisor_mobile || 'Not provided'
+                                      }`}
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Advisor LinkedIn: ${
+                                        advisor.advisor_linkedin ||
+                                        'Not provided'
+                                      }`}
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
 
                               {/* Co-Founders Section */}
-                              {founderInformation?.co_founders?.map(
-                                (coFounder, index) => (
-                                  <li
-                                    key={index}
-                                    className='flex space-x-3 rtl:space-x-reverse'
-                                  >
-                                    <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                                      <Icon icon='heroicons:user-group' />
+                              {(
+                                founderInformationLoc?.co_founders ||
+                                founderInformation?.co_founders
+                              )?.map((coFounder, index) => (
+                                <li
+                                  key={index}
+                                  className='flex space-x-3 rtl:space-x-reverse'
+                                >
+                                  <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                    <Icon icon='heroicons:user-group' />
+                                  </div>
+                                  <div className='flex-1'>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Co-Founder Name: ${
+                                        coFounder.co_founder_name ||
+                                        'Not provided'
+                                      }`}
                                     </div>
-                                    <div className='flex-1'>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Name: ${
-                                          coFounder.co_founder_name ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Email: ${
-                                          coFounder.co_founder_email ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder Mobile: ${
-                                          coFounder.co_founder_mobile ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
-                                      <div className='text-base text-slate-600 dark:text-slate-50'>
-                                        {`Co-Founder LinkedIn: ${
-                                          coFounder.co_founder_linkedin ||
-                                          'Not provided'
-                                        }`}
-                                      </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Co-Founder Email: ${
+                                        coFounder.co_founder_email ||
+                                        'Not provided'
+                                      }`}
                                     </div>
-                                  </li>
-                                )
-                              )}
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Co-Founder Mobile: ${
+                                        coFounder.co_founder_mobile ||
+                                        'Not provided'
+                                      }`}
+                                    </div>
+                                    <div className='text-base text-slate-600 dark:text-slate-50'>
+                                      {`Co-Founder LinkedIn: ${
+                                        coFounder.co_founder_linkedin ||
+                                        'Not provided'
+                                      }`}
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
 
                               <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
@@ -2642,7 +3004,10 @@ const VerticalNavTabs = () => {
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    View Agreement
+                                    {founderInformationLoc?.co_founder_agreement ||
+                                    founderInformation?.co_founder_agreement
+                                      ? 'View Technology Roadmap'
+                                      : 'Not provided'}
                                   </a>
                                 </div>
                               </li>
@@ -3428,7 +3793,7 @@ const VerticalNavTabs = () => {
                               </li>
 
                               {/* Render Previous Funding Information */}
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                              {/* <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:banknotes' />
                                 </div>
@@ -3464,8 +3829,81 @@ const VerticalNavTabs = () => {
                                     )}
                                   </div>
                                 </div>
-                              </li>
-                              <li className='flex space-x-3 rtl:space-x-reverse'>
+                              </li> */}
+                              <div className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:banknotes' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 leading-[12px] mb-4'>
+                                    PREVIOUS FUNDING INFORMATION
+                                  </div>
+                                  <div className='overflow-x-auto'>
+                                    <div className='inline-block min-w-full align-middle'>
+                                      <div className='overflow-hidden'>
+                                        <table className='min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700'>
+                                          <thead className='bg-slate-200 dark:bg-slate-700'>
+                                            <tr>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Investor Name
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Firm Name
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Investor Type
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Amount Raised
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                            {(
+                                              fundingInformationLoc?.previous_funding ||
+                                              fundingInformation?.previous_funding
+                                            )?.map((funding, index) => (
+                                              <tr key={index}>
+                                                <td className='table-td'>
+                                                  {funding.investorName ||
+                                                    'Not provided'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {funding.firmName ||
+                                                    'Not provided'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {funding.investorType ||
+                                                    'Not provided'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {funding.amountRaised
+                                                    ? `$${funding.amountRaised}`
+                                                    : 'Not provided'}
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* <li className='flex space-x-3 rtl:space-x-reverse'>
                                 <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
                                   <Icon icon='heroicons:document' />
                                 </div>
@@ -3495,7 +3933,69 @@ const VerticalNavTabs = () => {
                                     )}
                                   </div>
                                 </div>
-                              </li>
+                              </li> */}
+                              <div className='flex space-x-3 rtl:space-x-reverse'>
+                                <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                                  <Icon icon='heroicons:document' />
+                                </div>
+                                <div className='flex-1'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 leading-[12px] mb-3'>
+                                    CAP TABLE
+                                  </div>
+                                  <div className='overflow-x-auto'>
+                                    <div className='inline-block min-w-full align-middle'>
+                                      <div className='overflow-hidden'>
+                                        <table className='min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700'>
+                                          <thead className='bg-slate-200 dark:bg-slate-700'>
+                                            <tr>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Designation
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Name
+                                              </th>
+                                              <th
+                                                scope='col'
+                                                className='table-th'
+                                              >
+                                                Percentage
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                            {(
+                                              fundingInformationLoc?.cap_table ||
+                                              fundingInformation?.cap_table
+                                            )?.map((entry, index) => (
+                                              <tr key={index}>
+                                                <td className='table-td'>
+                                                  {entry.designation ||
+                                                    'Designation not specified'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {entry.firstName ||
+                                                    'Name not specified'}
+                                                </td>
+                                                <td className='table-td'>
+                                                  {entry.percentage
+                                                    ? `${entry.percentage}%`
+                                                    : 'Not provided'}
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             </>
                           )}
                         </ul>

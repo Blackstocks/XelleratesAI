@@ -8,6 +8,7 @@ import Loading from '@/components/Loading'; // Assume you have a Loading compone
 const DonutChart3 = ({ height = 200, colors = ['#0CE7FA', '#E2F6FD'] }) => {
   const [isDark] = useDarkMode();
   const { completionPercentage, loading } = useCompletionPercentage();
+  console.log(completionPercentage);
 
   if (loading) {
     return <Loading />; // Show loading component while loading

@@ -177,10 +177,12 @@ const CuratedDealflow = () => {
         <title>Curated Dealflow</title>
       </Head>
       <main className='container mx-auto p-4'>
-        <h1 className='text-3xl font-bold mb-4 text-center'>Curated Dealflow</h1>
+        <h1 className='text-3xl font-bold mb-4 text-center'>
+          Curated Dealflow
+        </h1>
         <p className='mb-6 text-center'>
-          Welcome to the Curated Dealflow page. Here you can find the latest deal
-          flow opportunities from around the world.
+          Welcome to the Curated Dealflow page. Here you can find the latest
+          deal flow opportunities from around the world.
         </p>
         <div className='flex flex-col lg:flex-row lg:items-center lg:space-x-4 mb-4'>
           <div className='mb-4 lg:mb-0'>
@@ -329,9 +331,9 @@ const CuratedDealflow = () => {
                           {(currentPage - 1) * itemsPerPage + index + 1}
                         </td>
                         <td className='py-2 px-4 border-b border-gray-300 text-sm flex items-center space-x-2'>
-                          {companyProfile?.company_logo ? (
+                          {user?.company_logo ? (
                             <img
-                              src={companyProfile.company_logo}
+                              src={user.company_logo}
                               alt={companyProfile.company_name}
                               className='w-10 h-10 object-contain rounded'
                             />
@@ -420,9 +422,9 @@ const CuratedDealflow = () => {
             {/* Left side */}
             <div className='flex-none lg:w-2/5 p-4 border-r border-gray-300 flex flex-col items-center'>
               <div className='mb-4 flex flex-col items-center'>
-                {selectedStartup.company_profile?.company_logo && (
+                {selectedStartup.user?.company_logo && (
                   <img
-                    src={selectedStartup.company_profile?.company_logo}
+                    src={selectedStartup.user?.company_logo}
                     alt={selectedStartup.company_profile?.company_name}
                     className='w-32 h-32 object-contain mb-4'
                   />

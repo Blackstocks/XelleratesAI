@@ -4,10 +4,21 @@ import { supabase } from '@/lib/supabaseclient';
 const useStartups = () => {
   const [startups, setStartups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [startupCount, setStartupCount] = useState(0); // State for the number of startups
 
   useEffect(() => {
     const fetchStartups = async () => {
       try {
+        // Fetch the count of startups from the company_profile table
+        const { count, error: countError } = await supabase
+          .from('company_profile')
+          .select('id', { count: 'exact' });
+
+        if (countError) throw countError;
+
+        setStartupCount(count);
+
+        // Fetch the startup details
         const { data, error } = await supabase
           .from('profiles')
           .select(
@@ -17,10 +28,10 @@ const useStartups = () => {
             email,
             mobile,
             user_type,
+            company_logo,
             company_profile (
-            id,
+              id,
               company_name,
-              company_logo,
               incorporation_date,
               country,
               state_city,
@@ -36,7 +47,7 @@ const useStartups = () => {
               media,
               social_media_handles,
               founder_information (
-              id,
+                id,
                 founder_name,
                 founder_email,
                 founder_mobile,
@@ -57,7 +68,7 @@ const useStartups = () => {
               funding_information(
                 total_funding_ask,
                 amount_committed,
-               cap_table,
+                cap_table,
                 government_grants,
                 equity_split,
                 fund_utilization,
@@ -116,7 +127,7 @@ const useStartups = () => {
     fetchStartups();
   }, []);
 
-  return { startups, loading };
+  return { startups, loading, startupCount };
 };
 
 export default useStartups;

@@ -1,16 +1,17 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "@/components/Modal";
 import { supabase } from "@/lib/supabaseclient";
+import useUserDetails from "@/hooks/useUserDetails";
 
 const AddDealflow = ({
   isOpen,
   onClose,
   onAddDealflow,
-  user,
   dealflowEntries,
   onUpdateDealflow,
 }) => {
+  const { user: currentUser } = useUserDetails();
   const [newDealflow, setNewDealflow] = useState({
     name: "",
     email: "",
@@ -22,11 +23,20 @@ const AddDealflow = ({
     company_name: "",
     typeof: "",
     Geography: "",
-    user_id: user.id,
+    user_id: currentUser?.id || "",
   });
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
+
+  useEffect(() => {
+    if (currentUser) {
+      setNewDealflow((prevDealflow) => ({
+        ...prevDealflow,
+        user_id: currentUser.id,
+      }));
+    }
+  }, [currentUser]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,7 +67,7 @@ const AddDealflow = ({
         company_name: "",
         typeof: "",
         Geography: "",
-        user_id: user.id,
+        user_id: currentUser.id,
       });
       setShowForm(false);
     } catch (error) {
@@ -87,7 +97,7 @@ const AddDealflow = ({
         company_name: "",
         typeof: "",
         Geography: "",
-        user_id: user.id,
+        user_id: currentUser.id,
       });
       setShowForm(false);
       setEditing(false);
@@ -116,7 +126,7 @@ const AddDealflow = ({
       company_name: "",
       typeof: "",
       Geography: "",
-      user_id: user.id,
+      user_id: currentUser.id,
     });
     setShowForm(false);
     setEditing(false);

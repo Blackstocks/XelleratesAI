@@ -5,19 +5,17 @@ import { Menu } from '@headlessui/react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const ProfileLabel = ({ user }) => {
-  const { companyProfile, investorSignup } = useCompleteUserDetails();
   return (
     <div className='flex items-center'>
       <div className='flex-1 ltr:mr-[10px] rtl:ml-[10px]'>
         <div className='lg:h-8 lg:w-8 h-7 w-7 rounded-full'>
           {user?.user_type === 'startup' ? (
             <div>
-              {companyProfile?.company_logo ? (
+              {user?.company_logo ? (
                 <img
-                  src={companyProfile.company_logo}
+                  src={user.company_logo}
                   alt='Company Logo'
                   className='w-full h-full object-cover rounded-full'
                 />
@@ -31,9 +29,9 @@ const ProfileLabel = ({ user }) => {
             </div>
           ) : (
             <div>
-              {investorSignup?.profile_photo ? (
+              {user?.company_logo ? (
                 <img
-                  src={investorSignup.profile_photo}
+                  src={user.company_logo}
                   alt='Company Logo'
                   className='w-full h-full object-cover rounded-full'
                 />

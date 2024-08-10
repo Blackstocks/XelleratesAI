@@ -8,7 +8,7 @@ import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';
 
 const Tools = () => {
-  const { user, details, loading } = useUserDetails();
+  const { user, loading } = useUserDetails();
   const [companyName, setCompanyName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 

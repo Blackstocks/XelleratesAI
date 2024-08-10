@@ -1,100 +1,60 @@
-import ProgressBar from "@/components/ui/ProgressBar";
+import React from 'react';
+import useHotDeals from '@/hooks/useHotDeals';
 
 const Customer = () => {
-  const customers = [
-    {
-      title: "Nicole Kidman",
-      img: "/assets/images/all-img/cus-1.png",
-      value: 70,
-      bg: "before:bg-info-500",
-      barColor: "bg-info-500",
-      number: 2,
-    },
-    {
-      title: "Monica Bellucci",
-      img: "/assets/images/all-img/cus-2.png",
-      value: 80,
-      bg: "before:bg-warning-500",
-      barColor: "bg-warning-500",
-      active: true,
-      number: 1,
-    },
-    {
-      title: "Pamela Anderson",
-      img: "/assets/images/all-img/cus-3.png",
-      value: 65,
-      bg: "before:bg-success-500",
-      barColor: "bg-success-500",
-      number: 3,
-    },
-  ];
-  const customers2 = [
-    {
-      title: "Dianne Russell",
-      img: "/assets/images/users/user-1.jpg",
-      value: 60,
-      bg: "before:bg-info-500",
-      barColor: "bg-info-500",
-      number: 4,
-    },
-    {
-      title: "Robert De Niro",
-      img: "/assets/images/users/user-2.jpg",
-      value: 50,
-      bg: "before:bg-warning-500",
-      barColor: "bg-warning-500",
+  const { hotDeals, loading, error } = useHotDeals();
 
-      number: 5,
-    },
-    {
-      title: "De Niro",
-      img: "/assets/images/users/user-3.jpg",
-      value: 60,
-      bg: "before:bg-warning-500",
-      barColor: "bg-warning-500",
+  if (loading) return <p>Loading...</p>;
+  if (error)
+    return <p>Error: {error.message || 'An unexpected error occurred.'}</p>;
 
-      number: 6,
-    },
-  ];
   return (
-    <div className="pb-2">
-      <div className="grid md:grid-cols-3 grid-cols-1 gap-5">
-        {customers.map((item, i) => (
+    <div className='pb-2'>
+      <h6 className="ml-6 mb-4 text-center">Hot Deals</h6>
+      <div className='grid md:grid-cols-3 grid-cols-1 gap-5'>
+        {hotDeals.map((item, i) => (
           <div
             key={i}
-            className={` relative z-[1] text-center p-4 rounded before:w-full before:h-[calc(100%-60px)] before:absolute before:left-0 before:top-[60px] before:rounded before:z-[-1] before:bg-opacity-[0.1] ${item.bg}`}
+            className={`relative z-[1] text-center p-6 rounded before:w-full before:h-[calc(100%-60px)] before:absolute before:left-0 before:top-[60px] before:rounded before:z-[-1] before:bg-opacity-[0.1] ${
+              item.bg || 'before:bg-info-500'
+            }`}
           >
             <div
               className={`${
-                item.active ? "ring-2 ring-[#FFC155]" : ""
+                item.rank === 1 ? 'ring-2 ring-[#FFC155]' : ''
               } h-[70px] w-[70px] rounded-full mx-auto mb-4 relative`}
             >
-              {item.active && (
-                <span className="crown absolute -top-[24px] left-1/2 -translate-x-1/2">
-                  <img src="/assets/images/icon/crown.svg" alt="" />
+              {item.rank === 1 && (
+                <span className='crown absolute -top-[24px] left-1/2 -translate-x-1/2'>
+                  <img src='/assets/images/icon/crown.svg' alt='Crown' />
                 </span>
               )}
               <img
-                src={item.img}
-                alt=""
-                className="w-full h-full rounded-full"
+                src={item.companyLogo || '/assets/images/default-logo.png'} // Fallback to default logo
+                alt={item.companyName || 'Company Logo'} // Fallback to 'Company Logo'
+                className='w-full h-full rounded-full object-cover'
               />
-              <span className="h-[27px] w-[27px] absolute right-0 bottom-0 rounded-full bg-[#FFC155] border border-white flex flex-col items-center justify-center text-white text-xs font-medium">
-                {item.number}
+              <span className='h-[27px] w-[27px] absolute right-0 bottom-0 rounded-full bg-[#FFC155] border border-white flex flex-col items-center justify-center text-white text-xs font-medium'>
+                {item.rank}
               </span>
             </div>
-            <h4 className="text-sm text-slate-600 font-semibold mb-4">
-              {item.title}
+            <h4 className='text-sm text-slate-600 font-semibold mb-4'>
+              {item.companyName || 'Unnamed Company'}
             </h4>
-            <div className="inline-block bg-slate-900 text-white px-[10px] py-[6px] text-xs font-medium rounded-full min-w-[60px]">
-              {item.value}
+            <div className='flex justify-center bg-slate-900 text-white px-[10px] py-[6px] text-xs font-medium rounded-full min-w-[60px] mt-2'>
+              {item.founderName || 'Unknown Founder'}
             </div>
+
             <div>
-              <div className="flex justify-between text-sm font-normal dark:text-slate-300 mb-3 mt-4">
+              {/* Uncomment and implement the ProgressBar component if needed */}
+              {/* <div className='flex justify-between text-sm font-normal dark:text-slate-300 mb-3 mt-4'>
                 <span>Progress</span>
-                <span className="font-normal">{item.value}%</span>
+                <span className='font-normal'>{item.value || 0}%</span>
               </div>
-              <ProgressBar value={item.value} className={item.barColor} />
+              <ProgressBar
+                value={item.value || 0}
+                className={item.barColor || 'bg-info-500'}
+              /> */}
             </div>
           </div>
         ))}

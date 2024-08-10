@@ -1,24 +1,24 @@
 import useUserDetails from '@/hooks/useUserDetails';
-import React, { useState, useEffect } from "react";
-import ComingSoonModal from "@/components/ComingSoonModal";
+import React, { useState, useEffect } from 'react';
+import ComingSoonModal from '@/components/ComingSoonModal';
 
 const ImageBlock2 = () => {
-  const { user, details, loading } = useUserDetails();
+  const { user, loading } = useUserDetails();
   const [value, setValue] = useState({
     startDate: new Date(),
     endDate: new Date().setMonth(11),
   });
-  const [greeting, setGreeting] = useState("Good evening");
+  const [greeting, setGreeting] = useState('Good evening');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const currentHour = new Date().getHours();
     if (currentHour < 12) {
-      setGreeting("Good Morning");
+      setGreeting('Good Morning');
     } else if (currentHour < 18) {
-      setGreeting("Good Afternoon");
+      setGreeting('Good Afternoon');
     } else {
-      setGreeting("Good Evening");
+      setGreeting('Good Evening');
     }
   }, []);
 
@@ -38,7 +38,9 @@ const ImageBlock2 = () => {
           <span className='block font-normal'>{greeting},</span>
           <span className='block'>{user?.name}</span>
         </h4>
-        <p className='text-sm text-white font-normal'>Welcome to Xellerates AI</p>
+        <p className='text-sm text-white font-normal'>
+          Welcome to Xellerates AI
+        </p>
       </div>
     </div>
   );
