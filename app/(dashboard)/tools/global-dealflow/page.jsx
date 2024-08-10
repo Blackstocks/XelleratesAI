@@ -310,6 +310,7 @@ const CuratedDealflow = () => {
                 <tbody>
                   {currentStartups.map((startup, index) => {
                     const companyProfile = startup.company_profile;
+                    const company_logos = startup?.company_logo;
                     const founderInfo = companyProfile?.founder_information;
                     const businessDetails =
                       companyProfile?.business_details?.[0];
@@ -331,10 +332,10 @@ const CuratedDealflow = () => {
                           {(currentPage - 1) * itemsPerPage + index + 1}
                         </td>
                         <td className='py-2 px-4 border-b border-gray-300 text-sm flex items-center space-x-2'>
-                          {user?.company_logo ? (
+                          {company_logos ? (
                             <img
-                              src={user.company_logo}
-                              alt={companyProfile.company_name}
+                              src={company_logos}
+                              alt={companyProfile?.company_name}
                               className='w-10 h-10 object-contain rounded'
                             />
                           ) : (
@@ -342,6 +343,7 @@ const CuratedDealflow = () => {
                               N/A
                             </div>
                           )}
+
                           <div>
                             <span className='text-black-500 hover:underline cursor-pointer'>
                               {companyProfile?.company_name || 'N/A'}
@@ -362,6 +364,7 @@ const CuratedDealflow = () => {
                             </p>
                           </div>
                         </td>
+
                         <td className='py-2 px-4 border-b border-gray-300 text-sm'>
                           {founderInfo?.founder_name || 'N/A'}
                         </td>
@@ -422,9 +425,9 @@ const CuratedDealflow = () => {
             {/* Left side */}
             <div className='flex-none lg:w-2/5 p-4 border-r border-gray-300 flex flex-col items-center'>
               <div className='mb-4 flex flex-col items-center'>
-                {selectedStartup.user?.company_logo && (
+                {selectedStartup?.company_logo && (
                   <img
-                    src={selectedStartup.user?.company_logo}
+                    src={selectedStartup?.company_logo}
                     alt={selectedStartup.company_profile?.company_name}
                     className='w-32 h-32 object-contain mb-4'
                   />
