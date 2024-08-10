@@ -667,6 +667,7 @@ const VerticalNavTabs = () => {
             state_city: data.state_city || null,
             office_address: data.office_address || null,
             company_website: data.company_website || null,
+            linkedin_profile: data.linkedin_profile || null,
             short_description: data.short_description || null,
             target_audience: data.target_audience || null,
             industry_sector: data.industry_sector || null,
@@ -1094,8 +1095,8 @@ const VerticalNavTabs = () => {
                               label='Office Address'
                               name='office_address'
                               defaultValue={
-                                companyProfile?.office_address ||
-                                companyProfileLoc?.office_address
+                                companyProfileLoc?.office_address ||
+                                companyProfile?.office_address
                               }
                               placeholder='Enter the office address'
                               register={register}
@@ -3834,7 +3835,7 @@ const VerticalNavTabs = () => {
                                   <Icon icon='heroicons:banknotes' />
                                 </div>
                                 <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px] mb-4'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 leading-[12px] mb-4'>
                                     PREVIOUS FUNDING INFORMATION
                                   </div>
                                   <div className='overflow-x-auto'>
@@ -3938,7 +3939,7 @@ const VerticalNavTabs = () => {
                                   <Icon icon='heroicons:document' />
                                 </div>
                                 <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px] mb-3'>
+                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 leading-[12px] mb-3'>
                                     CAP TABLE
                                   </div>
                                   <div className='overflow-x-auto'>
