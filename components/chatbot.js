@@ -78,6 +78,41 @@ const Chatbot = () => {
     }
   };
 
+
+  const TypingIndicator = () => (
+    <div className="typing-indicator">
+      <span>.</span>
+      <span>.</span>
+      <span>.</span>
+      <style jsx>{`
+        .typing-indicator {
+          display: inline-block;
+          font-size: 18px;
+          line-height: 18px;
+          color: #333;
+          opacity: 0.75;
+          animation: typing 1s steps(3, end) infinite;
+        }
+  
+        .typing-indicator span {
+          animation: blink 1.4s infinite both;
+        }
+  
+        @keyframes typing {
+          from { width: 0; }
+          to { width: 3em; }
+        }
+  
+        @keyframes blink {
+          0% { opacity: 0.2; }
+          20% { opacity: 1; }
+          100% { opacity: 0.2; }
+        }
+      `}</style>
+    </div>
+  );
+  
+
   const sendMessage = async (inputMessage) => {
     if (!inputMessage || typeof inputMessage !== 'string') {
       return; // Avoid processing if there is no valid input message
@@ -161,18 +196,6 @@ const Chatbot = () => {
     }
   };
   
-  
-    
-
-  
-  
-  
-  
-
-  
-
-  
-
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       sendMessage(message);
@@ -195,58 +218,97 @@ const Chatbot = () => {
         );
       case "messages":
         return (
-
-
           <div className="chatbot-messages">
-  {chatHistory.map((msg, index) => (
-    <div
-      key={index}
-      style={{
-        display: 'flex',
-        justifyContent: msg.role === "user" ? 'flex-end' : 'flex-start',
-        marginBottom: '10px',
-        width: '100%'
-      }}
-    >
-      {msg.parts.map((part, partIndex) => (
-        <div 
-          key={partIndex} 
-          style={{
-            padding: '12px 18px',
-            borderRadius: '20px',
-            maxWidth: '75%',
-            wordBreak: 'break-word',
-            fontSize: '14px',
-            backgroundColor: msg.role === "user" ? '#4a90e2' : '#f7f7f7',
-            color: msg.role === "user" ? '#fff' : '#333',
-          }}
-        >
-          {part.text}
-        </div>
-      ))}
+            {chatHistory.map((msg, index) => (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  justifyContent: msg.role === "user" ? 'flex-end' : 'flex-start',
+                  marginBottom: '10px',
+                  width: '100%'
+                }}
+              >
+                {msg.parts.map((part, partIndex) => (
+                  <div
+                    key={partIndex}
+                    style={{
+                      padding: '12px 18px',
+                      borderRadius: '20px',
+                      maxWidth: '75%',
+                      wordBreak: 'break-word',
+                      fontSize: '14px',
+                      backgroundColor: msg.role === "user" ? '#4a90e2' : '#f7f7f7',
+                      color: msg.role === "user" ? '#fff' : '#333',
+                    }}
+                  >
+                    {part.text}
+                  </div>
+                ))}
+              </div>
+            ))}
+            {isTyping && (
+  <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', width: '100%' }}>
+    <div style={{
+      padding: '12px 18px',
+      borderRadius: '20px',
+      maxWidth: '75%',
+      wordBreak: 'break-word',
+      fontSize: '14px',
+      backgroundColor: '#f7f7f7',
+      color: '#333',
+      display: 'flex',
+      alignItems: 'center'
+    }}>
+      <span style={{
+        width: '6px',
+        height: '6px',
+        margin: '0 1.5px',
+        backgroundColor: "rgb(78 78 78)",
+        borderRadius: '50%',
+        display: 'inline-block',
+        animation: 'bounce 1.2s infinite ease-in-out',
+        animationDelay: '0s',
+      }}></span>
+      <span style={{
+        width: '6px',
+        height: '6px',
+        margin: '0 1.5px',
+        backgroundColor: 'rgb(78 78 78)',
+        borderRadius: '50%',
+        display: 'inline-block',
+        animation: 'bounce 1.2s infinite ease-in-out',
+        animationDelay: '-0.16s'
+      }}></span>
+      <span style={{
+        width: '6px',
+        height: '6px',
+        margin: '0 1.5px',
+        backgroundColor: 'rgb(78 78 78)',
+        borderRadius: '50%',
+        display: 'inline-block',
+        animation: 'bounce 1.2s infinite ease-in-out',
+        animationDelay: '-0.32s'
+      }}></span>
     </div>
-  ))}
-  {isTyping && (
-    <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', width: '100%' }}>
-      <div style={{
-        padding: '12px 18px',
-        borderRadius: '20px',
-        maxWidth: '75%',
-        wordBreak: 'break-word',
-        fontSize: '14px',
-        backgroundColor: '#f7f7f7',
-        color: '#333',
-      }}>
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-  )}
-  <div ref={messageEndRef} />
-</div>
+  </div>
+)}
 
+<style>
+{`
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+`}
+</style>
 
+            <div ref={messageEndRef} />
+          </div>
         );
       case "help":
         return <HelpContent />;
@@ -258,6 +320,7 @@ const Chatbot = () => {
         );
     }
   };
+  
   
 
   return (
