@@ -147,10 +147,10 @@ const Chatbot = () => {
           break;
         case "waitingForInvestorOrStartup":
           if (inputMessage.toLowerCase() === "investor") {
-            botResponseText = "Are you a VC, angel investor, etc.?";
+            botResponseText = "Are you? <br>• Venture Capital<br>• Angel Investor<br>• Family Office<br>• Angel Network<br>• Angel Fund";
             setStage("waitingForInvestorType");
           } else if (inputMessage.toLowerCase() === "startup") {
-            botResponseText = "Which stage is your startup in? A, B, C, Alpha, Beta, etc.";
+            botResponseText = "Which stage is your startup in?<br>• Bootstrapped<br>• Pre-Seed<br>• Seed<br>• Pre-Series A<br>• Series A<br>• Series B<br>• Series C & beyond";
             setStage("waitingForStartupStage");
           } else {
             botResponseText = "Please specify if you are an investor or a startup.";
@@ -241,8 +241,9 @@ const Chatbot = () => {
                       backgroundColor: msg.role === "user" ? '#4a90e2' : '#f7f7f7',
                       color: msg.role === "user" ? '#fff' : '#333',
                     }}
+                    dangerouslySetInnerHTML={{ __html: part.text }}
                   >
-                    {part.text}
+                    {/* {part.text} */}
                   </div>
                 ))}
               </div>
