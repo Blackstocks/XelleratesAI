@@ -7,6 +7,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import CountUp from "react-countup";
+import axios from "axios"; // Axios for making API requests
+import { v4 as uuidv4 } from "uuid"; // To generate unique transaction and consent IDs
+
 
 const Equity = () => {
   const [user, setUser] = useState(null);
@@ -28,6 +31,13 @@ const Equity = () => {
   const [tenure, setTenure] = useState("");
   const [collateral, setCollateral] = useState("No");
   const [isCalculated, setIsCalculated] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState("");
+  const [txnId, setTxnId] = useState(uuidv4()); // Generate unique transaction ID
+  const [consentId, setConsentId] = useState(uuidv4()); // Generate unique consent ID
+
+
   const router = useRouter();
 
   useEffect(() => {
@@ -52,6 +62,90 @@ const Equity = () => {
 
     setUser(user);
     console.log("User found:", user);
+  };
+
+  const validatePanCard = async () => {
+    try {
+      // Ensure all required fields are filled
+      if (!panCard || !fullName || !dob || !gender) {
+        alert("Please fill in all the details.");
+        return;
+      }
+
+      // API Request Body
+      const requestBody = {
+        txnId, // Transaction ID
+        format: "xml", // Format can be xml, pdf, or json
+        certificateParameters: {
+          panno: panCard, // PAN number
+          UID: "123412341234", // Aadhaar or unique ID, optional if not required
+          FullName: fullName, // Full name of the person
+          DOB: dob, // Date of birth in DD-MM-YYYY format
+          GENDER: gender, // Gender
+        },
+        consentArtifact: {
+          consent: {
+            consentId, // Unique consent ID
+            timestamp: new Date().toISOString(), // Current timestamp
+            dataConsumer: {
+              id: "XelleratesAI", // Your App ID or Identifier
+            },
+            dataProvider: {
+              id: "IncomeTaxDept", // Example provider ID
+            },
+            purpose: {
+              description: "PAN Verification", // Purpose of this request
+            },
+            user: {
+              idType: "Aadhaar", // ID Type, can be Aadhaar or any other valid type
+              idNumber: "123412341234", // Example Aadhaar number, optional if not required
+              mobile: "9876543210", // Example mobile number, optional if not required
+              email: "example@example.com", // Example email, optional if not required
+            },
+            data: {
+              id: "PAN", // Data ID for PAN
+            },
+            permission: {
+              access: "read", // Access type
+              dateRange: {
+                from: new Date().toISOString(), // Start date
+                to: new Date().toISOString(), // End date
+              },
+              frequency: {
+                unit: "once", // Frequency of access
+                value: 1, // Value
+                repeats: 0, // Repeats
+              },
+            },
+          },
+          signature: {
+            signature: "string", // Digital signature if required
+          },
+        },
+      };
+
+      // API Request
+      const response = await axios.post(
+        "https://apisetu.gov.in/certificate/v3/pan/pancr", // API endpoint
+        requestBody,
+        {
+          headers: {
+            "x-api-key": "IFA6bXScwchj5cb0ZU0NyVWNBGlw4mfb", // Your API Key
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.status) {
+        alert("PAN Verified Successfully");
+        // Here you can proceed with further steps, such as updating the PAN in Supabase
+      } else {
+        alert("Invalid PAN Card Details");
+      }
+    } catch (error) {
+      console.error("Error verifying PAN card:", error);
+      alert("An error occurred during PAN verification. Please try again.");
+    }
   };
 
   const checkProfileCompletion = async () => {
@@ -101,6 +195,10 @@ const Equity = () => {
   const handlePanSubmit = async () => {
     if (user && panCard) {
       console.log("Submitting PAN card:", panCard);
+
+      await validatePanCard(); // Validate the PAN card using API Setu
+
+      // If verified, update the PAN card in Supabase
       const { error } = await supabase
         .from("profiles")
         .update({ pan_number: panCard })
@@ -514,7 +612,7 @@ const Equity = () => {
         </div>
       )}
 
-      {showUnlockCapitalModal && (
+{showUnlockCapitalModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
           <div className="relative bg-[#1a235e] text-white p-8 rounded shadow-lg w-3/4 md:w-1/2 lg:w-1/3">
             <button
@@ -544,49 +642,49 @@ const Equity = () => {
                 <label className="block text-white text-base">Enter Company PAN</label>
                 <input
                   type="text"
+                  value={panCard}
+                  onChange={(e) => setPanCard(e.target.value)}
                   className="border border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-white text-base">
-                  Enter Required Amount
-                </label>
+                <label className="block text-white text-base">Full Name</label>
                 <input
                   type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="border border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-white text-base">
-                  Upload Company PAN
-                </label>
+                <label className="block text-white text-base">Date of Birth</label>
                 <input
-                  type="file"
+                  type="text"
+                  placeholder="DD-MM-YYYY"
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
                   className="border border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="mt-4">
-                <h3 className="text-base font-semibold mb-2 text-white text-center">
-                  Tentative Timeline
-                </h3>
-                <div className="flex justify-center gap-4">
-                  <button className="px-4 py-2 bg-blue-500 text-white rounded shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    Immediately
-                  </button>
-                  <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
-                    Within 1 month
-                  </button>
-                  <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
-                    Within 3 months
-                  </button>
-                </div>
+              <div>
+                <label className="block text-white text-base">Gender</label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="border border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
-              <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                Analyzing Your Profile
+              <button
+                onClick={handlePanSubmit}
+                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Verify PAN Card
               </button>
-              <p className="mt-4 text-white text-center">
-                Currently we only facilitate debt funding for PVT LTD co.
-              </p>
             </div>
           </div>
         </div>
