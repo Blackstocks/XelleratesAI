@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ComingSoonModal from "@/components/ComingSoonModal";
-import ImageBlock2 from "@/components/partials/widget/block/image-block-2";
+import GetStartupInsightsModal from "@/components/GetStartupInsights"; // Adjust import as needed
 
 const HomeBredCurbs = ({ title, companyName, userType }) => {
   const [value, setValue] = useState({
@@ -11,6 +11,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   });
   const [greeting, setGreeting] = useState("Good evening");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null); // Added state to determine which modal to open
 
   useEffect(() => {
     const currentHour = new Date().getHours();
@@ -27,12 +28,14 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     setValue(newValue);
   };
 
-  const handleImageClick = () => {
+  const handleImageClick = (type) => {
+    setModalType(type); // Set the type of the modal to open
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setModalType(null); // Reset modal type when closing
   };
 
   return (
@@ -70,13 +73,13 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
                 src="/assets/images/dashboard/investment-readiness.png"
                 alt="Investment Readiness"
                 className="block dark:hidden w-50% h-auto cursor-pointer"
-                onClick={handleImageClick}
+                onClick={() => handleImageClick('investment')}
               />
               <img
                 src="/assets/images/dashboard/investment-redinessdark.png"
                 alt="Investment Readiness Dark"
                 className="hidden dark:block w-50% h-auto cursor-pointer"
-                onClick={handleImageClick}
+                onClick={() => handleImageClick('investment')}
               />
             </>
           ) : (
@@ -84,21 +87,27 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
               <img
                 src="/assets/images/dashboard/latest-insight.png"
                 alt="Latest Insight"
-                className="block dark:hidden w-full h-auto"
-                onClick={handleImageClick}
+                className="block dark:hidden w-full h-auto cursor-pointer"
+                onClick={() => handleImageClick('insight')}
               />
               <img
                 src="/assets/images/dashboard/latest-insightdark.png"
                 alt="Latest Insight Dark"
-                className="hidden dark:block w-full h-auto"
-                onClick={handleImageClick}
+                className="hidden dark:block w-full h-auto cursor-pointer"
+                onClick={() => handleImageClick('insight')}
               />
             </>
           )}
         </div>
       </div>
 
-      <ComingSoonModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      {isModalOpen && modalType === 'insight' && (
+        <GetStartupInsightsModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      )}
+      {isModalOpen && modalType === 'investment' && (
+        <ComingSoonModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      )}
+
       <ToastContainer />
 
       <style jsx>{`
