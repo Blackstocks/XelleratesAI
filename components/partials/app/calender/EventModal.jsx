@@ -18,23 +18,15 @@ const EventModal = ({ activeModal, onClose, selectedEvent }) => {
 
   useEffect(() => {
     if (selectedEvent) {
-      setStartDate(selectedEvent.date);
-      setEndDate(selectedEvent.date);
+      setStartDate(selectedEvent.start);
+      setEndDate(selectedEvent.end || selectedEvent.start);
     }
   }, [selectedEvent]);
 
   const FormValidationSchema = yup
     .object({
       title: yup.string().required('Event Name is required'),
-      cata: yup
-        .string()
-        // .when("title", {
-        //   is: (title) => title.length > 0,
-        //   then: yup.string().required("Category is required"),
-
-        //   otherwise: yup.string().notRequired(),
-        // })
-        .required('Category is required'),
+      cata: yup.string().required('Category is required'),
     })
     .required();
 
@@ -51,10 +43,10 @@ const EventModal = ({ activeModal, onClose, selectedEvent }) => {
 
   const onSubmit = (data) => {
     dispatch(dateClick({ data, selectedEvent, startDate, endDate }));
-
     onClose();
     reset();
   };
+
   return (
     <div>
       <Modal
@@ -63,75 +55,117 @@ const EventModal = ({ activeModal, onClose, selectedEvent }) => {
         activeModal={activeModal}
         onClose={onClose}
       >
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 '>
-          <Textinput
-            name='title'
-            label='Event Name'
-            type='text'
-            placeholder='Enter Event Name'
-            register={register}
-            error={errors.title}
-          />
-          <FormGroup
-            label='Start Date'
-            id='default-picker'
-            error={errors.startDate}
-          >
-            <Controller
-              name='startDate'
-              control={control}
-              render={({ field }) => (
-                <Flatpickr
-                  className='form-control py-2'
-                  id='default-picker'
-                  placeholder='yyyy, dd M'
-                  value={startDate}
-                  onChange={(date) => setStartDate(date[0])}
-                  options={{
-                    altInput: true,
-                    altFormat: 'F j, Y',
-                    dateFormat: 'Y-m-d',
-                  }}
-                />
+        {selectedEvent ? (
+          <div className='space-y-4'>
+            {/* Display event details */}
+            <div>
+              <h5>Event Details</h5>
+              <p>
+                <strong>Event Name:</strong> {selectedEvent?.event?.title}
+              </p>
+              <p>
+                <strong>Start Date:</strong>{' '}
+                {new Date(selectedEvent?.event?.start).toLocaleString()}
+              </p>
+              <p>
+                <strong>End Date:</strong>{' '}
+                {selectedEvent.end
+                  ? new Date(selectedEvent?.event?.end).toLocaleString()
+                  : 'N/A'}
+              </p>
+              <p>
+                <strong>Description:</strong>{' '}
+                {selectedEvent?.event?.extendedProps?.description ||
+                  'No description provided'}
+              </p>
+              {selectedEvent.extendedProps?.zoomLink && (
+                <p>
+                  <strong>Zoom Link:</strong>{' '}
+                  <a
+                    href={selectedEvent?.event?.extendedProps.zoomLink}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    Join Meeting
+                  </a>
+                </p>
               )}
-            />
-          </FormGroup>
-          <FormGroup
-            label='End Date'
-            id='default-picker2'
-            error={errors.endDate}
-          >
-            <Controller
-              name='endDate'
-              control={control}
-              render={({ field }) => (
-                <Flatpickr
-                  className='form-control py-2'
-                  id='default-picker2'
-                  placeholder='yyyy, dd M'
-                  value={endDate}
-                  onChange={(date) => setEndDate(date[0])}
-                  options={{
-                    altInput: true,
-                    altFormat: 'F j, Y',
-                    dateFormat: 'Y-m-d',
-                  }}
-                />
-              )}
-            />
-          </FormGroup>
+            </div>
 
-          <CustomSelect
-            label='Basic Select'
-            options={categories}
-            register={register}
-            error={errors.cata}
-            name='cata'
-          />
-          <div className='ltr:text-right rtl:text-left'>
-            <button className='btn btn-dark  text-center'>Submit</button>
+            {/* Event editing form */}
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+              <Textinput
+                name='title'
+                label='Event Name'
+                type='text'
+                placeholder='Enter Event Name'
+                register={register}
+                error={errors.title}
+              />
+              <FormGroup
+                label='Start Date'
+                id='default-picker'
+                error={errors.startDate}
+              >
+                <Controller
+                  name='startDate'
+                  control={control}
+                  render={({ field }) => (
+                    <Flatpickr
+                      className='form-control py-2'
+                      id='default-picker'
+                      placeholder='yyyy, dd M'
+                      value={startDate}
+                      onChange={(date) => setStartDate(date[0])}
+                      options={{
+                        altInput: true,
+                        altFormat: 'F j, Y',
+                        dateFormat: 'Y-m-d',
+                      }}
+                    />
+                  )}
+                />
+              </FormGroup>
+              <FormGroup
+                label='End Date'
+                id='default-picker2'
+                error={errors.endDate}
+              >
+                <Controller
+                  name='endDate'
+                  control={control}
+                  render={({ field }) => (
+                    <Flatpickr
+                      className='form-control py-2'
+                      id='default-picker2'
+                      placeholder='yyyy, dd M'
+                      value={endDate}
+                      onChange={(date) => setEndDate(date[0])}
+                      options={{
+                        altInput: true,
+                        altFormat: 'F j, Y',
+                        dateFormat: 'Y-m-d',
+                      }}
+                    />
+                  )}
+                />
+              </FormGroup>
+
+              <CustomSelect
+                label='Basic Select'
+                options={categories}
+                register={register}
+                error={errors.cata}
+                name='cata'
+              />
+              <div className='ltr:text-right rtl:text-left'>
+                <button className='btn btn-dark text-center'>Submit</button>
+              </div>
+            </form>
           </div>
-        </form>
+        ) : (
+          <p>No event selected</p>
+        )}
       </Modal>
     </div>
   );

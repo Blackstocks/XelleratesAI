@@ -9,8 +9,10 @@ import Card from '@/components/ui/Card';
 import EventModal from '@/components/partials/app/calender/EventModal';
 import EditEventModal from '@/components/partials/app/calender/EditEventModal';
 import { supabase } from '@/lib/supabaseclient';
-import Loading from '@/components/Loading'; // Assuming you have a Loading component
+import Loading from '@/components/Loading';
 import Chatbot from '@/components/chatbot';
+import useUserDetails from '@/hooks/useUserDetails';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const CalenderPage = () => {
   const { calendarEvents, categories } = useSelector((state) => state.calendar);
@@ -21,10 +23,27 @@ const CalenderPage = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Get the user details including the ID and company profile
+  const { user } = useUserDetails();
+  const { companyProfile } = useCompleteUserDetails();
+
+  // console.log(companyProfile);
+
   useEffect(() => {
+    if (!user) return; // Wait until user is loaded
+
     const fetchEvents = async () => {
       setLoading(true); // Start loading
-      const { data, error } = await supabase.from('events').select('*');
+
+      // Determine the ID to use based on user type
+      const userId =
+        user.user_type === 'startup' ? companyProfile?.id : user?.id;
+
+      // Fetch events where userId matches the receiver_id or sender_id
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .or(`receiver_id.eq.${userId},sender_id.eq.${userId}`);
 
       if (error) {
         console.error('Error fetching events:', error);
@@ -34,7 +53,12 @@ const CalenderPage = () => {
           id: event.id,
           title: event.name,
           start: event.date,
-          description: event.details,
+          description: `${event.details} \nZoom Link: ${
+            event.zoom_link || 'No Zoom link available'
+          }`,
+          extendedProps: {
+            zoomLink: event.zoom_link, // Store Zoom link in extended properties if needed
+          },
         }));
         setEvents(formattedEvents);
       }
@@ -42,7 +66,7 @@ const CalenderPage = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [user, companyProfile]); // Re-run when user or companyProfile changes
 
   const handleDateClick = (arg) => {
     setActiveModal(true);
@@ -50,8 +74,8 @@ const CalenderPage = () => {
   };
 
   const handleEventClick = (arg) => {
-    setEditModal(true);
-    setEditItem(arg);
+    setActiveModal(true);
+    setSelectedEvent(arg);
   };
 
   const handleClassName = (arg) => {
@@ -108,6 +132,7 @@ const CalenderPage = () => {
         <Chatbot />
       </div>
 
+      {/* Modals for viewing and editing events */}
       <EventModal
         activeModal={activeModal}
         onClose={() => setActiveModal(false)}
@@ -118,7 +143,6 @@ const CalenderPage = () => {
         onCloseEditModal={() => setEditModal(false)}
         editItem={editItem}
       />
-     
     </div>
   );
 };

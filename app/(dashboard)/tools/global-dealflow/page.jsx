@@ -311,14 +311,19 @@ const CuratedDealflow = () => {
                       Previous Funding
                     </th>
                   </tr>
+                  <tr>
+                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
+                      Status
+                    </th>
+                    {/* Other headers */}
+                  </tr>
                 </thead>
                 <tbody>
                   {currentStartups.map((startup, index) => {
                     const companyProfile = startup.company_profile;
                     const company_logos = startup?.company_logo;
                     const founderInfo = companyProfile?.founder_information;
-                    const businessDetails =
-                      companyProfile?.business_details?.[0];
+
                     const fundingInformation =
                       companyProfile?.funding_information?.[0];
                     const companyDocuments = companyProfile?.company_documents;
@@ -394,6 +399,20 @@ const CuratedDealflow = () => {
                           {fundingInformation?.total_funding_ask
                             ? 'Funded'
                             : 'Not Funded'}
+                        </td>
+                        <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                          <select
+                            value={status}
+                            onChange={(e) => handleStatusChange(e.target.value)}
+                            className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
+                          >
+                            <option value='evaluated'>Evaluated</option>
+                            <option value='meeting_done'>Meeting Done</option>
+                            <option value='moving_forward'>
+                              Moving Forward
+                            </option>
+                            <option value='rejected'>Rejected</option>
+                          </select>
                         </td>
                       </tr>
                     );

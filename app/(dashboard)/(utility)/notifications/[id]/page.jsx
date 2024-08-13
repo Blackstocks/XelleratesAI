@@ -44,8 +44,36 @@ const NotificationDetail = () => {
     setIsSubmitting(true);
 
     const updateData = { notification_status: status };
+    let zoomMeetingLink = '';
+
     if (status === 'accepted' && selectedSlot) {
-      updateData.accepted_time_slot = selectedSlot;
+      // Call backend API to create Zoom meeting
+      try {
+        const response = await fetch('/api/createZoomMeeting', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ timeSlot: selectedSlot }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          zoomMeetingLink = data.meetingLink;
+          updateData.accepted_time_slot = selectedSlot;
+          updateData.zoom_meeting_link = zoomMeetingLink;
+        } else {
+          toast.error('Failed to create Zoom meeting');
+          setIsSubmitting(false);
+          return;
+        }
+      } catch (error) {
+        console.error('Error creating Zoom meeting:', error);
+        toast.error('Failed to create Zoom meeting');
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     const { error } = await supabase
@@ -73,7 +101,7 @@ const NotificationDetail = () => {
             notification_status: 'accepted',
             notification_type: 'startup_accepted',
             notification_read_status: 'unread',
-            notification_message: `The startup has accepted your request for the time slot: ${selectedSlot}`,
+            notification_message: `The startup has accepted your request for the time slot: ${selectedSlot}. Zoom meeting link: ${zoomMeetingLink}`,
           });
 
         if (createError) {
@@ -87,6 +115,9 @@ const NotificationDetail = () => {
               selectedSlot
             ).toLocaleString()}`,
             user_id: notification.sender_id, // Assuming the event is for the investor
+            zoom_link: zoomMeetingLink, // Store the Zoom link with the event
+            sender_id: notification.receiver_id, // Startup's ID
+            receiver_id: notification.sender_id,
           };
 
           const { error: eventError } = await supabase
