@@ -29,7 +29,7 @@ const CuratedDealflow = () => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showFullUSP, setShowFullUSP] = useState(false);
 
-  console.log('startups:', startups);
+  // console.log('startups:', startups);
 
   const itemsPerPage = 20;
 
@@ -112,7 +112,7 @@ const CuratedDealflow = () => {
           !fundingInformation?.total_funding_ask))
     );
   });
-  console.log('selectedstartuops:', selectedStartup);
+  // console.log('selectedstartuops:', selectedStartup);
 
   const totalPages = Math.ceil(filteredStartups.length / itemsPerPage);
   const currentStartups = filteredStartups.slice(
@@ -325,7 +325,11 @@ const CuratedDealflow = () => {
                 <tbody>
                   {currentStartups.map((startup, index) => {
                     const companyProfile = startup.company_profile;
+                    {
+                      /* console.log('companyProfile:', companyProfile); */
+                    }
                     const company_logos = startup?.company_logo;
+
                     const founderInfo = companyProfile?.founder_information;
 
                     const fundingInformation =
@@ -521,6 +525,16 @@ const CuratedDealflow = () => {
                   onClick={() => setActiveTab('companyDocuments')}
                 >
                   Company Dcouments
+                </button>
+                <button
+                  className={`w-full py-2 px-4 border rounded ${
+                    activeTab === 'CTO_info'
+                      ? 'bg-black-500 text-white'
+                      : 'bg-white text-black'
+                  }`}
+                  onClick={() => setActiveTab('CTO_info')}
+                >
+                  CTO Info
                 </button>
               </div>
             </div>
@@ -1121,6 +1135,183 @@ const CuratedDealflow = () => {
                             ? 'View Technology Roadmap'
                             : 'Not provided'}
                         </a>
+                      </div>
+                    </li>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'CTO_info' && (
+                <div className='space-y-3'>
+                  <h3 className='text-2xl font-bold mb-6'>CTO Details</h3>
+                  <div className='grid gap-2 md:gap-3 lg:gap-4 text-gray-700'>
+                    {/* CTO Name */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:user' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          CTO NAME
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          {selectedStartup?.company_profile?.CTO_info
+                            ?.cto_name || 'Not provided'}
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* CTO Email */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:envelope' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          EMAIL
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          {selectedStartup?.company_profile?.CTO_info
+                            ?.cto_email || 'Not provided'}
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* CTO Mobile */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:phone' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          MOBILE NUMBER
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          {selectedStartup?.company_profile?.CTO_info
+                            ?.cto_mobile || 'Not provided'}
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* CTO LinkedIn */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:link' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          LINKEDIN PROFILE
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          <a
+                            href={
+                              selectedStartup?.company_profile?.CTO_info
+                                ?.cto_linkedin || '#'
+                            }
+                            className='text-blue-600 hover:underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            {selectedStartup?.company_profile?.CTO_info
+                              ?.cto_linkedin || 'Not provided'}
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* Tech Team Size */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:users' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          TECH TEAM SIZE
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          {selectedStartup?.company_profile?.CTO_info
+                            ?.tech_team_size || 'Not provided'}
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* Mobile App Link (iOS) */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:link' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          MOBILE APP LINK (iOS)
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          <a
+                            href={
+                              selectedStartup?.company_profile?.CTO_info
+                                ?.mobile_app_link_ios || '#'
+                            }
+                            className='text-blue-600 hover:underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            {selectedStartup?.company_profile?.CTO_info
+                              ?.mobile_app_link_ios || 'Not provided'}
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* Mobile App Link (Android) */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:link' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          MOBILE APP LINK (Android)
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          <a
+                            href={
+                              selectedStartup?.company_profile?.CTO_info
+                                ?.mobile_app_link_android || '#'
+                            }
+                            className='text-blue-600 hover:underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            {selectedStartup?.company_profile?.CTO_info
+                              ?.mobile_app_link_android || 'Not provided'}
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* Technology Roadmap */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:document' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          TECHNOLOGY ROADMAP
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          <a
+                            href={
+                              selectedStartup?.company_profile?.CTO_info
+                                ?.technology_roadmap || '#'
+                            }
+                            className='text-blue-600 hover:underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            {selectedStartup?.company_profile?.CTO_info
+                              ?.technology_roadmap
+                              ? 'View Technology Roadmap'
+                              : 'Not provided'}
+                          </a>
+                        </div>
                       </div>
                     </li>
                   </div>
