@@ -116,12 +116,12 @@ const InvestorDealflow = () => {
       </Head>
       <main className='container mb-1 p-4 relative'>
         <div className='absolute top-4 left-4 z-20'>
-          <button
+          {/* <button
             onClick={() => router.back()}
             className='bg-blue-500 text-white px-4 py-2 rounded'
           >
             Back
-          </button>
+          </button> */}
         </div>
         <h1 className='text-3xl font-bold mb-4 text-center'>
           Registered Investors
