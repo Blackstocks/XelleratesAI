@@ -1,6 +1,12 @@
-// const cheerio = require('cheerio');
+//const cheerio = require('cheerio');
 import axios from 'axios';
-import cheerio from 'cheerio';
+// import {cheerio} from '/node_modules/cheerio';
+
+const cheerio = require('/node_modules/cheerio')
+
+//const Cheerio = cheerio;
+
+
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -103,3 +109,5 @@ async function fetchArticleSummary(link) {
         return 'Summary not available';
     }
 }
+
+
