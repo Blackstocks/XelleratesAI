@@ -11,6 +11,7 @@ import Textarea from '@/components/ui/Textarea';
 import Icon from '@/components/ui/Icon';
 
 const CuratedDealflow = () => {
+  const [expressLoading, setExpressLoading] = useState(false);
   const { user, loading: userLoading } = useUserDetails();
   const { startups, loading: startupsLoading } = useStartups();
   const [showForm, setShowForm] = useState(false);
@@ -144,6 +145,7 @@ const CuratedDealflow = () => {
     message,
     dateTime
   ) => {
+    setExpressLoading(true); // Start loading
     try {
       const response = await fetch('/api/express-interest', {
         method: 'POST',
@@ -151,8 +153,8 @@ const CuratedDealflow = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          senderId: investorId, // Assuming the sender is the investor
-          receiverId: startupId, // Assuming the receiver is the startup
+          senderId: investorId,
+          receiverId: startupId,
           message,
           dateTime,
         }),
@@ -173,6 +175,8 @@ const CuratedDealflow = () => {
       setShowForm(false);
     } catch (error) {
       console.error('Unexpected error sending interest notification:', error);
+    } finally {
+      setExpressLoading(false); // End loading
     }
   };
 
@@ -574,12 +578,14 @@ const CuratedDealflow = () => {
                         selectedStartup?.company_profile?.id,
                         user.id,
                         message,
-                        [picker1, picker2, picker3] // Pass array of date times
+                        [picker1, picker2, picker3]
                       );
                     }}
+                    disabled={expressLoading}
                   >
-                    Send Interest
+                    {expressLoading ? 'Sending...' : 'Send Interest'}
                   </button>
+
                   <button
                     className='rounded-md py-2 px-4 border bg-[#14213d] text-white'
                     onClick={() => setShowForm(false)}
