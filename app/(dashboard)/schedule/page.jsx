@@ -6,7 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useSelector } from 'react-redux';
 import Card from '@/components/ui/Card';
-import EventModal from '@/components/partials/app/calender/EventModal';
+import EventModal from '@/components/partials/app/calender/EventModalschedule';
 import EditEventModal from '@/components/partials/app/calender/EditEventModal';
 import { supabase } from '@/lib/supabaseclient';
 import Loading from '@/components/Loading';
@@ -68,6 +68,7 @@ const CalenderPage = () => {
     fetchEvents();
   }, [user, companyProfile]); // Re-run when user or companyProfile changes
 
+  // console.log(event.extendedProps.zoomLink)
   const handleDateClick = (arg) => {
     setActiveModal(true);
     setSelectedEvent(arg);

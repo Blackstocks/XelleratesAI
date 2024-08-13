@@ -2,7 +2,11 @@ import { useRouter, usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Collapse } from 'react-collapse';
-import { BriefcaseIcon, CurrencyDollarIcon, UserIcon } from '@heroicons/react/24/outline';
+import {
+  BriefcaseIcon,
+  CurrencyDollarIcon,
+  UserIcon,
+} from '@heroicons/react/24/outline';
 import Icon from '@/components/ui/Icon';
 import { toggleActiveChat } from '@/components/partials/app/chat/store';
 import { useDispatch } from 'react-redux';
@@ -109,8 +113,16 @@ const Navmenu = ({ menus }) => {
                 <ul className='submenu'>
                   {item.child?.map((subItem, j) => (
                     <li key={j}>
-                      <Link className={`submenu-link ${locationName === subItem.childlink ? 'active-submenu-link' : ''}`} href={subItem.childlink}>
-                        <span className="dot">&#8226;</span> {subItem.childtitle}
+                      <Link
+                        className={`submenu-link ${
+                          locationName === subItem.childlink
+                            ? 'active-submenu-link'
+                            : ''
+                        }`}
+                        href={subItem.childlink}
+                      >
+                        <span className='dot'>&#8226;</span>{' '}
+                        {subItem.childtitle}
                       </Link>
                     </li>
                   ))}
@@ -138,48 +150,89 @@ const Navmenu = ({ menus }) => {
                 <div className='text-box flex-grow'>Startups</div>
               </Link>
             </li>
-            
+            <li className={`single-sidebar-menu`}>
+              <Link className='menu-link' href='/admin/registeredInvestors'>
+                <span className='menu-icon flex-grow-0'>
+                  <Icon icon='heroicons-outline:star' />
+                </span>
+                <div className='text-box flex-grow'>Registered Investors</div>
+              </Link>
+            </li>
+            <li className={`single-sidebar-menu`}>
+              <Link className='menu-link' href='/admin/registeredStartups'>
+                <span className='menu-icon flex-grow-0'>
+                  <Icon icon='heroicons-outline:star' />
+                </span>
+                <div className='text-box flex-grow'>Registered Startups</div>
+              </Link>
+            </li>
+
             {/* New Tabs */}
             <li className={`single-sidebar-menu`}>
-              <div className='menu-link' onClick={() => toggleSubmenu('investor-tools')}>
+              <div
+                className='menu-link'
+                onClick={() => toggleSubmenu('investor-tools')}
+              >
                 <span className='menu-icon flex-grow-0'>
                   <BriefcaseIcon className='h-5 w-5' />
                 </span>
                 <div className='text-box flex-grow'>Investor Tools</div>
-                <div className={`menu-arrow transform transition-all duration-300 ${activeSubmenu === 'investor-tools' ? ' rotate-90' : ''}`}>
+                <div
+                  className={`menu-arrow transform transition-all duration-300 ${
+                    activeSubmenu === 'investor-tools' ? ' rotate-90' : ''
+                  }`}
+                >
                   <Icon icon='heroicons-outline:chevron-right' />
                 </div>
               </div>
               <Collapse isOpened={activeSubmenu === 'investor-tools'}>
                 <ul className='submenu'>
                   <li>
-                    <Link className='submenu-link' href='/admin/investor-tools/curated-dealflow'>
-                      <span className="dot">&#8226;</span> Curated Dealflow
+                    <Link
+                      className='submenu-link'
+                      href='/admin/investor-tools/curated-dealflow'
+                    >
+                      <span className='dot'>&#8226;</span> Curated Dealflow
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/investor-tools/document-management'>
-                      <span className="dot">&#8226;</span> Doc Management
+                    <Link
+                      className='submenu-link'
+                      href='/admin/investor-tools/document-management'
+                    >
+                      <span className='dot'>&#8226;</span> Doc Management
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/investor-tools/syndicate'>
-                      <span className="dot">&#8226;</span> Syndicate
+                    <Link
+                      className='submenu-link'
+                      href='/admin/investor-tools/syndicate'
+                    >
+                      <span className='dot'>&#8226;</span> Syndicate
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/investor-tools/portfolio-management'>
-                      <span className="dot">&#8226;</span> Portfolio Management
+                    <Link
+                      className='submenu-link'
+                      href='/admin/investor-tools/portfolio-management'
+                    >
+                      <span className='dot'>&#8226;</span> Portfolio Management
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/investor-tools/valuate-startup'>
-                      <span className="dot">&#8226;</span> Valuate a Startup
+                    <Link
+                      className='submenu-link'
+                      href='/admin/investor-tools/valuate-startup'
+                    >
+                      <span className='dot'>&#8226;</span> Valuate a Startup
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/investor-tools/post-term-sheet'>
-                      <span className="dot">&#8226;</span> Post Term Sheet
+                    <Link
+                      className='submenu-link'
+                      href='/admin/investor-tools/post-term-sheet'
+                    >
+                      <span className='dot'>&#8226;</span> Post Term Sheet
                     </Link>
                   </li>
                 </ul>
@@ -187,45 +240,70 @@ const Navmenu = ({ menus }) => {
             </li>
 
             <li className={`single-sidebar-menu`}>
-              <div className='menu-link' onClick={() => toggleSubmenu('startup-tools')}>
+              <div
+                className='menu-link'
+                onClick={() => toggleSubmenu('startup-tools')}
+              >
                 <span className='menu-icon flex-grow-0'>
                   <UserIcon className='h-5 w-5' />
                 </span>
                 <div className='text-box flex-grow'>Startup Tools</div>
-                <div className={`menu-arrow transform transition-all duration-300 ${activeSubmenu === 'startup-tools' ? ' rotate-90' : ''}`}>
+                <div
+                  className={`menu-arrow transform transition-all duration-300 ${
+                    activeSubmenu === 'startup-tools' ? ' rotate-90' : ''
+                  }`}
+                >
                   <Icon icon='heroicons-outline:chevron-right' />
                 </div>
               </div>
               <Collapse isOpened={activeSubmenu === 'startup-tools'}>
                 <ul className='submenu'>
                   <li>
-                    <Link className='submenu-link' href='/admin/startup-tools/investment-readiness'>
-                      <span className="dot">&#8226;</span> Investment Readiness
+                    <Link
+                      className='submenu-link'
+                      href='/admin/startup-tools/investment-readiness'
+                    >
+                      <span className='dot'>&#8226;</span> Investment Readiness
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/startup-tools/diy-pitch-deck'>
-                      <span className="dot">&#8226;</span> DIY Pitch Deck
+                    <Link
+                      className='submenu-link'
+                      href='/admin/startup-tools/diy-pitch-deck'
+                    >
+                      <span className='dot'>&#8226;</span> DIY Pitch Deck
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/startup-tools/financial-insights'>
-                      <span className="dot">&#8226;</span> Financial Insights
+                    <Link
+                      className='submenu-link'
+                      href='/admin/startup-tools/financial-insights'
+                    >
+                      <span className='dot'>&#8226;</span> Financial Insights
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/startup-tools/fundraising'>
-                      <span className="dot">&#8226;</span> Fundraising
+                    <Link
+                      className='submenu-link'
+                      href='/admin/startup-tools/fundraising'
+                    >
+                      <span className='dot'>&#8226;</span> Fundraising
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/startup-tools/legal-help-desk'>
-                      <span className="dot">&#8226;</span> Legal Help Desk
+                    <Link
+                      className='submenu-link'
+                      href='/admin/startup-tools/legal-help-desk'
+                    >
+                      <span className='dot'>&#8226;</span> Legal Help Desk
                     </Link>
                   </li>
                   <li>
-                    <Link className='submenu-link' href='/admin/startup-tools/connect-with-incubators'>
-                      <span className="dot">&#8226;</span> Connect with Incub
+                    <Link
+                      className='submenu-link'
+                      href='/admin/startup-tools/connect-with-incubators'
+                    >
+                      <span className='dot'>&#8226;</span> Connect with Incub
                     </Link>
                   </li>
                 </ul>

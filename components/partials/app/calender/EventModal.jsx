@@ -59,37 +59,37 @@ const EventModal = ({ activeModal, onClose, selectedEvent }) => {
           <div className='space-y-4'>
             {/* Display event details */}
             <div>
-              <h5>Event Details</h5>
+              {/* <h5>Event Details</h5>
               <p>
                 <strong>Event Name:</strong> {selectedEvent?.event?.title}
-              </p>
-              <p>
+              </p> */}
+              {/* <p>
                 <strong>Start Date:</strong>{' '}
                 {new Date(selectedEvent?.event?.start).toLocaleString()}
-              </p>
-              <p>
+              </p> */}
+              {/* <p>
                 <strong>End Date:</strong>{' '}
                 {selectedEvent.end
                   ? new Date(selectedEvent?.event?.end).toLocaleString()
                   : 'N/A'}
-              </p>
-              <p>
+              </p> */}
+              {/* <p>
                 <strong>Description:</strong>{' '}
                 {selectedEvent?.event?.extendedProps?.description ||
                   'No description provided'}
-              </p>
-              {selectedEvent.extendedProps?.zoomLink && (
+              </p> */}
+              {/* {selectedEvent?.event?.extendedProps?.zoomLink && (
                 <p>
                   <strong>Zoom Link:</strong>{' '}
                   <a
-                    href={selectedEvent?.event?.extendedProps.zoomLink}
+                    href={selectedEvent.extendedProps.zoomLink}
                     target='_blank'
                     rel='noopener noreferrer'
                   >
                     Join Meeting
                   </a>
                 </p>
-              )}
+              )} */}
             </div>
 
             {/* Event editing form */}
@@ -99,6 +99,7 @@ const EventModal = ({ activeModal, onClose, selectedEvent }) => {
                 label='Event Name'
                 type='text'
                 placeholder='Enter Event Name'
+                defaultValue={selectedEvent?.event?.title}
                 register={register}
                 error={errors.title}
               />
@@ -116,6 +117,9 @@ const EventModal = ({ activeModal, onClose, selectedEvent }) => {
                       id='default-picker'
                       placeholder='yyyy, dd M'
                       value={startDate}
+                      defaultValue={new Date(
+                        selectedEvent?.event?.start
+                      ).toLocaleString()}
                       onChange={(date) => setStartDate(date[0])}
                       options={{
                         altInput: true,
@@ -126,7 +130,7 @@ const EventModal = ({ activeModal, onClose, selectedEvent }) => {
                   )}
                 />
               </FormGroup>
-              <FormGroup
+              {/* <FormGroup
                 label='End Date'
                 id='default-picker2'
                 error={errors.endDate}
@@ -149,15 +153,34 @@ const EventModal = ({ activeModal, onClose, selectedEvent }) => {
                     />
                   )}
                 />
-              </FormGroup>
+              </FormGroup> */}
 
-              <CustomSelect
+              <Textinput
+                name='description'
+                label='Description'
+                type='text'
+                placeholder='Enter Event Name'
+                defaultValue={selectedEvent?.event?.extendedProps?.description}
+                register={register}
+                error={errors.title}
+              />
+              <Textinput
+                name='zoomLink'
+                label='Zoom Link'
+                type='text'
+                placeholder='Enter Event Name'
+                defaultValue={selectedEvent?.event?.extendedProps?.zoomLink}
+                register={register}
+                error={errors.title}
+              />
+
+              {/* <CustomSelect
                 label='Basic Select'
                 options={categories}
                 register={register}
                 error={errors.cata}
                 name='cata'
-              />
+              /> */}
               <div className='ltr:text-right rtl:text-left'>
                 <button className='btn btn-dark text-center'>Submit</button>
               </div>
