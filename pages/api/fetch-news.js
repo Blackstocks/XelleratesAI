@@ -1,8 +1,8 @@
 //const cheerio = require('cheerio');
 import axios from 'axios';
-// import {cheerio} from '/node_modules/cheerio';
+import * as cheerio from 'cheerio';
 
-const cheerio = require('/node_modules/cheerio')
+//const cheerio = require('/node_modules/cheerio')
 
 //const Cheerio = cheerio;
 
@@ -43,6 +43,7 @@ export default async function handler(req, res) {
         if (typeof data !== 'string' || !data.includes('<html')) {
             throw new Error('Invalid HTML response');
         }
+        
 
         const $ = cheerio.load(data);
         console.log('Cheerio Loaded Successfully');
