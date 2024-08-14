@@ -36,6 +36,8 @@ export default async function handler(req, res) {
     try {
         const { data } = await axios.get(`https://news.google.com/search?q=${encodedString}`, AXIOS_OPTIONS);
 
+        
+
         const $ = cheerio.load(data);
 
         // Fetch only the top 20 articles
@@ -59,12 +61,21 @@ export default async function handler(req, res) {
                         urlObject.pathname = pathParts.join('/');
                         const newlink = urlObject.toString();
 
-                        const title = $(el).find('.JtKRv').text().trim().replace('\n', '');
+                        // const title = $(el).find('.JtKRv').text().trim().replace('\n', '');
+                        const title = $(el).find('.JtKRv').text().trim()
+                        .replace(/\[update\]/i, '')  
+                        .replace(/\[update\]\s*exclusive:/i, '')  
+                        .replace(/Exclusive:/i, '')  
+                        .trim();
                         const date = $(el).find('.hvbAAd').text().trim();
 
                         // Fetch the summary from the article link with retries
                         const decodedUrl = await decodeGoogleNewsUrl(newlink);
                         const summary = await fetchArticleSummaryWithRetries(decodedUrl);
+
+                        console.log("title: ", title);
+                        console.log("url: ", decodedUrl);
+                        console.log("summary: ", summary);
 
                         return {
                             decodedUrl,
