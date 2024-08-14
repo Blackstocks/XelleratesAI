@@ -1,12 +1,5 @@
-//const cheerio = require('cheerio');
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-
-//const cheerio = require('/node_modules/cheerio')
-
-//const Cheerio = cheerio;
-
-
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,7 +15,6 @@ export default async function handler(req, res) {
     }
 
     const encodedString = encodeURI(searchString);
-    console.log('Encoded Query:', encodedString);
 
     const AXIOS_OPTIONS = {
         headers: {
@@ -34,19 +26,17 @@ export default async function handler(req, res) {
             hl: 'en',
             gl: 'us',
         },
+        // If using a proxy, it would be included here.
+        // proxy: {
+        //     host: 'proxy.example.com',
+        //     port: 8080
+        // }
     };
 
     try {
-        const { data } = await axios.get(`https://news.google.com/search?q=${encodedString}`);
-        console.log('HTML Data:', data.substring(0, 1000)); // Log the first 1000 characters of the HTML to inspect
-
-        if (typeof data !== 'string' || !data.includes('<html')) {
-            throw new Error('Invalid HTML response');
-        }
-        
+        const { data } = await axios.get(`https://news.google.com/search?q=${encodedString}`, AXIOS_OPTIONS);
 
         const $ = cheerio.load(data);
-        console.log('Cheerio Loaded Successfully');
 
         // Fetch only the top 20 articles
         const allNewsInfo = await Promise.all(
@@ -58,14 +48,26 @@ export default async function handler(req, res) {
 
                     if (parts[0] === 'Inc42' || parts[0] === 'Business Standard') {
                         const link = new URL($(el).find('a.JtKRv').attr('href'), BASE_URL).href;
+
+                        const urlObject = new URL(link);
+                        const pathParts = urlObject.pathname.split('/');
+
+                        // Replace 'read' with 'rss/articles'
+                        if (pathParts[1] === 'read') {
+                            pathParts[1] = 'rss/articles';
+                        }
+                        urlObject.pathname = pathParts.join('/');
+                        const newlink = urlObject.toString();
+
                         const title = $(el).find('.JtKRv').text().trim().replace('\n', '');
                         const date = $(el).find('.hvbAAd').text().trim();
 
-                        // Fetch the summary from the article link
-                        const summary = await fetchArticleSummary(link);
+                        // Fetch the summary from the article link with retries
+                        const decodedUrl = await decodeGoogleNewsUrl(newlink);
+                        const summary = await fetchArticleSummaryWithRetries(decodedUrl);
 
                         return {
-                            link,
+                            decodedUrl,
                             title,
                             date,
                             summary,
@@ -76,7 +78,6 @@ export default async function handler(req, res) {
                 .filter(item => item !== undefined)
         ); // Filter out undefined results
 
-        console.log('All News Info with Summaries:', allNewsInfo); // Log final results
         res.status(200).json(allNewsInfo);
 
     } catch (error) {
@@ -85,6 +86,76 @@ export default async function handler(req, res) {
     }
 }
 
+async function fetchDecodedBatchExecute(id) {
+    const s = `[[["Fbv4je","[\\"garturlreq\\",[[\\"en-US\\",\\"US\\",[\\"FINANCE_TOP_INDICES\\",\\"WEB_TEST_1_0_0\\"],null,null,1,1,\\"US:en\\",null,180,null,null,null,null,null,0,null,null,[1608992183,723341000]],\\"en-US\\",\\"US\\",1,[2,3,4,8],1,0,\\"655000234\\",0,0,null,0],\\"${id}\\"]",null,"generic"]]]`;
+
+    const headers = {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        "Referer": "https://news.google.com/",
+    };
+
+    const response = await axios.post(
+        "https://news.google.com/_/DotsSplashUi/data/batchexecute?rpcids=Fbv4je",
+        `f.req=${encodeURIComponent(s)}`,
+        { headers }
+    );
+
+    if (response.status !== 200) {
+        throw new Error("Failed to fetch data from Google.");
+    }
+
+    const text = response.data;
+    const header = '[\\"garturlres\\",\\"';
+    const footer = '\\",';
+
+    if (!text.includes(header)) {
+        throw new Error(`Header not found in response: ${text}`);
+    }
+
+    const start = text.split(header)[1];
+    if (!start.includes(footer)) {
+        throw new Error("Footer not found in response.");
+    }
+
+    const url = start.split(footer)[0];
+    return url;
+}
+
+function decodeGoogleNewsUrl(sourceUrl) {
+    const url = new URL(sourceUrl);
+    const path = url.pathname.split("/");
+
+    if (url.hostname === "news.google.com" && path.length > 1 && path[path.length - 2] === "articles") {
+        const base64Str = path[path.length - 1];
+        const decodedBytes = Buffer.from(base64Str, 'base64');
+        let decodedStr = decodedBytes.toString('latin1');
+
+        const prefix = "\x08\x13\x22";
+        if (decodedStr.startsWith(prefix)) {
+            decodedStr = decodedStr.slice(prefix.length);
+        }
+
+        const suffix = "\xd2\x01\x00";
+        if (decodedStr.endsWith(suffix)) {
+            decodedStr = decodedStr.slice(0, -suffix.length);
+        }
+
+        const length = decodedStr.charCodeAt(0);
+        if (length >= 0x80) {
+            decodedStr = decodedStr.slice(2, length + 1);
+        } else {
+            decodedStr = decodedStr.slice(1, length + 1);
+        }
+
+        if (decodedStr.startsWith("AU_yqL")) {
+            return fetchDecodedBatchExecute(base64Str);
+        }
+
+        return decodedStr;
+    } else {
+        return sourceUrl;
+    }
+}
 
 async function fetchArticleSummary(link) {
     try {
@@ -97,18 +168,26 @@ async function fetchArticleSummary(link) {
         });
 
         // Extracting the summary paragraphs within the identified div
-        const summary = summaryDiv.find('p')
+        const summaryPoints = summaryDiv.find('p')
             .map((i, el) => $(el).text().trim())  // Loop through each <p> tag inside .single-post-summary
-            .get()  // Get an array of the text contents
-            .join(' ');  // Join all paragraphs together
+            .get();  // Get an array of the text contents
 
-        console.log(`Fetched summary from ${link}:`, summary);
-
-        return summary || 'Summary not available';
+        return summaryPoints.length > 0 ? summaryPoints : ['Summary not available'];
     } catch (error) {
         console.error(`Error fetching summary from ${link}:`, error.message);
-        return 'Summary not available';
+        return ['Summary not available'];
     }
 }
 
-
+async function fetchArticleSummaryWithRetries(link, retries = 2) {
+    let attempt = 0;
+    while (attempt <= retries) {
+        const summary = await fetchArticleSummary(link);
+        if (summary[0] !== 'Summary not available') {
+            return summary;
+        }
+        attempt++;
+        console.log(`Retrying to fetch summary from ${link}. Attempt ${attempt}`);
+    }
+    return ['Summary not available'];
+}
