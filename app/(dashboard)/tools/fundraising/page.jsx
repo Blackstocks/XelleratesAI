@@ -14,7 +14,17 @@ import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';
 
 const Fundraising = () => {
-  const { user, companyProfile, loading } = useCompleteUserDetails();
+  const {
+    profile,
+    companyProfile,
+    businessDetails,
+    founderInformation,
+    fundingInformation,
+    ctoInfo,
+    companyDocuments,
+    investorSignup,
+    loading,
+  } = useCompleteUserDetails();
   const [greeting, setGreeting] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -96,7 +106,15 @@ const Fundraising = () => {
               <h3 className='text-lg font-semibold mb-2 text-center'>
                 Profile Completion
               </h3>
-              <DonutChart3 />
+              <DonutChart3
+                profile={profile}
+                companyProfile={companyProfile}
+                businessDetails={businessDetails}
+                founderInformation={founderInformation}
+                fundingInformation={fundingInformation}
+                ctoInfo={ctoInfo}
+                companyDocuments={companyDocuments}
+              />
             </div>
             <div className='h-60 flex flex-col items-center justify-center bg-white shadow-lg rounded-lg relative'>
               <h3 className='text-lg font-semibold mb-2 text-center text-black'>

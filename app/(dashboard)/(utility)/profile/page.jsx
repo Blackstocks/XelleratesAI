@@ -624,6 +624,7 @@ const Profile = () => {
 
         {user?.user_type === 'startup' && (
           <VerticalNavTabs
+            profile={profile}
             companyProfile={companyProfile}
             businessDetails={businessDetails}
             founderInformation={founderInformation}

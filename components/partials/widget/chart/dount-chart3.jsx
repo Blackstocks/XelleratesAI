@@ -5,10 +5,36 @@ const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import useDarkMode from '@/hooks/useDarkMode';
 import Loading from '@/components/Loading'; // Assume you have a Loading component
 
-const DonutChart3 = ({ height = 200, colors = ['#0CE7FA', '#E2F6FD'] }) => {
+const DonutChart3 = ({
+  height = 200,
+  colors = ['#0CE7FA', '#E2F6FD'],
+  profile,
+  companyProfile,
+  businessDetails,
+  founderInformation,
+  fundingInformation,
+  ctoInfo,
+  companyDocuments,
+}) => {
   const [isDark] = useDarkMode();
-  const { completionPercentage, loading } = useCompletionPercentage();
-  console.log(completionPercentage);
+  const { completionPercentage, loading } = useCompletionPercentage({
+    profile,
+    companyProfile,
+    businessDetails,
+    founderInformation,
+    fundingInformation,
+    ctoInfo,
+    companyDocuments,
+  });
+
+  // console.log('Profile:', profile);
+  // console.log('Company Profile:', companyProfile);
+  // console.log('Business Details:', businessDetails);
+  // console.log('Founder Information:', founderInformation);
+  // console.log('Funding Information:', fundingInformation);
+  // console.log('CTO Information:', ctoInfo);
+  // console.log('Company Documents:', companyDocuments);
+  // console.log('Completion Percentage:', completionPercentage);
 
   if (loading) {
     return <Loading />; // Show loading component while loading
