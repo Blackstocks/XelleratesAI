@@ -9,20 +9,22 @@ export default async function handler(req, res) {
       {
         method: 'POST',
         headers: {
-          'x-api-key': 'IFA6bXScwchj5cb0ZU0NyVWNBGlw4mfb', // Replace with your actual API key
+          'x-api-key': 'IFA6bXScwchj5cb0ZU0NyVWNBGlw4mfb',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(req.body),
       }
     );
 
-    const data = await response.json();
-    if (!response.ok) {
-      console.error('Error response from API:', data);
-      return res.status(response.status).json(data);
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } else {
+      const text = await response.text();
+      console.error('Received non-JSON response:', text);
+      res.status(response.status).send(text);
     }
-
-    res.status(response.status).json(data);
   } catch (error) {
     console.error('Internal Server Error:', error);
     res
