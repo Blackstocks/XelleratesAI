@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import useCompletionPercentage from '@/hooks/useCompletionPercentage';
-import Loading from '@/components/Loading';
 
 const FormCompletionBanner = ({
   profileId,

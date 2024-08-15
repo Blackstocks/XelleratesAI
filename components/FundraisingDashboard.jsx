@@ -10,7 +10,6 @@ import {
 import GlobalFilter from '@/components/GlobalFilter';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
-import Loading from '@/components/Loading';
 
 const FundraisingDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -257,10 +256,9 @@ const FundraisingDashboard = () => {
                     return (
                       <tr key={headerGroupProps.key} {...headerGroupProps}>
                         {headerGroup.headers.map((column) => {
-                          const { key, ...columnProps } =
-                            column.getHeaderProps(
-                              column.getSortByToggleProps()
-                            );
+                          const { key, ...columnProps } = column.getHeaderProps(
+                            column.getSortByToggleProps()
+                          );
                           return (
                             <th
                               key={columnProps.key}

@@ -13,7 +13,7 @@ import GlobalFilter from '@/components/GlobalFilter';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
 import useUserDetails from '@/hooks/useUserDetails';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import FundraisingDashboard from '@/components/FundraisingDashboard';
 
 const HotDeals = ({ userType = 'startup' }) => {

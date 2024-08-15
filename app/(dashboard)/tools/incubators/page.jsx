@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import Modal from '@/components/Modal1';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import { supabase } from '@/lib/supabaseclient';
 import useIncubatorConnections from '@/hooks/useIncubatorConnections';
 

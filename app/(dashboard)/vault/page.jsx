@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails'; // Corrected the import path
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import RecentOrderTable from '@/components/vaultDocuments'; // Import the RecentOrderTable component
 import Chatbot from '@/components/chatbot';
 

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Menu } from '@headlessui/react';
 import Card from '@/components/ui/Card';
 import useNotifications from '@/hooks/useNotifications';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 
 const NotificationPage = () => {
   const notifications = useNotifications();

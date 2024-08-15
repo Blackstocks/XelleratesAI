@@ -10,7 +10,6 @@ import Icon from '@/components/ui/Icon';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import Loading from '@/components/Loading';
 import { supabase } from '@/lib/supabaseclient';
 
 const steps = [

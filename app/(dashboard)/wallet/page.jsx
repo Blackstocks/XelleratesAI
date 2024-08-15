@@ -11,7 +11,7 @@ import AccountReceivable from '@/components/partials/widget/chart/account-receiv
 import AccountPayable from '@/components/partials/widget/chart/account-payable';
 import { supabase } from '@/lib/supabaseclient';
 import useUserDetails from '@/hooks/useUserDetails';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 
 const CardSlider = dynamic(
   () => import('@/components/partials/widget/CardSlider'),

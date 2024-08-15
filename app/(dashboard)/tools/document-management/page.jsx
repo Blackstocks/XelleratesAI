@@ -13,7 +13,7 @@ import AddProject from '@/components/partials/app/projects/AddProject';
 import { ToastContainer } from 'react-toastify';
 import EditProject from '@/components/partials/app/projects/EditProject';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import useFetchDocuments from '@/hooks/useFetchDocuments';
 
 const DocumentManagement = () => {

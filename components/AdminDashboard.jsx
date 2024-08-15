@@ -11,7 +11,7 @@ import GlobalFilter from '@/components/GlobalFilter';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
 import useUserDetails from '@/hooks/useUserDetails';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import FundraisingDashboard from '@/components/FundraisingDashboard';
 
 const AdminDashboard = ({ userType }) => {
@@ -252,7 +252,10 @@ const AdminDashboard = ({ userType }) => {
               <div className='md:flex justify-between items-center mb-6'>
                 <h4 className='card-title'>Admin Dashboard</h4>
                 <div>
-                  <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+                  <GlobalFilter
+                    filter={globalFilter}
+                    setFilter={setGlobalFilter}
+                  />
                 </div>
               </div>
               <div className='overflow-x-auto -mx-6'>
@@ -267,7 +270,10 @@ const AdminDashboard = ({ userType }) => {
                           const { key, ...headerGroupProps } =
                             headerGroup.getHeaderGroupProps();
                           return (
-                            <tr key={headerGroupProps.key} {...headerGroupProps}>
+                            <tr
+                              key={headerGroupProps.key}
+                              {...headerGroupProps}
+                            >
                               {headerGroup.headers.map((column) => {
                                 const { key, ...columnProps } =
                                   column.getHeaderProps(
@@ -304,7 +310,8 @@ const AdminDashboard = ({ userType }) => {
                           return (
                             <tr key={rowProps.key} {...rowProps}>
                               {row.cells.map((cell) => {
-                                const { key, ...cellProps } = cell.getCellProps();
+                                const { key, ...cellProps } =
+                                  cell.getCellProps();
                                 return (
                                   <td
                                     key={cellProps.key}

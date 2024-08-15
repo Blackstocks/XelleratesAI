@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { fetchInvestorDocuments } from '@/lib/actions/investorActions';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 
 const DocumentPage = () => {
   const router = useRouter();
