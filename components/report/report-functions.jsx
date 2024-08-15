@@ -178,7 +178,7 @@ const generateReport = async (
   )
 
   const financialData = await fetchFinancials(companyProfile);
-  const yearlyRevenue = financialData?.revenue.Yearly;
+  const yearlyRevenue = financialData?.revenue.Yearly
   const latestRevenue = yearlyRevenue[yearlyRevenue.length - 1];
   const yearlyProfit = financialData?.profit.Yearly;
   const latestProfit = yearlyProfit[yearlyProfit.length - 1];

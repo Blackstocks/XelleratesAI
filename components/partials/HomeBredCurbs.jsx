@@ -59,10 +59,12 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
 
   const handleImageClick = async (type) => {
     if (type === 'investment') {
-      if (loading) {
-        toast.info("Loading data, please wait...");
-        return;
-      }
+      // if (loading) {
+      //   toast.info("Loading data, please wait...");
+      //   return;
+      // }
+
+      const toastId = toast.loading("Generating report, please wait...");
   
       const shortDescription = companyProfile?.short_description || "Default description";
       const industrySector = companyProfile?.industry_sector || "Default sector";
