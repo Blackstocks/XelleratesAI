@@ -21,125 +21,52 @@ const Portfolios = [
   // { name: 'Adios', value: '' },
 ];
 
-const data = [
-  {
-    name: 'Founder',
-    shareHolding: '53.5%',
-    totalShares: '76,740,000',
-    subRows: [
-      {
-        name: 'Sameer Mehta',
-        shareHolding: '26.8%',
-        totalShares: '38,370,000',
-      },
-      {
-        name: 'Aman Gupta',
-        shareHolding: '26.8%',
-        totalShares: '38,370,000',
-      },
-    ],
-  },
-  {
-    name: 'Fund',
-    shareHolding: '45.5%',
-    totalShares: '65,269,291',
-    subRows: [
-      {
-        name: 'Warburg Pincus',
-        shareHolding: '38.3%',
-        totalShares: '54,850,232',
-      },
-      {
-        name: 'Fireside Ventures',
-        shareHolding: '3.6%',
-        totalShares: '5,100,000',
-      },
-      {
-        name: 'Qualcomm Ventures',
-        shareHolding: '2.5%',
-        totalShares: '3,524,000',
-      },
-      {
-        name: 'Malabar Investments',
-        shareHolding: '0.9%',
-        totalShares: '1,331,559',
-      },
-      {
-        name: 'Innowen Capital',
-        shareHolding: '0.3%',
-        totalShares: '463,500',
-      },
-    ],
-  },
-  {
-    name: 'Enterprise',
-    shareHolding: '-',
-    totalShares: '-',
-    subRows: [
-      { name: 'Neo Markets Services', shareHolding: '-', totalShares: '6,370' },
-      { name: 'Amplify Capitals', shareHolding: '-', totalShares: '5,020' },
-      { name: 'Altius Investech', shareHolding: '-', totalShares: '1,200' },
-      { name: '3ADeal', shareHolding: '-', totalShares: '50' },
-    ],
-  },
-  {
-    name: 'Other People',
-    shareHolding: '0.2%',
-    totalShares: '363,000',
-  },
-  {
-    name: 'ESOP',
-    shareHolding: '0.7%',
-    totalShares: '1,005,200',
-  },
-  {
-    name: 'Other Investors',
-    shareHolding: '< 0.1%',
-    totalShares: '13,430',
-  },
-  {
-    name: 'Total',
-    shareHolding: '100.0%',
-    totalShares: '143,397,291',
-  },
-];
-
-const COLUMNS = [
-  {
-    Header: 'Name',
-    accessor: 'name',
-    Cell: ({ row, value }) => (
-      <div className='flex items-center'>
-        {row.canExpand ? (
-          <span
-            {...row.getToggleRowExpandedProps()}
-            className='mr-2 cursor-pointer'
-          >
-            {row.isExpanded ? '▼' : '▶'}
-          </span>
-        ) : null}
-        {value}
-      </div>
-    ),
-  },
-  {
-    Header: '% Share holding',
-    accessor: 'shareHolding',
-  },
-  {
-    Header: 'Total Outstanding Shares',
-    accessor: 'totalShares',
-  },
-];
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const RecentOrderTable = () => {
-  const columns = useMemo(() => COLUMNS, []);
-  const dataMemo = useMemo(() => data, []);
+  const { fundingInformation } = useCompleteUserDetails();
+
+  // Assuming that fundingInformation.cap_table contains an array of objects with designation, firstName, and percentage
+  const data = useMemo(
+    () => fundingInformation?.cap_table || [],
+    [fundingInformation]
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Designation',
+        accessor: 'designation', // Adjust based on your actual data structure
+        Cell: ({ row, value }) => (
+          <div className='flex items-center'>
+            {row.canExpand ? (
+              <span
+                {...row.getToggleRowExpandedProps()}
+                className='mr-2 cursor-pointer'
+              >
+                {row.isExpanded ? '▼' : '▶'}
+              </span>
+            ) : null}
+            {value}
+          </div>
+        ),
+      },
+      {
+        Header: 'First Name',
+        accessor: 'firstName', // Adjust based on your actual data structure
+      },
+      {
+        Header: '% Shareholding',
+        accessor: 'percentage', // Adjust based on your actual data structure
+      },
+    ],
+    []
+  );
 
   const tableInstance = useTable(
     {
       columns,
-      data: dataMemo,
+      data,
     },
     useSortBy,
     useExpanded

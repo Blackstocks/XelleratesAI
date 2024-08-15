@@ -7,7 +7,6 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import CountUp from 'react-countup';
-import axios from 'axios'; // Axios for making API requests
 import { v4 as uuidv4 } from 'uuid'; // To generate unique transaction and consent IDs
 
 const Equity = () => {
@@ -126,6 +125,8 @@ const Equity = () => {
       const response = await fetch('/api/panProxy', {
         method: 'POST',
         headers: {
+          // 'X-APISATU-CLIENTID': 'com.xellerates', // Use your clientId here
+          // 'X-APISATU-APIKEY': 'IFA6bXScwchj5cb0ZU0NyVWNBGlw4mfb',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
