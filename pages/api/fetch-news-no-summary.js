@@ -36,8 +36,6 @@ export default async function handler(req, res) {
     try {
         const { data } = await axios.get(`https://news.google.com/search?q=${encodedString}`, AXIOS_OPTIONS);
 
-        
-
         const $ = cheerio.load(data);
 
         // Fetch only the top 20 articles
@@ -67,6 +65,10 @@ export default async function handler(req, res) {
                         .replace(/Exclusive:/i, '')  
                         .trim();
                         const date = $(el).find('.hvbAAd').text().trim();
+
+                        if (!title.toLowerCase().includes(searchQuery.toLowerCase())) {
+                            return null; // Skip this article if it doesn't match the query
+                        }
 
                         console.log("title: ", title);
                         console.log("date: ", date);

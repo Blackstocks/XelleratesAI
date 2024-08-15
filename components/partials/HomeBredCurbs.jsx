@@ -75,6 +75,8 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
         ctoInfo, shortDescription, industrySector, companyName, currentStage, previousFunding);
       //generatePDF(reportHtml);
       
+      toast.update(toastId, { render: "Report generated successfully!", type: "success", isLoading: false, autoClose: 5000 });
+      
       const newWindow = window.open('', '_blank');
       newWindow.document.write(reportHtml);
       newWindow.document.close();

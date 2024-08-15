@@ -90,6 +90,10 @@ export default async function handler(req, res) {
                         const decodedUrl = await decodeGoogleNewsUrl(newlink);
                         const summary = await fetchArticleSummaryWithRetries(decodedUrl);
 
+                        if (!title.toLowerCase().includes(searchQuery.toLowerCase())) {
+                            return null; // Skip this article if it doesn't match the query
+                        }
+
                         console.log("title: ", title);
                         console.log("url: ", decodedUrl);
                         console.log("summary: ", summary);

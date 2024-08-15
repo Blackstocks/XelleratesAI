@@ -154,7 +154,7 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
                                             ))}
                                         </div>
                                     ) : searchInitiated ? (
-                                        <p>No results found.</p>
+                                        <p>Currently, there is no media presence of {searchQuery}</p>
                                     ) : null}
                                 </div>
                             </div>

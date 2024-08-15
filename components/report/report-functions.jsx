@@ -242,7 +242,7 @@ const generateReport = async (
                 </div>
                 <div class="text-center bg-blue-800 p-6 rounded-lg shadow-md">
                     <p class="text-5xl font-extrabold">${tractionScore}</p>
-                    <p class="text-lg font-medium mt-1">Traction Score</p>
+                    <p class="text-lg font-medium mt-1">Investment <br> Readiness Score</p>
                 </div>
             </div>
         </div>
@@ -331,7 +331,7 @@ const generateReport = async (
                                       <td class="border-t border-gray-300 px-4 py-2">${news.date}</td>
                                       <td class="border-t border-gray-300 px-4 py-2">${news.title}</td>
                                   </tr>`).join('')
-                                : '<tr><td colspan="2" class="px-4 py-2">No news available.</td></tr>'
+                                : `<tr><td colspan="2" class="px-4 py-2" > Currently, there is no media presence of ${companyName} </td></tr>`
                             }
                           </tbody>
                       </table>
