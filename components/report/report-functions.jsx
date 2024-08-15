@@ -170,12 +170,12 @@ const generateReport = async (
   const normalizedCAC = Math.min((1000 / CAC) * 100, 100); 
   const normalizedLTV = Math.min((LTV / 1000) * 100, 100);
 
-  const tractionScore = (
+  const tractionScore = Math.round(
     (normalizedTraction * 0.4) +
     (normalizedNewCustomers * 0.2) +
     (normalizedCAC * 0.2) +
     (normalizedLTV * 0.2)
-  ).toFixed(2);
+  )
 
   const financialData = await fetchFinancials(companyProfile);
   const yearlyRevenue = financialData?.revenue.Yearly;
@@ -219,7 +219,7 @@ const generateReport = async (
     //console.log("Sector: ", sector);
 
 
-  return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -538,12 +538,14 @@ const generateReport = async (
             <p>Date of Report Generation: ${new Date().toLocaleDateString()}</p>
             <p>Copyright © 2024 by Xellerates AI. All rights reserved.</p>
         </div>
-
+        
+        <!--
         <div class="mt-8 text-center">
               <button id="downloadBtn" class="bg-blue-500 text-white p-2 rounded">
                   Download Report as PDF
               </button>
           </div>
+        -->
     </div>
 
 
@@ -573,10 +575,8 @@ const generateReport = async (
         });
       </script>
 </body>
-</html>
-`
-
-;
+</html>`;
+    
 };
 
 export default generateReport;
