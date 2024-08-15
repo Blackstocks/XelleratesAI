@@ -22,11 +22,9 @@ const Portfolios = [
 ];
 
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-
 const RecentOrderTable = () => {
-  const { fundingInformation } = useCompleteUserDetails();
+  const { fundingInformation, loading } = useCompleteUserDetails();
 
-  // Assuming that fundingInformation.cap_table contains an array of objects with designation, firstName, and percentage
   const data = useMemo(
     () => fundingInformation?.cap_table || [],
     [fundingInformation]
@@ -36,7 +34,7 @@ const RecentOrderTable = () => {
     () => [
       {
         Header: 'Designation',
-        accessor: 'designation', // Adjust based on your actual data structure
+        accessor: 'designation',
         Cell: ({ row, value }) => (
           <div className='flex items-center'>
             {row.canExpand ? (
@@ -53,11 +51,11 @@ const RecentOrderTable = () => {
       },
       {
         Header: 'First Name',
-        accessor: 'firstName', // Adjust based on your actual data structure
+        accessor: 'firstName',
       },
       {
         Header: '% Shareholding',
-        accessor: 'percentage', // Adjust based on your actual data structure
+        accessor: 'percentage',
       },
     ],
     []
@@ -74,6 +72,49 @@ const RecentOrderTable = () => {
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
+
+  if (loading) {
+    return (
+      <div className='overflow-x-auto'>
+        <table
+          {...getTableProps()}
+          className='min-w-full bg-white divide-y divide-gray-200 animate-pulse'
+        >
+          <thead className='bg-gray-50'>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <th
+                    {...column.getHeaderProps()}
+                    className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
+                  >
+                    <div className='h-4 bg-gray-200 rounded'></div>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody
+            {...getTableBodyProps()}
+            className='bg-white divide-y divide-gray-200'
+          >
+            {[...Array(5)].map((_, index) => (
+              <tr key={index}>
+                {columns.map((column, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'
+                  >
+                    <div className='h-4 bg-gray-200 rounded'></div>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 
   return (
     <div className='overflow-x-auto'>
@@ -117,7 +158,7 @@ const RecentOrderTable = () => {
                   ))}
                 </tr>
                 {row.isExpanded && row.subRows && row.subRows.length > 0
-                  ? row.subRows.map((subRow, i) => {
+                  ? row.subRows.map((subRow) => {
                       prepareRow(subRow);
                       return (
                         <tr key={subRow.id} {...subRow.getRowProps()}>
