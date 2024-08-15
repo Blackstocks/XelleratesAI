@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/navigation';
 import useUserDetails from '@/hooks/useUserDetails';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import { supabase } from '@/lib/supabaseclient';
 
 const InvestorDealflow = () => {
