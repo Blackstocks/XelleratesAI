@@ -195,10 +195,10 @@ export default async function handler(req, res) {
             res.status(500).json({ error: 'Server error' });
         } finally {
             // Clean up the temporary file
-            const localFilePath = path.join(__dirname, 'temp_mis_file.xlsx');
-            fs.unlink(localFilePath, (err) => {
-                if (err) console.error('Error deleting temporary file:', err);
-            });
+            // const localFilePath = path.join(__dirname, 'temp_mis_file.xlsx');
+            // fs.unlink(localFilePath, (err) => {
+            //     if (err) console.error('Error deleting temporary file:', err);
+            // });
         }
     } else {
         res.setHeader('Allow', ['POST']);

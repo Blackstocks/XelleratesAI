@@ -3,15 +3,22 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ComingSoonModal from "@/components/ComingSoonModal";
 import GetStartupInsightsModal from "@/components/GetStartupInsights"; // Adjust import as needed
+import generateReport from "@/components/report/report-functions";
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+// import * as fs from 'fs';
+// import * as pdf from 'html-pdf-node';
+
+
 
 const HomeBredCurbs = ({ title, companyName, userType }) => {
-  const [value, setValue] = useState({
-    startDate: new Date(),
-    endDate: new Date().setMonth(11),
-  });
   const [greeting, setGreeting] = useState("Good evening");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(null); // Added state to determine which modal to open
+  const [modalType, setModalType] = useState(null);
+
+  const { fundingInformation, companyProfile, founderInformation, businessDetails,
+    companyDocuments,
+    ctoInfo,
+     loading } = useCompleteUserDetails();
 
   useEffect(() => {
     const currentHour = new Date().getHours();
@@ -24,18 +31,59 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     }
   }, []);
 
-  const handleValueChange = (newValue) => {
-    setValue(newValue);
-  };
 
-  const handleImageClick = (type) => {
-    setModalType(type); // Set the type of the modal to open
-    setIsModalOpen(true);
-  };
+  // const generatePDF = async (htmlContent, fileName = 'report.pdf') => {
+  //   try {
+  //     const file = { content: htmlContent };
+  //     const options = { format: 'A4' };
+  
+  //     // Generate the PDF and save it
+  //     await pdf.generatePdf(file, options).then(pdfBuffer => {
+  //       fs.writeFileSync(fileName, pdfBuffer);
+  //       console.log(`PDF generated and saved as ${fileName}`);
+  //     });
+  
+  //     // Send the file as a download (assuming an Express.js environment)
+  //     // res.download(fileName, err => {
+  //     //   if (err) {
+  //     //     console.log('Error downloading the file:', err);
+  //     //   } else {
+  //     //     console.log('File downloaded successfully');
+  //     //   }
+  //     // });
+  
+  //   } catch (error) {
+  //     console.error('Error generating PDF:', error);
+  //   }
+  // };
 
+  const handleImageClick = async (type) => {
+    if (type === 'investment') {
+      if (loading) {
+        toast.info("Loading data, please wait...");
+        return;
+      }
+  
+      const shortDescription = companyProfile?.short_description || "Default description";
+      const industrySector = companyProfile?.industry_sector || "Default sector";
+      const currentStage = companyProfile?.currentStage || "Not Available";
+      const previousFunding = fundingInformation?.previous_funding || [];
+  
+      const reportHtml = await generateReport(companyProfile, fundingInformation, founderInformation, businessDetails, companyDocuments, 
+        ctoInfo, shortDescription, industrySector, companyName, currentStage, previousFunding);
+      //generatePDF(reportHtml);
+      
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write(reportHtml);
+      newWindow.document.close();
+    } else {
+      setModalType(type);
+      setIsModalOpen(true);
+    }
+  };
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setModalType(null); // Reset modal type when closing
+    setModalType(null);
   };
 
   return (
@@ -103,9 +151,6 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
 
       {isModalOpen && modalType === 'insight' && (
         <GetStartupInsightsModal isOpen={isModalOpen} onClose={handleCloseModal} />
-      )}
-      {isModalOpen && modalType === 'investment' && (
-        <ComingSoonModal isOpen={isModalOpen} onClose={handleCloseModal} />
       )}
 
       <ToastContainer />

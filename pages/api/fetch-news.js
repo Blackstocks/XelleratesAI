@@ -1,5 +1,132 @@
+// import axios from 'axios';
+// import * as cheerio from 'cheerio';
+
+
+
+// const proxies = [
+//     { host: '83.148.75.16', port: 3128 },
+//     { host: '72.10.160.90', port: 19153 },
+//     { host: '91.202.230.219', port: 8080 },
+//     { host: '190.69.157.208', port: 999 },
+//     { host: '74.48.78.52', port: 80 },
+//     { host: '27.147.28.73', port: 8080 },
+//     { host: '178.128.232.123', port: 8080 },
+//     { host: '8.213.195.191', port: 8081 },
+//     { host: '107.181.154.54', port: 5732 },
+//     { host: '185.55.205.118', port: 8080 }
+// ];
+
+
+// function getRandomProxy() {
+//     return proxies[Math.floor(Math.random() * proxies.length)];
+// }
+
+// export default async function handler(req, res) {
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+//     const BASE_URL = 'https://news.google.com';
+//     const { query } = req;
+//     const searchString = query.q;
+
+//     if (!searchString) {
+//         return res.status(400).json({ error: 'Search query is required' });
+//     }
+
+//     const encodedString = encodeURI(searchString);
+
+//     const proxy = getRandomProxy(); 
+
+//     const AXIOS_OPTIONS = {
+//         headers: {
+//             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
+//         },
+//         params: {
+//             q: encodedString,
+//             tbm: 'nws',
+//             hl: 'en',
+//             gl: 'us',
+//         },
+//         proxy: proxy,
+//     };
+
+//     try {
+//         const { data } = await axios.get(`https://news.google.com/search?q=${encodedString}`, AXIOS_OPTIONS);
+
+        
+
+//         const $ = cheerio.load(data);
+
+//         // Fetch only the top 20 articles
+//         const allNewsInfo = await Promise.all(
+//             $('.IFHyqb')
+//                 .slice(0, 20)
+//                 .map(async (index, el) => {
+//                     const source = $(el).find('.MCAGUe').text().trim();
+//                     const parts = source.split(/\s+/).filter(part => part.trim() !== '');
+
+//                     if (parts[0] === 'Inc42') {
+//                         const link = new URL($(el).find('a.JtKRv').attr('href'), BASE_URL).href;
+
+//                         const urlObject = new URL(link);
+//                         const pathParts = urlObject.pathname.split('/');
+
+//                         // Replace 'read' with 'rss/articles'
+//                         if (pathParts[1] === 'read') {
+//                             pathParts[1] = 'rss/articles';
+//                         }
+//                         urlObject.pathname = pathParts.join('/');
+//                         const newlink = urlObject.toString();
+
+//                         // const title = $(el).find('.JtKRv').text().trim().replace('\n', '');
+//                         const title = $(el).find('.JtKRv').text().trim()
+//                         .replace(/\[update\]/i, '')  
+//                         .replace(/\[update\]\s*exclusive:/i, '')  
+//                         .replace(/Exclusive:/i, '')  
+//                         .trim();
+//                         const date = $(el).find('.hvbAAd').text().trim();
+
+//                         // Fetch the summary from the article link with retries
+//                         const decodedUrl = await decodeGoogleNewsUrl(newlink);
+//                         const summary = await fetchArticleSummaryWithRetries(decodedUrl);
+
+//                         console.log("title: ", title);
+//                         console.log("url: ", decodedUrl);
+//                         console.log("summary: ", summary);
+
+//                         return {
+//                             decodedUrl,
+//                             title,
+//                             date,
+//                             summary,
+//                         };
+//                     }
+//                 })
+//                 .get()
+//                 .filter(item => item !== undefined)
+//         ); // Filter out undefined results
+
+//         res.status(200).json(allNewsInfo);
+
+//     } catch (error) {
+//         console.error('Error fetching news:', error.message);
+//         res.status(500).json({ error: 'Error fetching news', details: error.message });
+//     }
+// }
+
+
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import HttpsProxyAgent from 'https-proxy-agent';
+
+const proxies = [
+    { host: '89.135.59.65', port: 8090 }
+];
+
+function getRandomProxy() {
+    return proxies[Math.floor(Math.random() * proxies.length)];
+}
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,86 +143,112 @@ export default async function handler(req, res) {
 
     const encodedString = encodeURI(searchString);
 
-    const AXIOS_OPTIONS = {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
-        },
-        params: {
-            q: encodedString,
-            tbm: 'nws',
-            hl: 'en',
-            gl: 'us',
-        },
-        // If using a proxy, it would be included here.
-        // proxy: {
-        //     host: 'proxy.example.com',
-        //     port: 8080
-        // }
-    };
+    const MAX_RETRIES = 3; // Define the maximum number of retries
 
-    try {
-        const { data } = await axios.get(`https://news.google.com/search?q=${encodedString}`, AXIOS_OPTIONS);
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        const proxy = getRandomProxy(); // Get a random proxy from the list
 
-        
+        const AXIOS_OPTIONS = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
+            },
+            params: {
+                q: encodedString,
+                tbm: 'nws',
+                hl: 'en',
+                gl: 'us',
+            },
+            proxy: { host: '82.152.165.218', port: 20000 },
+        };
 
-        const $ = cheerio.load(data);
+        try {
+            // const { data } = await axios.get(`${BASE_URL}/search?q=${encodedString}`, AXIOS_OPTIONS);
 
-        // Fetch only the top 20 articles
-        const allNewsInfo = await Promise.all(
-            $('.IFHyqb')
-                .slice(0, 20)
-                .map(async (index, el) => {
-                    const source = $(el).find('.MCAGUe').text().trim();
-                    const parts = source.split(/\s+/).filter(part => part.trim() !== '');
+            const options = {
+                method: 'GET',
+                url: `https://news.google.com/search?q=${encodedString}`,
+                headers: {
+                  'x-rapidapi-key': '5f66497934mshba6534b53e60867p118027jsn3ef1f3c1bf41',
+                  'x-rapidapi-host': 'newscatcher-api-test.p.rapidapi.com',
+                  'X-RapidAPI-Key': '88ba2fd60amsh430b0222cedf4dap10e0a4jsn7662ba307e20'
+                }
+              };
+            
+            const {data} = await axios.request(options);
+            const $ = cheerio.load(data);
 
-                    if (parts[0] === 'Inc42' || parts[0] === 'Business Standard') {
-                        const link = new URL($(el).find('a.JtKRv').attr('href'), BASE_URL).href;
+            // Fetch only the top 20 articles
+            const allNewsInfo = await Promise.all(
+                $('.IFHyqb')
+                    .slice(0, 10)
+                    .map(async (index, el) => {
+                        const source = $(el).find('.MCAGUe').text().trim();
+                        const parts = source.split(/\s+/).filter(part => part.trim() !== '');
 
-                        const urlObject = new URL(link);
-                        const pathParts = urlObject.pathname.split('/');
+                        if (parts[0] === 'Inc42') {
+                            const link = new URL($(el).find('a.JtKRv').attr('href'), BASE_URL).href;
 
-                        // Replace 'read' with 'rss/articles'
-                        if (pathParts[1] === 'read') {
-                            pathParts[1] = 'rss/articles';
+                            console.log("Found link: ", link);
+
+                            const urlObject = new URL(link);
+
+                            const pathParts = urlObject.pathname.split('/');
+
+                            // Replace 'read' with 'rss/articles'
+                            if (pathParts[1] === 'read') {
+                                pathParts[1] = 'rss/articles';
+                            }
+                            urlObject.pathname = pathParts.join('/');
+                            const newlink = urlObject.toString();
+
+                            const title = $(el).find('.JtKRv').text().trim()
+                                .replace(/\[update\]/i, '')
+                                .replace(/\[update\]\s*exclusive:/i, '')
+                                .replace(/Exclusive:/i, '')
+                                .trim();
+                            const date = $(el).find('.hvbAAd').text().trim();
+
+                            // Fetch the summary from the article link with retries
+                            const decodedUrl = await decodeGoogleNewsUrl(newlink);
+                            //const summary = await fetchArticleSummaryWithRetries(decodedUrl);
+                            const summary = "Not Available";
+
+                            console.log("title: ", title);
+                            console.log("url: ", decodedUrl);
+                            //console.log("summary: ", summary);
+
+                            return {
+                                decodedUrl,
+                                title,
+                                date,
+                                summary,
+                            };
                         }
-                        urlObject.pathname = pathParts.join('/');
-                        const newlink = urlObject.toString();
+                    })
+                    .get()
+                    .filter(item => item !== undefined)
+            );
 
-                        // const title = $(el).find('.JtKRv').text().trim().replace('\n', '');
-                        const title = $(el).find('.JtKRv').text().trim()
-                        .replace(/\[update\]/i, '')  
-                        .replace(/\[update\]\s*exclusive:/i, '')  
-                        .replace(/Exclusive:/i, '')  
-                        .trim();
-                        const date = $(el).find('.hvbAAd').text().trim();
+            res.status(200).json(allNewsInfo);
+            return; // Exit the loop and function after a successful request
 
-                        // Fetch the summary from the article link with retries
-                        const decodedUrl = await decodeGoogleNewsUrl(newlink);
-                        const summary = await fetchArticleSummaryWithRetries(decodedUrl);
+        } catch (error) {
+            console.error(`Attempt ${attempt + 1} failed: ${error.message}`);
 
-                        console.log("title: ", title);
-                        console.log("url: ", decodedUrl);
-                        console.log("summary: ", summary);
-
-                        return {
-                            decodedUrl,
-                            title,
-                            date,
-                            summary,
-                        };
-                    }
-                })
-                .get()
-                .filter(item => item !== undefined)
-        ); // Filter out undefined results
-
-        res.status(200).json(allNewsInfo);
-
-    } catch (error) {
-        console.error('Error fetching news:', error.message);
-        res.status(500).json({ error: 'Error fetching news', details: error.message });
+            if (attempt === MAX_RETRIES - 1) {
+                // If it's the last attempt, send an error response
+                res.status(500).json({ error: 'Error fetching news after multiple attempts', details: error.message });
+            }
+        }
     }
 }
+
+// Additional functions like decodeGoogleNewsUrl, fetchArticleSummary, fetchArticleSummaryWithRetries...
+
+
+
+
+
 
 async function fetchDecodedBatchExecute(id) {
     const s = `[[["Fbv4je","[\\"garturlreq\\",[[\\"en-US\\",\\"US\\",[\\"FINANCE_TOP_INDICES\\",\\"WEB_TEST_1_0_0\\"],null,null,1,1,\\"US:en\\",null,180,null,null,null,null,null,0,null,null,[1608992183,723341000]],\\"en-US\\",\\"US\\",1,[2,3,4,8],1,0,\\"655000234\\",0,0,null,0],\\"${id}\\"]",null,"generic"]]]`;

@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 const generatePDF = async () => {
   const content = `
     Startup Evaluation Report
-    Financials
+    Financials:
     1.1 Startup Valuation
     The startup's current valuation is based on various factors including market potential, financial performance, and comparable companies. The most recent valuation conducted by [Valuation Firm] values the company at $[Amount] million. This valuation considers a detailed analysis of projected revenues, growth rate, and market trends.
     1.2 Cash Flows
