@@ -170,12 +170,12 @@ const generateReport = async (
   const normalizedCAC = Math.min((1000 / CAC) * 100, 100); 
   const normalizedLTV = Math.min((LTV / 1000) * 100, 100);
 
-  const tractionScore = (
+  const tractionScore = Math.round(
     (normalizedTraction * 0.4) +
     (normalizedNewCustomers * 0.2) +
     (normalizedCAC * 0.2) +
     (normalizedLTV * 0.2)
-  ).toFixed(2);
+  )
 
   const financialData = await fetchFinancials(companyProfile);
   const yearlyRevenue = financialData?.revenue.Yearly;
@@ -219,13 +219,73 @@ const generateReport = async (
     //console.log("Sector: ", sector);
 
 
-  return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${companyName} Investment Readiness Report</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+    body { background-color: #f7fafc; color: #2d3748; }
+    .max-w-6xl { max-width: 72rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .bg-white { background-color: #ffffff; }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    .p-10 { padding: 2.5rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .bg-blue-900 { background-color: #2a4365; }
+    .text-white { color: #ffffff; }
+    .p-8 { padding: 2rem; }
+    .flex { display: flex; }
+    .justify-between { justify-content: space-between; }
+    .items-center { align-items: center; }
+    .space-x-6 { margin-right: 1.5rem; }
+    .h-24 { height: 6rem; }
+    .w-24 { width: 6rem; }
+    .object-cover { object-fit: cover; }
+    .rounded-full { border-radius: 9999px; }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+    .font-extrabold { font-weight: 800; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .text-center { text-align: center; }
+    .bg-blue-800 { background-color: #2c5282; }
+    .p-6 { padding: 1.5rem; }
+    .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+    .text-5xl { font-size: 3rem; line-height: 1; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .font-medium { font-weight: 500; }
+    .mt-10 { margin-top: 2.5rem; }
+    .grid { display: grid; }
+    .grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .gap-10 { gap: 2.5rem; }
+    .col-span-7 { grid-column: span 7 / span 7; }
+    .mb-8 { margin-bottom: 2rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .border-b-2 { border-bottom-width: 2px; }
+    .border-gray-200 { border-color: #edf2f7; }
+    .pb-3 { padding-bottom: 0.75rem; }
+    .leading-relaxed { line-height: 1.625; }
+    .table-auto { table-layout: auto; }
+    .w-full { width: 100%; }
+    .text-left { text-align: left; }
+    .border-collapse { border-collapse: collapse; }
+    .bg-gray-100 { background-color: #f7fafc; }
+    .border { border-width: 1px; border-color: #edf2f7; }
+    .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .border-t { border-top-width: 1px; }
+    .bg-gray-50 { background-color: #f9fafb; }
+    .col-span-5 { grid-column: span 5 / span 5; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .underline { text-decoration: underline; }
+    .text-blue-500 { color: #4299e1; }
+</style>
+
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -574,9 +634,8 @@ const generateReport = async (
       </script>
 </body>
 </html>
-`
-
-;
+`;
+    
 };
 
 export default generateReport;
