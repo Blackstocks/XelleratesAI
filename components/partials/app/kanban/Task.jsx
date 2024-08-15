@@ -5,24 +5,25 @@ import Icon from "@/components/ui/Icon";
 // import menu form headless ui
 import { Menu } from "@headlessui/react";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { deleteTask, toggleEditModal } from "./store";
+import { deleteTask, setColumnId, toggleEditModal, updateTaskTag } from "./store";
 import { useDispatch } from "react-redux";
+import { supabase } from "@/lib/supabaseclient";
+import { useSelector } from "react-redux";
+
 const Task = ({ task }) => {
   const {
     name,
     progress,
-    status,
-    members,
-    assignee,
-    des,
-    startDate,
-    endDate,
+    description,
+    start_date,
+    end_date,
     id,
   } = task;
 
-  const [start, setStart] = useState(new Date(startDate));
-  const [end, setEnd] = useState(new Date(endDate));
+  const [start, setStart] = useState(new Date(start_date));
+  const [end, setEnd] = useState(new Date(end_date));
   const [totaldays, setTotaldays] = useState(0);
+  const { taskTag} = useSelector((state) => state.kanban);
 
   useEffect(() => {
     const diffTime = Math.abs(end - start);
@@ -31,6 +32,30 @@ const Task = ({ task }) => {
   }, [start, end]);
 
   const dispatch = useDispatch();
+
+  const deleteTaskData = async (id) => {
+    // console.log(profile_idconsol
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+      if (error) throw error;
+
+      const response = await fetch(`/api/task_kanban?id=${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "supabase-token": session.access_token,
+        },
+        method: "DELETE",
+      });
+      const data = await response.json();
+      console.log(data);
+      dispatch(updateTaskTag(!taskTag));
+    } catch (error) {
+      console.error("error in deleting task from database:", error);
+    }
+  };
 
   return (
     <Card className=" cursor-move bg-white">
@@ -59,14 +84,14 @@ const Task = ({ task }) => {
           >
             <div>
               <Menu.Item
-                onClick={() =>
+                onClick={() =>{
                   dispatch(
                     toggleEditModal({
                       editModal: true,
                       task,
                     })
                   )
-                }
+                }}
               >
                 <div
                   className="hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white
@@ -79,7 +104,7 @@ const Task = ({ task }) => {
                   <span>Edit</span>
                 </div>
               </Menu.Item>
-              <Menu.Item onClick={() => dispatch(deleteTask(id))}>
+              <Menu.Item onClick={() =>deleteTaskData(task?.id)}>
                 <div
                   className="hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white
                    w-full border-b border-b-gray-500 border-opacity-10   px-4 py-2 text-sm dark:text-slate-300  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex  space-x-2 items-center
@@ -97,30 +122,33 @@ const Task = ({ task }) => {
       </header>
       {/* description */}
       <div className="text-slate-600 dark:text-slate-400 text-sm pt-4 pb-8">
-        {des}
+        {description}
       </div>
       {/* assignee */}
       <div className="flex space-x-4 rtl:space-x-reverse">
         {/* start date */}
         <div>
           <span className="block date-label">Start date</span>
-          <span className="block date-text">{startDate}</span>
+          <span className="block date-text">{start_date}</span>
         </div>
+
         {/* end date */}
         <div>
           <span className="block date-label">Start date</span>
-          <span className="block date-text">{endDate}</span>
+          <span className="block date-text">{end_date}</span>
         </div>
       </div>
+
       {/* progress bar */}
       <div className="ltr:text-right rtl:text-left text-xs text-slate-600 dark:text-slate-300 mb-1 font-medium">
         {progress}%
       </div>
       <ProgressBar value={progress} className="bg-primary-500" />
+
       {/* assignee and total date */}
       <div className="grid grid-cols-2 gap-4 mt-6">
         {/* assignee */}
-        <div>
+        {/* <div>
           <div className="text-slate-400 dark:text-slate-400 text-sm font-normal mb-3">
             Assigned to
           </div>
@@ -141,8 +169,8 @@ const Task = ({ task }) => {
               +2
             </div>
           </div>
-        </div>
-
+        </div> */}
+ 
         {/* total date */}
         <div className="ltr:text-right rtl:text-left">
           <span className="inline-flex items-center space-x-1 bg-danger-500 bg-opacity-[0.16] text-danger-500 text-xs font-normal px-2 py-1 rounded-full rtl:space-x-reverse">

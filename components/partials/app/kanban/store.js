@@ -12,186 +12,19 @@ export const appKanbanSlice = createSlice({
     openTaskId: null,
 
     // for edit
+    columnId:"",
     editModal: false,
     editItem: {},
-    columns: [
-      {
-        id: uuidv4(),
-        name: "To Do",
-        color: "#4669FA",
-        tasks: [
-          {
-            id: uuidv4(),
-            assignee: [
-              {
-                image: "/assets/images/avatar/av-1.svg",
-                title: "Mahedi Amin",
-              },
-              {
-                image: "/assets/images/avatar/av-2.svg",
-                title: "Sovo Haldar",
-              },
-              {
-                image: "/assets/images/avatar/av-3.svg",
-                title: "Rakibul Islam",
-              },
-            ],
-            name: "CRM Dashboard ",
-            des: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.",
-            startDate: "2022-10-03",
-            endDate: "2022-10-06",
-            progress: 90,
-            category: [
-              {
-                value: "team",
-                label: "team",
-              },
-              {
-                value: "low",
-                label: "low",
-              },
-            ],
-          },
-          {
-            id: uuidv4(),
-            assignee: [
-              {
-                image: "/assets/images/avatar/av-1.svg",
-                title: "Mahedi Amin",
-              },
-              {
-                image: "/assets/images/avatar/av-2.svg",
-                title: "Sovo Haldar",
-              },
-              {
-                image: "/assets/images/avatar/av-3.svg",
-                title: "Rakibul Islam",
-              },
-            ],
-            name: "Dashcode Example Kanban",
-            des: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.",
-            startDate: "2022-10-03",
-            endDate: "2022-10-06",
-            progress: 55,
-            category: [
-              {
-                value: "team",
-                label: "team",
-              },
-              {
-                value: "low",
-                label: "low",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: uuidv4(),
-        name: "In Progress",
-        color: "#FA916B",
-        tasks: [
-          {
-            id: uuidv4(),
-            assignee: [
-              {
-                image: "/assets/images/avatar/av-1.svg",
-                title: "Mahedi Amin",
-              },
-              {
-                image: "/assets/images/avatar/av-2.svg",
-                title: "Sovo Haldar",
-              },
-              {
-                image: "/assets/images/avatar/av-3.svg",
-                title: "Rakibul Islam",
-              },
-            ],
-            name: "Business Dashboard ",
-            des: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.",
-            startDate: "2022-10-03",
-            endDate: "2022-10-06",
-            progress: 75,
-            category: [
-              {
-                value: "team",
-                label: "team",
-              },
-              {
-                value: "low",
-                label: "low",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: uuidv4(),
-        name: "Done",
-        color: "#50C793",
-        tasks: [
-          {
-            id: uuidv4(),
-            assignee: [
-              {
-                image: "/assets/images/avatar/av-1.svg",
-                title: "Mahedi Amin",
-              },
-              {
-                image: "/assets/images/avatar/av-2.svg",
-                title: "Sovo Haldar",
-              },
-              {
-                image: "/assets/images/avatar/av-3.svg",
-                title: "Rakibul Islam",
-              },
-            ],
-            name: "Management Dashboard ",
-            des: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.",
-            startDate: "2022-10-03",
-            endDate: "2022-10-06",
-            progress: 40,
-            category: [
-              {
-                value: "team",
-                label: "team",
-              },
-              {
-                value: "low",
-                label: "low",
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    columns: [],
     isLoading: false,
+    taskTag:false,
   },
   reducers: {
-    sort: (state, action) => {
-      const { source, destination } = action.payload;
-      if (source.droppableId !== destination.droppableId) {
-        const sourceColumn = state.columns.find(
-          (column) => column.id === source.droppableId
-        );
-        const destColumn = state.columns.find(
-          (column) => column.id === destination.droppableId
-        );
-
-        const sourceItems = [...sourceColumn.tasks];
-        const destItems = [...destColumn.tasks];
-
-        const [removed] = sourceItems.splice(source.index, 1);
-
-        destItems.splice(destination.index, 0, removed);
-
-        sourceColumn.tasks = sourceItems;
-        destColumn.tasks = destItems;
-      } else {
-        const items = state.columns;
-        const [reorderedItem] = items.splice(action.payload.source.index, 1);
-        items.splice(action.payload.destination.index, 0, reorderedItem);
-      }
+    updateTaskTag:(state,action)=>{
+      state.taskTag = action.payload;
+    },
+    setColumnId:(state,action)=>{
+      state.columnId=action.payload;
     },
     toggleColumnModal: (state, action) => {
       state.columModal = action.payload;
@@ -303,5 +136,7 @@ export const {
   deleteTask,
   toggleEditModal,
   updateTask,
+  setColumnId,
+  updateTaskTag,
 } = appKanbanSlice.actions;
 export default appKanbanSlice.reducer;

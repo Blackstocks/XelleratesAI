@@ -4,6 +4,9 @@ import React from "react";
 import Button from "@/components/ui/Button";
 import Tooltip from "@/components/ui/Tooltip";
 import Icon from "@/components/ui/Icon";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext"; // Adjust the import path as necessary
+import { supabase } from "@/lib/supabaseclient";
 
 import { useSelector, useDispatch } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -11,16 +14,31 @@ import {
   sort,
   toggleColumnModal,
   deleteColumnBoard,
-  toggleTaskModal,
+  setColumnId
 } from "@/components/partials/app/kanban/store";
 import Task from "@/components/partials/app/kanban/Task";
 import AddColumn from "@/components/partials/app/kanban/AddColumn";
 import AddTaskModal from "@/components/partials/app/kanban/AddTaskModal";
 import { ToastContainer } from "react-toastify";
 import EditTaskModal from "@/components/partials/app/kanban/EditTask";
+import useCompleteUserDetails from "@/hooks/useCompleUserDetails";
+import TaskCard from "@/components/partials/app/kanban/TaskCard";
+
 const KanbanPage = () => {
-  const { columns, taskModal } = useSelector((state) => state.kanban);
+  const { user, loading: authLoading } = useAuth();
+  const { columns,columnId, taskModal } = useSelector((state) => state.kanban);
   const dispatch = useDispatch();
+  const [columnsList, setColumnsList] = useState([]);
+  const { profile } = useCompleteUserDetails();
+  const { loading, setLoading } = useState(false);
+  const [  toggleTaskModal, setToggleTaskModal  ]=useState(false);
+  // console.log(profile);
+
+  useEffect(() => {
+    if (user && profile?.id) {
+      fetchColumnData(profile?.id);
+    }
+  }, [profile, columns]);
 
   const onDragEnd = (result) => {
     const { destination, source, draggableId, type } = result;
@@ -31,6 +49,56 @@ const KanbanPage = () => {
 
     dispatch(sort(result));
   };
+
+  const fetchColumnData = async (profile_id) => {
+    // console.log(profile_id)
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+      if (error) throw error;
+
+      const response = await fetch(
+        `/api/column_kanban?profile_id=${profile_id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "supabase-token": session.access_token,
+          },
+        }
+      );
+      const data = await response.json();
+      setColumnsList(data.columns);
+    } catch (error) {
+      console.error("error in fetching column from database:", error);
+    }
+  };
+
+  const deleteColumnData = async (id) => {
+    // console.log(profile_idconsol
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+      if (error) throw error;
+
+      const response = await fetch(`/api/column_kanban?id=${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "supabase-token": session.access_token,
+        },
+        method: "DELETE",
+      });
+      const data = await response.json();
+      console.log(data);
+      fetchColumnData(profile?.id);
+    } catch (error) {
+      console.error("error in deleting column from database:", error);
+    }
+  };
+
   return (
     <div>
       <ToastContainer />
@@ -58,8 +126,8 @@ const KanbanPage = () => {
                 {...provided.droppableProps}
                 className="flex space-x-6 overflow-hidden overflow-x-auto pb-4 rtl:space-x-reverse"
               >
-                {columns?.map((column, i) => {
-                  return (
+                {columnsList?.map((column, i) => {
+                  return (<>
                     <Draggable
                       key={column.id}
                       draggableId={column.id}
@@ -100,9 +168,10 @@ const KanbanPage = () => {
                                 >
                                   <button
                                     className="border border-slate-200 dark:border-slate-700 dark:text-slate-400 rounded h-6 w-6 flex flex-col  items-center justify-center text-base text-slate-600"
-                                    onClick={() =>
-                                      dispatch(deleteColumnBoard(column.id))
-                                    }
+                                    onClick={() => {
+                                      dispatch(deleteColumnBoard(column.id));
+                                      deleteColumnData(column?.id);
+                                    }}
                                   >
                                     <Icon icon="heroicons-outline:trash" />
                                   </button>
@@ -116,13 +185,10 @@ const KanbanPage = () => {
                                 >
                                   <button
                                     className="border border-slate-200 dark:border-slate-700 dark:text-slate-400 rounded h-6 w-6 flex flex-col  items-center justify-center text-base text-slate-600"
-                                    onClick={() =>
-                                      dispatch(
-                                        toggleTaskModal({
-                                          open: true,
-                                          columnId: column.id,
-                                        })
-                                      )
+                                    onClick={() =>{
+                                      setToggleTaskModal(true);
+                                      dispatch(setColumnId(column?.id)) 
+                                    }
                                     }
                                   >
                                     <Icon icon="heroicons-outline:plus-sm" />
@@ -143,23 +209,7 @@ const KanbanPage = () => {
                                     snapshot.isDraggingOver && "bg-primary-400"
                                   }`}
                                 >
-                                  {column.tasks?.map((task, j) => (
-                                    <Draggable
-                                      key={j}
-                                      draggableId={task.id}
-                                      index={j}
-                                    >
-                                      {(provided) => (
-                                        <div
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                        >
-                                          <Task task={task} />
-                                        </div>
-                                      )}
-                                    </Draggable>
-                                  ))}
+                                  <TaskCard column={column} profile_id={profile?.id} />
                                   {provided.placeholder}
                                 </div>
                               )}
@@ -168,7 +218,8 @@ const KanbanPage = () => {
                         </div>
                       )}
                     </Draggable>
-                  );
+                  </>                  
+                );
                 })}
                 {provided.placeholder}
               </div>
@@ -176,8 +227,8 @@ const KanbanPage = () => {
           </Droppable>
         </DragDropContext>
       </div>
-      <AddColumn />
-      <AddTaskModal />
+      <AddColumn profile_id={profile?.id} />
+      <AddTaskModal setToggleTaskModal={setToggleTaskModal} toggleTaskModal={toggleTaskModal} column_id={columnId} profile_id={profile?.id}/>
       <EditTaskModal />
     </div>
   );

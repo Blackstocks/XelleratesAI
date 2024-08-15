@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import Modal from "@/components/ui/Modal";
 import { useSelector, useDispatch } from "react-redux";
 import Textinput from "@/components/ui/Textinput";
+import { supabase } from '@/lib/supabaseclient';
+
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,10 +17,12 @@ const FormValidationSchema = yup
   })
   .required();
 
-const AddColumn = () => {
+const AddColumn = ({profile_id}) => {
   const { columModal } = useSelector((state) => state.kanban);
   const dispatch = useDispatch();
   const [color, setColor] = useState("#4669fa");
+  const [name,setName]=useState("");
+  
   const {
     register,
     control,
@@ -33,8 +37,41 @@ const AddColumn = () => {
   const onSubmit = (data) => {
     dispatch(addColumnBoard({ ...data, color }));
     dispatch(toggleColumnModal(false));
+    addColumnData();
     reset();
   };
+
+  const addColumnData = async () => {
+    // console.log(profile_id)
+    const body={
+      profile_id:profile_id,
+      name:name, 
+      color:color
+    }
+    console.log(body);
+
+    try {
+      const {data: { session },error,} = await supabase.auth.getSession();
+      if (error) throw error;
+
+      const response = await fetch(`/api/column_kanban`, {
+        headers: {
+          "Content-Type": "application/json",
+          "supabase-token": session.access_token,
+        },
+        method:"POST",
+        body:JSON.stringify(body),
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(
+        "error in adding column from database:",
+        error
+      );
+    }
+  };
+
 
   return (
     <div>
@@ -52,6 +89,7 @@ const AddColumn = () => {
             placeholder="Column Name"
             register={register}
             error={errors.title}
+            onChange={(e)=>setName(e.target.value)}
           />
           <div className="formGroup">
             <label className="form-label">Select Color</label>

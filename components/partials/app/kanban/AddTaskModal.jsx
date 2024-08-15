@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Select, { components } from "react-select";
 import Modal from "@/components/ui/Modal";
 import { useSelector, useDispatch } from "react-redux";
-import { toggleTaskModal, addTask } from "./store";
 import Textinput from "@/components/ui/Textinput";
 import Textarea from "@/components/ui/Textarea";
 import Flatpickr from "react-flatpickr";
@@ -11,6 +10,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { v4 as uuidv4 } from "uuid";
 import FormGroup from "@/components/ui/FormGroup";
+import { supabase } from "@/lib/supabaseclient";
+import { setColumnId, updateTaskTag } from "./store";
+
 
 const styles = {
   multiValue: (base, state) => {
@@ -96,11 +98,15 @@ const OptionComponent = ({ data, ...props }) => {
   );
 };
 
-const AddTaskModal = () => {
-  const { taskModal } = useSelector((state) => state.kanban);
+
+
+const AddTaskModal = ({setToggleTaskModal,toggleTaskModal,column_id,profile_id}) => {
   const dispatch = useDispatch();
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [description,setDescription]=useState("");
+  const { taskTag} = useSelector((state) => state.kanban);
+
 
   const FormValidationSchema = yup
     .object({
@@ -130,39 +136,64 @@ const AddTaskModal = () => {
   });
 
   const onSubmit = (data) => {
-    dispatch(
-      addTask({
-        id: uuidv4(),
-        name: data.title,
-        assignee: data.assign,
-        // get only data value from startDate and endDate
-        category: null,
-        startDate: startDate.toISOString().split("T")[0],
-        endDate: endDate.toISOString().split("T")[0],
-        des: "Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint.",
-        progress: Math.floor(Math.random() * (100 - 10 + 1) + 10),
-      })
-    );
-    dispatch(
-      toggleTaskModal({
-        open: false,
-      })
-    );
+    console.log(data);
+    addTaskData(data);
+    setToggleTaskModal(false);
     reset();
   };
+
+  const addTaskData = async (data) => {
+    const {title,assign,tags} = data;
+    const body={
+      name:title,
+      description,
+      start_date:data.startDate.toISOString().split("T")[0],
+      end_date:data.endDate.toISOString().split("T")[0],
+      progress:Math.floor(Math.random() * (100 - 10 + 1) + 10),
+      column_id,
+      profile_id,
+      assigned_id:assign[0].value,
+      assigned_email:assign[0].label,
+      tags,
+    }
+    console.log(body);
+
+    try {
+      const {data: { session },error,} = await supabase.auth.getSession();
+      if (error) throw error;
+
+      const response = await fetch(`/api/task_kanban`, {
+        headers: {
+          "Content-Type": "application/json",
+          "supabase-token": session.access_token,
+        },
+        method:"POST",
+        body:JSON.stringify(body),
+      });
+      const data = await response.json();
+      console.log(data);
+      dispatch(setColumnId(""));
+      dispatch(updateTaskTag(!taskTag));
+    } catch (error) {
+      console.error(
+        "error in adding column from database:",
+        error
+      );
+    }
+  };
+
+
+
+
 
   return (
     <div>
       <Modal
         title="Create Project"
         labelclassName="btn-outline-dark"
-        activeModal={taskModal}
+        activeModal={toggleTaskModal}
         onClose={() =>
-          dispatch(
-            toggleTaskModal({
-              open: false,
-            })
-          )
+          setToggleTaskModal(false)
         }
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 ">
@@ -281,7 +312,7 @@ const AddTaskModal = () => {
               </div>
             )}
           </div>
-          <Textarea label="Description" placeholder="Description" />
+          <Textarea label="Description" placeholder="Description" value={description} onChange={(e)=>setDescription(e.target.value)} />
 
           <div className="ltr:text-right rtl:text-left">
             <button className="btn btn-dark  text-center">Add</button>
