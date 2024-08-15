@@ -7,10 +7,10 @@ export default async function handler(req, res) {
   const options = { format: 'A4' };
 
   try {
-    // const pdfBuffer = await pdf.generatePdf(file, options);
+    const pdfBuffer = await pdf.generatePdf(file, options);
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const pdfBuffer = await pdf.generatePdf({ content: document.getElementById('pdfContent').innerHTML }, { format: 'A4' });
+    // const pdfBuffer = await pdf.generatePdf({ content: document.getElementById('pdfContent').innerHTML }, { format: 'A4' });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
     res.send(pdfBuffer);
