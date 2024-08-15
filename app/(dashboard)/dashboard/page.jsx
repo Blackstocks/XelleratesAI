@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 import useUserDetails from '@/hooks/useUserDetails';
 import { useTable, useSortBy, useExpanded } from 'react-table';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import Card from '@/components/ui/Card';
 import RecentOrderTable2 from '@/components/partials/table/recent-Order-table2';
 import GroupChart3 from '@/components/partials/widget/chart/group-chart-3';

@@ -16,7 +16,7 @@ import GlobalFilter from '@/components/partials/table/GlobalFilter';
 import HistoryChart from '@/components/partials/widget/chart/history-chart';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import { DocumentProvider } from '@/context/DocumentContext';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import CompetitorsCard from '@/components/partials/widget/competitorsCard';
 
 const CardSlider = dynamic(

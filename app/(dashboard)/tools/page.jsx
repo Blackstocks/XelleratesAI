@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import useUserDetails from '@/hooks/useUserDetails';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import { supabase } from '@/lib/supabaseclient';
 import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';

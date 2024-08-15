@@ -20,7 +20,7 @@ import {
 } from '@/lib/actions/investorActions';
 import FormCompletionBanner from '@/components/FormCompletionBanner';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 
 const Profile = () => {
   const { user, loading } = useUserDetails();

@@ -4,7 +4,7 @@ import Head from 'next/head';
 import useUserDetails from '@/hooks/useUserDetails';
 import useStartups from '@/hooks/useStartups';
 import Modal from '@/components/Modal';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Textarea from '@/components/ui/Textarea';

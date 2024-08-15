@@ -9,7 +9,7 @@ import Card from '@/components/ui/Card';
 import EventModal from '@/components/partials/app/calender/EventModalschedule';
 import EditEventModal from '@/components/partials/app/calender/EditEventModal';
 import { supabase } from '@/lib/supabaseclient';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import Chatbot from '@/components/chatbot';
 import useUserDetails from '@/hooks/useUserDetails';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';

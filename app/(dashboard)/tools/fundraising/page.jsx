@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails'; // Ensure this hook exists and the path is correct
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import DountChart from '@/components/partials/widget/chart/dount-chart2';
 import DonutChart3 from '@/components/partials/widget/chart/dount-chart3';
 import DountChart4 from '@/components/partials/widget/chart/dount-chart4';
