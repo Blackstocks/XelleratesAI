@@ -95,7 +95,17 @@ const Profile = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className='flex items-center'>
+        <div className='flex-1 ltr:mr-[10px] rtl:ml-[10px]'>
+          <div className='lg:h-8 lg:w-8 h-7 w-7 bg-[#C4C4C4] dark:bg-slate-500 rounded-full animate-pulse'></div>
+        </div>
+        <div className='flex-none text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap'>
+          <div className='bg-[#C4C4C4] dark:bg-slate-500 h-4 w-[85px] rounded animate-pulse'></div>
+          <div className='bg-[#C4C4C4] dark:bg-slate-500 h-4 w-4 rounded-full animate-pulse ltr:ml-[10px] rtl:mr-[10px]'></div>
+        </div>
+      </div>
+    );
   }
 
   const ProfileMenu = [

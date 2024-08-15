@@ -14,6 +14,7 @@ import InputGroup from './ui/InputGroup';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import { countries } from '@/constant/data';
 import { useFieldArray } from 'react-hook-form';
+import Link from 'next/link';
 import {
   updateGeneralInfo,
   updateCTODetails,
@@ -3424,8 +3425,15 @@ const VerticalNavTabs = (props) => {
                                   <Icon icon='heroicons:document' />
                                 </div>
                                 <div className='flex-1'>
-                                  <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                                    MIS
+                                  <div className=' text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                                    MIS{' '}
+                                    <Link
+                                      href='https://xgusxcqoddybgdkkndvn.supabase.co/storage/v1/object/public/documents/1723238077176-MIS%20Report-%20Fy24.xlsx'
+                                      passHref
+                                      className='text-blue-500 '
+                                    >
+                                      (Download Sample MIS Report)
+                                    </Link>
                                   </div>
                                   <a
                                     href={companyDocuments?.mis || '#'}
