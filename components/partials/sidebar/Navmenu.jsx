@@ -17,8 +17,9 @@ import useUserDetails from '@/hooks/useUserDetails';
 const Navmenu = ({ menus }) => {
   const router = useRouter();
   const [activeSubmenu, setActiveSubmenu] = useState(null);
-  const { user } = useUserDetails();
+  const { user, loading } = useUserDetails(); // Get the loading state
   const role = user?.role;
+  const userType = user?.user_type;
 
   const toggleSubmenu = (i) => {
     if (activeSubmenu === i) {
@@ -29,7 +30,6 @@ const Navmenu = ({ menus }) => {
   };
 
   const locationName = usePathname();
-  // const locationName = location.replace('/', '');
 
   const [mobileMenu, setMobileMenu] = useMobileMenu();
   const dispatch = useDispatch();
@@ -57,11 +57,33 @@ const Navmenu = ({ menus }) => {
     }
   }, [router, locationName]);
 
+  const filteredMenus = menus.filter((item) => {
+    if (userType === 'investor' && item.title === 'Vault') {
+      return false;
+    }
+    return true;
+  });
+
+  if (loading) {
+    return (
+      <ul>
+        {[...Array(5)].map((_, i) => (
+          <li key={i} className='single-sidebar-menu animate-pulse'>
+            <div className='menu-link'>
+              <div className='menu-icon bg-gray-200 h-5 w-5 rounded'></div>
+              <div className='text-box bg-gray-200 h-4 w-24 rounded ml-2'></div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <>
       <ul>
         {role !== 'super_admin' &&
-          menus.map((item, i) => (
+          filteredMenus.map((item, i) => (
             <li
               key={i}
               className={`single-sidebar-menu 
