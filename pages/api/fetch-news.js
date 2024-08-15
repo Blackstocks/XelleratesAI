@@ -115,13 +115,14 @@
 //     }
 // }
 
-
 import axios from 'axios';
+import { HttpProxyAgent } from 'http-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import * as cheerio from 'cheerio';
-import HttpsProxyAgent from 'https-proxy-agent';
 
 const proxies = [
-    { host: '89.135.59.65', port: 8090 }
+    { host: '89.135.59.65', port: 8090, username: '', password: '' }, // Example proxy
+    { host: '82.152.165.218', port: 20000, username: '', password: '' } // Another example proxy
 ];
 
 function getRandomProxy() {
@@ -148,33 +149,25 @@ export default async function handler(req, res) {
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
         const proxy = getRandomProxy(); // Get a random proxy from the list
 
+        const proxyUrl = `http://df4b94bb61b0d53c989634f943d0e492a53ada15:@proxy.zenrows.com:8001`;
+        const httpAgent = new HttpProxyAgent(proxyUrl);
+        const httpsAgent = new HttpsProxyAgent(proxyUrl);
+
         const AXIOS_OPTIONS = {
+            url: `https://news.google.com/search?q=${encodedString}`,
+            httpAgent,
+            httpsAgent,
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
+                'x-rapidapi-key': '5f66497934mshba6534b53e60867p118027jsn3ef1f3c1bf41',
+                'x-rapidapi-host': 'newscatcher-api-test.p.rapidapi.com',
+                'X-RapidAPI-Key': '88ba2fd60amsh430b0222cedf4dap10e0a4jsn7662ba307e20'
             },
-            params: {
-                q: encodedString,
-                tbm: 'nws',
-                hl: 'en',
-                gl: 'us',
-            },
-            proxy: { host: '82.152.165.218', port: 20000 },
+            method: 'GET'
         };
 
         try {
-            // const { data } = await axios.get(`${BASE_URL}/search?q=${encodedString}`, AXIOS_OPTIONS);
-
-            const options = {
-                method: 'GET',
-                url: `https://news.google.com/search?q=${encodedString}`,
-                headers: {
-                  'x-rapidapi-key': '5f66497934mshba6534b53e60867p118027jsn3ef1f3c1bf41',
-                  'x-rapidapi-host': 'newscatcher-api-test.p.rapidapi.com',
-                  'X-RapidAPI-Key': '88ba2fd60amsh430b0222cedf4dap10e0a4jsn7662ba307e20'
-                }
-              };
-            
-            const {data} = await axios.request(options);
+            const { data } = await axios.request(AXIOS_OPTIONS);
             const $ = cheerio.load(data);
 
             // Fetch only the top 20 articles
@@ -188,10 +181,7 @@ export default async function handler(req, res) {
                         if (parts[0] === 'Inc42') {
                             const link = new URL($(el).find('a.JtKRv').attr('href'), BASE_URL).href;
 
-                            console.log("Found link: ", link);
-
                             const urlObject = new URL(link);
-
                             const pathParts = urlObject.pathname.split('/');
 
                             // Replace 'read' with 'rss/articles'
@@ -210,12 +200,7 @@ export default async function handler(req, res) {
 
                             // Fetch the summary from the article link with retries
                             const decodedUrl = await decodeGoogleNewsUrl(newlink);
-                            //const summary = await fetchArticleSummaryWithRetries(decodedUrl);
                             const summary = "Not Available";
-
-                            console.log("title: ", title);
-                            console.log("url: ", decodedUrl);
-                            //console.log("summary: ", summary);
 
                             return {
                                 decodedUrl,
