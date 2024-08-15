@@ -17,8 +17,19 @@ export default async function handler(req, res) {
     );
 
     const data = await response.json();
+    if (!response.ok) {
+      console.error('Error response from API:', data);
+      return res.status(response.status).json(data);
+    }
+
     res.status(response.status).json(data);
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    console.error('Internal Server Error:', error);
+    res
+      .status(500)
+      .json({
+        message: 'Internal Server Error',
+        error: error.message || error,
+      });
   }
 }
