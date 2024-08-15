@@ -92,7 +92,7 @@ const companyDocumentsFiles = {
   nda: 'nda',
 };
 
-const VerticalNavTabs = () => {
+const VerticalNavTabs = (props) => {
   let {
     companyProfile,
     businessDetails,
@@ -101,7 +101,7 @@ const VerticalNavTabs = () => {
     ctoInfo,
     companyDocuments,
     fetchData,
-  } = useCompleteUserDetails();
+  } = props;
   // console.log('companyDocuments', companyDocuments)
   // console.log('companyProfile', companyProfile);
   // console.log('founderInformation', founderInformation);
@@ -228,7 +228,7 @@ const VerticalNavTabs = () => {
       // console.log('social_media_handles', socialMediaFields);
     }
     if (founderInformation) {
-      // console.log('Founder Information:', founderInformation);
+      console.log('fundingInformation:', fundingInformation);
 
       reset({
         advisors: founderInformation?.advisors || [],
@@ -238,7 +238,7 @@ const VerticalNavTabs = () => {
     if (fundingInformation) {
       reset({
         capTable: fundingInformation?.cap_table || [],
-        funding: fundingInformation?.funding || [],
+        funding: fundingInformation?.previous_funding || [],
       });
     }
   }, [companyProfile, founderInformation, fundingInformation, reset]);

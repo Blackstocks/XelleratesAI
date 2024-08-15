@@ -12,59 +12,72 @@ const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Error fetching session:', error);
-      }
-      setUser(session?.user || null);
-      setLoading(false);
-    };
+    // Check session and set up the listener only once
+    const checkAndListenForSession = async () => {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) throw error;
 
-    checkSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+        // Set the user from the session
         setUser(session?.user || null);
+
+        // Listen to auth state changes and update the user state accordingly
+        const { data: authListener } = supabase.auth.onAuthStateChange(
+          (_event, session) => {
+            setUser(session?.user || null);
+            setLoading(false);
+          }
+        );
+
+        // Cleanup the subscription on unmount
+        return () => {
+          authListener?.subscription?.unsubscribe();
+        };
+      } catch (error) {
+        console.error('Error fetching session:', error);
+        setUser(null);
+      } finally {
         setLoading(false);
       }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
     };
+
+    checkAndListenForSession();
   }, []);
 
   const login = async (email, password) => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      setUser(data.user);
+      return data;
+    } catch (error) {
       console.error('Login error:', error);
-      setLoading(false);
       throw error;
+    } finally {
+      setLoading(false);
     }
-    setUser(data.user);
-    setLoading(false);
-    return data;
   };
 
   const logout = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUser(null);
+      router.push('/');
+    } catch (error) {
       console.error('Logout error:', error);
-      setLoading(false);
       throw error;
+    } finally {
+      setLoading(false);
     }
-    setUser(null);
-    router.push('/');
-    setLoading(false);
   };
 
   return (

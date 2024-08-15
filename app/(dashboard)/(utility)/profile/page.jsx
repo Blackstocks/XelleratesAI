@@ -24,8 +24,17 @@ import Loading from '@/components/Loading';
 
 const Profile = () => {
   const { user, loading } = useUserDetails();
-  const { companyProfile, investorSignup, fetchData } =
-    useCompleteUserDetails();
+  const {
+    profile,
+    companyProfile,
+    businessDetails,
+    founderInformation,
+    fundingInformation,
+    ctoInfo,
+    companyDocuments,
+    investorSignup,
+    fetchData,
+  } = useCompleteUserDetails();
   // console.log('investorSignup in profile', investorSignup);
   // console.log('investorSignup in profile', investorSignup);
   const [editingSection, setEditingSection] = useState(null);
@@ -139,7 +148,17 @@ const Profile = () => {
 
   return (
     <div className='space-y-5 profile-page'>
-      <FormCompletionBanner profileId={companyProfile?.profile_id} />
+      <FormCompletionBanner
+        profileId={companyProfile?.profile_id}
+        profile={profile}
+        companyProfile={companyProfile}
+        businessDetails={businessDetails}
+        founderInformation={founderInformation}
+        fundingInformation={fundingInformation}
+        ctoInfo={ctoInfo}
+        companyDocuments={companyDocuments}
+        investorSignup={investorSignup}
+      />
       <>
         <div className='profiel-wrap px-[35px] pb-10 md:pt-[84px] pt-10 rounded-lg bg-white dark:bg-slate-800 lg:flex lg:space-y-0 space-y-6 justify-between items-end relative z-[1]'>
           <div className='bg-slate-900 dark:bg-slate-700 absolute left-0 top-0 md:h-1/2 h-[150px] w-full z-[-1] rounded-t-lg'></div>
@@ -605,11 +624,13 @@ const Profile = () => {
 
         {user?.user_type === 'startup' && (
           <VerticalNavTabs
-            editingSection={editingSection}
-            setEditingSection={setEditingSection}
-            handleSave={handleSave}
-            register={register}
-            handleSubmit={handleSubmit}
+            companyProfile={companyProfile}
+            businessDetails={businessDetails}
+            founderInformation={founderInformation}
+            fundingInformation={fundingInformation}
+            ctoInfo={ctoInfo}
+            companyDocuments={companyDocuments}
+            fetchData={fetchData}
           />
         )}
       </>

@@ -21,7 +21,7 @@ import { useSelector } from 'react-redux';
 import useRtl from '@/hooks/useRtl';
 import useDarkMode from '@/hooks/useDarkMode';
 import useSkin from '@/hooks/useSkin';
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import useNavbarType from '@/hooks/useNavbarType';
 import { motion, AnimatePresence } from 'framer-motion';

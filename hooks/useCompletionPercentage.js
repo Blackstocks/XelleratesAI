@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
-const useCompletionPercentage = () => {
+const useCompletionPercentage = ({
+  profile,
+  companyProfile,
+  businessDetails,
+  founderInformation,
+  fundingInformation,
+  ctoInfo,
+  companyDocuments,
+  investorSignup,
+}) => {
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [loading, setLoading] = useState(true);
-  const {
-    profile,
-    companyProfile,
-    businessDetails,
-    founderInformation,
-    fundingInformation,
-    ctoInfo,
-    companyDocuments,
-    investorSignup,
-  } = useCompleteUserDetails();
 
   useEffect(() => {
     const fetchCompletionPercentage = async () => {

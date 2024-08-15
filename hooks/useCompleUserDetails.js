@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext'; // Adjust the import path as necessary
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 
 const useCompleteUserDetails = () => {
-  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState(null);
   const [companyProfile, setCompanyProfile] = useState(null);
   const [businessDetails, setBusinessDetails] = useState(null);
@@ -14,7 +12,10 @@ const useCompleteUserDetails = () => {
   const [investorSignup, setInvestorSignup] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const hasFetchedData = useRef(false); // Track whether data has been fetched
+
   const fetchData = async () => {
+    if (hasFetchedData.current) return; // Skip if already fetched
     setLoading(true);
     try {
       const {
@@ -31,6 +32,7 @@ const useCompleteUserDetails = () => {
       });
       const data = await response.json();
 
+      // Set only necessary data to minimize re-renders
       setProfile(data.profile ?? null);
       setInvestorSignup(data?.investorSignupData ?? null);
       setCompanyProfile(data?.companyProfile ?? null);
@@ -39,6 +41,8 @@ const useCompleteUserDetails = () => {
       setFundingInformation(data?.fundingInformation?.[0] ?? null);
       setCtoInfo(data?.ctoInfo?.[0] ?? null);
       setCompanyDocuments(data?.companyDocuments?.[0] ?? null);
+
+      hasFetchedData.current = true; // Mark data as fetched
     } catch (error) {
       console.error(
         'Error fetching user details, contact the administrator:',
@@ -50,17 +54,12 @@ const useCompleteUserDetails = () => {
   };
 
   useEffect(() => {
-    if (authLoading) return;
-
-    if (user) {
+    if (!hasFetchedData.current) {
       fetchData();
-    } else {
-      setLoading(false);
     }
-  }, [user, authLoading]);
+  }, []); // Empty dependency array ensures the effect runs only once on mount
 
   return {
-    user,
     profile,
     companyProfile,
     businessDetails,
