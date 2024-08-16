@@ -23,7 +23,7 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
         setModalTitle('Latest Startup Insights'); // Set title for latest news
 
         try {
-            const response = await axios.get('/api/fetch-news', {
+            const response = await axios.get('/api/fetch-news-new', {
                 params: { q: `updates inc42` }
             });
             setNews(response.data);
@@ -42,7 +42,7 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
         setModalTitle(`Insights for "${searchQuery}"`); // Update title based on search query
 
         try {
-            const response = await axios.get('/api/fetch-news', {
+            const response = await axios.get('/api/fetch-news-new', {
                 params: { q: `${searchQuery} news inc42 1 year` }
             });
             setNews(response.data);
@@ -106,7 +106,6 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
                                                     className="p-4 bg-gray-100 rounded-lg shadow-md hover:shadow-lg transform transition-transform duration-300 ease-in-out"
                                                 >
                                                     <a
-                                                        href={article.url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-blue-600 font-semibold hover:underline"

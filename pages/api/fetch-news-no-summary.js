@@ -66,8 +66,9 @@ export default async function handler(req, res) {
                         .trim();
                         const date = $(el).find('.hvbAAd').text().trim();
 
-                        if (!title.toLowerCase().includes(searchQuery.toLowerCase())) {
-                            return null; // Skip this article if it doesn't match the query
+                        if (!searchString.toLowerCase().includes("updates inc42") &&
+                            !title.toLowerCase().includes(searchString.toLowerCase())) {
+                            return null; 
                         }
 
                         console.log("title: ", title);

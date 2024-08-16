@@ -30,6 +30,8 @@ export default async function handler(req, res) {
     const { query } = req;
     const searchString = query.q;
 
+    console.log('query: ', searchString);
+
     if (!searchString) {
         return res.status(400).json({ error: 'Search query is required' });
     }
@@ -90,13 +92,14 @@ export default async function handler(req, res) {
                         const decodedUrl = await decodeGoogleNewsUrl(newlink);
                         const summary = await fetchArticleSummaryWithRetries(decodedUrl);
 
-                        if (!title.toLowerCase().includes(searchQuery.toLowerCase())) {
-                            return null; // Skip this article if it doesn't match the query
+                        if (!searchString.toLowerCase().includes("updates inc42") &&
+                            !title.toLowerCase().includes(searchString.toLowerCase())) {
+                            return null; 
                         }
 
-                        console.log("title: ", title);
-                        console.log("url: ", decodedUrl);
-                        console.log("summary: ", summary);
+                        //console.log("title: ", title);
+                        //console.log("url: ", decodedUrl);
+                        //console.log("summary: ", summary);
 
                         return {
                             decodedUrl,
@@ -107,8 +110,10 @@ export default async function handler(req, res) {
                     }
                 })
                 .get()
-                .filter(item => item !== undefined)
+                .filter(item => item !== null)
         ); // Filter out undefined results
+
+        console.log('allNewsInfo: ', allNewsInfo);
 
         res.status(200).json(allNewsInfo);
 
