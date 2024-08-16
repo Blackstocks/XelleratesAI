@@ -242,7 +242,7 @@ const Tools = () => {
                   {cardContent(
                     'Portfolio Management',
                     '/assets/images/tools/15.png',
-                    '/tools/portfolio-management'
+                    '#'
                   )}
                   {cardContent(
                     'Valuate a Startup',
