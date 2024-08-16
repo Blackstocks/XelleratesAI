@@ -3,13 +3,37 @@ import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import useDarkMode from "@/hooks/useDarkMode";
 
-const DonutChart2 = ({ height = 200, colors = ["#0CE7FA", "#E2F6FD"] }) => {
+const DonutChart2 = (
+  { height = 200, 
+    colors = ["#0CE7FA", "#E2F6FD"],
+    businessDetails
+
+   }) => {
   const [isDark] = useDarkMode();
 
-  const series = [70, 30];
+  // Calculate investment readiness score
+  const currentTraction = businessDetails?.current_traction;
+  const newCustomers = businessDetails?.new_Customers;
+  const CAC = businessDetails?.customer_AcquisitionCost;
+  const LTV = businessDetails?.customer_Lifetime_Value;
+
+  const normalizedTraction = Math.min((currentTraction / 1000000) * 100, 100);
+  const normalizedNewCustomers = Math.min((newCustomers / 5000) * 100, 100);
+  const normalizedCAC = Math.min((1000 / CAC) * 100, 100);
+  const normalizedLTV = Math.min((LTV / 1000) * 100, 100);
+
+  const tractionScore = Math.round(
+    (normalizedTraction * 0.4) +
+    (normalizedNewCustomers * 0.2) +
+    (normalizedCAC * 0.2) +
+    (normalizedLTV * 0.2)
+  );
+
+  // Chart series: the readiness score and the remaining percentage
+  const series = [tractionScore, 100 - tractionScore];
 
   const options = {
-    labels: ["Complete", "Left"],
+    labels: ["Investment Readiness Score", ""],
     dataLabels: {
       enabled: false,
     },
@@ -41,15 +65,15 @@ const DonutChart2 = ({ height = 200, colors = ["#0CE7FA", "#E2F6FD"] }) => {
               fontFamily: "Outfit",
               color: isDark ? "#cbd5e1" : "#0f172a",
               formatter(val) {
-                return `${parseInt(val)}%`;
+                return `${parseInt(val)}`;
               },
             },
             total: {
               show: true,
-              fontSize: "10px",
+              fontSize: "16px",
               label: "",
               formatter() {
-                return "70";
+                return `${tractionScore}`;
               },
             },
           },

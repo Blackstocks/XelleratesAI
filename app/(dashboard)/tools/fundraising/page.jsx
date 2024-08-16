@@ -120,14 +120,10 @@ const Fundraising = () => {
               <h3 className='text-lg font-semibold mb-2 text-center text-black'>
                 Investment Readiness Score
               </h3>
-              <div className='absolute inset-0 flex items-center justify-center'>
-                <span className='text-lg font-bold text-gray-700 z-10 mt-16'>
-                  Coming Soon
-                </span>
-              </div>
-              <div className='filter blur-sm z-0'>
-                <DountChart />
-              </div>
+             
+                <DountChart 
+                businessDetails={businessDetails}/>
+
             </div>
             <div className='h-60 flex flex-col items-center justify-center bg-white shadow-lg rounded-lg'>
               <h3 className='text-lg font-semibold mb-2 text-center'>
