@@ -73,7 +73,7 @@ const InvestorDealflow = () => {
         });
 
         setInvestors(data);
-        setFilteredInvestors(data);
+        setFilteredInvestors(data); // Initialize filtered investors with all investors
       } catch (error) {
         console.error('Error fetching investors:', error.message);
       } finally {
@@ -166,6 +166,37 @@ const InvestorDealflow = () => {
       };
     }
   }, [user, hasConnected]);
+
+  useEffect(() => {
+    // Apply filters to the investors
+    const applyFilters = () => {
+      const filtered = investors.filter((investor) => {
+        const matchesLocation =
+          !selectedFilters.location ||
+          investor.Geography?.includes(selectedFilters.location);
+        const matchesInvestmentType =
+          !selectedFilters.investmentType ||
+          investor.typeof?.includes(selectedFilters.investmentType);
+        const matchesSector =
+          !selectedFilters.sector ||
+          investor.sectors?.includes(selectedFilters.sector);
+        const matchesInvestmentStage =
+          !selectedFilters.investmentStage ||
+          investor.investment_stage?.includes(selectedFilters.investmentStage);
+
+        return (
+          matchesLocation &&
+          matchesInvestmentType &&
+          matchesSector &&
+          matchesInvestmentStage
+        );
+      });
+      setFilteredInvestors(filtered);
+      setCurrentPage(1); // Reset to first page when filters change
+    };
+
+    applyFilters();
+  }, [selectedFilters, investors]);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));

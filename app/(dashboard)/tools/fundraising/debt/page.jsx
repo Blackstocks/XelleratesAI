@@ -7,7 +7,6 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import CountUp from 'react-countup';
-import { v4 as uuidv4 } from 'uuid';
 
 const Equity = () => {
   const [user, setUser] = useState(null);
@@ -68,10 +67,15 @@ const Equity = () => {
     try {
       const response = await fetch(`/api/gstin?gstin=${gstin}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch GSTIN data');
+        throw new Error('Please enter a valid GSTIN number');
       }
       const data = await response.json();
       console.log('GSTIN data fetched:', data);
+
+      // Check GSTIN status
+      if (data.status.toLowerCase() === 'cancelled' || data.status.toLowerCase() === 'expired') {
+        throw new Error(`GSTIN status is ${data.status}. Please enter a valid GSTIN.`);
+      }
 
       const formattedRegistrationDate = convertDateToYMD(data.registrationDate);
       const formattedCancellationDate = data.cancellationDate
@@ -117,7 +121,7 @@ const Equity = () => {
 
       router.push('/tools/fundraising/debt/investor');
     } catch (error) {
-      setGstinError('This GSTIN is not valid. Please enter a valid GSTIN.');
+      setGstinError(error.message);
     } finally {
       setLoading(false);
     }
