@@ -7,16 +7,18 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import CountUp from 'react-countup';
-import { v4 as uuidv4 } from 'uuid'; // To generate unique transaction and consent IDs
+import { v4 as uuidv4 } from 'uuid';
 
 const Equity = () => {
   const [user, setUser] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
-  const [showPanModal, setShowPanModal] = useState(false);
+  const [showGstinModal, setShowGstinModal] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showUnlockCapitalModal, setShowUnlockCapitalModal] = useState(false);
-  const [panCard, setPanCard] = useState('');
+  const [gstin, setGstin] = useState('');
+  const [gstinError, setGstinError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [annualRevenue, setAnnualRevenue] = useState('₹0-2 Cr');
   const [growthRate, setGrowthRate] = useState('0 - 50%');
@@ -29,11 +31,6 @@ const Equity = () => {
   const [tenure, setTenure] = useState('');
   const [collateral, setCollateral] = useState('No');
   const [isCalculated, setIsCalculated] = useState(false);
-  const [fullName, setFullName] = useState('');
-  const [dob, setDob] = useState('');
-  const [gender, setGender] = useState('');
-  const [txnId, setTxnId] = useState(uuidv4()); // Generate unique transaction ID
-  const [consentId, setConsentId] = useState(uuidv4()); // Generate unique consent ID
 
   const router = useRouter();
 
@@ -61,87 +58,68 @@ const Equity = () => {
     console.log('User found:', user);
   };
 
-  const validatePanCard = async () => {
+  const convertDateToYMD = (dateString) => {
+    if (!dateString) return null;
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
+  };
+
+  const fetchGstinData = async (gstin) => {
     try {
-      // Ensure all required fields are filled
-      if (!panCard || !fullName || !dob || !gender) {
-        alert('Please fill in all the details.');
-        return;
+      const response = await fetch(`/api/gstin?gstin=${gstin}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch GSTIN data');
       }
+      const data = await response.json();
+      console.log('GSTIN data fetched:', data);
 
-      // API Request Body
-      const requestBody = {
-        txnId, // Transaction ID
-        format: 'xml', // Format can be xml, pdf, or json
-        certificateParameters: {
-          panno: panCard, // PAN number
-          UID: '123412341234', // Aadhaar or unique ID, optional if not required
-          FullName: fullName, // Full name of the person
-          DOB: dob, // Date of birth in DD-MM-YYYY format
-          GENDER: gender, // Gender
-        },
-        consentArtifact: {
-          consent: {
-            consentId, // Unique consent ID
-            timestamp: new Date().toISOString(), // Current timestamp
-            dataConsumer: {
-              id: 'XelleratesAI', // Your App ID or Identifier
-            },
-            dataProvider: {
-              id: 'IncomeTaxDept', // Example provider ID
-            },
-            purpose: {
-              description: 'PAN Verification', // Purpose of this request
-            },
-            user: {
-              idType: 'Aadhaar', // ID Type, can be Aadhaar or any other valid type
-              idNumber: '123412341234', // Example Aadhaar number, optional if not required
-              mobile: '9876543210', // Example mobile number, optional if not required
-              email: 'example@example.com', // Example email, optional if not required
-            },
-            data: {
-              id: 'PAN', // Data ID for PAN
-            },
-            permission: {
-              access: 'read', // Access type
-              dateRange: {
-                from: new Date().toISOString(), // Start date
-                to: new Date().toISOString(), // End date
-              },
-              frequency: {
-                unit: 'once', // Frequency of access
-                value: 1, // Value
-                repeats: 0, // Repeats
-              },
-            },
-          },
-          signature: {
-            signature: 'string', // Digital signature if required
-          },
-        },
-      };
+      const formattedRegistrationDate = convertDateToYMD(data.registrationDate);
+      const formattedCancellationDate = data.cancellationDate
+        ? convertDateToYMD(data.cancellationDate)
+        : null;
 
-      // API Request
-      const response = await fetch('/api/panProxy', {
-        method: 'POST',
-        headers: {
-          // 'X-APISATU-CLIENTID': 'com.xellerates', // Use your clientId here
-          // 'X-APISATU-APIKEY': 'IFA6bXScwchj5cb0ZU0NyVWNBGlw4mfb',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
+      const { error } = await supabase.from('debt_gstin').insert({
+        user_id: user.id,
+        gstin: data.gstin,
+        legal_name: data.legalName,
+        constitution: data.constitution,
+        registration_date: formattedRegistrationDate || null,
+        status: data.status,
+        taxpayer_type: data.taxPayerType,
+        center_jurisdiction: data.centerJurisdiction,
+        state_jurisdiction: data.stateJurisdiction,
+        cancellation_date: formattedCancellationDate || null,
+        nature_business_activities: JSON.stringify(data.natureBusinessActivities),
       });
 
-      const data = await response.json();
-      if (data.status) {
-        alert('PAN Verified Successfully');
-        // Here you can proceed with further steps, such as updating the PAN in Supabase
-      } else {
-        alert('Invalid PAN Card Details');
+      if (error) {
+        console.error('Error storing GSTIN data in Supabase:', error);
+        throw new Error('Failed to store GSTIN data');
       }
+
+      console.log('GSTIN data stored successfully in Supabase');
     } catch (error) {
-      console.error('Error verifying PAN card:', error);
-      alert('An error occurred during PAN verification. Please try again.');
+      console.error('Error fetching GSTIN data:', error);
+      throw error;
+    }
+  };
+
+  const handleGstinSubmit = async () => {
+    try {
+      setLoading(true);
+      setGstinError('');
+
+      await fetchGstinData(gstin);
+
+      setShowGstinModal(false);
+      setShowProgressModal(true);
+      startProgress();
+
+      router.push('/tools/fundraising/debt/investor');
+    } catch (error) {
+      setGstinError('This GSTIN is not valid. Please enter a valid GSTIN.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -156,7 +134,7 @@ const Equity = () => {
     const { data, error: profileError } = await supabase
       .from('profiles')
       .select(
-        'name, email, mobile, user_type, status, linkedin_profile, company_name, pan_number'
+        'name, email, mobile, user_type, status, linkedin_profile, company_name'
       )
       .eq('id', user.id)
       .single();
@@ -179,36 +157,8 @@ const Equity = () => {
       if (!isComplete) {
         setShowCompletionModal(true);
       } else {
-        if (data.pan_number) {
-          setShowProgressModal(true);
-          startProgress();
-        } else {
-          setShowPanModal(true);
-        }
+        setShowGstinModal(true);
       }
-    }
-  };
-
-  const handlePanSubmit = async () => {
-    if (user && panCard) {
-      console.log('Submitting PAN card:', panCard);
-
-      await validatePanCard(); // Validate the PAN card using API Setu
-
-      // If verified, update the PAN card in Supabase
-      const { error } = await supabase
-        .from('profiles')
-        .update({ pan_number: panCard })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error updating PAN card:', error);
-        return;
-      }
-
-      setShowPanModal(false);
-      setShowProgressModal(true);
-      startProgress();
     }
   };
 
@@ -220,7 +170,7 @@ const Equity = () => {
           clearInterval(interval);
           setTimeout(() => {
             setShowProgressModal(false);
-            alert('Hello from equity connect with investor');
+            alert('GSTIN data processing completed');
           }, 500);
           return 100;
         }
@@ -230,7 +180,6 @@ const Equity = () => {
   };
 
   const calculateEstimates = () => {
-    // Basic logic to calculate estimated values
     let baseCapital = 0;
     switch (annualRevenue) {
       case '₹0-2 Cr':
@@ -311,14 +260,16 @@ const Equity = () => {
     setCapitalOffer(calculatedCapital);
     setIsCalculated(true);
 
-    // Assuming some predefined values for EMI, ROI, and tenure based on input
     setEmi((calculatedCapital / 3).toFixed(0));
     setRoi('16-20%');
     setTenure('6-9m');
     setCollateral('No');
   };
 
-  // Slider settings
+  const handleUnlockCapital = () => {
+    setShowUnlockCapitalModal(true);
+  };
+
   const settings = {
     dots: true,
     infinite: true,
@@ -327,10 +278,6 @@ const Equity = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
-  };
-
-  const handleUnlockCapital = () => {
-    setShowUnlockCapitalModal(true);
   };
 
   return (
@@ -637,54 +584,49 @@ const Equity = () => {
             <div className='flex flex-col space-y-4'>
               <div>
                 <label className='block text-white text-base'>
-                  Enter Company PAN
+                  Enter GSTIN
                 </label>
                 <input
                   type='text'
-                  value={panCard}
-                  onChange={(e) => setPanCard(e.target.value)}
+                  value={gstin}
+                  onChange={(e) => setGstin(e.target.value)}
                   className='text-black border  border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
-              </div>
-              <div>
-                <label className='block text-white text-base'>Full Name</label>
-                <input
-                  type='text'
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className='border border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-                />
-              </div>
-              <div>
-                <label className='block text-white text-base'>
-                  Date of Birth
-                </label>
-                <input
-                  type='text'
-                  placeholder='DD-MM-YYYY'
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  className='border border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-                />
-              </div>
-              <div>
-                <label className='block text-white text-base'>Gender</label>
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  className='border border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
-                >
-                  <option value=''>Select Gender</option>
-                  <option value='Male'>Male</option>
-                  <option value='Female'>Female</option>
-                  <option value='Other'>Other</option>
-                </select>
+                {gstinError && (
+                  <p className='text-red-500 text-sm mt-2'>{gstinError}</p>
+                )}
               </div>
               <button
-                onClick={handlePanSubmit}
+                onClick={handleGstinSubmit}
                 className='mt-4 bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500'
               >
-                Verify PAN Card
+                {loading ? (
+                  <div className='flex items-center justify-center'>
+                    <svg
+                      className='animate-spin -ml-1 mr-3 h-5 w-5 text-white'
+                      xmlns='http://www.w3.org/2000/svg'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                    >
+                      <circle
+                        className='opacity-25'
+                        cx='12'
+                        cy='12'
+                        r='10'
+                        stroke='currentColor'
+                        strokeWidth='4'
+                      ></circle>
+                      <path
+                        className='opacity-75'
+                        fill='currentColor'
+                        d='M4 12a8 8 0 018-8v8H4z'
+                      ></path>
+                    </svg>
+                    Processing...
+                  </div>
+                ) : (
+                  'Verify GSTIN'
+                )}
               </button>
             </div>
           </div>
