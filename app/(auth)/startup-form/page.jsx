@@ -1,13 +1,13 @@
-'use client';
+// 'use client';
 
-import HorizentalWizard from '@/components/partials/froms/HorizentalWizard';
+// import HorizentalWizard from '@/components/partials/froms/HorizentalWizard';
 
-const FormWizard = () => {
-  return (
-    <div>
-      <HorizentalWizard />
-    </div>
-  );
-};
+// const FormWizard = () => {
+//   return (
+//     <div>
+//       <HorizentalWizard />
+//     </div>
+//   );
+// };
 
-export default FormWizard;
+// export default FormWizard;
