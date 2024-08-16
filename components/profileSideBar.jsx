@@ -3432,7 +3432,7 @@ const VerticalNavTabs = (props) => {
                                       passHref
                                       className='text-blue-500 '
                                     >
-                                      (Download Sample MIS Report)
+                                      (Use the following MIS template - Download)
                                     </Link>
                                   </div>
                                   <a
