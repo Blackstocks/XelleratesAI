@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseclient';
 
 export default async function handler(req, res) {
-  const { gstin, user_id } = req.query; // Extract user_id from query parameters
+  const { gstin = '', user_id = '' } = req.query; // Provide default empty strings// Extract user_id from query parameters
 
   if (!gstin) {
     return res.status(400).json({ error: 'GSTIN is required' });
