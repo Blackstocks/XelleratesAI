@@ -314,12 +314,9 @@ const CuratedDealflow = () => {
                     <th className='py-4 px-4 border-b border-gray-300 text-left'>
                       Previous Funding
                     </th>
-                  </tr>
-                  <tr>
                     <th className='py-4 px-4 border-b border-gray-300 text-left'>
                       Status
                     </th>
-                    {/* Other headers */}
                   </tr>
                 </thead>
                 <tbody>

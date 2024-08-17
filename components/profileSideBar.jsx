@@ -842,6 +842,7 @@ const VerticalNavTabs = (props) => {
           }
 
           updatedData = companyDocumentsResponse;
+          window.location.reload();
           break;
 
         case 'business_details':
