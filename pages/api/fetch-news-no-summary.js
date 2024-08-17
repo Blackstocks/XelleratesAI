@@ -68,7 +68,7 @@ export default async function handler(req, res) {
 
                         if (!searchString.toLowerCase().includes("updates inc42") &&
                             !title.toLowerCase().includes(searchString.toLowerCase())) {
-                            return null; 
+                            return {}; 
                         }
 
                         console.log("title: ", title);

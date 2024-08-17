@@ -23,7 +23,7 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
         setModalTitle('Latest Startup Insights'); // Set title for latest news
 
         try {
-            const response = await axios.get('/api/fetch-news-new', {
+            const response = await axios.get('/api/fetch-news', {
                 params: { q: `updates inc42` }
             });
             setNews(response.data);
@@ -42,7 +42,7 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
         setModalTitle(`Insights for "${searchQuery}"`); // Update title based on search query
 
         try {
-            const response = await axios.get('/api/fetch-news-new', {
+            const response = await axios.get('/api/fetch-news', {
                 params: { q: `${searchQuery} news inc42 1 year` }
             });
             setNews(response.data);

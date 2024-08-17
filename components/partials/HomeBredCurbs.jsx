@@ -70,6 +70,8 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       const industrySector = companyProfile?.industry_sector || "Default sector";
       const currentStage = companyProfile?.currentStage || "Not Available";
       const previousFunding = fundingInformation?.previous_funding || [];
+      
+      try{
   
       const reportHtml = await generateReport(companyProfile, fundingInformation, founderInformation, businessDetails, companyDocuments, 
         ctoInfo, shortDescription, industrySector, companyName, currentStage, previousFunding);
@@ -80,6 +82,9 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       const newWindow = window.open('', '_blank');
       newWindow.document.write(reportHtml);
       newWindow.document.close();
+      } catch{
+        toast.update(toastId, { render: "Cannot generate Report!", type: "error", isLoading: false, autoClose: 5000 });
+      }
     } else {
       setModalType(type);
       setIsModalOpen(true);
