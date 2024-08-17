@@ -158,6 +158,10 @@ const generateReport = async (
   const totalFunding = previousFunding.reduce((total, funding) => total + parseFloat(funding.amountRaised || 0), 0);
   const coFounders = founderInformation?.co_founders || [];
   const newsQuery = `${companyName} news inc42 1 year`;
+  const companyWebsite = companyProfile?.company_website || 'NA';
+  const companyLinkedin = companyProfile?.linkedin_profile || 'NA';
+  const targetAudience = companyProfile?.target_audience;
+
   let newsList = [];
   
   const currentTraction = businessDetails?.current_traction;
@@ -197,7 +201,13 @@ const generateReport = async (
         console.error('Error fetching news:', error);
     }
 
-    const sector = await generateResponse(shortDescription, industrySector);
+    let sector;
+
+    try {
+        sector = await generateResponse(shortDescription, industrySector, targetAudience);
+    } catch {
+        sector = industrySector;
+    }
     // const financialProjections = await generateFinancialResponse(financialProjectionsData);
     const technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
 
@@ -349,32 +359,52 @@ const generateReport = async (
                     <table class="table-auto w-full text-left border-collapse">
                         <tbody>
                             <tr>
-                                <th class="border px-6 py-2">Founded Year:</th>
+                                <th class="border px-6 py-2">Founded Year</th>
                                 <td class="border px-6 py-2">2020</td>
                             </tr>
                             <tr class="bg-gray-50">
-                                <th class="border px-6 py-2">Total Funding:</th>
+                                <th class="border px-6 py-2">Total Funding</th>
                                 <td class="border px-6 py-2">${totalFunding}</td>
                             </tr>
                             <tr>
-                                <th class="border px-6 py-2">Location:</td>
+                                <th class="border px-6 py-2">Location</td>
                                 <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country.label || "NA"}</td>
                             </tr>
                             <tr class="bg-gray-50">
-                                <th class="border px-6 py-2">Editor's Rating:</td>
+                                <th class="border px-6 py-2">Editor's Rating</td>
                                 <td class="border px-6 py-2">Coming Soon</td>
                             </tr>
                             <tr>
-                                <th class="border px-6 py-2">Valuation:</td>
+                                <th class="border px-6 py-2">Valuation</td>
                                 <td class="border px-6 py-2">Coming Soon</td>
                             </tr>
                             <tr class="bg-gray-50">
-                                <th class="border px-6 py-2">Mobile Downloads:</td>
-                                <td class="border px-6 py-2">30M</td>
+                                <th class="border px-6 py-2">Company Website</td>
+                                <td class="border px-6 py-2">
+                                    <a href="${companyWebsite}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                            Link
+                                    </a>
+                                </td>
                             </tr>
                             <tr>
-                                <th class="border px-6 py-2">Employee Count:</td>
-                                <td class="border px-6 py-2">1,747 (as on May 31, 2024)</td>
+                                <th class="border px-6 py-2">Company Linkedin</td>
+                                <td class="border px-6 py-2">
+                                    <a href="${companyLinkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                            Link
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="border px-6 py-2">App Link</td>
+                                <td class="border px-6 py-2">
+                                    Android: <a href="${ctoInfo?.mobile_app_link_android}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                            Link
+                                    </a>
+                                    <br>
+                                    IOS: <a href="${ctoInfo?.mobile_app_link_ios}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                            Link
+                                    </a>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -386,17 +416,17 @@ const generateReport = async (
                     <table class="table-auto w-full text-left border-collapse">
                         <thead>
                             <tr>
-                                <th class="border px-6 py-2">Revenue:</th>
+                                <th class="border px-6 py-2">Revenue</th>
                                 <td class="border px-6 py-2">${latestRevenue.value} (as on ${latestRevenue.month})</td>
                             </tr>
                         </thead>
                         <tbody>
                             <tr class="bg-gray-50">
-                                <th class="border px-6 py-2">EBITDA:</th>
+                                <th class="border px-6 py-2">EBITDA</th>
                                 <td class="border px-6 py-2">Coming Soon</td>
                             </tr>
                             <tr>
-                                <th class="border px-6 py-2">Net Profit:</th>
+                                <th class="border px-6 py-2">Net Profit</th>
                                 <td class="border px-6 py-2">${latestProfit.value} (as on ${latestProfit.month})</td>
                             </tr>
                         </tbody>
@@ -438,6 +468,15 @@ const generateReport = async (
                                 </tr>`).join('')
                                 : '<tr></tr>'
                             }
+                            <tr>
+                                <td class="border px-6 py-2">${ctoInfo?.cto_name}</td>
+                                <td class="border px-6 py-2">CTO</td>
+                                <td class="border px-6 py-2">
+                                <a href="${ctoInfo?.cto_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                        Link
+                                    </a>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

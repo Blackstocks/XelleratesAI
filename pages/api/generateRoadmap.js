@@ -67,6 +67,9 @@ const generateResponse = async (fileContent) => {
     - Don't be overconfident and don't hallucinate.
     - Try giving short answers.
     - You should only return the json file
+    - Keep the roadmap short. It should be not more than 200 words.
+    - There should be only one entry for every quarter (if present).
+    - If you don't find the Time Frame in the report then write 'NA'.
 
     Use the following pieces of context to answer the user's question.
     ==============================

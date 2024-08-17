@@ -24,7 +24,7 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
 
         try {
             const response = await axios.get('/api/fetch-news', {
-                params: { q: `updates inc42` }
+                params: { q: `category startups` }
             });
             setNews(response.data);
 
@@ -43,7 +43,7 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
 
         try {
             const response = await axios.get('/api/fetch-news', {
-                params: { q: `${searchQuery} news inc42 1 year` }
+                params: { q: `${searchQuery}` }
             });
             setNews(response.data);
         } catch (error) {
