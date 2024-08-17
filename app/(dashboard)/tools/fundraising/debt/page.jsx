@@ -7,9 +7,10 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import CountUp from 'react-countup';
+import useUserDetails from '@/hooks/useUserDetails';
 
 const Equity = () => {
-  const [user, setUser] = useState(null);
+  const { user } = useUserDetails();
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [showGstinModal, setShowGstinModal] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -33,30 +34,6 @@ const Equity = () => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.getSession();
-    if (error || !session) {
-      console.error('Error fetching session:', error);
-      return;
-    }
-
-    const user = session.user;
-    if (!user) {
-      console.error('No user found in session');
-      return;
-    }
-
-    setUser(user);
-    console.log('User found:', user);
-  };
-
   const fetchGstinData = async (gstin) => {
     try {
       const response = await fetch(
@@ -76,6 +53,11 @@ const Equity = () => {
   };
 
   const handleGstinSubmit = async () => {
+    if (!user || !user.id) {
+      setGstinError('User is not logged in or ID is missing');
+      return;
+    }
+
     try {
       setLoading(true);
       setGstinError('');
