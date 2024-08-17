@@ -57,53 +57,20 @@ const Equity = () => {
     console.log('User found:', user);
   };
 
-  const convertDateToYMD = (dateString) => {
-    if (!dateString) return null;
-    const [day, month, year] = dateString.split('/');
-    return `${year}-${month}-${day}`;
-  };
-
   const fetchGstinData = async (gstin) => {
     try {
-      const response = await fetch(`/api/gstin?gstin=${gstin}`);
-      if (!response.ok) {
-        throw new Error('Please enter a valid GSTIN number');
-      }
+      const response = await fetch(
+        `/api/gstin?gstin=${gstin}&user_id=${user?.id}`
+      );
       const data = await response.json();
-      console.log('GSTIN data fetched:', data);
-
-      // Check GSTIN status
-      if (data.status.toLowerCase() === 'cancelled' || data.status.toLowerCase() === 'expired') {
-        throw new Error(`GSTIN status is ${data.status}. Please enter a valid GSTIN.`);
+      if (!response.ok) {
+        throw new Error(
+          data.error || 'An error occurred while fetching GSTIN data'
+        );
       }
-
-      const formattedRegistrationDate = convertDateToYMD(data.registrationDate);
-      const formattedCancellationDate = data.cancellationDate
-        ? convertDateToYMD(data.cancellationDate)
-        : null;
-
-      const { error } = await supabase.from('debt_gstin').insert({
-        user_id: user.id,
-        gstin: data.gstin,
-        legal_name: data.legalName,
-        constitution: data.constitution,
-        registration_date: formattedRegistrationDate || null,
-        status: data.status,
-        taxpayer_type: data.taxPayerType,
-        center_jurisdiction: data.centerJurisdiction,
-        state_jurisdiction: data.stateJurisdiction,
-        cancellation_date: formattedCancellationDate || null,
-        nature_business_activities: JSON.stringify(data.natureBusinessActivities),
-      });
-
-      if (error) {
-        console.error('Error storing GSTIN data in Supabase:', error);
-        throw new Error('Failed to store GSTIN data');
-      }
-
-      console.log('GSTIN data stored successfully in Supabase');
+      console.log('GSTIN data processed successfully:', data);
     } catch (error) {
-      console.error('Error fetching GSTIN data:', error);
+      console.error('Error:', error.message);
       throw error;
     }
   };
