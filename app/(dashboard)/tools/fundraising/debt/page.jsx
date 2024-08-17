@@ -34,24 +34,6 @@ const Equity = () => {
 
   const router = useRouter();
 
-  const fetchGstinData = async (gstin) => {
-    try {
-      const response = await fetch(
-        `/api/gstin?gstin=${gstin}&user_id=${user?.id}`
-      );
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(
-          data.error || 'An error occurred while fetching GSTIN data'
-        );
-      }
-      console.log('GSTIN data processed successfully:', data);
-    } catch (error) {
-      console.error('Error:', error.message);
-      throw error;
-    }
-  };
-
   const handleGstinSubmit = async () => {
     if (!user || !user.id) {
       setGstinError('User is not logged in or ID is missing');
@@ -62,13 +44,14 @@ const Equity = () => {
       setLoading(true);
       setGstinError('');
 
-      await fetchGstinData(gstin);
+      const gstinData = await fetchGstinData(gstin); // Await the result to ensure it's resolved
+      if (gstinData) {
+        setShowGstinModal(false);
+        setShowProgressModal(true);
+        startProgress();
 
-      setShowGstinModal(false);
-      setShowProgressModal(true);
-      startProgress();
-
-      router.push('/tools/fundraising/debt/investor');
+        router.push('/tools/fundraising/debt/investor');
+      }
     } catch (error) {
       setGstinError(error.message);
     } finally {
@@ -76,42 +59,24 @@ const Equity = () => {
     }
   };
 
-  const checkProfileCompletion = async () => {
-    if (!user) {
-      console.error('User is not defined');
-      return;
-    }
+  const fetchGstinData = async (gstin) => {
+    try {
+      const response = await fetch(
+        `/api/gstin?gstin=${gstin}&user_id=${user?.id}`
+      );
+      const data = await response.json();
 
-    console.log('Checking profile completion for user:', user.id);
-
-    const { data, error: profileError } = await supabase
-      .from('profiles')
-      .select(
-        'name, email, mobile, user_type, status, linkedin_profile, company_name'
-      )
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      console.error('Error fetching profile:', profileError);
-    } else {
-      const requiredFields = [
-        'name',
-        'email',
-        'mobile',
-        'user_type',
-        'status',
-        'linkedin_profile',
-        'company_name',
-      ];
-      const isComplete = requiredFields.every((field) => data[field]);
-      setIsProfileComplete(isComplete);
-      console.log('Profile completion status:', isComplete);
-      if (!isComplete) {
-        setShowCompletionModal(true);
-      } else {
-        setShowGstinModal(true);
+      if (!response.ok) {
+        throw new Error(
+          data.error || 'An error occurred while fetching GSTIN data'
+        );
       }
+
+      console.log('GSTIN data processed successfully:', data);
+      return data; // Ensure you return the resolved data
+    } catch (error) {
+      console.error('Error:', error.message);
+      throw error;
     }
   };
 
