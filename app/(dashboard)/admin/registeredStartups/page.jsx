@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import useUserDetails from '@/hooks/useUserDetails';
-import useStartups from '@/hooks/useStartups';
+import useStartupsRaw from '@/hooks/useStartupsRaw';
 import Modal from '@/components/Modal';
 import Loading from '@/app/loading';
 import Flatpickr from 'react-flatpickr';
@@ -12,7 +12,7 @@ import Icon from '@/components/ui/Icon';
 
 const CuratedDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
-  const { startups, loading: startupsLoading } = useStartups();
+  const { startups, loading: startupsLoading } = useStartupsRaw();
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
