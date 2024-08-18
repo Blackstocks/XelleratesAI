@@ -56,7 +56,7 @@ const DocumentManagement = () => {
             width < breakpoints.md ? 'space-x-rb' : ''
           } md:flex md:space-x-4 md:justify-end items-center rtl:space-x-reverse`}
         >
-          <Button
+          {/* <Button
             icon='heroicons:list-bullet'
             text='List view'
             disabled={isLoaded}
@@ -67,8 +67,8 @@ const DocumentManagement = () => {
             }   h-min text-sm font-normal`}
             iconClass=' text-lg'
             onClick={() => setFiller('list')}
-          />
-          <Button
+          /> */}
+          {/* <Button
             icon='heroicons-outline:view-grid'
             text='Grid view'
             disabled={isLoaded}
@@ -79,7 +79,7 @@ const DocumentManagement = () => {
             }   h-min text-sm font-normal`}
             iconClass=' text-lg'
             onClick={() => setFiller('grid')}
-          />
+          /> */}
 
           <Button
             icon='heroicons-outline:plus'

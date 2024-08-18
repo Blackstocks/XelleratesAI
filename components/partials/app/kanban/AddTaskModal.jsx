@@ -10,6 +10,7 @@ import * as yup from "yup";
 import FormGroup from "@/components/ui/FormGroup";
 import { supabase } from "@/lib/supabaseclient";
 import { setColumnId, updateTaskTag } from "./store";
+import Select from "react-select"; // Make sure this import is added
 
 const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_id }) => {
   const dispatch = useDispatch();
@@ -18,37 +19,20 @@ const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_
   const [description, setDescription] = useState("");
   const { taskTag } = useSelector((state) => state.kanban);
 
-  const FormValidationSchema = yup
-    .object({
-      title: yup.string().required("Title is required"),
-      assignEmail: yup
-        .string()
-        .email("Must be a valid email")
-        .required("Assignee email is required"),
-      tags: yup.mixed().required("Tag is required"),
-      startDate: yup
-        .date()
-        .required("Start date is required")
-        .min(new Date(), "Start date must be greater than today"),
-      endDate: yup
-        .date()
-        .required("End date is required")
-        .min(new Date(), "End date must be greater than today"),
-    })
-    .required();
+  const FormValidationSchema = yup.object({
+    title: yup.string().required("Title is required"),
+    assignEmail: yup.string().email("Must be a valid email").required("Assignee email is required"),
+    tags: yup.mixed().required("Tag is required"),
+    startDate: yup.date().required("Start date is required").min(new Date(), "Start date must be greater than today"),
+    endDate: yup.date().required("End date is required").min(new Date(), "End date must be greater than today"),
+  }).required();
 
-  const {
-    register,
-    control,
-    reset,
-    formState: { errors },
-    handleSubmit,
-  } = useForm({
+  const { register, control, reset, formState: { errors }, handleSubmit } = useForm({
     resolver: yupResolver(FormValidationSchema),
     mode: "all",
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = (data) => {
     addTaskData(data);
     setToggleTaskModal(false);
     reset();
@@ -69,10 +53,7 @@ const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_
     };
 
     try {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
       if (error) throw error;
 
       const response = await fetch(`/api/task_kanban`, {
@@ -83,6 +64,7 @@ const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_
         method: "POST",
         body: JSON.stringify(body),
       });
+
       const responseData = await response.json();
       dispatch(setColumnId(""));
       dispatch(updateTaskTag(!taskTag));
@@ -99,6 +81,7 @@ const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_
           text: `You have been assigned a new task: ${title}. Please log in to view the details.`,
         }),
       });
+
     } catch (error) {
       console.error("Error in adding task to database:", error);
     }
@@ -112,7 +95,7 @@ const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_
         activeModal={toggleTaskModal}
         onClose={() => setToggleTaskModal(false)}
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 ">
           <Textinput
             name="title"
             label="Task Title"
@@ -138,9 +121,7 @@ const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_
                     id="start-date-picker"
                     placeholder="yyyy, dd M"
                     value={startDate}
-                    onChange={(date) => {
-                      field.onChange(date);
-                    }}
+                    onChange={(date) => field.onChange(date)}
                     options={{
                       altInput: true,
                       altFormat: "F j, Y",
@@ -160,9 +141,7 @@ const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_
                     id="end-date-picker"
                     placeholder="yyyy, dd M"
                     value={endDate}
-                    onChange={(date) => {
-                      field.onChange(date);
-                    }}
+                    onChange={(date) => field.onChange(date)}
                     options={{
                       altInput: true,
                       altFormat: "F j, Y",
