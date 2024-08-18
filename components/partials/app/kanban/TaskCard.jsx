@@ -9,8 +9,6 @@ const TaskCard = ({ column, profile_id }) => {
   const [tasks, setTasks] = useState([]);
   const { taskTag } = useSelector((state) => state.kanban);
 
-  console.log("TaskCard Re-rendered:", column.id);
-
   useEffect(() => {
     fetchTasks(column.id);
   }, [column.id, taskTag]);

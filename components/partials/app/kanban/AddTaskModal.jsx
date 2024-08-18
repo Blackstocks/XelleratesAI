@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Select, { components } from "react-select";
 import Modal from "@/components/ui/Modal";
 import { useSelector, useDispatch } from "react-redux";
 import Textinput from "@/components/ui/Textinput";
@@ -8,110 +7,24 @@ import Flatpickr from "react-flatpickr";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { v4 as uuidv4 } from "uuid";
 import FormGroup from "@/components/ui/FormGroup";
 import { supabase } from "@/lib/supabaseclient";
 import { setColumnId, updateTaskTag } from "./store";
 
-
-const styles = {
-  multiValue: (base, state) => {
-    return state.data.isFixed ? { ...base, opacity: "0.5" } : base;
-  },
-  multiValueLabel: (base, state) => {
-    return state.data.isFixed
-      ? { ...base, color: "#626262", paddingRight: 6 }
-      : base;
-  },
-  multiValueRemove: (base, state) => {
-    return state.data.isFixed ? { ...base, display: "none" } : base;
-  },
-  option: (provided, state) => ({
-    ...provided,
-    fontSize: "14px",
-  }),
-};
-
-const assigneeOptions = [
-  {
-    value: "mahedi",
-    label: "Mahedi Amin",
-    image: "/assets/images/avatar/av-1.svg",
-  },
-  {
-    value: "sovo",
-    label: "Sovo Haldar",
-    image: "/assets/images/avatar/av-2.svg",
-  },
-  {
-    value: "rakibul",
-    label: "Rakibul Islam",
-    image: "/assets/images/avatar/av-3.svg",
-  },
-  {
-    value: "pritom",
-    label: "Pritom Miha",
-    image: "/assets/images/avatar/av-4.svg",
-  },
-];
-const options = [
-  {
-    value: "team",
-    label: "team",
-  },
-  {
-    value: "low",
-    label: "low",
-  },
-  {
-    value: "medium",
-    label: "medium",
-  },
-  {
-    value: "high",
-    label: "high",
-  },
-  {
-    value: "update",
-    label: "update",
-  },
-];
-
-const OptionComponent = ({ data, ...props }) => {
-  //const Icon = data.icon;
-
-  return (
-    <components.Option {...props}>
-      <span className="flex items-center space-x-4">
-        <div className="flex-none">
-          <div className="h-7 w-7 rounded-full">
-            <img
-              src={data.image}
-              alt=""
-              className="w-full h-full rounded-full"
-            />
-          </div>
-        </div>
-        <span className="flex-1">{data.label}</span>
-      </span>
-    </components.Option>
-  );
-};
-
-
-
-const AddTaskModal = ({setToggleTaskModal,toggleTaskModal,column_id,profile_id}) => {
+const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_id }) => {
   const dispatch = useDispatch();
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [description,setDescription]=useState("");
-  const { taskTag} = useSelector((state) => state.kanban);
-
+  const [description, setDescription] = useState("");
+  const { taskTag } = useSelector((state) => state.kanban);
 
   const FormValidationSchema = yup
     .object({
       title: yup.string().required("Title is required"),
-      assign: yup.mixed().required("Assignee is required"),
+      assignEmail: yup
+        .string()
+        .email("Must be a valid email")
+        .required("Assignee email is required"),
       tags: yup.mixed().required("Tag is required"),
       startDate: yup
         .date()
@@ -135,31 +48,31 @@ const AddTaskModal = ({setToggleTaskModal,toggleTaskModal,column_id,profile_id})
     mode: "all",
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
     addTaskData(data);
     setToggleTaskModal(false);
     reset();
   };
 
   const addTaskData = async (data) => {
-    const {title,assign,tags} = data;
-    const body={
-      name:title,
+    const { title, assignEmail, tags } = data;
+    const body = {
+      name: title,
       description,
-      start_date:data.startDate.toISOString().split("T")[0],
-      end_date:data.endDate.toISOString().split("T")[0],
-      progress:Math.floor(Math.random() * (100 - 10 + 1) + 10),
+      start_date: data.startDate.toISOString().split("T")[0],
+      end_date: data.endDate.toISOString().split("T")[0],
+      progress: Math.floor(Math.random() * (100 - 10 + 1) + 10),
       column_id,
       profile_id,
-      assigned_id:assign[0].value,
-      assigned_email:assign[0].label,
+      assigned_email: assignEmail,
       tags,
-    }
-    console.log(body);
+    };
 
     try {
-      const {data: { session },error,} = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
       if (error) throw error;
 
       const response = await fetch(`/api/task_kanban`, {
@@ -167,56 +80,62 @@ const AddTaskModal = ({setToggleTaskModal,toggleTaskModal,column_id,profile_id})
           "Content-Type": "application/json",
           "supabase-token": session.access_token,
         },
-        method:"POST",
-        body:JSON.stringify(body),
+        method: "POST",
+        body: JSON.stringify(body),
       });
-      const data = await response.json();
-      console.log(data);
+      const responseData = await response.json();
       dispatch(setColumnId(""));
       dispatch(updateTaskTag(!taskTag));
+
+      // Send email to the assignee
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: assignEmail,
+          subject: 'New Task Assigned',
+          text: `You have been assigned a new task: ${title}. Please log in to view the details.`,
+        }),
+      });
     } catch (error) {
-      console.error(
-        "error in adding column from database:",
-        error
-      );
+      console.error("Error in adding task to database:", error);
     }
   };
-
-
-
-
 
   return (
     <div>
       <Modal
-        title="Create Project"
+        title="Create Task"
         labelclassName="btn-outline-dark"
         activeModal={toggleTaskModal}
-        onClose={() =>
-          setToggleTaskModal(false)
-        }
+        onClose={() => setToggleTaskModal(false)}
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 ">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Textinput
             name="title"
-            label="Project Name"
-            placeholder="Project Name"
+            label="Task Title"
+            placeholder="Task Title"
             register={register}
             error={errors.title}
           />
+          <Textinput
+            name="assignEmail"
+            label="Assignee Email"
+            placeholder="Assignee Email"
+            register={register}
+            error={errors.assignEmail}
+          />
           <div className="grid lg:grid-cols-2 gap-4 grid-cols-1">
-            <FormGroup
-              label="Start Date"
-              id="default-picker"
-              error={errors.startDate}
-            >
+            <FormGroup label="Start Date" id="start-date-picker" error={errors.startDate}>
               <Controller
                 name="startDate"
                 control={control}
                 render={({ field }) => (
                   <Flatpickr
                     className="form-control py-2"
-                    id="default-picker"
+                    id="start-date-picker"
                     placeholder="yyyy, dd M"
                     value={startDate}
                     onChange={(date) => {
@@ -231,18 +150,14 @@ const AddTaskModal = ({setToggleTaskModal,toggleTaskModal,column_id,profile_id})
                 )}
               />
             </FormGroup>
-            <FormGroup
-              label="End Date"
-              id="default-picker2"
-              error={errors.endDate}
-            >
+            <FormGroup label="End Date" id="end-date-picker" error={errors.endDate}>
               <Controller
                 name="endDate"
                 control={control}
                 render={({ field }) => (
                   <Flatpickr
                     className="form-control py-2"
-                    id="default-picker2"
+                    id="end-date-picker"
                     placeholder="yyyy, dd M"
                     value={endDate}
                     onChange={(date) => {
@@ -258,37 +173,14 @@ const AddTaskModal = ({setToggleTaskModal,toggleTaskModal,column_id,profile_id})
               />
             </FormGroup>
           </div>
-          <div className={errors.assign ? "has-error" : ""}>
-            <label className="form-label" htmlFor="icon_s">
-              Assignee
-            </label>
-            <Controller
-              name="assign"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  options={assigneeOptions}
-                  styles={styles}
-                  className="react-select"
-                  classNamePrefix="select"
-                  isMulti
-                  components={{
-                    Option: OptionComponent,
-                  }}
-                  id="icon_s"
-                />
-              )}
-            />
-            {errors.assign && (
-              <div className=" mt-2  text-danger-500 block text-sm">
-                {errors.assign?.message || errors.assign?.label.message}
-              </div>
-            )}
-          </div>
-
+          <Textarea
+            label="Description"
+            placeholder="Task Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
           <div className={errors.tags ? "has-error" : ""}>
-            <label className="form-label" htmlFor="icon_s">
+            <label className="form-label" htmlFor="tags">
               Tag
             </label>
             <Controller
@@ -297,25 +189,25 @@ const AddTaskModal = ({setToggleTaskModal,toggleTaskModal,column_id,profile_id})
               render={({ field }) => (
                 <Select
                   {...field}
-                  options={options}
-                  styles={styles}
+                  options={[
+                    { value: 'low', label: 'Low' },
+                    { value: 'medium', label: 'Medium' },
+                    { value: 'high', label: 'High' },
+                  ]}
                   className="react-select"
                   classNamePrefix="select"
                   isMulti
-                  id="icon_s"
                 />
               )}
             />
-            {errors.assign && (
-              <div className=" mt-2  text-danger-500 block text-sm">
-                {errors.tags?.message || errors.tags?.label.message}
+            {errors.tags && (
+              <div className="mt-2 text-danger-500 block text-sm">
+                {errors.tags?.message}
               </div>
             )}
           </div>
-          <Textarea label="Description" placeholder="Description" value={description} onChange={(e)=>setDescription(e.target.value)} />
-
           <div className="ltr:text-right rtl:text-left">
-            <button className="btn btn-dark  text-center">Add</button>
+            <button className="btn btn-dark text-center">Add Task</button>
           </div>
         </form>
       </Modal>

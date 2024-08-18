@@ -128,7 +128,6 @@ const EditTaskModal = () => {
 
     mode: "all",
   });
-  console.log(editItem);
 
   useEffect(() => {
     reset(editItem);

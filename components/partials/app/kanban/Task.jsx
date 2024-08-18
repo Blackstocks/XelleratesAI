@@ -34,7 +34,6 @@ const Task = ({ task }) => {
   const dispatch = useDispatch();
 
   const deleteTaskData = async (id) => {
-    // console.log(profile_idconsol
     try {
       const {
         data: { session },
@@ -50,7 +49,6 @@ const Task = ({ task }) => {
         method: "DELETE",
       });
       const data = await response.json();
-      console.log(data);
       dispatch(updateTaskTag(!taskTag));
     } catch (error) {
       console.error("error in deleting task from database:", error);
