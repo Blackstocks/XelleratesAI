@@ -96,7 +96,7 @@ const OptionComponent = ({ data, ...props }) => {
   );
 };
 
-const EditTaskModal = () => {
+const EditTaskModal = ({fetchTaskSummary}) => {
   const { editModal, editItem } = useSelector((state) => state.kanban);
   const dispatch = useDispatch();
   const [startDate, setStartDate] = useState(new Date());
@@ -152,6 +152,7 @@ const EditTaskModal = () => {
         task: null,
       })
     );
+    fetchTaskSummary();
   };
 
   return (

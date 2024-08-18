@@ -10,6 +10,7 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const blogData = [
   {
@@ -48,12 +49,7 @@ const Chatbot = () => {
   const [stage, setStage] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const messageEndRef = useRef(null);
-  const [conversation, setConversation] = useState([]);
-  const [conversationStage, setConversationStage] = useState("initial");
-  const [userEmail, setUserEmail] = useState("");
-  const [userType, setUserType] = useState("");
-  const [startupStage, setStartupStage] = useState("");
-
+  const {profile} = useCompleteUserDetails(); 
 
 
   const toggleChatbot = () => {
@@ -141,9 +137,14 @@ const Chatbot = () => {
           }
           break;
         case "waitingForEmail":
-          botResponseText = "Great! Do you have any questions for me?";
-          //setStage("waitingForQuestions");
-          setStage("awaitingQuestion");
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (emailPattern.test(inputMessage)) {
+              botResponseText = "Great! Do you have any questions for me?";
+              setStage("waitingForInvestorOrStartup"); // Move to asking questions
+          } else {
+              botResponseText = "Please enter a valid email address.";
+              setStage("waitingForEmail"); // Stay in the email stage
+          }
           break;
         case "waitingForInvestorOrStartup":
           if (inputMessage.toLowerCase() === "investor") {
@@ -159,9 +160,19 @@ const Chatbot = () => {
         case "waitingForInvestorType":
         case "waitingForStartupStage":
           botResponseText = "That's great! Do you have any questions for me?";
-          //setStage("waitingForQuestions");
-          setStage("awaitingQuestion");
-          break;
+          //setStage("awaitingQuestion");
+          const botMessageWithButtons = {
+            role: "model",
+            parts: [{ text: botResponseText }],
+            buttons: [
+              { label: "Continue to chat with Zephyr", action: "continueChat", icon: "/assets/images/chat/zephyr.png" },
+              { label: "Talk to customer care on WhatsApp", action: "customerCare", icon: "/assets/images/chat/whatsapp.png" }
+            ]
+          };
+          setChatHistory((prevChatHistory) => [...prevChatHistory, botMessageWithButtons]);
+          setIsTyping(false);
+          return
+
         case "waitingForQuestions":
           botResponseText = "Feel free to ask any questions you have.";
           setStage("awaitingQuestion");
@@ -203,6 +214,20 @@ const Chatbot = () => {
       scrollToBottom();
     }
   };
+
+  const handleButtonClick = (action) => {
+    if (action === "continueChat") {
+      const thankYouMessage = {
+        role: "model",
+        parts: [{ text: "Thank you for choosing Zephyr. Please ask your question." }]
+      };
+      setChatHistory(prevChatHistory => [...prevChatHistory, thankYouMessage]);
+      setStage("awaitingQuestion");
+    } else if (action === "customerCare") {
+      window.open(`https://wa.me/9818446004?text=Hello%2C%0AMy%20name%20is%20${profile?.name}%2E%0ANeed%20an%20assistance%20from%20an%20Investment%20banker%20@Xellerates%20AI`, "_blank");
+    }
+  };
+  
   
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -218,92 +243,93 @@ const Chatbot = () => {
     scrollToBottom();
   }, [chatHistory, isTyping]);
 
+
   const renderContent = () => {
     switch (activeTab) {
-      case "home":
-        return (
-          <HomeContent onSendMessageClick={() => setActiveTab("messages")} />
-        );
       case "messages":
         return (
           <div className="chatbot-messages">
             {chatHistory.map((msg, index) => (
-              <div
-                key={index}
-                style={{
-                  display: 'flex',
-                  justifyContent: msg.role === "user" ? 'flex-end' : 'flex-start',
-                  marginBottom: '10px',
-                  width: '100%'
-                }}
-              >
+              <div key={index} style={{ display: 'flex', flexDirection: 'column', marginBottom: '10px', width: '100%' }}>
                 {msg.parts.map((part, partIndex) => (
-                  <div
-                    key={partIndex}
-                    style={{
-                      padding: '12px 18px',
-                      borderRadius: '20px',
-                      maxWidth: '75%',
-                      wordBreak: 'break-word',
-                      fontSize: '14px',
-                      backgroundColor: msg.role === "user" ? '#4a90e2' : '#f7f7f7',
-                      color: msg.role === "user" ? '#fff' : '#333',
-                    }}
-                    dangerouslySetInnerHTML={{ __html: part.text }}
-                  >
-                    {/* {part.text} */}
+                  <div key={partIndex} style={{
+                    padding: '12px 18px',
+                    borderRadius: '20px',
+                    maxWidth: '75%',
+                    wordBreak: 'break-word',
+                    fontSize: '14px',
+                    backgroundColor: msg.role === "user" ? '#4a90e2' : '#f7f7f7',
+                    color: msg.role === "user" ? '#fff' : '#333',
+                    alignSelf: msg.role === "user" ? 'flex-end' : 'flex-start'
+                  }}>
+                    <div dangerouslySetInnerHTML={{ __html: part.text }} />
                   </div>
                 ))}
+  
+                {/* Display buttons if present */}
+                {msg.buttons && (
+                  <div className="chatbot-buttons-container">
+                    {msg.buttons.map((button, btnIndex) => (
+                      <button
+                        key={btnIndex}
+                        onClick={() => handleButtonClick(button.action)}
+                        className="chatbot-button"
+                      >
+                        {button.icon && <img src={button.icon} alt="" className="button-icon" />}
+                        {button.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {isTyping && (
-  <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', width: '100%' }}>
-    <div style={{
-      padding: '12px 18px',
-      borderRadius: '20px',
-      maxWidth: '75%',
-      wordBreak: 'break-word',
-      fontSize: '14px',
-      backgroundColor: '#f7f7f7',
-      color: '#333',
-      display: 'flex',
-      alignItems: 'center'
-    }}>
-      <span style={{
-        width: '6px',
-        height: '6px',
-        margin: '0 1.5px',
-        backgroundColor: "rgb(78 78 78)",
-        borderRadius: '50%',
-        display: 'inline-block',
-        animation: 'bounce 1.2s infinite ease-in-out',
-        animationDelay: '0s',
-      }}></span>
-      <span style={{
-        width: '6px',
-        height: '6px',
-        margin: '0 1.5px',
-        backgroundColor: 'rgb(78 78 78)',
-        borderRadius: '50%',
-        display: 'inline-block',
-        animation: 'bounce 1.2s infinite ease-in-out',
-        animationDelay: '-0.16s'
-      }}></span>
-      <span style={{
-        width: '6px',
-        height: '6px',
-        margin: '0 1.5px',
-        backgroundColor: 'rgb(78 78 78)',
-        borderRadius: '50%',
-        display: 'inline-block',
-        animation: 'bounce 1.2s infinite ease-in-out',
-        animationDelay: '-0.32s'
-      }}></span>
-    </div>
-  </div>
-)}
-
-<style>
+              <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '10px', width: '100%' }}>
+                <div style={{
+                  padding: '12px 18px',
+                  borderRadius: '20px',
+                  maxWidth: '75%',
+                  wordBreak: 'break-word',
+                  fontSize: '14px',
+                  backgroundColor: '#f7f7f7',
+                  color: '#333',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    margin: '0 1.5px',
+                    backgroundColor: "rgb(78 78 78)",
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    animation: 'bounce 1.2s infinite ease-in-out',
+                    animationDelay: '0s',
+                  }}></span>
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    margin: '0 1.5px',
+                    backgroundColor: 'rgb(78 78 78)',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    animation: 'bounce 1.2s infinite ease-in-out',
+                    animationDelay: '-0.16s'
+                  }}></span>
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    margin: '0 1.5px',
+                    backgroundColor: 'rgb(78 78 78)',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    animation: 'bounce 1.2s infinite ease-in-out',
+                    animationDelay: '-0.32s'
+                  }}></span>
+                </div>
+              </div>
+            )}
+            <style>
 {`
   @keyframes bounce {
     0%, 100% {
@@ -313,22 +339,55 @@ const Chatbot = () => {
       transform: translateY(-6px);
     }
   }
+
+  .chatbot-buttons-container {
+  display: flex;
+  margin-top: 20px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.chatbot-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 2px;
+  background-color: #fff;
+  color: #4a90e2;
+  border: 1px solid #4a90e2;
+  border-radius: 15px;
+  cursor: pointer;
+  width: 40%;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.chatbot-button:hover {
+  background-color: #4a90e2;
+  color: #fff;
+}
+
+.button-icon {
+  width: 25px;
+  height: 25px;
+  margin-left: 3px;
+  margin-right: 5px;
+
+}
 `}
 </style>
-
             <div ref={messageEndRef} />
           </div>
         );
-      case "help":
-        return <HelpContent />;
-      case "news":
-        return <NewsContent />;
       default:
         return (
           <HomeContent onSendMessageClick={() => setActiveTab("messages")} />
         );
     }
   };
+  
   
   
 
@@ -541,6 +600,9 @@ const Chatbot = () => {
     .chatbot-footer button span {
       font-size: 12px;
     }
+
+
+
 
   `}</style>
 </>

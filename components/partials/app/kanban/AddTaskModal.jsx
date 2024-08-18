@@ -12,7 +12,7 @@ import { supabase } from "@/lib/supabaseclient";
 import { setColumnId, updateTaskTag } from "./store";
 import Select from "react-select"; // Make sure this import is added
 
-const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_id }) => {
+const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_id, fetchTaskSummary }) => {
   const dispatch = useDispatch();
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -36,6 +36,7 @@ const AddTaskModal = ({ setToggleTaskModal, toggleTaskModal, column_id, profile_
     addTaskData(data);
     setToggleTaskModal(false);
     reset();
+    fetchTaskSummary(); 
   };
 
   const addTaskData = async (data) => {
