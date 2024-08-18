@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '../../../../../lib/supabaseclient';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from 'react-slick';
 import CountUp from 'react-countup';
-import useUserDetails from '@/hooks/useUserDetails';
+import { v4 as uuidv4 } from 'uuid';
 
 const Equity = () => {
-  const { user } = useUserDetails();
+  const [user, setUser] = useState(null);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [showGstinModal, setShowGstinModal] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -33,49 +34,131 @@ const Equity = () => {
 
   const router = useRouter();
 
-  const handleGstinSubmit = async () => {
-    if (!user || !user.id) {
-      setGstinError('User is not logged in or ID is missing');
+  useEffect(() => {
+    checkUser();
+  }, []);
+
+  const checkUser = async () => {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+    if (error || !session) {
+      console.error('Error fetching session:', error);
       return;
     }
 
+    const user = session.user;
+    if (!user) {
+      console.error('No user found in session');
+      return;
+    }
+
+    setUser(user);
+    console.log('User found:', user);
+  };
+
+  const convertDateToYMD = (dateString) => {
+    if (!dateString) return null;
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
+  };
+
+  const fetchGstinData = async (gstin) => {
+    try {
+      const response = await fetch(`/api/gstin?gstin=${gstin}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch GSTIN data');
+      }
+      const data = await response.json();
+      console.log('GSTIN data fetched:', data);
+
+      const formattedRegistrationDate = convertDateToYMD(data.registrationDate);
+      const formattedCancellationDate = data.cancellationDate
+        ? convertDateToYMD(data.cancellationDate)
+        : null;
+
+      const { error } = await supabase.from('debt_gstin').insert({
+        user_id: user.id,
+        gstin: data.gstin,
+        legal_name: data.legalName,
+        constitution: data.constitution,
+        registration_date: formattedRegistrationDate || null,
+        status: data.status,
+        taxpayer_type: data.taxPayerType,
+        center_jurisdiction: data.centerJurisdiction,
+        state_jurisdiction: data.stateJurisdiction,
+        cancellation_date: formattedCancellationDate || null,
+        nature_business_activities: JSON.stringify(data.natureBusinessActivities),
+      });
+
+      if (error) {
+        console.error('Error storing GSTIN data in Supabase:', error);
+        throw new Error('Failed to store GSTIN data');
+      }
+
+      console.log('GSTIN data stored successfully in Supabase');
+    } catch (error) {
+      console.error('Error fetching GSTIN data:', error);
+      throw error;
+    }
+  };
+
+  const handleGstinSubmit = async () => {
     try {
       setLoading(true);
       setGstinError('');
 
-      const gstinData = await fetchGstinData(gstin); // Await the result to ensure it's resolved
-      if (gstinData) {
-        setShowGstinModal(false);
-        setShowProgressModal(true);
-        startProgress();
+      await fetchGstinData(gstin);
 
-        router.push('/tools/fundraising/debt/investor');
-      }
+      setShowGstinModal(false);
+      setShowProgressModal(true);
+      startProgress();
+
+      router.push('/tools/fundraising/debt/investor');
     } catch (error) {
-      setGstinError(error.message);
+      setGstinError('This GSTIN is not valid. Please enter a valid GSTIN.');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchGstinData = async (gstin) => {
-    try {
-      const response = await fetch(
-        `/api/gstin?gstin=${gstin}&user_id=${user?.id}`
-      );
-      const data = await response.json();
+  const checkProfileCompletion = async () => {
+    if (!user) {
+      console.error('User is not defined');
+      return;
+    }
 
-      if (!response.ok) {
-        throw new Error(
-          data.error || 'An error occurred while fetching GSTIN data'
-        );
+    console.log('Checking profile completion for user:', user.id);
+
+    const { data, error: profileError } = await supabase
+      .from('profiles')
+      .select(
+        'name, email, mobile, user_type, status, linkedin_profile, company_name'
+      )
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+    } else {
+      const requiredFields = [
+        'name',
+        'email',
+        'mobile',
+        'user_type',
+        'status',
+        'linkedin_profile',
+        'company_name',
+      ];
+      const isComplete = requiredFields.every((field) => data[field]);
+      setIsProfileComplete(isComplete);
+      console.log('Profile completion status:', isComplete);
+      if (!isComplete) {
+        setShowCompletionModal(true);
+      } else {
+        setShowGstinModal(true);
       }
-
-      console.log('GSTIN data processed successfully:', data);
-      return data; // Ensure you return the resolved data
-    } catch (error) {
-      console.error('Error:', error.message);
-      throw error;
     }
   };
 
