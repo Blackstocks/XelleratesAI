@@ -511,7 +511,7 @@ const InvestorDealflow = () => {
               </div>
             )}
 
-            <div className='overflow-x-auto filter blur-sm blur-container'>
+            <div className={`overflow-x-auto ${!hasConnected && 'blur-sm'}`}>
               <table className='min-w-full bg-white border border-gray-300'>
                 <thead>
                   <tr>
