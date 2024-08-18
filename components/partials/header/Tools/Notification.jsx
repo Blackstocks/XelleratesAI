@@ -53,6 +53,17 @@ const Notification = () => {
                   } block w-full px-4 py-2 text-sm cursor-pointer`}
                 >
                   <div className='flex ltr:text-left rtl:text-right'>
+                    <div className='flex-none ltr:mr-3 rtl:ml-3'>
+                      <div className='h-8 w-8 bg-white rounded-full'>
+                        <img
+                          src={item.company_logo || '/default-image.png'}
+                          alt='Notification'
+                          className={`${
+                            active ? ' border-white' : ' border-transparent'
+                          } block w-full h-full object-contain rounded-full border`}
+                        />
+                      </div>
+                    </div>
                     <div className='flex-1'>
                       <div
                         className={`${

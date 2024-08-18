@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
@@ -24,10 +26,6 @@ const useNotifications = () => {
         let query;
         if (user?.user_type === 'startup') {
           if (companyProfile?.id) {
-            // console.log(
-            //   'Fetching notifications for startup:',
-            //   companyProfile?.id
-            // );
             query = supabase
               .from('notifications')
               .select('*')
@@ -37,7 +35,6 @@ const useNotifications = () => {
           }
         } else if (user?.user_type === 'investor') {
           if (user?.id) {
-            // console.log('Fetching notifications for investor:', user?.id);
             query = supabase
               .from('notifications')
               .select('*')
@@ -61,8 +58,56 @@ const useNotifications = () => {
           return;
         }
 
-        // console.log('Fetched notifications:', data);
-        setNotifications(data);
+        const notificationsWithLogos = await Promise.all(
+          data.map(async (notification) => {
+            let logo = null;
+
+            // First, try to get the logo directly from the profiles table
+            let { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('company_logo')
+              .eq('id', notification.sender_id)
+              .single();
+
+            if (!profileError && profileData?.company_logo) {
+              logo = profileData.company_logo;
+            } else {
+              // If not found in profiles, check the company_profile table
+              let { data: companyProfileData, error: companyProfileError } =
+                await supabase
+                  .from('company_profile')
+                  .select('profile_id')
+                  .eq('id', notification.sender_id)
+                  .single();
+
+              if (!companyProfileError && companyProfileData?.profile_id) {
+                // Use the profile_id to get the logo from profiles
+                let {
+                  data: profileFromCompanyProfileData,
+                  error: profileFromCompanyProfileError,
+                } = await supabase
+                  .from('profiles')
+                  .select('company_logo')
+                  .eq('id', companyProfileData.profile_id)
+                  .single();
+
+                if (
+                  !profileFromCompanyProfileError &&
+                  profileFromCompanyProfileData?.company_logo
+                ) {
+                  logo = profileFromCompanyProfileData.company_logo;
+                }
+              }
+            }
+
+            return {
+              ...notification,
+              company_logo: logo,
+            };
+          })
+        );
+
+        setNotifications(notificationsWithLogos);
       } catch (error) {
         console.error('Unexpected error fetching notifications:', error);
       }
@@ -76,16 +121,12 @@ const useNotifications = () => {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notifications' },
         (_payload) => {
-          // console.log('Notification change detected, refetching notifications');
           fetchNotifications();
         }
       )
       .subscribe();
 
-    // console.log('Subscribed to notifications channel');
-
     return () => {
-      //   console.log('Unsubscribing from notifications channel');
       supabase.removeChannel(notificationSubscription);
     };
   }, [loading, companyProfile?.id, investorSignup?.id]);
@@ -94,60 +135,3 @@ const useNotifications = () => {
 };
 
 export default useNotifications;
-// import { useEffect, useState } from 'react';
-// import { supabase } from '@/lib/supabaseclient';
-// import useUserDetails from '@/hooks/useUserDetails';
-
-// const useNotifications = () => {
-//   const [notifications, setNotifications] = useState([]);
-//   const { user } = useUserDetails();
-
-//   useEffect(() => {
-//     if (!user?.id) {
-//       console.log('User ID not available');
-//       return;
-//     }
-
-//     const fetchNotifications = async () => {
-//       try {
-//         const { data, error } = await supabase
-//           .from('notifications')
-//           .select('*')
-//           .eq('receiver_id', user.id);
-
-//         if (error) {
-//           console.error('Error fetching notifications:', error);
-//           return;
-//         }
-
-//         setNotifications(data);
-//       } catch (error) {
-//         console.error('Unexpected error fetching notifications:', error);
-//       }
-//     };
-
-//     fetchNotifications();
-
-//     const notificationSubscription = supabase
-//       .channel('public:notifications')
-//       .on(
-//         'postgres_changes',
-//         { event: '*', schema: 'public', table: 'notifications' },
-//         (_payload) => {
-//           console.log('Notification change detected, refetching notifications');
-//           fetchNotifications();
-//         }
-//       )
-//       .subscribe();
-
-//     console.log('Subscribed to notifications channel');
-
-//     return () => {
-//       supabase.removeChannel(notificationSubscription);
-//     };
-//   }, [user?.id]);
-
-//   return notifications;
-// };
-
-// export default useNotifications;

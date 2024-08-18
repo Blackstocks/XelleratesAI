@@ -38,7 +38,7 @@ const NotificationPage = () => {
                         <div className='flex-none ltr:mr-3 rtl:ml-3'>
                           <div className='h-8 w-8 bg-white rounded-full'>
                             <img
-                              src={item.image || '/default-image.png'}
+                              src={item.company_logo || '/default-image.png'}
                               alt='Notification'
                               className={`${
                                 active ? ' border-white' : ' border-transparent'
