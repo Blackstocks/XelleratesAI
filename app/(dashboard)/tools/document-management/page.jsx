@@ -16,12 +16,19 @@ import Loading from '@/app/loading';
 import useFetchDocuments from '@/hooks/useFetchDocuments';
 import useUserDetails from '@/hooks/useUserDetails';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import ConnectedStartupsFilesGrid from '@/components/partials/app/projects/ConnectedStartupsFolder';
+import useStartupFiles from '@/hooks/useStartupFiles';
 const DocumentManagement = () => {
   const [filler, setFiller] = useState('grid');
   const { width, breakpoints } = useWidth();
   const { user } = useUserDetails();
   const { investorSignup } = useCompleteUserDetails();
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const { files: startups, loading: startupsLoading } = useStartupFiles(
+    user?.id
+  );
+
+  console.log('startups', startups);
 
   const dispatch = useDispatch();
 
@@ -90,13 +97,41 @@ const DocumentManagement = () => {
         <TableLoading count={documents.length} />
       )}
 
-      {filler === 'grid' && !isLoaded && Array.isArray(documents) && (
-        <div className='grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5'>
-          {documents.map((document) => (
-            <ProjectGrid project={document} key={document.id} />
-          ))}
+      {filler === 'grid' && (
+        <div className='flex flex-col h-full gap-5'>
+          {/* Upper half: ProjectGrid Section */}
+          {!isLoaded && Array.isArray(documents) && (
+            <div className='flex-grow overflow-y-auto'>
+              <div className='grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5'>
+                {documents.map((document) => (
+                  <ProjectGrid project={document} key={document.id} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <h4 className='font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4'>
+            Startup Documents
+          </h4>
+
+          {/* Lower half: ConnectedStartupsFilesGrid Section */}
+          <div className='flex-grow overflow-y-auto'>
+            {startupsLoading ? (
+              <Loading />
+            ) : (
+              <div className='grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5'>
+                {startups.map((startup) => (
+                  <ConnectedStartupsFilesGrid
+                    project={startup}
+                    key={startup.id}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
+
       {filler === 'list' && !isLoaded && Array.isArray(documents) && (
         <div>
           <ProjectList projects={documents} />

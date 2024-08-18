@@ -12,7 +12,7 @@ import {
 import { toast } from 'react-toastify';
 
 const EditProject = (documents, { user, investorSignup }) => {
-  console.log('documents', documents);
+  // console.log('documents', documents);
   const { editModal, editItem } = useSelector((state) => state.project);
   const dispatch = useDispatch();
   const userId = user?.id;
