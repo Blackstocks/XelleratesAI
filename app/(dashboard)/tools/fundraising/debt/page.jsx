@@ -68,10 +68,15 @@ const Equity = () => {
     try {
       const response = await fetch(`/api/gstin?gstin=${gstin}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch GSTIN data');
+        throw new Error('Please enter a valid GSTIN data');
       }
       const data = await response.json();
       console.log('GSTIN data fetched:', data);
+
+      // Check if the status is "Canceled" or "Expired"
+      if (data.status === 'Cancelled' || data.status === 'Expired') {
+        throw new Error(`GSTIN status is ${data.status}. Please provide a valid GSTIN.`);
+      }
 
       const formattedRegistrationDate = convertDateToYMD(data.registrationDate);
       const formattedCancellationDate = data.cancellationDate
@@ -117,7 +122,7 @@ const Equity = () => {
 
       router.push('/tools/fundraising/debt/investor');
     } catch (error) {
-      setGstinError('This GSTIN is not valid. Please enter a valid GSTIN.');
+      setGstinError(error.message);
     } finally {
       setLoading(false);
     }
