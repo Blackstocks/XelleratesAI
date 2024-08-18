@@ -18,6 +18,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   const { fundingInformation, companyProfile, founderInformation, businessDetails,
     companyDocuments,
     ctoInfo,
+    profile,
      loading } = useCompleteUserDetails();
 
   useEffect(() => {
@@ -68,13 +69,13 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   
       const shortDescription = companyProfile?.short_description || "Default description";
       const industrySector = companyProfile?.industry_sector || "Default sector";
-      const currentStage = companyProfile?.currentStage || "Not Available";
+      const currentStage = companyProfile?.current_stage || "Not Available";
       const previousFunding = fundingInformation?.previous_funding || [];
       
       // try{
   
       const reportHtml = await generateReport(companyProfile, fundingInformation, founderInformation, businessDetails, companyDocuments, 
-        ctoInfo, shortDescription, industrySector, companyName, currentStage, previousFunding);
+        ctoInfo, profile, shortDescription, industrySector, companyName, currentStage, previousFunding);
       //generatePDF(reportHtml);
       
       toast.update(toastId, { render: "Report generated successfully!", type: "success", isLoading: false, autoClose: 5000 });

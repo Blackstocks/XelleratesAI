@@ -112,31 +112,47 @@ async function getCompetitors(companyName) {
 
 // Example usage:
 const exampleCompetitors = [
-  {
-    name: '1. Greenlight',
-    foundedYear: '2014',
-    stage: 'Series D',
-    funding: '$556M'
-  },
-  {
-    name: '2. Junio',
-    foundedYear: '2020',
-    stage: 'Seed',
-    funding: '$8.17M'
-  },
-  {
-    name: '3. YPay Card',
-    foundedYear: '2020',
-    stage: 'Seed',
-    funding: '$667K'
-  },
-  {
-    name: '4. Yodaa',
-    foundedYear: '2020',
-    stage: 'Seed',
-    funding: '$125K'
-  }
-];
+    {
+      name: '1. Greenlight',
+      foundedYear: '2014',
+      stage: 'Series D',
+      funding: '$556M'
+    },
+    {
+      name: '2. Junio',
+      foundedYear: '2020',
+      stage: 'Seed',
+      funding: '$8.17M'
+    },
+    {
+      name: '3. YPay Card',
+      foundedYear: '2020',
+      stage: 'Seed',
+      funding: '$667K'
+    },
+    {
+      name: '4. Yodaa',
+      foundedYear: '2020',
+      stage: 'Seed',
+      funding: '$125K'
+    }
+  ];
+  
+
+async function getTop5Stocks(sector) {
+    try {
+        const response = await fetch(`/api/getTop5Stocks?sector=${encodeURIComponent(sector)}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const top5Stocks = await response.json();
+        return top5Stocks;
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+}
+
+
 
 // Main report generation function
 const generateReport = async (
@@ -146,6 +162,7 @@ const generateReport = async (
   businessDetails,
   companyDocuments,
   ctoInfo,
+  profile,
   shortDescription, 
   industrySector, 
   companyName, 
@@ -187,7 +204,7 @@ const generateReport = async (
   const yearlyProfit = financialData?.profit.Yearly;
   const latestProfit = yearlyProfit[yearlyProfit.length - 1];
   const capTable = fundingInformation?.cap_table;
-  const financialProjectionsData = companyDocuments?.financial_projections;
+  const financialProjectionsLink = companyDocuments?.financial_projections;
   const technologyRoadmapLink = ctoInfo?.technology_roadmap;
 
     try {
@@ -208,7 +225,32 @@ const generateReport = async (
     } catch {
         sector = industrySector;
     }
-    // const financialProjections = await generateFinancialResponse(financialProjectionsData);
+
+    
+    // Example usage
+    let stocks;
+    try{
+        getTop5Stocks(industrySector).then(top5Stocks => {
+            // Assigning the returned value to a variable
+            stocks = top5Stocks;
+
+            console.log('Top 5 Stocks:', stocks);
+
+            // Example: Accessing individual stock details
+            stocks.forEach(stock => {
+                console.log(`Name: ${stock.name}`);
+                console.log(`Market Cap: ${stock.marketCap}`);
+                console.log(`P/E Ratio: ${stock.peRatio}`);
+                console.log(`Profit: ${stock.profit}`);
+            });
+        });
+    }catch{
+        stocks = []
+    }
+
+    const financialProjections = await generateFinancialResponse(financialProjectionsLink);
+    
+    console.log("FP Link:", financialProjectionsLink);
     const technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
 
     let roadmapArray = [];
@@ -229,7 +271,9 @@ const generateReport = async (
     //console.log("Sector: ", sector);
 
 
-    return `<!DOCTYPE html>
+    return `
+    
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -237,6 +281,20 @@ const generateReport = async (
     <title>${companyName} Investment Readiness Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Set a fixed height for the chart container */
+        #chartContainer {
+            height: 300px;
+            max-width: 100%;
+            position: relative;
+        }
+
+        /* Ensure the canvas fills the container without stretching */
+        #financialProjectionsChart {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
     <div id="pdfContent" class="max-w-6xl mx-auto bg-white shadow-lg p-10 rounded-lg">
@@ -244,7 +302,7 @@ const generateReport = async (
         <div class="bg-blue-900 text-white p-8 rounded-lg">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-6">
-                    <img src="https://via.placeholder.com/100" alt="${companyName} Logo" class="h-24 w-24 object-cover rounded-full shadow-lg">
+                    <img src="${profile?.company_logo}" alt="${companyName} Logo" class="h-24 object-cover shadow-lg">
                     <div>
                         <h1 class="text-4xl font-extrabold">${companyName}</h1>
                         <p class="text-xl font-medium mt-2">Stage: ${currentStage}</p>
@@ -274,6 +332,7 @@ const generateReport = async (
                 </div>
 
                 <!-- Competitors -->
+                <!-- 
                 <div class="mb-8">
                     <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Competitors</h3>
                     <table class="table-auto w-full text-left border-collapse">
@@ -296,7 +355,37 @@ const generateReport = async (
                             `).join('')}
                         </tbody>
                     </table>
+                    </div>
+                    -->
+
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Competitors</h3>
+                    <table class="table-auto w-full text-left border-collapse">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="border px-6 py-2">Name</th>
+                                <th class="border px-6 py-2">Market Cap (Rs.Cr.)</th>
+                                <th class="border px-6 py-2">P/E Ratio</th>
+                                <th class="border px-6 py-2">Net Profit (Rs.Cr.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${stocks.length > 0
+                                ? stocks.map(stock => `
+                                <tr class="border-t border-gray-200">
+                                    <td class="border px-6 py-2">${stock.name}</td>
+                                    <td class="border px-6 py-2">${stock.marketCap}</td>
+                                    <td class="border px-6 py-2">${stock.peRatio}</td>
+                                    <td class="border px-6 py-2">${stock.profit}</td>
+                                </tr>
+                            `).join('')
+                            : `<tr><td class="border px-4 py-2">${funding.investorName}</td></tr>`
+                            }
+                        </tbody>
+                    </table>
                 </div>
+
+                
                 <!-- Funding Details -->
                 <div class="mb-6">
                 <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Funding Details</h3>
@@ -368,7 +457,7 @@ const generateReport = async (
                             </tr>
                             <tr>
                                 <th class="border px-6 py-2">Location</td>
-                                <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country.label || "NA"}</td>
+                                <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country?.value || "NA"}</td>
                             </tr>
                             <tr class="bg-gray-50">
                                 <th class="border px-6 py-2">Editor's Rating</td>
@@ -482,16 +571,27 @@ const generateReport = async (
                 </div>
 
                 <!-- Valuation Trends -->
+                <!--
                 <div class="mb-8">
                     <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Valuation Trends (USD)</h3>
                     <p class="text-lg">Coming Soon</p>
                 </div>
+                -->
 
                 <!-- Revenue Trends -->
                 <div class="mb-8">
                     <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Revenue Trends (USD)</h3>
                     <canvas id="revenueChart"></canvas>
                 </div>
+
+                <!-- Financial Projections -->
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
+                    <div id="chartContainer">
+                        <canvas id="financialProjectionsChart"></canvas>
+                    </div>
+                </div>
+
                 <script>
                     const ctx = document.getElementById('revenueChart').getContext('2d');
                     const revenueChart = new Chart(ctx, {
@@ -536,9 +636,9 @@ const generateReport = async (
                         <tbody>
                             ${capTable.map(person => `
                                 <tr class="border-t border-gray-200">
-                                    <td class="border px-6 py-4">${person.firstName}</td>
-                                    <td class="border px-6 py-4">${person.designation}</td>
-                                    <td class="border px-6 py-4">${person.percentage}%</td>
+                                    <td class="border px-6 py-2">${person.firstName}</td>
+                                    <td class="border px-6 py-2">${person.designation}</td>
+                                    <td class="border px-6 py-2">${person.percentage}%</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -589,6 +689,166 @@ const generateReport = async (
 
 
     <script>
+    const financialProjections = ${JSON.stringify(financialProjections)};
+
+ document.addEventListener("DOMContentLoaded", function () {
+                console.log("DOM fully loaded and parsed");
+
+                if (typeof financialProjections === 'undefined') {
+                    console.error("financialProjections is not defined");
+                    return;
+                }
+                console.log("Financial Projections Data:", financialProjections);
+
+                // Function to calculate yearly totals
+                function calculateYearlyTotals(revenueProjections) {
+                    return revenueProjections.map(projection => {
+                        const yearlySums = {};
+                        projection.yearly_data.forEach(yearData => {
+                            const year = Object.keys(yearData)[0];
+                            const monthlyData = yearData[year];
+                            const yearlyTotal = monthlyData.reduce((sum, item) => sum + parseFloat(item.value), 0);
+                            yearlySums[year] = yearlyTotal;
+                        });
+                        return {
+                            revenue_stream: projection.revenue_stream,
+                            yearly_totals: yearlySums
+                        };
+                    });
+                }
+
+                const yearlyTotals = calculateYearlyTotals(financialProjections.revenue_projections);
+                console.log("Yearly Totals:", yearlyTotals);
+
+                const years = Object.keys(yearlyTotals[0].yearly_totals);
+                console.log("Years:", years);
+
+                const colorPalette = [
+    'rgba(255, 99, 132, 0.6)',  // Red
+    'rgba(54, 162, 235, 0.6)',  // Blue
+    'rgba(75, 192, 192, 0.6)',  // Green
+    'rgba(255, 206, 86, 0.6)',  // Yellow
+    'rgba(153, 102, 255, 0.6)', // Purple
+    'rgba(255, 159, 64, 0.6)',  // Orange
+    'rgba(199, 199, 199, 0.6)', // Grey
+    'rgba(255, 99, 71, 0.6)',   // Tomato
+    'rgba(60, 179, 113, 0.6)',  // MediumSeaGreen
+    'rgba(106, 90, 205, 0.6)',  // SlateBlue
+];
+
+const datasets = yearlyTotals.map((projection, index) => ({
+    label: projection.revenue_stream,
+    data: years.map(year => projection.yearly_totals[year]),
+    backgroundColor: colorPalette[index % colorPalette.length],
+    borderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+    borderWidth: 2,
+    fill: false,
+    pointBackgroundColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+}));
+
+
+            // Create the chart
+            const ctx = document.getElementById('financialProjectionsChart').getContext('2d');
+            const chartHeight = 400; 
+            const financialProjectionsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: datasets
+    },
+    options: {
+        maintainAspectRatio: false, // Allows the chart to take full height
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Revenue (in Millions)',
+                    color: '#4A4A4A',
+                    font: {
+                        family: 'Arial',
+                        size: 14,
+                        weight: 'bold',
+                    }
+                },
+                grid: {
+                    color: '#E0E0E0',
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Year',
+                    color: '#4A4A4A',
+                    font: {
+                        family: 'Arial',
+                        size: 14,
+                        weight: 'bold',
+                    }
+                },
+                grid: {
+                    color: '#E0E0E0',
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                    color: '#4A4A4A',
+                    font: {
+                        family: 'Arial',
+                        size: 10, // Smaller font size for legend items
+                        weight: 'bold',
+                    },
+                    boxWidth: 15,
+                    padding: 10, // Adjusted padding to save space
+                },
+                maxHeight: 100, // Limit the height of the legend area
+            },
+            tooltip: {
+                backgroundColor: '#333',
+                titleFont: {
+                    family: 'Arial',
+                    size: 14,
+                    weight: 'bold',
+                },
+                bodyFont: {
+                    family: 'Arial',
+                    size: 12,
+                },
+                footerFont: {
+                    family: 'Arial',
+                    size: 10,
+                    style: 'italic',
+                },
+                borderColor: '#777',
+                borderWidth: 1,
+            },
+        },
+        responsive: true,
+        layout: {
+            padding: {
+                top: 10,
+                right: 10,
+                bottom: 10,
+                left: 10
+            }
+        },
+    }
+});
+
+                console.log("Chart successfully created");
+            });
+
+            
+
+
+
         document.getElementById('downloadBtn').addEventListener('click', async function() {
             const reportHtml = document.getElementById('pdfContent').outerHTML;
             const response = await fetch('/api/generate-pdf', {
@@ -612,9 +872,11 @@ const generateReport = async (
                 console.error('Failed to generate PDF');
             }
         });
+
       </script>
 </body>
-</html>`;
+</html>
+`;
     
 };
 
