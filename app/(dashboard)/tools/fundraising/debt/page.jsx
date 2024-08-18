@@ -514,7 +514,7 @@ const Equity = () => {
                 )}
               </div>
               <button
-                onClick={handleGstinSubmit}
+                // onClick={handleGstinSubmit}
                 className='mt-4 bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500'
               >
                 {loading ? (
