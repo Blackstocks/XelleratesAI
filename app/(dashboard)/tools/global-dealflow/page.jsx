@@ -619,8 +619,8 @@ const CuratedDealflow = () => {
                     className='mr-1rem rounded-md py-2 px-4 border bg-[#14213d] text-white'
                     onClick={() => {
                       handleExpressInterest(
-                        selectedStartup?.company_profile?.id,
-                        user.id,
+                        selectedStartup?.id,
+                        user?.id,
                         message,
                         [picker1, picker2, picker3]
                       );
