@@ -333,6 +333,14 @@ const Navmenu = ({ menus }) => {
             </li>
 
             <li className={`single-sidebar-menu`}>
+              <Link className='menu-link' href='/admin/hotDeals'>
+                <span className='menu-icon flex-grow-0'>
+                  <Icon icon='heroicons-outline:fire' />
+                </span>
+                <div className='text-box flex-grow'>Hot Deals</div>
+              </Link>
+            </li>
+            <li className={`single-sidebar-menu`}>
               <Link className='menu-link' href='/admin/revenue'>
                 <span className='menu-icon flex-grow-0'>
                   <CurrencyDollarIcon className='h-5 w-5' />
