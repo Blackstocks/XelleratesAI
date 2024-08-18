@@ -18,7 +18,7 @@ const Logo = () => {
               src={
                 isDark
                   ? 'assets/images/logo/X (1).png'
-                  : 'assets/images/logo/X (8).png'
+                  : 'assets/images/logo/xelleratesLogo.png'
               }
               alt=''
               style={{ margin: '0 auto', height: '3em' }}
@@ -28,7 +28,7 @@ const Logo = () => {
               src={
                 isDark
                   ? 'assets/images/logo/X (1).png'
-                  : 'assets/images/logo/X (8).png'
+                  : 'assets/images/logo/xelleratesLogo.png'
               }
               alt=''
               style={{ margin: '0 auto', height: '3em' }}

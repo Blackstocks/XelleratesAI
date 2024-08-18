@@ -39,13 +39,13 @@ const MobileMenu = ({ className = 'custom-class' }) => {
             <div className='logo-icon'>
               {!isDark && !isSemiDark ? (
                 <img
-                  src='assets/images/logo/X (8).png'
+                  src='assets/images/logo/xelleratesLogo.png'
                   alt=''
                   style={{ margin: '0 auto', height: '3em' }}
                 />
               ) : (
                 <img
-                  src='assets/images/logo/X (8).png'
+                  src='assets/images/logo/xelleratesLogo.png'
                   alt=''
                   style={{ margin: '0 auto', height: '3em' }}
                 />
@@ -72,7 +72,7 @@ const MobileMenu = ({ className = 'custom-class' }) => {
         scrollableNodeProps={{ ref: scrollableNodeRef }}
       >
         <Navmenu menus={menuItems} />
-        <div className='bg-slate-900 mb-24 lg:mb-10 mt-24 p-4 relative text-center rounded-2xl text-white'>
+        {/* <div className='bg-slate-900 mb-24 lg:mb-10 mt-24 p-4 relative text-center rounded-2xl text-white'>
           <img
             src='/assets/images/svg/rabit.svg'
             alt=''
@@ -89,7 +89,7 @@ const MobileMenu = ({ className = 'custom-class' }) => {
               Upgrade
             </button>
           </div>
-        </div>
+        </div> */}
       </SimpleBar>
     </div>
   );

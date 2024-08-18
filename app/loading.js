@@ -11,8 +11,8 @@ const Loading = () => {
           style={{ margin: '0 auto', height: '3em' }}
           src={
             isDark
-              ? 'assets/images/logo/X (8).png'
-              : 'assets/images/logo/X (8).png'
+              ? 'assets/images/logo/xelleratesLogo.png'
+              : 'assets/images/logo/xelleratesLogo.png'
           }
           alt='Logo'
         />

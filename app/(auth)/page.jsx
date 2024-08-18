@@ -49,8 +49,8 @@ const Login = () => {
                     <img
                       src={
                         isDark
-                          ? '/assets/images/logo/X (8).png'
-                          : '/assets/images/logo/X (8).png'
+                          ? '/assets/images/logo/xelleratesLogo.png'
+                          : '/assets/images/logo/xelleratesLogo.png'
                       }
                       alt=''
                       style={{
