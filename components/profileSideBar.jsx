@@ -845,9 +845,8 @@ const VerticalNavTabs = (props) => {
           window.location.reload();
           break;
 
-        case 'business_details':
-          const emptyBusinessDetails = !businessDetails?.id;
-          updatedData = {
+        case 'business_details': {
+          const businessDetailsData = {
             company_id: companyProfile.id,
             current_traction: data.current_traction || null,
             new_Customers: data.new_Customers || null,
@@ -855,30 +854,37 @@ const VerticalNavTabs = (props) => {
             customer_Lifetime_Value: data.customer_Lifetime_Value || null,
           };
 
-          try {
-            if (emptyBusinessDetails) {
-              const businessDetailsResponse = await insertBusinessDetails(
-                companyProfile.id,
-                updatedData
-              );
-              if (businessDetailsResponse.error) {
-                throw businessDetailsResponse.error;
-              }
-              updatedData = businessDetailsResponse.data;
-            } else {
-              const businessDetailsResponse = await updateBusinessDetails(
-                companyProfile.id,
-                updatedData
-              );
-              if (businessDetailsResponse.error) {
-                throw businessDetailsResponse.error;
-              }
-              updatedData = businessDetailsResponse.data;
+          let businessDetailsResponse;
+          if (!businessDetails?.id) {
+            // Insert new business details if not already present
+            businessDetailsResponse = await insertBusinessDetails(
+              companyProfile.id,
+              businessDetailsData
+            );
+
+            if (businessDetailsResponse && !businessDetailsResponse.error) {
+              businessDetails = {
+                id: businessDetailsResponse?.id,
+              };
             }
-          } catch (error) {
-            console.error('Error saving business details:', error);
+          } else {
+            // Update existing business details
+            businessDetailsResponse = await updateBusinessDetails(
+              companyProfile.id,
+              businessDetailsData
+            );
+          }
+
+          if (businessDetailsResponse?.error) {
+            throw businessDetailsResponse.error;
+          }
+
+          if (businessDetailsResponse) {
+            updatedData = businessDetailsResponse.data;
+            setBusinessDetailsLoc(updatedData);
           }
           break;
+        }
 
         case 'funding_info': {
           const fundingData = {
