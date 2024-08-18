@@ -178,6 +178,14 @@ const Chatbot = () => {
           const lastEntry = data[data.length - 1];
           const parts = lastEntry.parts;
           botResponseText = parts[0]?.text || "Sorry, something went wrong.";
+
+          if (botResponseText.includes("{contact_info}")) {
+            botResponseText = botResponseText.replace(
+              "{contact_info}",
+              `<a href="https://wa.me/9818446004?text=Hello" target="_blank" style="color: blue; text-decoration: underline; padding: 2px 4px; ">Click Here to chat on WhatsApp</a>`
+            );
+          }
+
           break;
         default:
           botResponseText = "Sorry, I didn't understand that. Can you please rephrase?";

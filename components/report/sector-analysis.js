@@ -6,6 +6,8 @@ You should:
 1. Understand the Business Description of the startup.
 2. Now carefully give the detailed sector analysis in the below format.
  Broad_sector > narrowed_sector > more narrowed sector" 
+3. If the sector and the business description does not match or you are unsure about the sector analysis then just return the Broad Sector > Target Audience. 
+4. If you are unsure about anything return 'NA'.
 
 **INSTRUCTIONS**
 - Don't be overconfident and don't hallucinate.
