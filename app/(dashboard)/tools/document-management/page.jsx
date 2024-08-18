@@ -12,25 +12,26 @@ import { toggleAddModal } from '@/components/partials/app/projects/store';
 import AddProject from '@/components/partials/app/projects/AddProject';
 import { ToastContainer } from 'react-toastify';
 import EditProject from '@/components/partials/app/projects/EditProject';
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import Loading from '@/app/loading';
 import useFetchDocuments from '@/hooks/useFetchDocuments';
-
+import useUserDetails from '@/hooks/useUserDetails';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 const DocumentManagement = () => {
   const [filler, setFiller] = useState('grid');
   const { width, breakpoints } = useWidth();
-  const { profile } = useCompleteUserDetails();
+  const { user } = useUserDetails();
+  const { investorSignup } = useCompleteUserDetails();
   const [isProfileLoading, setIsProfileLoading] = useState(true);
 
   const dispatch = useDispatch();
 
-  const { documents, isLoaded, error } = useFetchDocuments(profile?.id);
+  const { documents, isLoaded } = useFetchDocuments(user?.id);
 
   React.useEffect(() => {
-    if (profile) {
+    if (user) {
       setIsProfileLoading(false);
     }
-  }, [profile]);
+  }, [user]);
 
   if (isProfileLoading) {
     return <Loading />;
@@ -102,8 +103,16 @@ const DocumentManagement = () => {
         </div>
       )}
 
-      <AddProject fetchDocuments={() => fetchDocuments(profile.id)} />
-      <EditProject documents={documents} />
+      <AddProject
+        user={user}
+        investorSignup={investorSignup}
+        fetchDocuments={() => fetchDocuments(user?.id)}
+      />
+      <EditProject
+        user={user}
+        investorSignup={investorSignup}
+        documents={documents}
+      />
     </div>
   );
 };

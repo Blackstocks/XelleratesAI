@@ -23,8 +23,8 @@ const ProjectGrid = ({ project }) => {
           <div className='flex-none'>
             <img
               src={company_logo}
+              className='h-10 w-10 rounded-md object-contain'
               alt={`${company_name} logo`}
-              className='h-10 w-10 rounded-md'
             />
           </div>
           <div className='font-medium text-base leading-6'>
