@@ -1,6 +1,7 @@
 'use client';
-import useStartups from '@/hooks/useStartups'; // Adjust the import path as needed
+import useStartupsRaw from '@/hooks/useStartupsRaw'; // Adjust the import path as needed
 import useMatchingStartups from '@/hooks/useMatchingStartups';
+import React from 'react';
 
 const statisticsTemplate = [
   {
@@ -46,32 +47,24 @@ const statisticsTemplate = [
 ];
 
 const GroupChartNew3 = () => {
-  const { startups, loading: startupsLoading, startupCount } = useStartups();
+  const { startups, loading: startupsLoading, startupCount } = useStartupsRaw();
   const {
     matchingStartups,
     loading: matchingLoading,
     count: curatedCount,
   } = useMatchingStartups();
 
-  // console.log('Loading state:', startupsLoading); // Log loading state
-  // console.log('Startup count:', startupCount); // Log startup count
-  // console.log('Startups data:', startups); // Log startups data
-
   const statistics = statisticsTemplate.map((stat) => {
     if (stat.title === 'Total Startups') {
       return { ...stat, count: startupsLoading ? 'Loading...' : startupCount };
     }
     if (stat.title === 'Curated Startups') {
-      // console.log('Curated startups count:', curatedCount); // Log curated startups count
       return { ...stat, count: matchingLoading ? 'Loading...' : curatedCount };
     }
     return stat;
   });
 
-  // console.log(
-  //   'Statistics with updated total startups and curated startups:',
-  //   statistics
-  // ); // Log updated statistics
+  const isLoading = startupsLoading || matchingLoading;
 
   return (
     <>
@@ -93,9 +86,15 @@ const GroupChartNew3 = () => {
               <b>{item.title}</b>
             </h7>
           </span>
-          <span className='block text-2xl text-slate-900 dark:text-white font-medium mb-6'>
-            {item.count}
-          </span>
+          {isLoading ? (
+            <div className='animate-pulse'>
+              <div className='h-2 bg-[#C4C4C4] dark:bg-slate-500 rounded-full mb-6'></div>
+            </div>
+          ) : (
+            <span className='block text-2xl text-slate-900 dark:text-white font-medium mb-6'>
+              {item.count}
+            </span>
+          )}
         </div>
       ))}
     </>

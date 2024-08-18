@@ -9,14 +9,12 @@ import {
   handleInvestorFileUpload,
   insertInvestorDocuments,
 } from '@/lib/actions/investorActions';
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import { toast } from 'react-toastify';
 
-const AddProject = ({ fetchDocuments }) => {
-  const { profile, investorSignup } = useCompleteUserDetails();
+const AddProject = ({ fetchDocuments, user, investorSignup }) => {
   const { openProjectModal } = useSelector((state) => state.project);
   const dispatch = useDispatch();
-  const userId = profile?.id;
+  const userId = user?.id;
   const investorName = investorSignup?.name;
 
   const { register, handleSubmit, reset } = useForm();

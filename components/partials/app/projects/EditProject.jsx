@@ -9,15 +9,13 @@ import {
   handleInvestorFileUpload,
   updateInvestorDocuments,
 } from '@/lib/actions/investorActions';
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import { toast } from 'react-toastify';
 
-const EditProject = (documents) => {
+const EditProject = (documents, { user, investorSignup }) => {
   console.log('documents', documents);
-  const { profile, investorSignup } = useCompleteUserDetails();
   const { editModal, editItem } = useSelector((state) => state.project);
   const dispatch = useDispatch();
-  const userId = profile?.id;
+  const userId = user?.id;
 
   const { register, handleSubmit, reset } = useForm();
   const [selectedFiles, setSelectedFiles] = useState({});
@@ -28,7 +26,7 @@ const EditProject = (documents) => {
       setSelectedFiles(editItem.files || {});
     }
   }, [editItem, reset]);
-  console.log('investorSignup', investorSignup);
+  // console.log('investorSignup', investorSignup);
 
   const handleFileChange = (e, name) => {
     const files = e.target.files;
@@ -79,6 +77,8 @@ const EditProject = (documents) => {
       });
       reset();
       setSelectedFiles({});
+      // Reload the window after successful submission
+      window.location.reload();
     } else {
       // Add error handling here
       toast.error('Edit Failed', {
