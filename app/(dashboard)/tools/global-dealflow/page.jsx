@@ -214,34 +214,56 @@ const CuratedDealflow = () => {
       const industrySector = selectedStartup?.companyProfile?.industry_sector || "Default sector";
       const currentStage = selectedStartup?.companyProfile?.current_stage || "Not Available";
       const previousFunding = selectedStartup?.fundingInformation?.previous_funding || [];
+
+      const companyProfile = {
+        "id": selectedStartup?.id,
+        "company_name": selectedStartup?.company_name,
+        "country": selectedStartup?.country,
+        "state_city": selectedStartup?.state_city,
+        "company_website": selectedStartup?.company_website,
+        "linkedin_profile": selectedStartup?.linkedin_profile,
+        "short_description": selectedStartup?.short_description,
+        "target_audience": selectedStartup?.target_audience,
+        "industry_sector": selectedStartup?.industry_sector,
+        "current_stage": selectedStartup?.current_stage,
+      }
       
       try {
         console.log('selectedStartup?.company_profile', selectedStartup);
-        const reportHtml = await generateReport(
-          selectedStartup?.company_profile, 
+        const result = await generateReport(
+          companyProfile, 
           selectedStartup?.funding_information, 
           selectedStartup?.founder_information, 
           selectedStartup?.business_details,
-          selectedStartup?.company_documents, 
-          selectedStartup?.cto_info, 
+          selectedStartup?.company_documents[0], 
+          selectedStartup?.CTO_info, 
           selectedStartup?.profiles, 
-          shortDescription, 
-          industrySector,
+          companyProfile?.short_description, 
+          companyProfile?.industry_sector,
           selectedStartup?.company_name || 'N/A', 
-          currentStage, 
-          previousFunding
+          companyProfile?.current_stage, 
+          selectedStartup?.funding_information?.previous_funding
         );
         
-        toast.update(toastIdRef.current, {
-          render: "Report generated successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 5000,
-        });
-
-        const newWindow = window.open('', '_blank');
-        newWindow.document.write(reportHtml);
-        newWindow.document.close();
+        if (result.status === 'error') {
+          toast.update(toastIdRef.current, {
+            render: `Cannot generate report: Missing documents of startup - ${result.message}`,
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          });
+        } else {
+          toast.update(toastIdRef.current, {
+            render: "Report generated successfully!",
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+          });
+  
+          const newWindow = window.open('', '_blank');
+          newWindow.document.write(result.html);
+          newWindow.document.close();
+        }
       } catch (error) {
         toast.update(toastIdRef.current, {
           render: "Cannot generate Report!",

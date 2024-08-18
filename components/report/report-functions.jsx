@@ -170,7 +170,21 @@ const generateReport = async (
   previousFunding
 ) => {
   
-  //const competitors = await getCompetitors("FamPay"); 
+    const financialProjectionsLink = companyDocuments?.financial_projections;
+    const technologyRoadmapLink = ctoInfo?.technology_roadmap;
+  
+    const missingDocuments = [];
+  
+    if (!financialProjectionsLink) {
+      missingDocuments.push('Financial Projections');
+    }
+    if (!technologyRoadmapLink) {
+      missingDocuments.push('Technology Roadmap');
+    }
+    if (missingDocuments.length > 0) {
+      const missingMessage = `${missingDocuments.join(', ')}`;
+      return { status: 'error', message: missingMessage };
+    }
   const competitors = exampleCompetitors;
   const totalFunding = previousFunding.reduce((total, funding) => total + parseFloat(funding.amountRaised || 0), 0);
   const coFounders = founderInformation?.co_founders || [];
@@ -204,8 +218,6 @@ const generateReport = async (
   const yearlyProfit = financialData?.profit.Yearly;
   const latestProfit = yearlyProfit[yearlyProfit.length - 1];
   const capTable = fundingInformation?.cap_table;
-  const financialProjectionsLink = companyDocuments?.financial_projections;
-  const technologyRoadmapLink = ctoInfo?.technology_roadmap;
 
     try {
         const response = await axios.get('/api/fetch-news-no-summary', {
@@ -269,9 +281,7 @@ const generateReport = async (
 
 
     //console.log("Sector: ", sector);
-
-
-    return `
+    const reportHtml = `
     
     <!DOCTYPE html>
 <html lang="en">
@@ -876,7 +886,9 @@ const datasets = yearlyTotals.map((projection, index) => ({
       </script>
 </body>
 </html>
-`;
+`
+
+return { status: 'success', html: reportHtml };
     
 };
 

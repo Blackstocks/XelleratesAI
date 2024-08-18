@@ -62,6 +62,7 @@ const generateResponse = async (fileContent) => {
     1. Understand the given Technology Roadmap of the startup.
     2. Now carefully give the detailed Technology Roadmap analysis in the below json format with following fields.
         Time, Initiative, Impact
+    3. Keep your report very concise.
 
     **INSTRUCTIONS**
     - Don't be overconfident and don't hallucinate.
@@ -255,8 +256,30 @@ Your Output:  {
 ]
 }
 
+  ** You should generate the report strictly in the below format:
+  {
+    [
+      {
+        "Time": "The time frame of the initiative",
+        "Initiative": "crisp description of the initiative",
+        "Impact": "crisp impact of the intitiative"
+      },
+      {
+        "Time": "The time frame of the initiative",
+        "Initiative": "crisp description of the initiative",
+        "Impact": "crisp impact of the intitiative"
+      },
+      {
+        "Time": "The time frame of the initiative",
+        "Initiative": "crisp description of the initiative",
+        "Impact": "crisp impact of the intitiative"
+      },
+      ...// and so on
+    ]
+  }
 
-    Now take a deep breath and proceed with the task.
+
+    ** Now take a deep breath and proceed with the task.
     The Technology Roadmap is:
     Data: ${JSON.stringify(fileContent)}
   `;

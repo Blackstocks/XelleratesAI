@@ -41,10 +41,10 @@ export default async function handler(req, res) {
 
                     const title = $(element).find('h2.wp-block-post-title a').text().trim();
 
-                    if (!searchString.toLowerCase().includes("category startups") &&
-                            !title.toLowerCase().includes(searchString.toLowerCase())) {
-                            return null; 
-                        }
+                    // if (!searchString.toLowerCase().includes("category startups") &&
+                    //         !title.toLowerCase().includes(searchString.toLowerCase())) {
+                    //         return null; 
+                    //     }
 
                     let date = $(element).find('time').text().trim();
                     const parts = date.split('•');

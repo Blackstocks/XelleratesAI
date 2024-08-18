@@ -82,21 +82,29 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       
       try{
   
-      const reportHtml = await generateReport(companyProfile, fundingInformation, founderInformation, businessDetails, companyDocuments, 
+      const result = await generateReport(companyProfile, fundingInformation, founderInformation, businessDetails, companyDocuments, 
         ctoInfo, profile, shortDescription, industrySector, companyName, currentStage, previousFunding);
       //generatePDF(reportHtml);
       
-      //toast.update(toastId, { render: "Report generated successfully!", type: "success", isLoading: false, autoClose: 5000 });
-      toast.update(toastIdRef.current, {
-        render: "Report generated successfully!",
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-      });
+      if (result.status === 'error') {
+        toast.update(toastIdRef.current, {
+          render: `Cannot generate report: Missing documents: ${result.message}`,
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      } else {
+        toast.update(toastIdRef.current, {
+          render: "Report generated successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
 
-      const newWindow = window.open('', '_blank');
-      newWindow.document.write(reportHtml);
-      newWindow.document.close();
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write(result.html);
+        newWindow.document.close();
+      }
       } catch{
         //toast.update(toastId, { render: "Cannot generate Report!", type: "error", isLoading: false, autoClose: 5000 });
         toast.update(toastIdRef.current, {
