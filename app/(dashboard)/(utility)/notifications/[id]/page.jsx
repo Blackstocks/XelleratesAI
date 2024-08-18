@@ -101,7 +101,7 @@ const NotificationDetail = () => {
             notification_status: 'accepted',
             notification_type: 'startup_accepted',
             notification_read_status: 'unread',
-            notification_message: `The startup has accepted your request for the time slot: ${selectedSlot}. Zoom meeting link: ${zoomMeetingLink}`,
+            notification_message: notification.notification_message,
           });
 
         if (createError) {
@@ -111,9 +111,7 @@ const NotificationDetail = () => {
           const newEventData = {
             name: `Meeting scheduled with startup ${notification.receiver_id}`,
             date: selectedSlot,
-            details: `Meeting between startup and investor at ${new Date(
-              selectedSlot
-            ).toLocaleString()}`,
+            details: notification.notification_message,
             user_id: notification.sender_id, // Assuming the event is for the investor
             zoom_link: zoomMeetingLink, // Store the Zoom link with the event
             sender_id: notification.receiver_id, // Startup's ID
