@@ -11,12 +11,12 @@ import useUserDetails from '@/hooks/useUserDetails';
 const Equity = () => {
   const { user } = useUserDetails();
   const [isProfileComplete, setIsProfileComplete] = useState(false);
-  // const [showGstinModal, setShowGstinModal] = useState(false);
+  const [showGstinModal, setShowGstinModal] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showUnlockCapitalModal, setShowUnlockCapitalModal] = useState(false);
-  // const [gstin, setGstin] = useState('');
-  // const [gstinError, setGstinError] = useState('');
+  const [gstin, setGstin] = useState('');
+  const [gstinError, setGstinError] = useState('');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [annualRevenue, setAnnualRevenue] = useState('₹0-2 Cr');
@@ -33,68 +33,68 @@ const Equity = () => {
 
   const router = useRouter();
 
-  // const handleGstinSubmit = async () => {
-  //   if (!user || !user.id) {
-  //     setGstinError('User is not logged in or ID is missing');
-  //     return;
-  //   }
+  const handleGstinSubmit = async () => {
+    if (!user || !user.id) {
+      setGstinError('User is not logged in or ID is missing');
+      return;
+    }
 
-  //   try {
-  //     setLoading(true);
-  //     setGstinError('');
+    try {
+      setLoading(true);
+      setGstinError('');
 
-  //     const gstinData = await fetchGstinData(gstin); // Await the result to ensure it's resolved
-  //     if (gstinData) {
-  //       setShowGstinModal(false);
-  //       setShowProgressModal(true);
-  //       startProgress();
+      const gstinData = await fetchGstinData(gstin); // Await the result to ensure it's resolved
+      if (gstinData) {
+        setShowGstinModal(false);
+        setShowProgressModal(true);
+        startProgress();
 
-  //       router.push('/tools/fundraising/debt/investor');
-  //     }
-  //   } catch (error) {
-  //     setGstinError(error.message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+        router.push('/tools/fundraising/debt/investor');
+      }
+    } catch (error) {
+      setGstinError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // const fetchGstinData = async (gstin) => {
-  //   try {
-  //     const response = await fetch(
-  //       `/api/gstin?gstin=${gstin}&user_id=${user?.id}`
-  //     );
-  //     const data = await response.json();
+  const fetchGstinData = async (gstin) => {
+    try {
+      const response = await fetch(
+        `/api/gstin?gstin=${gstin}&user_id=${user?.id}`
+      );
+      const data = await response.json();
 
-  //     if (!response.ok) {
-  //       throw new Error(
-  //         data.error || 'An error occurred while fetching GSTIN data'
-  //       );
-  //     }
+      if (!response.ok) {
+        throw new Error(
+          data.error || 'An error occurred while fetching GSTIN data'
+        );
+      }
 
-  //     console.log('GSTIN data processed successfully:', data);
-  //     return data; // Ensure you return the resolved data
-  //   } catch (error) {
-  //     console.error('Error:', error.message);
-  //     throw error;
-  //   }
-  // };
+      console.log('GSTIN data processed successfully:', data);
+      return data; // Ensure you return the resolved data
+    } catch (error) {
+      console.error('Error:', error.message);
+      throw error;
+    }
+  };
 
-  // const startProgress = () => {
-  //   setProgress(0);
-  //   const interval = setInterval(() => {
-  //     setProgress((oldProgress) => {
-  //       if (oldProgress === 100) {
-  //         clearInterval(interval);
-  //         setTimeout(() => {
-  //           setShowProgressModal(false);
-  //           alert('GSTIN data processing completed');
-  //         }, 500);
-  //         return 100;
-  //       }
-  //       return Math.min(oldProgress + 5, 100);
-  //     });
-  //   }, 500);
-  // };
+  const startProgress = () => {
+    setProgress(0);
+    const interval = setInterval(() => {
+      setProgress((oldProgress) => {
+        if (oldProgress === 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setShowProgressModal(false);
+            alert('GSTIN data processing completed');
+          }, 500);
+          return 100;
+        }
+        return Math.min(oldProgress + 5, 100);
+      });
+    }, 500);
+  };
 
   const calculateEstimates = () => {
     let baseCapital = 0;
@@ -505,16 +505,16 @@ const Equity = () => {
                 </label>
                 <input
                   type='text'
-                  // value={gstin}
-                  // onChange={(e) => setGstin(e.target.value)}
+                  value={gstin}
+                  onChange={(e) => setGstin(e.target.value)}
                   className='text-black border  border-[#fff8f0] p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
-                {/* {gstinError && (
+                {gstinError && (
                   <p className='text-red-500 text-sm mt-2'>{gstinError}</p>
-                )} */}
+                )}
               </div>
               <button
-                // onClick={handleGstinSubmit}
+                onClick={handleGstinSubmit}
                 className='mt-4 bg-blue-500 text-white px-4 py-2 rounded shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500'
               >
                 {loading ? (

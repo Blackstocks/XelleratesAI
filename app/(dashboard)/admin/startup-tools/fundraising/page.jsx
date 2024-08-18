@@ -14,8 +14,8 @@ const Fundraising = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedStartup, setSelectedStartup] = useState(null);
   const [comments, setComments] = useState({}); // State to track comments
-  // const [showGSTINModal, setShowGSTINModal] = useState(false);
-  // const [selectedGSTINData, setSelectedGSTINData] = useState(null);
+  const [showGSTINModal, setShowGSTINModal] = useState(false);
+  const [selectedGSTINData, setSelectedGSTINData] = useState(null);
 
   useEffect(() => {
     const fetchConnectedStartups = async () => {
@@ -169,21 +169,21 @@ const Fundraising = () => {
     }
   };
 
-  // const openGSTINModal = async (userId) => {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from("debt_gstin")
-  //       .select("*")
-  //       .eq("user_id", userId);
+  const openGSTINModal = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from("debt_gstin")
+        .select("*")
+        .eq("user_id", userId);
 
-  //     if (error) throw error;
+      if (error) throw error;
 
-  //     setSelectedGSTINData(data);
-  //     setShowGSTINModal(true);
-  //   } catch (error) {
-  //     console.error("Error fetching GSTIN information:", error.message);
-  //   }
-  // };
+      setSelectedGSTINData(data);
+      setShowGSTINModal(true);
+    } catch (error) {
+      console.error("Error fetching GSTIN information:", error.message);
+    }
+  };
 
   const filteredStartups = connectedStartups.filter(
     (startup) => startup.user_type === selectedType
@@ -440,7 +440,7 @@ const Fundraising = () => {
         />
       )}
 
-{/* {showGSTINModal && selectedGSTINData && (
+{showGSTINModal && selectedGSTINData && (
   <div className="fixed inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm">
     <div className="bg-white rounded-lg p-6 max-w-lg w-full max-h-96 overflow-y-auto shadow-lg">
       <h2 className="text-2xl font-semibold mb-4 text-center">GSTIN Information</h2>
@@ -504,7 +504,7 @@ const Fundraising = () => {
       </button>
     </div>
   </div>
-)} */}
+)}
 
     </div>
   );
