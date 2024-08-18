@@ -1,173 +1,104 @@
-import React, { useEffect, useState } from "react";
-import Modal from "@/components/Modal";
-import { supabase } from "@/lib/supabaseclient";
+import React, { useEffect, useState } from 'react';
+import Modal from '@/components/Modal';
+import { supabase } from '@/lib/supabaseclient';
 
-const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
-  const [assignedInvestors, setAssignedInvestors] = useState([]);
+const ViewAssignedInvestorsModal = ({ isOpen, onClose, investorId }) => {
+  const [connectedStartups, setConnectedStartups] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const statusOptions = [
-    { label: "Introduction", color: "bg-gray-500 text-black" },
-    { label: "Pitch", color: "bg-yellow-500 text-black" },
-    { label: "Meeting", color: "bg-yellow-500 text-black" },
-    { label: "Term Sheet", color: "bg-yellow-500 text-black" },
-    { label: "Transaction", color: "bg-yellow-500 text-black" },
-    { label: "Document", color: "bg-yellow-500 text-black" },
-    { label: "Deal Closed Won", color: "bg-green-500 text-black" },
-    { label: "Deal Closed Lost", color: "bg-red-500 text-black" },
-    { label: "Rejected", color: "bg-red-500 text-black" },
-  ];
-
   useEffect(() => {
-    if (isOpen && startupId) {
-      const fetchAssignedInvestors = async () => {
+    if (isOpen && investorId) {
+      const fetchConnectedStartups = async () => {
         setLoading(true);
         try {
           const { data, error } = await supabase
-            .from("assigned_dealflow")
-            .select(`
-              id,
-              status,
-              investor_id,
-              input_to_startup,
-              investor_signup (
-                name,
-                email,
-                mobile,
-                sectors,
-                typeof,
-                cheque_size,
-                investment_stage,
-                Geography,
-                company_name
+            .from('investor_startup_assignments')
+            .select(
+              `
+              startup_id,
+              company_profile (
+                company_name,
+                industry_sector,
+                current_stage,
+                country
               )
-            `)
-            .eq("startup_id", startupId);
+            `
+            )
+            .eq('investor_id', investorId);
 
           if (error) throw error;
 
-          setAssignedInvestors(data);
+          setConnectedStartups(data);
         } catch (error) {
-          console.error("Error fetching assigned investors:", error.message);
+          console.error('Error fetching connected startups:', error.message);
         } finally {
           setLoading(false);
         }
       };
 
-      fetchAssignedInvestors();
+      fetchConnectedStartups();
     }
-  }, [isOpen, startupId]);
-
-  const handleStatusChange = async (investorId, newStatus) => {
-    try {
-      const { error } = await supabase
-        .from("assigned_dealflow")
-        .update({ status: newStatus })
-        .eq("startup_id", startupId)
-        .eq("investor_id", investorId);
-
-      if (error) throw error;
-
-      setAssignedInvestors((prevInvestors) =>
-        prevInvestors.map((investor) =>
-          investor.investor_id === investorId ? { ...investor, status: newStatus } : investor
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error.message);
-    }
-  };
-
-  const handleInputChange = async (investorId, newInput) => {
-    try {
-      const { error } = await supabase
-        .from("assigned_dealflow")
-        .update({ input_to_startup: newInput })
-        .eq("startup_id", startupId)
-        .eq("investor_id", investorId);
-
-      if (error) throw error;
-
-      setAssignedInvestors((prevInvestors) =>
-        prevInvestors.map((investor) =>
-          investor.investor_id === investorId ? { ...investor, input_to_startup: newInput } : investor
-        )
-      );
-    } catch (error) {
-      console.error("Error updating input to startup:", error.message);
-    }
-  };
-
-  const getStatusColorClass = (status) => {
-    const statusOption = statusOptions.find(option => option.label === status);
-    return statusOption ? statusOption.color : "";
-  };
+  }, [isOpen, investorId]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="p-4 max-w-full max-h-full" style={{ width: '1200px', height: '70vh' }}>
-        <h2 className="text-xl font-bold mb-4">Assigned Investors</h2>
-        <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
+      <div
+        className='p-4 max-w-full max-h-full'
+        style={{ width: '800px', height: '400px' }}
+      >
+        <h2 className='text-xl font-bold mb-4'>Connected Startups</h2>
+        <div className='overflow-x-auto overflow-y-auto max-h-[300px]'>
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <table className="min-w-full bg-white border border-gray-300 text-xs">
+            <table className='min-w-full bg-white border border-gray-300 text-sm'>
               <thead>
                 <tr>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left" style={{ minWidth: '200px' }}>Name</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Email</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Mobile</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Sector</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Type Of</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Cheque Size</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Investment Stage</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Geography</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Company Name</th>
-                  <th className="py-2 px-2 border-b border-gray-300 text-left">Input to Startup</th>
-                  <th className="py-2 px-4 border-b border-gray-300 text-left" style={{ minWidth: '150px' }}>Status</th>
+                  <th className='py-2 px-2 border-b border-gray-300 text-left'>
+                    Startup Name
+                  </th>
+                  <th className='py-2 px-2 border-b border-gray-300 text-left'>
+                    Sector
+                  </th>
+                  <th className='py-2 px-2 border-b border-gray-300 text-left'>
+                    Stage
+                  </th>
+                  <th className='py-2 px-2 border-b border-gray-300 text-left'>
+                    Country
+                  </th>
+                  {/* <th className='py-2 px-2 border-b border-gray-300 text-left'>
+                    Founder Name
+                  </th> */}
                 </tr>
               </thead>
               <tbody>
-                {assignedInvestors.map((investor, index) => (
-                  <tr key={investor.id} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                    <td className="py-2 px-2 border-b border-gray-300" style={{ minWidth: '200px' }}>{investor.investor_signup.name}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.email}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.mobile}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.sectors}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.typeof}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.cheque_size}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.investment_stage}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.Geography}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.company_name}</td>
-                    <td className="py-2 px-2 border-b border-gray-300">
-                      <textarea
-                        value={investor.input_to_startup || ""}
-                        onChange={(e) => handleInputChange(investor.investor_id, e.target.value)}
-                        className="w-full p-1 border rounded"
-                        style={{ minWidth: '150px' }}
-                        rows="2"
-                      />
-                    </td>
-                    <td className="py-2 px-4 border-b border-gray-300">
-                      <select
-                        value={investor.status || "Introduction"}
-                        onChange={(e) => handleStatusChange(investor.investor_id, e.target.value)}
-                        className={`w-full p-1 border rounded ${getStatusColorClass(investor.status || "Introduction")}`}
-                        style={{ minWidth: '150px' }}
+                {connectedStartups.map(
+                  (startup, index) => (
+                    console.log('startup', startup),
+                    (
+                      <tr
+                        key={index}
+                        className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
                       >
-                        {statusOptions.map((option) => (
-                          <option
-                            key={option.label}
-                            value={option.label}
-                            className="bg-white text-black"
-                          >
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
+                        <td className='py-2 px-2 border-b border-gray-300'>
+                          {startup.company_profile.company_name}
+                        </td>
+                        <td className='py-2 px-2 border-b border-gray-300'>
+                          {startup.company_profile.industry_sector}
+                        </td>
+                        <td className='py-2 px-2 border-b border-gray-300'>
+                          {startup.company_profile.current_stage}
+                        </td>
+                        <td className='py-2 px-2 border-b border-gray-300'>
+                          {startup.company_profile.country}
+                        </td>
+                        {/* <td className='py-2 px-2 border-b border-gray-300'>
+                      {startup.startups.founder_name}
+                    </td> */}
+                      </tr>
+                    )
+                  )
+                )}
               </tbody>
             </table>
           )}

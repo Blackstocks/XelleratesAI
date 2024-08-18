@@ -1,37 +1,54 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import useUserDetails from '@/hooks/useUserDetails';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import Loading from '@/app/loading';
-import { supabase } from '@/lib/supabaseclient';
 import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';
 import Chatbot from '@/components/chatbot';
 
 const Tools = () => {
-  const { user, loading } = useUserDetails();
-  const [companyName, setCompanyName] = useState('');
+  const { user, loading: userLoading } = useUserDetails();
+  const { investorSignup } = useCompleteUserDetails(); // Get investor details
+  console.log(investorSignup);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchCompanyName = async () => {
-      if (user) {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('company_name')
-          .eq('id', user?.id)
-          .single();
+  if (userLoading || loading) {
+    return <Loading />;
+  }
 
-        if (error) {
-          console.error('Error fetching company name:', error);
-        } else {
-          setCompanyName(data.company_name);
-        }
+  const handleCuratedDealflowClick = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/connectInvestor', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          investorId: investorSignup?.profile_id,
+          startupDetails: investorSignup,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'An error occurred');
       }
-    };
 
-    fetchCompanyName();
-  }, [user]);
+      // Redirect to the global dealflow page after successful connection
+      window.location.href = '/tools/global-dealflow';
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
   const handleLinkClick = (e, link) => {
     if (link === '#') {
@@ -52,14 +69,10 @@ const Tools = () => {
     setIsModalOpen(false);
   };
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  const cardContent = (title, imgSrc, link) => (
+  const cardContent = (title, imgSrc, link, onClick) => (
     <Link
       href={link}
-      onClick={(e) => handleLinkClick(e, link)}
+      onClick={(e) => (onClick ? onClick(e) : handleLinkClick(e, link))}
       className='relative z-[1] transform transition-transform duration-500'
     >
       <img
@@ -231,7 +244,8 @@ const Tools = () => {
                   {cardContent(
                     'Curated Dealflow',
                     '/assets/images/tools/11.png',
-                    '/tools/global-dealflow'
+                    '/tools/global-dealflow',
+                    handleCuratedDealflowClick
                   )}
                   {cardContent(
                     'Document Management',
@@ -261,6 +275,7 @@ const Tools = () => {
           </div>
         )}
       </div>
+      {error && <div className='text-red-500 mt-4'>{error}</div>}
       {isModalOpen && (
         <ComingSoonModal isOpen={isModalOpen} onClose={handleCloseModal} />
       )}
