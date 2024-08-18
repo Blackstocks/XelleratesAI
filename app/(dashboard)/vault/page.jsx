@@ -37,18 +37,18 @@ const Vault = () => {
       {requiredKeys.map((key) => (
         <div
           key={key}
-          onClick={() => documents[key] && openModal(documents[key])}
+          onClick={() => documents && documents[key] && openModal(documents[key])} // Add documents check here
           className="cursor-pointer text-center"
         >
           <div
             className={`p-4 rounded-lg shadow-md ${
-              documents[key] ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-200'
+              documents && documents[key] ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-200' // Add documents check here
             }`}
           >
             <FaFileAlt
               size={40}
               className={`mx-auto mb-2 ${
-                documents[key] ? 'text-green-500' : 'text-gray-500'
+                documents && documents[key] ? 'text-green-500' : 'text-gray-500' // Add documents check here
               }`}
             />
             <p className="text-sm truncate">{key.replace(/_/g, ' ')}</p>
