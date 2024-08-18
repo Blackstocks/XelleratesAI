@@ -1,33 +1,33 @@
-// pages/api/send-email.js
 import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
   const { to, subject, text } = req.body;
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    service: 'Gmail',
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS,
+      user: process.env.GMAIL_USER, // Your email
+      pass: process.env.GMAIL_PASS, // Your app-specific password
     },
   });
-  
 
   const mailOptions = {
     from: process.env.GMAIL_USER,
     to,
-    subject,
-    text,
+    subject: subject || 'New Task Assigned',
+    text: text || 'You have been assigned a new task. Please log in to view the details.',
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: 'Email sent successfully' });
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Message sent: %s', info.messageId);
+    return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
-    res.status(500).json({ error: 'Error sending email' });
+    return res.status(500).json({ error: 'Failed to send email' });
   }
 }

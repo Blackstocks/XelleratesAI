@@ -171,7 +171,7 @@ const Sidebar = () => {
           Subscribe to our blog
         </h4>
         <div className='text-sm'>
-          Lorem ipsum dolor sit amet, consectet ur adipiscing elit.
+        Global platform for startups to be investment ready through our AI model
         </div>
         <form action='#' className='space-y-4'>
           <input
