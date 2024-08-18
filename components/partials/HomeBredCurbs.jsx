@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ComingSoonModal from "@/components/ComingSoonModal";
@@ -14,6 +14,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   const [greeting, setGreeting] = useState("Good evening");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
+  const toastIdRef = useRef(null);
 
   const { fundingInformation, companyProfile, founderInformation, businessDetails,
     companyDocuments,
@@ -30,6 +31,13 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     } else {
       setGreeting("Good Evening");
     }
+
+    return () => {
+      // Dismiss the toast when the component is unmounted
+      if (toastIdRef.current) {
+        toast.dismiss(toastIdRef.current);
+      }
+    };
   }, []);
 
 
@@ -65,27 +73,39 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       //   return;
       // }
 
-      const toastId = toast.loading("Generating report, please wait...");
+      toastIdRef.current = toast.loading("Generating report, please wait...");
   
       const shortDescription = companyProfile?.short_description || "Default description";
       const industrySector = companyProfile?.industry_sector || "Default sector";
       const currentStage = companyProfile?.current_stage || "Not Available";
       const previousFunding = fundingInformation?.previous_funding || [];
       
-      // try{
+      try{
   
       const reportHtml = await generateReport(companyProfile, fundingInformation, founderInformation, businessDetails, companyDocuments, 
         ctoInfo, profile, shortDescription, industrySector, companyName, currentStage, previousFunding);
       //generatePDF(reportHtml);
       
-      toast.update(toastId, { render: "Report generated successfully!", type: "success", isLoading: false, autoClose: 5000 });
-      
+      //toast.update(toastId, { render: "Report generated successfully!", type: "success", isLoading: false, autoClose: 5000 });
+      toast.update(toastIdRef.current, {
+        render: "Report generated successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
+
       const newWindow = window.open('', '_blank');
       newWindow.document.write(reportHtml);
       newWindow.document.close();
-      // } catch{
-      //   toast.update(toastId, { render: "Cannot generate Report!", type: "error", isLoading: false, autoClose: 5000 });
-      // }
+      } catch{
+        //toast.update(toastId, { render: "Cannot generate Report!", type: "error", isLoading: false, autoClose: 5000 });
+        toast.update(toastIdRef.current, {
+          render: "Cannot generate Report!",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      }
     } else {
       setModalType(type);
       setIsModalOpen(true);

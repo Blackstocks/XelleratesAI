@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import useUserDetails from '@/hooks/useUserDetails';
 import useStartups from '@/hooks/useStartups';
@@ -9,6 +9,10 @@ import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Textarea from '@/components/ui/Textarea';
 import Icon from '@/components/ui/Icon';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import generateReport from "@/components/report/report-functions";
+
 const CuratedDealflow = () => {
   const [expressLoading, setExpressLoading] = useState(false);
   const { user, loading: userLoading } = useUserDetails();
@@ -28,6 +32,8 @@ const CuratedDealflow = () => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showFullUSP, setShowFullUSP] = useState(false);
   const [hasConnected, setHasConnected] = useState(false);
+
+  const toastIdRef = useRef(null);
 
   // console.log('startups:', startups);
 
@@ -197,6 +203,60 @@ const CuratedDealflow = () => {
       setExpressLoading(false); // End loading
     }
   };
+
+  
+
+  const handleImageClick = async (type, selectedStartup) => {
+    if (type === 'investment') {
+      toastIdRef.current = toast.loading("Generating report, please wait...");
+  
+      const shortDescription = selectedStartup?.companyProfile?.short_description || "Default description";
+      const industrySector = selectedStartup?.companyProfile?.industry_sector || "Default sector";
+      const currentStage = selectedStartup?.companyProfile?.current_stage || "Not Available";
+      const previousFunding = selectedStartup?.fundingInformation?.previous_funding || [];
+      
+      try {
+        console.log('selectedStartup?.company_profile', selectedStartup);
+        const reportHtml = await generateReport(
+          selectedStartup?.company_profile, 
+          selectedStartup?.funding_information, 
+          selectedStartup?.founder_information, 
+          selectedStartup?.business_details,
+          selectedStartup?.company_documents, 
+          selectedStartup?.cto_info, 
+          selectedStartup?.profiles, 
+          shortDescription, 
+          industrySector,
+          selectedStartup?.company_name || 'N/A', 
+          currentStage, 
+          previousFunding
+        );
+        
+        toast.update(toastIdRef.current, {
+          render: "Report generated successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
+
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write(reportHtml);
+        newWindow.document.close();
+      } catch (error) {
+        toast.update(toastIdRef.current, {
+          render: "Cannot generate Report!",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        console.error('Error generating report:', error);
+      }
+    } else {
+      setModalType(type);
+      setIsModalOpen(true);
+    }
+  };
+
 
   return (
     <>
@@ -1775,7 +1835,10 @@ const CuratedDealflow = () => {
                 </button>
                 <button
                   className='text-sm rounded-md  px-4 border bg-info-500 text-white'
-                  onClick={() => setShowForm(true)}
+                  onClick={() => {
+                    setShowForm(true);
+                    handleImageClick('investment', selectedStartup);
+                  }}
                 >
                   Investment Readiness Report
                 </button>
