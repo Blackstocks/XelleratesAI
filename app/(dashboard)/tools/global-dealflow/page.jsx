@@ -105,6 +105,33 @@ const CuratedDealflow = () => {
     );
   });
 
+  const renderDocumentLink = (label, url) => (
+    <li className='flex space-x-3 rtl:space-x-reverse'>
+      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+        <Icon icon='heroicons:document' />
+      </div>
+      <div className='flex-1'>
+        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+          {label}
+        </div>
+        {url ? (
+          <a
+            href={url}
+            target='_blank'
+            rel='noopener noreferrer'
+            className='text-blue-600 hover:underline'
+          >
+            View Document
+          </a>
+        ) : (
+          <span className='text-slate-600 dark:text-slate-50'>
+            Not Provided
+          </span>
+        )}
+      </div>
+    </li>
+  );
+
   const totalPages = Math.ceil(filteredStartups.length / itemsPerPage);
   const currentStartups = filteredStartups.slice(
     (currentPage - 1) * itemsPerPage,
@@ -1637,496 +1664,92 @@ const CuratedDealflow = () => {
                 <div className='space-y-3'>
                   <h3 className='text-2xl font-bold mb-6'>Company Documents</h3>
                   <div className='grid gap-2 md:gap-3 lg:gap-4 text-gray-700'>
-                    {/* Certificate of Incorporation */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          CERTIFICATE OF INCORPORATION
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents
-                              ?.certificate_of_incorporation || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents
-                            ?.certificate_of_incorporation
-                            ? 'View Certificate'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* GST Certificate */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          GST CERTIFICATE
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents
-                              ?.gst_certificate || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.gst_certificate
-                            ? 'View Certificate'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Trademark */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          TRADEMARK
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents?.trademark || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.trademark
-                            ? 'View Trademark'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Copyright */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          COPYRIGHT
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents?.copyright || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.copyright
-                            ? 'View Copyright'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Patent */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          PATENT
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents?.patent || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.patent
-                            ? 'View Patent'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Startup India Certificate */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          STARTUP INDIA CERTIFICATE
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents
-                              ?.startup_india_certificate || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents
-                            ?.startup_india_certificate
-                            ? 'View Certificate'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Due Diligence Report */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          DUE DILIGENCE REPORT
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents
-                              ?.due_diligence_report || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents
-                            ?.due_diligence_report
-                            ? 'View Report'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Business Valuation Report */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          BUSINESS VALUATION REPORT
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents
-                              ?.business_valuation_report || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents
-                            ?.business_valuation_report
-                            ? 'View Report'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* MIS */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          MIS
-                        </div>
-                        <a
-                          href={selectedStartup?.company_documents?.mis || '#'}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.mis
-                            ? 'View MIS'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Financial Projections */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          FINANCIAL PROJECTIONS
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents
-                              ?.financial_projections || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents
-                            ?.financial_projections
-                            ? 'View Projections'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Balance Sheet */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          BALANCE SHEET
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents?.balance_sheet ||
-                            '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.balance_sheet
-                            ? 'View Balance Sheet'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* P&L Statement */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          P&L STATEMENT
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents?.pl_statement ||
-                            '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.pl_statement
-                            ? 'View P&L Statement'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Cashflow Statement */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          CASHFLOW STATEMENT
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents
-                              ?.cashflow_statement || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents
-                            ?.cashflow_statement
-                            ? 'View Cashflow Statement'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Pitch Deck */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          PITCH DECK
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents?.pitch_deck ||
-                            '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.pitch_deck
-                            ? 'View Pitch Deck'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Video Pitch */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          VIDEO PITCH
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents?.video_pitch ||
-                            '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.video_pitch
-                            ? 'View Video Pitch'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* SHA (Previous/Existing Round) */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          SHA (PREVIOUS/EXISTING ROUND)
-                        </div>
-                        <a
-                          href={selectedStartup?.company_documents?.sha || '#'}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.sha
-                            ? 'View SHA'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Termsheet (Previous/Existing Round) */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          TERMSHEET (PREVIOUS/EXISTING ROUND)
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents?.termsheet || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.termsheet
-                            ? 'View Termsheet'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* Employment Agreement */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          EMPLOYMENT AGREEMENT
-                        </div>
-                        <a
-                          href={
-                            selectedStartup?.company_documents
-                              ?.employment_agreement || '#'
-                          }
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents
-                            ?.employment_agreement
-                            ? 'View Agreement'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* MoU */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          MOU
-                        </div>
-                        <a
-                          href={selectedStartup?.company_documents?.mou || '#'}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.mou
-                            ? 'View MoU'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
-
-                    {/* NDA */}
-                    <li className='flex space-x-3 rtl:space-x-reverse'>
-                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
-                        <Icon icon='heroicons:document' />
-                      </div>
-                      <div className='flex-1'>
-                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
-                          NDA
-                        </div>
-                        <a
-                          href={selectedStartup?.company_documents?.nda || '#'}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='text-base text-slate-600 dark:text-slate-50'
-                        >
-                          {selectedStartup?.company_documents?.nda
-                            ? 'View NDA'
-                            : 'Not Provided'}
-                        </a>
-                      </div>
-                    </li>
+                    {renderDocumentLink(
+                      'Certificate of Incorporation',
+                      selectedStartup?.company_documents[0]
+                        ?.certificate_of_incorporation
+                    )}
+                    {renderDocumentLink(
+                      'GST Certificate',
+                      selectedStartup?.company_documents[0]?.gst_certificate
+                    )}
+                    {renderDocumentLink(
+                      'Trademark',
+                      selectedStartup?.company_documents[0]?.trademark
+                    )}
+                    {renderDocumentLink(
+                      'Copyright',
+                      selectedStartup?.company_documents[0]?.copyright
+                    )}
+                    {renderDocumentLink(
+                      'Patent',
+                      selectedStartup?.company_documents[0]?.patent
+                    )}
+                    {renderDocumentLink(
+                      'Startup India Certificate',
+                      selectedStartup?.company_documents[0]
+                        ?.startup_india_certificate
+                    )}
+                    {renderDocumentLink(
+                      'Due Diligence Report',
+                      selectedStartup?.company_documents[0]
+                        ?.due_diligence_report
+                    )}
+                    {renderDocumentLink(
+                      'Business Valuation Report',
+                      selectedStartup?.company_documents[0]
+                        ?.business_valuation_report
+                    )}
+                    {renderDocumentLink(
+                      'MIS',
+                      selectedStartup?.company_documents[0]?.mis
+                    )}
+                    {renderDocumentLink(
+                      'Financial Projections',
+                      selectedStartup?.company_documents[0]
+                        ?.financial_projections
+                    )}
+                    {renderDocumentLink(
+                      'Balance Sheet',
+                      selectedStartup?.company_documents[0]?.balance_sheet
+                    )}
+                    {renderDocumentLink(
+                      'P&L Statement',
+                      selectedStartup?.company_documents[0]?.pl_statement
+                    )}
+                    {renderDocumentLink(
+                      'Cashflow Statement',
+                      selectedStartup?.company_documents[0]?.cashflow_statement
+                    )}
+                    {renderDocumentLink(
+                      'Pitch Deck',
+                      selectedStartup?.company_documents[0]?.pitch_deck
+                    )}
+                    {renderDocumentLink(
+                      'Video Pitch',
+                      selectedStartup?.company_documents[0]?.video_pitch
+                    )}
+                    {renderDocumentLink(
+                      'SHA (Previous/Existing Round)',
+                      selectedStartup?.company_documents[0]?.sha
+                    )}
+                    {renderDocumentLink(
+                      'Termsheet (Previous/Existing Round)',
+                      selectedStartup?.company_documents[0]?.termsheet
+                    )}
+                    {renderDocumentLink(
+                      'Employment Agreement',
+                      selectedStartup?.company_documents[0]
+                        ?.employment_agreement
+                    )}
+                    {renderDocumentLink(
+                      'MoU',
+                      selectedStartup?.company_documents[0]?.mou
+                    )}
+                    {renderDocumentLink(
+                      'NDA',
+                      selectedStartup?.company_documents[0]?.nda
+                    )}
                   </div>
                 </div>
               )}
