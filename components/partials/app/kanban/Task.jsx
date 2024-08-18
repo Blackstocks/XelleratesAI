@@ -132,7 +132,7 @@ const Task = ({ task }) => {
 
         {/* end date */}
         <div>
-          <span className="block date-label">Start date</span>
+          <span className="block date-label">End date</span>
           <span className="block date-text">{end_date}</span>
         </div>
       </div>
