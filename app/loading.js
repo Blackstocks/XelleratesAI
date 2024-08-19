@@ -1,20 +1,23 @@
 'use client';
 import React from 'react';
 import useDarkMode from '@/hooks/useDarkMode';
+import Image from 'next/image';
 
 const Loading = () => {
   const [isDark] = useDarkMode();
   return (
     <div className='flex flex-col items-center justify-center app_height'>
       <div className='mb-3'>
-        <img
-          style={{ margin: '0 auto', height: '3em' }}
+        <Image
+          style={{ margin: '0 auto' }}
           src={
             isDark
-              ? 'assets/images/logo/xelleratesLogo.png'
-              : 'assets/images/logo/xelleratesLogo.png'
+              ? '/assets/images/logo/xelleratesLogo.png'
+              : '/assets/images/logo/xelleratesLogo.png'
           }
           alt='Logo'
+          width='170' // Set the width in pixels
+          height='170' // Set the height in pixels
         />
       </div>
 

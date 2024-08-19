@@ -54,7 +54,7 @@ const NotificationPage = () => {
                                 : ' text-slate-600 dark:text-slate-300'
                             } text-sm`}
                           >
-                            {item.notification_type}
+                            {item.company_name || item.sender_name}
                           </div>
                           <div
                             className={`${

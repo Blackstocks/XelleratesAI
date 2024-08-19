@@ -101,7 +101,7 @@ const NotificationDetail = () => {
             notification_status: 'accepted',
             notification_type: 'startup_accepted',
             notification_read_status: 'unread',
-            notification_message: notification.notification_message,
+            notification_message: `Startup has accepted the interest. Join with the link: ${zoomMeetingLink}`,
           });
 
         if (createError) {

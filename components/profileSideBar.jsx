@@ -657,6 +657,7 @@ const VerticalNavTabs = (props) => {
           } catch (error) {
             console.error('Error updating general information:', error);
           }
+          window.location.reload();
           break;
 
         case 'startup_details': {
@@ -716,6 +717,7 @@ const VerticalNavTabs = (props) => {
           } catch (error) {
             console.error('Error handling startup details:', error);
           }
+          window.location.reload();
           break;
         }
 
@@ -765,6 +767,7 @@ const VerticalNavTabs = (props) => {
           } else {
             console.error('Unexpected response format:', founderInfoResponse);
           }
+          window.location.reload();
           break;
 
         case 'CTO_info': {
@@ -809,6 +812,7 @@ const VerticalNavTabs = (props) => {
             updatedData = ctoInfoResponse;
             setCtoInfoLoc(updatedData);
           }
+          window.location.reload();
           break;
         }
 
@@ -883,6 +887,7 @@ const VerticalNavTabs = (props) => {
             updatedData = businessDetailsResponse.data;
             setBusinessDetailsLoc(updatedData);
           }
+          window.location.reload();
           break;
         }
 

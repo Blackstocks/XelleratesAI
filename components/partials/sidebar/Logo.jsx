@@ -42,7 +42,7 @@ const SidebarLogo = ({ menuHover }) => {
               src={
                 isDark
                   ? 'assets/images/logo/X (1).png'
-                  : 'assets/images/logo/X (10).png'
+                  : 'assets/images/logo/xelleratesSidebar.png'
               }
               alt=''
               style={{ height: '3.9rem' }}

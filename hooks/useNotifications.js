@@ -58,44 +58,49 @@ const useNotifications = () => {
           return;
         }
 
-        const notificationsWithLogos = await Promise.all(
+        const notificationsWithDetails = await Promise.all(
           data.map(async (notification) => {
             let logo = null;
+            let companyName = null;
+            let senderName = null;
 
-            // First, try to get the logo directly from the profiles table
+            // First, try to get the logo and name directly from the profiles table
             let { data: profileData, error: profileError } = await supabase
               .from('profiles')
-              .select('company_logo')
+              .select('company_logo, name')
               .eq('id', notification.sender_id)
               .single();
 
-            if (!profileError && profileData?.company_logo) {
+            if (!profileError && profileData) {
               logo = profileData.company_logo;
+              senderName = profileData.name;
             } else {
               // If not found in profiles, check the company_profile table
               let { data: companyProfileData, error: companyProfileError } =
                 await supabase
                   .from('company_profile')
-                  .select('profile_id')
+                  .select('profile_id, company_name')
                   .eq('id', notification.sender_id)
                   .single();
 
-              if (!companyProfileError && companyProfileData?.profile_id) {
-                // Use the profile_id to get the logo from profiles
+              if (!companyProfileError && companyProfileData) {
+                companyName = companyProfileData.company_name;
+                // Use the profile_id to get the logo and name from profiles
                 let {
                   data: profileFromCompanyProfileData,
                   error: profileFromCompanyProfileError,
                 } = await supabase
                   .from('profiles')
-                  .select('company_logo')
+                  .select('company_logo, name')
                   .eq('id', companyProfileData.profile_id)
                   .single();
 
                 if (
                   !profileFromCompanyProfileError &&
-                  profileFromCompanyProfileData?.company_logo
+                  profileFromCompanyProfileData
                 ) {
                   logo = profileFromCompanyProfileData.company_logo;
+                  senderName = profileFromCompanyProfileData.name;
                 }
               }
             }
@@ -103,11 +108,13 @@ const useNotifications = () => {
             return {
               ...notification,
               company_logo: logo,
+              company_name: companyName,
+              sender_name: senderName,
             };
           })
         );
 
-        setNotifications(notificationsWithLogos);
+        setNotifications(notificationsWithDetails);
       } catch (error) {
         console.error('Unexpected error fetching notifications:', error);
       }

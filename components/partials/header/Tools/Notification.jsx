@@ -72,7 +72,7 @@ const Notification = () => {
                             : ' text-slate-600 dark:text-slate-300'
                         } text-sm`}
                       >
-                        {item.notification_type}
+                        {item.sender_name || item.company_name}
                       </div>
                       <div
                         className={`${

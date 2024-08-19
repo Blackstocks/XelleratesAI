@@ -8,6 +8,7 @@ import Modal from '@/components/Modal1';
 import Loading from '@/app/loading';
 import { supabase } from '@/lib/supabaseclient';
 import useIncubatorConnections from '@/hooks/useIncubatorConnections';
+import GlobalFilter from '@/components/GlobalFilter';
 
 const IncubatorDetails = () => {
   const { companyProfile, loading: profileLoading } = useCompleteUserDetails();
@@ -19,10 +20,12 @@ const IncubatorDetails = () => {
     showConnectionModal,
     setShowConnectionModal,
   } = useIncubatorConnections(companyProfile?.id);
+
   const [incubators, setIncubators] = useState([]);
   const [filteredIncubators, setFilteredIncubators] = useState([]);
   const [incubatorsLoading, setIncubatorsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [globalFilter, setGlobalFilter] = useState(''); // State for global filter
 
   const [filters, setFilters] = useState({
     state: [],
@@ -120,6 +123,23 @@ const IncubatorDetails = () => {
       }
     }
 
+    // Apply global filter
+    if (globalFilter) {
+      filtered = filtered.filter(
+        (incubator) =>
+          incubator.portHeading
+            .toLowerCase()
+            .includes(globalFilter.toLowerCase()) ||
+          incubator.portCity
+            .toLowerCase()
+            .includes(globalFilter.toLowerCase()) ||
+          incubator.portTag
+            ?.toLowerCase()
+            .includes(globalFilter.toLowerCase()) ||
+          incubator.portTag2?.toLowerCase().includes(globalFilter.toLowerCase())
+      );
+    }
+
     // Sort connected incubators to the end
     filtered.sort((a, b) => {
       const aConnected = connectedIncubators.includes(a.id);
@@ -129,7 +149,7 @@ const IncubatorDetails = () => {
 
     setFilteredIncubators(filtered);
     setCurrentPage(1); // Reset to first page whenever filters change
-  }, [selectedFilters, incubators, connectedIncubators]);
+  }, [selectedFilters, incubators, connectedIncubators, globalFilter]);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -195,6 +215,12 @@ const IncubatorDetails = () => {
           Welcome to the Incubator Connect page. Here you can find information
           about various incubators.
         </p>
+
+        {/* Add GlobalFilter component */}
+        <div className='mb-4'>
+          <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+        </div>
+
         <div className='mb-4'>
           <h2 className='text-xl font-bold mb-2'>Filters</h2>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2'>
