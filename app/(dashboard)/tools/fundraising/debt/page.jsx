@@ -113,20 +113,40 @@ const Equity = () => {
     try {
       setLoading(true);
       setGstinError('');
-
+  
+      // Check if the GSTIN already exists for the user
+      const { data: existingGstinData, error: gstinCheckError } = await supabase
+        .from('debt_gstin')
+        .select('gstin')
+        .eq('user_id', user.id)
+        .eq('gstin', gstin)
+        .single();
+  
+      if (gstinCheckError && gstinCheckError.code !== 'PGRST116') {
+        console.error('Error checking existing GSTIN:', gstinCheckError);
+        throw new Error('Error checking existing GSTIN');
+      }
+  
+      if (existingGstinData) {
+        // GSTIN already exists, redirect to investor/page.jsx
+        router.push('/tools/fundraising/debt/investor');
+        return;
+      }
+  
+      // Fetch and store GSTIN data if it doesn't exist
       await fetchGstinData(gstin);
-
+  
       setShowGstinModal(false);
       setShowProgressModal(true);
       startProgress();
-
+  
       router.push('/tools/fundraising/debt/investor');
     } catch (error) {
       setGstinError(error.message);
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const checkProfileCompletion = async () => {
     if (!user) {
@@ -271,9 +291,33 @@ const Equity = () => {
     setCollateral('No');
   };
 
-  const handleUnlockCapital = () => {
-    setShowUnlockCapitalModal(true);
+  const handleUnlockCapital = async () => {
+    try {
+      // Check if the GSTIN already exists for the user
+      const { data: existingGstinData, error: gstinCheckError } = await supabase
+        .from('debt_gstin')
+        .select('gstin')
+        .eq('user_id', user.id)
+        .single();
+  
+      if (gstinCheckError && gstinCheckError.code !== 'PGRST116') {
+        console.error('Error checking existing GSTIN:', gstinCheckError);
+        throw new Error('Error checking existing GSTIN');
+      }
+  
+      if (existingGstinData) {
+        // GSTIN already exists, redirect to investor/page.jsx
+        router.push('/tools/fundraising/debt/investor');
+        return;
+      }
+  
+      // If GSTIN doesn't exist, open the unlock capital modal
+      setShowUnlockCapitalModal(true);
+    } catch (error) {
+      console.error('Error handling unlock capital:', error);
+    }
   };
+  
 
   const settings = {
     dots: true,
