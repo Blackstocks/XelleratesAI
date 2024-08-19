@@ -26,17 +26,17 @@ const GroupChart3 = () => {
     {
       title: "Available Investors",
       count: investorCount.toString(),
-      img: "/assets/images/dashboard/sdash1.png",
+      img: "/assets/images/dashboard/sdash1.svg",
     },
     {
       title: "Reach Out",
       count: "0",
-      img: "/assets/images/dashboard/sdash2.png",
+      img: "/assets/images/dashboard/sdash2.svg",
     },
     {
       title: "Interest Received",
       count: "0",
-      img: "/assets/images/dashboard/sdash3.png",
+      img: "/assets/images/dashboard/sdash3.svg",
     },
   ];
 

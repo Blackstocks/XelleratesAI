@@ -162,7 +162,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
                 onClick={() => handleImageClick('investment')}
               />
               <img
-                src="/assets/images/dashboard/investment-redinessdark.png"
+                src="/assets/images/dashboard/investment-redinessdark.svg"
                 alt="Investment Readiness Dark"
                 className="hidden dark:block w-50% h-auto cursor-pointer"
                 onClick={() => handleImageClick('investment')}
@@ -177,7 +177,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
                 onClick={() => handleImageClick('insight')}
               />
               <img
-                src="/assets/images/dashboard/latest-insightdark.png"
+                src="/assets/images/dashboard/latest-insightdark.svg"
                 alt="Latest Insight Dark"
                 className="hidden dark:block w-full h-auto cursor-pointer"
                 onClick={() => handleImageClick('insight')}

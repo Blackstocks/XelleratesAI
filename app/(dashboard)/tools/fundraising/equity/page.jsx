@@ -195,14 +195,14 @@ const Equity = () => {
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12'>
           <div className='cursor-pointer' onClick={checkProfileCompletion}>
             <img
-              src='/assets/images/tools/equityInvestor.png'
+              src='/assets/images/tools/equityInvestor.svg'
               alt='Equity Investor'
               className='rounded w-full h-50 object-contain'
             />
           </div>
           <div className='cursor-pointer' onClick={checkConnectionStatus}>
             <img
-              src='/assets/images/tools/equityInvestment.png'
+              src='/assets/images/tools/equityInvestment.svg'
               alt='Equity Investment'
               className='rounded w-full h-50 object-contain'
             />

@@ -80,7 +80,7 @@ const Tools = () => {
         alt={title}
         className='rounded-2xl w-full'
         onClick={
-          imgSrc === '/assets/images/tools/1.png' ? handleImageClick : undefined
+          imgSrc === '/assets/images/tools/1.svg' ? handleImageClick : undefined
         }
       />
     </Link>
@@ -199,32 +199,32 @@ const Tools = () => {
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {cardContent(
                     'Investment Readiness',
-                    '/assets/images/tools/1.png',
+                    '/assets/images/tools/1.svg',
                     '#'
                   )}
                   {cardContent(
                     'DIY Pitch Deck',
-                    '/assets/images/tools/2.png',
+                    '/assets/images/tools/2.svg',
                     '#'
                   )}
                   {cardContent(
                     'Financial Insights',
-                    '/assets/images/tools/3.png',
+                    '/assets/images/tools/3.svg',
                     '#'
                   )}
                   {cardContent(
                     'Fundraising',
-                    '/assets/images/tools/4.png',
+                    '/assets/images/tools/4.svg',
                     '/tools/fundraising'
                   )}
                   {cardContent(
                     'Legal Help Desk',
-                    '/assets/images/tools/5.png',
+                    '/assets/images/tools/5.svg',
                     '#'
                   )}
                   {cardContent(
                     'Connect with Incubators',
-                    '/assets/images/tools/6.png',
+                    '/assets/images/tools/6.svg',
                     '/tools/incubators'
                   )}
                 </div>
@@ -243,29 +243,29 @@ const Tools = () => {
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
                   {cardContent(
                     'Curated Dealflow',
-                    '/assets/images/tools/11.png',
+                    '/assets/images/tools/11.svg',
                     '/tools/global-dealflow',
                     handleCuratedDealflowClick
                   )}
                   {cardContent(
                     'Document Management',
-                    '/assets/images/tools/12.png',
+                    '/assets/images/tools/12.svg',
                     '/tools/document-management'
                   )}
-                  {cardContent('Syndicate', '/assets/images/tools/13.png', '#')}
+                  {cardContent('Syndicate', '/assets/images/tools/13.svg', '#')}
                   {cardContent(
                     'Portfolio Management',
-                    '/assets/images/tools/15.png',
+                    '/assets/images/tools/15.svg',
                     '#'
                   )}
                   {cardContent(
                     'Valuate a Startup',
-                    '/assets/images/tools/16.png',
+                    '/assets/images/tools/16.svg',
                     '#'
                   )}
                   {cardContent(
                     'Post Term Sheet',
-                    '/assets/images/tools/17.png',
+                    '/assets/images/tools/17.svg',
                     '#'
                   )}
                 </div>

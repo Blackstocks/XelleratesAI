@@ -395,7 +395,7 @@ const Chatbot = () => {
     
     <>
   <div className="chatbot-icon" onClick={toggleChatbot}>
-    <img src="/assets/images/dashboard/chatbot2.png" alt="Chatbot Icon" />
+    <img src="/assets/images/dashboard/chatbot2.svg" alt="Chatbot Icon" />
   </div>
   {isOpen && (
     <div className="chatbot-container">
