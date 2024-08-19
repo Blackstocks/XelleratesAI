@@ -32,13 +32,14 @@ const KanbanPage = () => {
   const { profile } = useCompleteUserDetails();
   const [toggleTaskModal, setToggleTaskModal] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state
-  const [summary, setSummary] = useState("Click to generate Task Summary"); // Summary state
+  const [summary, setSummary] = useState("Summarizing your Tasks..."); // Summary state
   const [refreshing, setRefreshing] = useState(false); // Refresh button state
 
   useEffect(() => {
     if (user && profile?.id) {
       fetchColumnData(profile?.id).then(() => {
-        fetchTaskSummary(); // Fetch the summary only after the columns are loaded
+        
+        
       });
     }
   }, [profile, columns]);
@@ -85,6 +86,15 @@ const KanbanPage = () => {
 
       setColumnsList(formattedColumns);
       setLoading(false); // Stop loading when data is fetched
+
+      console.log("COL LIST: ", columnsList);
+
+      if (columnsList.length > 1){
+          fetchTaskSummary();
+      } // Fetch the summary only after the columns are loaded
+      else{
+        setSummary("You don't have any tasks yet. You can add a new task by clicking the + button in the board or you can start by adding a new board.");
+      }
     } catch (error) {
       console.error("Error in fetching columns from database:", error);
       setLoading(false); // Stop loading on error
@@ -194,7 +204,7 @@ const KanbanPage = () => {
       if (error) {
         console.error("Error updating task in database:", error);
       } else {
-        fetchTaskSummary(); // Automatically fetch the summary after drag-and-drop
+        // fetchTaskSummary(); // Automatically fetch the summary after drag-and-drop
       }
     } catch (error) {
       console.error("Unexpected error during task update:", error);
