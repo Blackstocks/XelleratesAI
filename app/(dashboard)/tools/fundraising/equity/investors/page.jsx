@@ -110,7 +110,7 @@ const InvestorDealflow = () => {
       const checkConnectionStatus = async () => {
         try {
           const { data, error } = await supabase
-            .from('connected_startups')
+            .from('connected_startup_equity')
             .select('has_connected, id, inputToStartup')
             .eq('user_id', user.id)
             .single();
@@ -212,7 +212,7 @@ const InvestorDealflow = () => {
 
   const handleConnect = async (userType) => {
     try {
-      const { data, error } = await supabase.from('connected_startups').insert([
+      const { data, error } = await supabase.from('connected_startup_equity').insert([
         {
           startup_name: profile.company_name,
           founder_name: profile.name,

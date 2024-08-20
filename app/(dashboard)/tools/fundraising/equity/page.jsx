@@ -100,7 +100,7 @@ const Equity = () => {
 
     try {
       const { data, error } = await supabase
-        .from('connected_startups')
+        .from('connected_startup_equity')
         .select('user_id')
         .eq('user_id', user.id)
         .single();
@@ -153,7 +153,7 @@ const Equity = () => {
 
     try {
       const { data, error } = await supabase
-        .from('connected_startups')
+        .from('connected_startup_equity')
         .insert({
           startup_name: company_name,
           founder_name: name,

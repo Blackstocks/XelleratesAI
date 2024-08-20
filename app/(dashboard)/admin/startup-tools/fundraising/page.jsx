@@ -21,8 +21,11 @@ const Fundraising = () => {
     const fetchConnectedStartups = async () => {
       setLoading(true);
       try {
+        // Determine the correct table based on selectedType
+        const table = selectedType === "equity" ? "connected_startup_equity" : "connected_startups";
+
         const { data, error } = await supabase
-          .from("connected_startups")
+          .from(table)
           .select("*")
           .order("created_at", { ascending: false });
 
@@ -63,7 +66,7 @@ const Fundraising = () => {
 
     fetchConnectedStartups();
     fetchNewDealflows(); // Fetch new dealflows when component mounts
-  }, []);
+  }, [selectedType]);
 
   const openAssignModal = (startup) => {
     setSelectedStartup(startup);
@@ -155,9 +158,10 @@ const Fundraising = () => {
 
   const saveComment = async (startupId) => {
     try {
+      const table = selectedType === "equity" ? "connected_startup_equity" : "connected_startups";
       const comment = comments[startupId];
       const { error } = await supabase
-        .from("connected_startups")
+        .from(table)
         .update({ comment })
         .eq("id", startupId);
 
