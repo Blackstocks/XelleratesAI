@@ -33,6 +33,16 @@ const NotificationDetail = () => {
         toast.error('Error fetching notification');
       } else {
         setNotification(data);
+
+        // Update the notification status to "read" when the notification is loaded
+        if (data.notification_read_status !== 'read') {
+          await supabase
+            .from('notifications')
+            .update({ notification_read_status: 'read' })
+            .eq('id', id);
+
+          toast.success('Notification marked as read.');
+        }
       }
       setLoading(false);
     };
@@ -47,7 +57,6 @@ const NotificationDetail = () => {
     let zoomMeetingLink = '';
 
     if (status === 'accepted' && selectedSlot) {
-      // Call backend API to create Zoom meeting
       try {
         const response = await fetch('/api/createZoomMeeting', {
           method: 'POST',
@@ -96,8 +105,8 @@ const NotificationDetail = () => {
         const { error: createError } = await supabase
           .from('notifications')
           .insert({
-            sender_id: notification.receiver_id, // Startup's ID
-            receiver_id: notification.sender_id, // Investor's ID
+            sender_id: notification.receiver_id,
+            receiver_id: notification.sender_id,
             notification_status: 'accepted',
             notification_type: 'startup_accepted',
             notification_read_status: 'unread',
@@ -112,9 +121,9 @@ const NotificationDetail = () => {
             name: `Meeting scheduled with startup ${notification.receiver_id}`,
             date: selectedSlot,
             details: notification.notification_message,
-            user_id: notification.sender_id, // Assuming the event is for the investor
-            zoom_link: zoomMeetingLink, // Store the Zoom link with the event
-            sender_id: notification.receiver_id, // Startup's ID
+            user_id: notification.sender_id,
+            zoom_link: zoomMeetingLink,
+            sender_id: notification.receiver_id,
             receiver_id: notification.sender_id,
           };
 
@@ -134,11 +143,11 @@ const NotificationDetail = () => {
         toast.success(
           'You have accepted the interest. You can now interact with the other party.'
         );
-        router.push('/chat'); // Navigate to chat or another appropriate page
+        router.push('/chat');
       }
     } else {
       toast.success(`Notification has been ${status}`);
-      router.push('/notifications'); // Redirect after rejecting
+      router.push('/notifications');
     }
 
     setIsSubmitting(false);
