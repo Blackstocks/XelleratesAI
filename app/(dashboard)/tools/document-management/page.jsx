@@ -3,12 +3,9 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import useWidth from '@/hooks/useWidth';
-import Button from '@/components/ui/Button';
-import ProjectGrid from '@/components/partials/app/projects/ProjectGrid';
 import ProjectList from '@/components/partials/app/projects/ProjectList';
 import GridLoading from '@/components/skeleton/Grid';
 import TableLoading from '@/components/skeleton/Table';
-import { toggleAddModal } from '@/components/partials/app/projects/store';
 import AddProject from '@/components/partials/app/projects/AddProject';
 import { ToastContainer } from 'react-toastify';
 import EditProject from '@/components/partials/app/projects/EditProject';
@@ -29,7 +26,7 @@ const DocumentManagement = () => {
     user?.id
   );
 
-  console.log('startups', startups);
+  // console.log('startups', startups);
 
   const dispatch = useDispatch();
 

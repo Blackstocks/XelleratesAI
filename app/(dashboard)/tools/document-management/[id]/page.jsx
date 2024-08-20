@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation'; // Ensure correct import path based on Next.js 14.2.5 setup
-import Loading from '@/components/Loading';
+import Loading from '@/app/loading';
 import useDocumentsForStartup from '@/hooks/useDocumentsForStartup';
 import Link from 'next/link';
 import { FaFileAlt, FaFolder, FaFolderOpen, FaArrowLeft } from 'react-icons/fa';
@@ -86,7 +86,7 @@ const DocumentPage = () => {
   return (
     <div className='p-6'>
       {/* Back Button */}
-      <div className='mb-4'>
+      <div className='mb-4 flex justify-between'>
         <button
           onClick={() => router.back()}
           className='flex items-center space-x-2 text-blue-500 hover:text-blue-700'

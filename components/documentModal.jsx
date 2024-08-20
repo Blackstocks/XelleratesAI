@@ -46,7 +46,6 @@ const DocumentSubmissionModal = ({ id }) => {
     control,
     formState: { errors },
   } = useForm();
-  const [documentFile, setDocumentFile] = useState(null);
   const [buttonText, setButtonText] = useState('Submit');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -92,74 +91,72 @@ const DocumentSubmissionModal = ({ id }) => {
   };
 
   return (
-    <div className='grid xl:grid-cols-2 grid-cols-1 gap-5'>
-      <Modal
-        title='Request Document'
-        label='Request Document'
-        labelClass='btn-outline-dark'
-        onClick={() => setIsModalOpen(true)}
-        uncontrol
-        footerContent={
-          <Button
-            text={isLoading ? 'Submitting...' : buttonText}
-            className='btn-dark'
-            onClick={handleSubmit(handleDocumentSubmit)}
-          />
-        }
-      >
-        <div className='w-25 text-base text-slate-600 dark:text-slate-300'>
-          <div className='mb-4'>
-            <label
-              className='form-label block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'
-              htmlFor='documentType'
-            >
-              <Icon
-                icon='heroicons:document-text'
-                className='inline-block mr-1 text-xl mb-2'
-              />
-              Request a Document
-            </label>
-            <Controller
-              name='documentType'
-              control={control}
-              defaultValue={[]} // Ensure default value is an empty array for a multi-select
-              render={({ field }) => {
-                return (
-                  <ReactSelect
-                    {...field}
-                    isMulti
-                    isClearable={false}
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    options={documentTypeOptions}
-                    className='react-select'
-                    value={documentTypeOptions.filter((option) =>
-                      field.value.some(
-                        (selectedValue) => selectedValue.value === option.value
-                      )
-                    )}
-                    onChange={(selectedOptions) =>
-                      field.onChange(
-                        selectedOptions.map((option) => ({
-                          value: option.value,
-                          label: option.label,
-                        }))
-                      )
-                    }
-                  />
-                );
-              }}
+    <Modal
+      title='Request Document'
+      label='Request Document'
+      labelClass='btn-outline-dark flex justify-between'
+      onClick={() => setIsModalOpen(true)}
+      uncontrol
+      footerContent={
+        <Button
+          text={isLoading ? 'Submitting...' : buttonText}
+          className='btn-dark'
+          onClick={handleSubmit(handleDocumentSubmit)}
+        />
+      }
+    >
+      <div className='w-25 text-base text-slate-600 dark:text-slate-300'>
+        <div className='mb-4 '>
+          <label
+            className='form-label block uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'
+            htmlFor='documentType'
+          >
+            <Icon
+              icon='heroicons:document-text'
+              className='inline-block mr-1 text-xl mb-2'
             />
+            Request a Document
+          </label>
+          <Controller
+            name='documentType'
+            control={control}
+            defaultValue={[]} // Ensure default value is an empty array for a multi-select
+            render={({ field }) => {
+              return (
+                <ReactSelect
+                  {...field}
+                  isMulti
+                  isClearable={false}
+                  closeMenuOnSelect={false}
+                  components={animatedComponents}
+                  options={documentTypeOptions}
+                  className='react-select'
+                  value={documentTypeOptions.filter((option) =>
+                    field.value.some(
+                      (selectedValue) => selectedValue.value === option.value
+                    )
+                  )}
+                  onChange={(selectedOptions) =>
+                    field.onChange(
+                      selectedOptions.map((option) => ({
+                        value: option.value,
+                        label: option.label,
+                      }))
+                    )
+                  }
+                />
+              );
+            }}
+          />
 
-            {errors.documentType && (
-              <p className='text-red-500 text-xs italic'>
-                {errors.documentType.message}
-              </p>
-            )}
-          </div>
+          {errors.documentType && (
+            <p className='text-red-500 text-xs italic'>
+              {errors.documentType.message}
+            </p>
+          )}
         </div>
-      </Modal>
-    </div>
+      </div>
+    </Modal>
   );
 };
 

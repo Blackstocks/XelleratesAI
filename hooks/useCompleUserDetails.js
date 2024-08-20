@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 
 const useCompleteUserDetails = () => {
@@ -14,7 +14,7 @@ const useCompleteUserDetails = () => {
 
   const hasFetchedData = useRef(false); // Track whether data has been fetched
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (hasFetchedData.current) return; // Skip if already fetched
     setLoading(true);
     try {
@@ -51,13 +51,11 @@ const useCompleteUserDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Empty dependency array ensures the function is memoized and won't change
 
   useEffect(() => {
-    if (!hasFetchedData.current) {
-      fetchData();
-    }
-  }, []); // Empty dependency array ensures the effect runs only once on mount
+    fetchData();
+  }, [fetchData]); // Using fetchData in the dependency array
 
   return {
     profile,

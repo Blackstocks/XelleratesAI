@@ -1,8 +1,6 @@
 import React from 'react';
 import Card from '@/components/ui/Card';
-import Dropdown from '@/components/ui/Dropdown';
-import { Menu } from '@headlessui/react';
-import Icon from '@/components/ui/Icon';
+
 import { useRouter } from 'next/navigation';
 
 const ConnectedStartupsFilesGrid = ({ project }) => {
@@ -17,9 +15,12 @@ const ConnectedStartupsFilesGrid = ({ project }) => {
 
   return (
     <Card>
-      <header className='flex justify-between items-center'>
+      <header
+        className='flex justify-between items-center cursor-pointer'
+        onClick={handleClick}
+      >
         <div className='flex space-x-4 items-center rtl:space-x-reverse'>
-          <div className='flex-none'>
+          <div className='flex-none '>
             {company_logo ? (
               <img
                 src={company_logo}
@@ -39,7 +40,7 @@ const ConnectedStartupsFilesGrid = ({ project }) => {
           </div>
         </div>
         <div>
-          <Dropdown
+          {/* <Dropdown
             classMenuItems='w-[130px]'
             label={
               <span className='text-lg inline-flex flex-col items-center justify-center h-8 w-8 rounded-full bg-gray-500-f7 dark:bg-slate-900 dark:text-slate-400'>
@@ -48,7 +49,7 @@ const ConnectedStartupsFilesGrid = ({ project }) => {
             }
           >
             <div>
-              <Menu.Item onClick={handleClick}>
+              <Menu.Item>
                 <div
                   className='hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white
                    w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm dark:text-slate-300 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center capitalize rtl:space-x-reverse'
@@ -59,7 +60,7 @@ const ConnectedStartupsFilesGrid = ({ project }) => {
                   <span>View</span>
                 </div>
               </Menu.Item>
-              {/* Uncomment these if needed in the future
+              Uncomment these if needed in the future
               <Menu.Item onClick={() => dispatch(updateProject(project))}>
                 <div
                   className='hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70 hover:text-white
@@ -82,9 +83,9 @@ const ConnectedStartupsFilesGrid = ({ project }) => {
                   <span>Delete</span>
                 </div>
               </Menu.Item>
-              */}
+             
             </div>
-          </Dropdown>
+          </Dropdown> */}
         </div>
       </header>
     </Card>
