@@ -6,6 +6,12 @@ const useStartupFiles = (investorProfileId) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!investorProfileId) {
+      // Early return if investorProfileId is not provided
+      setLoading(false);
+      return;
+    }
+
     const fetchFiles = async () => {
       try {
         // Step 1: Fetch the startup_profile_id(s) connected to the investor
@@ -15,16 +21,15 @@ const useStartupFiles = (investorProfileId) => {
             .select('startup_id')
             .eq('investor_id', investorProfileId);
 
-        if (connectedError) throw connectedError;
+        if (connectedError)
+          throw new Error('Failed to fetch connected startups.');
 
-        // Extract startup profile IDs
         const startupProfileIds = connectedStartups.map(
           (connection) => connection.startup_id
         );
 
         if (startupProfileIds.length === 0) {
           setFiles([]);
-          setLoading(false);
           return;
         }
 
@@ -68,14 +73,14 @@ const useStartupFiles = (investorProfileId) => {
             )
           `
           )
-          .in('id', startupProfileIds); // Only fetch startups with the connected IDs
+          .in('id', startupProfileIds);
 
-        if (error) throw error;
+        if (error) throw new Error('Failed to fetch company documents.');
 
         console.log('Fetched Files Data:', data);
         setFiles(data);
       } catch (error) {
-        console.error('Error fetching files:', error);
+        console.error(error.message);
       } finally {
         setLoading(false);
       }

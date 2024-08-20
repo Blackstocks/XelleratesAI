@@ -624,6 +624,9 @@ const Profile = () => {
 
         {user?.user_type === 'startup' && (
           <VerticalNavTabs
+            loading={loading}
+            user={user}
+            investorSignup={investorSignup}
             profile={profile}
             companyProfile={companyProfile}
             businessDetails={businessDetails}

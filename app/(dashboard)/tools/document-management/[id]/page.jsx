@@ -6,6 +6,7 @@ import Loading from '@/components/Loading';
 import useDocumentsForStartup from '@/hooks/useDocumentsForStartup';
 import Link from 'next/link';
 import { FaFileAlt, FaFolder, FaFolderOpen, FaArrowLeft } from 'react-icons/fa';
+import DocumentSubmissionModal from '@/components/documentModal';
 
 const DocumentPage = () => {
   const { id } = useParams(); // Extract the `id` from the URL parameters
@@ -93,10 +94,10 @@ const DocumentPage = () => {
           <FaArrowLeft size={20} />
           <span>Back</span>
         </button>
+        <DocumentSubmissionModal id={id} />
       </div>
 
       <h2 className='text-2xl font-bold mb-4 text-center'>Startup Documents</h2>
-
       {/* Founder Information Folder */}
       <div className='mb-4'>
         <div
@@ -117,7 +118,6 @@ const DocumentPage = () => {
           </div>
         )}
       </div>
-
       {/* CTO Information Folder */}
       <div className='mb-4'>
         <div
@@ -137,7 +137,6 @@ const DocumentPage = () => {
           </div>
         )}
       </div>
-
       {/* Company Documents Folder */}
       <div className='mb-4'>
         <div

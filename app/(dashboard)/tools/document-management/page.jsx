@@ -18,6 +18,7 @@ import useUserDetails from '@/hooks/useUserDetails';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import ConnectedStartupsFilesGrid from '@/components/partials/app/projects/ConnectedStartupsFolder';
 import useStartupFiles from '@/hooks/useStartupFiles';
+
 const DocumentManagement = () => {
   const [filler, setFiller] = useState('grid');
   const { width, breakpoints } = useWidth();
@@ -48,9 +49,9 @@ const DocumentManagement = () => {
     <div>
       <ToastContainer />
       <div className='flex flex-wrap justify-between items-center mb-4'>
-        <h4 className='font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4'>
+        {/* <h4 className='font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4'>
           Document Management
-        </h4>
+        </h4> */}
         <div
           className={`${
             width < breakpoints.md ? 'space-x-rb' : ''
@@ -67,8 +68,8 @@ const DocumentManagement = () => {
             }   h-min text-sm font-normal`}
             iconClass=' text-lg'
             onClick={() => setFiller('list')}
-          /> */}
-          {/* <Button
+          />
+          <Button
             icon='heroicons-outline:view-grid'
             text='Grid view'
             disabled={isLoaded}
@@ -79,7 +80,7 @@ const DocumentManagement = () => {
             }   h-min text-sm font-normal`}
             iconClass=' text-lg'
             onClick={() => setFiller('grid')}
-          /> */}
+          />
 
           <Button
             icon='heroicons-outline:plus'
@@ -87,7 +88,7 @@ const DocumentManagement = () => {
             className='btn-dark dark:bg-slate-800  h-min text-sm font-normal'
             iconClass=' text-lg'
             onClick={() => dispatch(toggleAddModal(true))}
-          />
+          /> */}
         </div>
       </div>
       {isLoaded && filler === 'grid' && (
@@ -100,7 +101,7 @@ const DocumentManagement = () => {
       {filler === 'grid' && (
         <div className='flex flex-col h-full gap-5'>
           {/* Upper half: ProjectGrid Section */}
-          {!isLoaded && Array.isArray(documents) && (
+          {/* {!isLoaded && Array.isArray(documents) && (
             <div className='flex-grow overflow-y-auto'>
               <div className='grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5'>
                 {documents.map((document) => (
@@ -108,7 +109,7 @@ const DocumentManagement = () => {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           <h4 className='font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4'>
             Startup Documents

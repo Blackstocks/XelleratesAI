@@ -6,13 +6,14 @@ import Card from '@/components/ui/Card';
 import Textinput from '@/components/ui/Textinput';
 import Textarea from '@/components/ui/Textarea';
 import Button from '@/components/ui/Button';
-import useUserDetails from '@/hooks/useUserDetails';
+// import useUserDetails from '@/hooks/useUserDetails';
 import Loading from '@/components/Loading';
 import CustomSelect from './ui/Select';
 import Select from 'react-select';
 import InputGroup from './ui/InputGroup';
 import { countries } from '@/constant/data';
 import { useFieldArray } from 'react-hook-form';
+import { supabase } from '@/lib/supabaseclient';
 import Link from 'next/link';
 import {
   updateGeneralInfo,
@@ -94,6 +95,9 @@ const companyDocumentsFiles = {
 
 const VerticalNavTabs = (props) => {
   let {
+    loading,
+    user,
+    investorSignup,
     companyProfile,
     businessDetails,
     founderInformation,
@@ -102,6 +106,8 @@ const VerticalNavTabs = (props) => {
     companyDocuments,
     fetchData,
   } = props;
+
+  console.log(investorSignup);
   // console.log('companyDocuments', companyDocuments)
   // console.log('companyProfile', companyProfile);
   // console.log('founderInformation', founderInformation);
@@ -168,7 +174,7 @@ const VerticalNavTabs = (props) => {
     name: 'socialMediaPresence',
   });
 
-  const { user, loading } = useUserDetails();
+  // const { user, loading } = useUserDetails();
   const [editingSection, setEditingSection] = useState(null);
   const [founderInformationLoc, setFounderInformationLoc] = useState(null);
   const [companyProfileLoc, setCompanyProfileLoc] = useState(null);
@@ -606,9 +612,15 @@ const VerticalNavTabs = (props) => {
                 data.co_founder_agreement[0],
                 'documents',
                 companyProfile?.company_name || data.company_name,
-                'list_of_advisers'
+                'co_founder_agreement'
               );
             }
+
+            await supabase.rpc('handle_document_upload', {
+              p_startup_id: companyProfile?.id, // Use the correct parameter names
+              p_document_value: 'co_founder_agreement',
+            });
+
             break;
 
           case 'CTO_info':
@@ -620,6 +632,10 @@ const VerticalNavTabs = (props) => {
                 'technology_roadmap'
               );
             }
+            await supabase.rpc('handle_document_upload', {
+              p_startup_id: companyProfile?.id, // Use the correct parameter names
+              p_document_value: 'technology_roadmap',
+            });
             break;
         }
       };
@@ -767,7 +783,7 @@ const VerticalNavTabs = (props) => {
           } else {
             console.error('Unexpected response format:', founderInfoResponse);
           }
-          window.location.reload();
+          // window.location.reload();
           break;
 
         case 'CTO_info': {
@@ -826,9 +842,14 @@ const VerticalNavTabs = (props) => {
                 data[formField][0],
                 'documents',
                 companyProfile?.company_name || data.company_name,
-                formField
+                dbField
               );
             }
+
+            await supabase.rpc('handle_document_upload', {
+              p_startup_id: companyProfile?.id,
+              p_document_value: dbField, // Use the dbField to match with document_name in requests
+            });
           }
 
           const companyDocumentsResponse = companyDocuments?.id
@@ -846,7 +867,7 @@ const VerticalNavTabs = (props) => {
           }
 
           updatedData = companyDocumentsResponse;
-          window.location.reload();
+          // window.location.reload();
           break;
 
         case 'business_details': {
@@ -3018,7 +3039,7 @@ const VerticalNavTabs = (props) => {
                                   >
                                     {founderInformationLoc?.co_founder_agreement ||
                                     founderInformation?.co_founder_agreement
-                                      ? 'View Technology Roadmap'
+                                      ? 'View Co-Founder Agreement'
                                       : 'Not provided'}
                                   </a>
                                 </div>
