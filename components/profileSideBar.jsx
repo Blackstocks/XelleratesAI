@@ -783,7 +783,7 @@ const VerticalNavTabs = (props) => {
           } else {
             console.error('Unexpected response format:', founderInfoResponse);
           }
-          // window.location.reload();
+          window.location.reload();
           break;
 
         case 'CTO_info': {
@@ -867,7 +867,7 @@ const VerticalNavTabs = (props) => {
           }
 
           updatedData = companyDocumentsResponse;
-          // window.location.reload();
+          window.location.reload();
           break;
 
         case 'business_details': {
@@ -957,6 +957,7 @@ const VerticalNavTabs = (props) => {
           } else {
             console.error('Unexpected response format:', fundingInfoResponse);
           }
+          window.location.reload();
           break;
         }
 
