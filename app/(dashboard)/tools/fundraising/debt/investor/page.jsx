@@ -8,6 +8,7 @@ const Investors = () => {
     const [investors, setInvestors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [connectedInvestors, setConnectedInvestors] = useState([]); // Track connected investors
+    const [comments, setComments] = useState({}); // State to store comments
     const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
     const router = useRouter();
 
@@ -41,7 +42,7 @@ const Investors = () => {
 
                 const { data, error } = await supabase
                     .from('connected_startups')
-                    .select('connected_investor')
+                    .select('connected_investor, comment')
                     .eq('user_id', userId);
 
                 if (error) {
@@ -49,6 +50,13 @@ const Investors = () => {
                 } else {
                     const connected = data.map((item) => item.connected_investor);
                     setConnectedInvestors(connected);
+
+                    // Populate the comments state with data from the fetched comments
+                    const initialComments = {};
+                    data.forEach(item => {
+                        initialComments[item.connected_investor] = item.comment;
+                    });
+                    setComments(initialComments);
                 }
             } catch (error) {
                 console.error('Unexpected error fetching connected investors:', error.message);
@@ -127,6 +135,7 @@ const Investors = () => {
                         <tr>
                             <th className="py-2 px-4 border">Investor</th>
                             <th className="py-2 px-4 border">Requirements</th>
+                            <th className="py-2 px-4 border">Message</th>
                             <th className="py-2 px-4 border">Connect</th>
                         </tr>
                     </thead>
@@ -135,6 +144,9 @@ const Investors = () => {
                             <tr key={index}>
                                 <td className="py-2 px-4 border">{investor.Investor}</td>
                                 <td className="py-2 px-4 border">{investor.Requirements}</td>
+                                <td className="py-2 px-4 border">
+                                    {comments[investor.Investor] || ''}
+                                </td>
                                 <td className="py-2 px-4 border">
                                     <button
                                         onClick={() => handleConnect(investor)}
