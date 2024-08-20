@@ -29,8 +29,8 @@ const CuratedDealflow = () => {
   const [showFullUSP, setShowFullUSP] = useState(false);
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
 
-  console.log('startups:', startups);
-
+  // console.log('startups:', startups);
+  console.log('selectedStartup:', selectedStartup);
   const itemsPerPage = 20;
 
   useEffect(() => {
@@ -200,10 +200,8 @@ const CuratedDealflow = () => {
       </Head>
       <main className='container mx-auto p-4'>
         <div className='flex justify-between mb-4'>
-          <h1 className='text-3xl font-bold mb-4'>
-            Registered Startups
-          </h1>
-          <input 
+          <h1 className='text-3xl font-bold mb-4'>Registered Startups</h1>
+          <input
             type='text'
             placeholder='Search startups...'
             value={searchQuery}
@@ -1483,8 +1481,8 @@ const CuratedDealflow = () => {
                           CTO NAME
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {selectedStartup?.CTO_info?.cto_name ||
-                            'Not provided'}
+                          {selectedStartup?.company_profile?.CTO_info
+                            ?.cto_name || 'Not provided'}
                         </div>
                       </div>
                     </li>
@@ -1499,8 +1497,8 @@ const CuratedDealflow = () => {
                           EMAIL
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {selectedStartup?.CTO_info?.cto_email ||
-                            'Not provided'}
+                          {selectedStartup?.company_profile?.CTO_info
+                            ?.cto_email || 'Not provided'}
                         </div>
                       </div>
                     </li>
@@ -1515,8 +1513,8 @@ const CuratedDealflow = () => {
                           MOBILE NUMBER
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {selectedStartup?.CTO_info?.cto_mobile ||
-                            'Not provided'}
+                          {selectedStartup?.company_profile?.CTO_info
+                            ?.cto_mobile || 'Not provided'}
                         </div>
                       </div>
                     </li>
@@ -1533,14 +1531,15 @@ const CuratedDealflow = () => {
                         <div className='text-base text-slate-600 dark:text-slate-50'>
                           <a
                             href={
-                              selectedStartup?.CTO_info?.cto_linkedin || '#'
+                              selectedStartup?.company_profile?.CTO_info
+                                ?.cto_linkedin || '#'
                             }
                             className='text-blue-600 hover:underline'
                             target='_blank'
                             rel='noopener noreferrer'
                           >
-                            {selectedStartup?.CTO_info?.cto_linkedin ||
-                              'Not provided'}
+                            {selectedStartup?.company_profile?.CTO_info
+                              ?.cto_linkedin || 'Not provided'}
                           </a>
                         </div>
                       </div>
@@ -1556,8 +1555,8 @@ const CuratedDealflow = () => {
                           TECH TEAM SIZE
                         </div>
                         <div className='text-base text-slate-600 dark:text-slate-50'>
-                          {selectedStartup?.CTO_info?.tech_team_size ||
-                            'Not provided'}
+                          {selectedStartup?.company_profile?.CTO_info
+                            ?.tech_team_size || 'Not provided'}
                         </div>
                       </div>
                     </li>
@@ -1574,15 +1573,15 @@ const CuratedDealflow = () => {
                         <div className='text-base text-slate-600 dark:text-slate-50'>
                           <a
                             href={
-                              selectedStartup?.CTO_info?.mobile_app_link_ios ||
-                              '#'
+                              selectedStartup?.company_profile?.CTO_info
+                                ?.mobile_app_link_ios || '#'
                             }
                             className='text-blue-600 hover:underline'
                             target='_blank'
                             rel='noopener noreferrer'
                           >
-                            {selectedStartup?.CTO_info?.mobile_app_link_ios ||
-                              'Not provided'}
+                            {selectedStartup?.company_profile?.CTO_info
+                              ?.mobile_app_link_ios || 'Not provided'}
                           </a>
                         </div>
                       </div>
@@ -1600,14 +1599,14 @@ const CuratedDealflow = () => {
                         <div className='text-base text-slate-600 dark:text-slate-50'>
                           <a
                             href={
-                              selectedStartup?.CTO_info
+                              selectedStartup?.company_profile?.CTO_info
                                 ?.mobile_app_link_android || '#'
                             }
                             className='text-blue-600 hover:underline'
                             target='_blank'
                             rel='noopener noreferrer'
                           >
-                            {selectedStartup?.CTO_info
+                            {selectedStartup?.company_profile?.CTO_info
                               ?.mobile_app_link_android || 'Not provided'}
                           </a>
                         </div>
@@ -1626,14 +1625,15 @@ const CuratedDealflow = () => {
                         <div className='text-base text-slate-600 dark:text-slate-50'>
                           <a
                             href={
-                              selectedStartup?.CTO_info?.technology_roadmap ||
-                              '#'
+                              selectedStartup?.company_profile?.CTO_info
+                                ?.technology_roadmap || '#'
                             }
                             className='text-blue-600 hover:underline'
                             target='_blank'
                             rel='noopener noreferrer'
                           >
-                            {selectedStartup?.CTO_info?.technology_roadmap
+                            {selectedStartup?.company_profile?.CTO_info
+                              ?.technology_roadmap
                               ? 'View Technology Roadmap'
                               : 'Not provided'}
                           </a>
@@ -1658,15 +1658,16 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]
                               ?.certificate_of_incorporation || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.certificate_of_incorporation
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.certificate_of_incorporation
                             ? 'View Certificate'
                             : 'Not Provided'}
                         </a>
@@ -1684,15 +1685,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.gst_certificate || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.gst_certificate || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.gst_certificate
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.gst_certificate
                             ? 'View Certificate'
                             : 'Not Provided'}
                         </a>
@@ -1710,15 +1711,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.trademark || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.trademark || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.trademark
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.trademark
                             ? 'View Trademark'
                             : 'Not Provided'}
                         </a>
@@ -1736,15 +1737,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.copyright || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.copyright || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.copyright
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.copyright
                             ? 'View Copyright'
                             : 'Not Provided'}
                         </a>
@@ -1762,15 +1763,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.patent || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.patent || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.patent
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.patent
                             ? 'View Patent'
                             : 'Not Provided'}
                         </a>
@@ -1788,15 +1789,16 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]
                               ?.startup_india_certificate || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.startup_india_certificate
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.startup_india_certificate
                             ? 'View Certificate'
                             : 'Not Provided'}
                         </a>
@@ -1814,15 +1816,16 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.due_diligence_report || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.due_diligence_report ||
+                            '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.due_diligence_report
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.due_diligence_report
                             ? 'View Report'
                             : 'Not Provided'}
                         </a>
@@ -1840,15 +1843,16 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]
                               ?.business_valuation_report || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.business_valuation_report
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.business_valuation_report
                             ? 'View Report'
                             : 'Not Provided'}
                         </a>
@@ -1866,15 +1870,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.mis || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.mis || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.mis
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.mis
                             ? 'View MIS'
                             : 'Not Provided'}
                         </a>
@@ -1892,15 +1896,16 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.financial_projections || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.financial_projections ||
+                            '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.financial_projections
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.financial_projections
                             ? 'View Projections'
                             : 'Not Provided'}
                         </a>
@@ -1918,15 +1923,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.balance_sheet || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.balance_sheet || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.balance_sheet
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.balance_sheet
                             ? 'View Balance Sheet'
                             : 'Not Provided'}
                         </a>
@@ -1944,15 +1949,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.pl_statement || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.pl_statement || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.pl_statement
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.pl_statement
                             ? 'View P&L Statement'
                             : 'Not Provided'}
                         </a>
@@ -1970,15 +1975,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.cashflow_statement || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.cashflow_statement || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.cashflow_statement
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.cashflow_statement
                             ? 'View Cashflow Statement'
                             : 'Not Provided'}
                         </a>
@@ -1996,15 +2001,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.pitch_deck || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.pitch_deck || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.pitch_deck
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.pitch_deck
                             ? 'View Pitch Deck'
                             : 'Not Provided'}
                         </a>
@@ -2022,15 +2027,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.video_pitch || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.video_pitch || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.video_pitch
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.video_pitch
                             ? 'View Video Pitch'
                             : 'Not Provided'}
                         </a>
@@ -2048,15 +2053,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.sha || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.sha || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.sha
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.sha
                             ? 'View SHA'
                             : 'Not Provided'}
                         </a>
@@ -2074,15 +2079,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.termsheet || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.termsheet || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.termsheet
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.termsheet
                             ? 'View Termsheet'
                             : 'Not Provided'}
                         </a>
@@ -2100,15 +2105,16 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.employment_agreement || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.employment_agreement ||
+                            '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.employment_agreement
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.employment_agreement
                             ? 'View Agreement'
                             : 'Not Provided'}
                         </a>
@@ -2126,15 +2132,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.mou || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.mou || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.mou
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.mou
                             ? 'View MoU'
                             : 'Not Provided'}
                         </a>
@@ -2152,15 +2158,15 @@ const CuratedDealflow = () => {
                         </div>
                         <a
                           href={
-                            selectedStartup?.company_profile?.companyDocuments
-                              ?.nda || '#'
+                            selectedStartup?.company_profile
+                              ?.company_documents[0]?.nda || '#'
                           }
                           target='_blank'
                           rel='noopener noreferrer'
                           className='text-base text-slate-600 dark:text-slate-50'
                         >
-                          {selectedStartup?.company_profile?.companyDocuments
-                            ?.nda
+                          {selectedStartup?.company_profile
+                            ?.company_documents[0]?.nda
                             ? 'View NDA'
                             : 'Not Provided'}
                         </a>
