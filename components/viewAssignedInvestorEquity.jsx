@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseclient";
 const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
   const [assignedInvestors, setAssignedInvestors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
 
   const statusOptions = [
     { label: "Introduction", color: "bg-gray-500 text-black" },
@@ -103,10 +104,25 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
     return statusOption ? statusOption.color : "";
   };
 
+  const filteredInvestors = assignedInvestors.filter(investor =>
+    Object.values(investor.investor_signup).some(value =>
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="p-4 max-w-full max-h-full" style={{ width: '1200px', height: '70vh' }}>
-        <h2 className="text-xl font-bold mb-4">Assigned Investors</h2>
+        <div className="flex justify-between mb-4">
+          <h2 className="text-xl font-bold">Assigned Investors</h2>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border border-gray-300 rounded py-2 px-4"
+          />
+        </div>
         <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
           {loading ? (
             <p>Loading...</p>
@@ -128,7 +144,7 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
                 </tr>
               </thead>
               <tbody>
-                {assignedInvestors.map((investor, index) => (
+                {filteredInvestors.map((investor, index) => (
                   <tr key={investor.id} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
                     <td className="py-2 px-2 border-b border-gray-300" style={{ minWidth: '200px' }}>{investor.investor_signup.name}</td>
                     <td className="py-2 px-2 border-b border-gray-300">{investor.investor_signup.email}</td>

@@ -27,6 +27,7 @@ const CuratedDealflow = () => {
   const [picker3, setPicker3] = useState(new Date());
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showFullUSP, setShowFullUSP] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
 
   console.log('startups:', startups);
 
@@ -96,7 +97,21 @@ const CuratedDealflow = () => {
     const fundingInformation =
       startup.company_profile?.funding_information?.[0];
 
+    const searchFields = [
+      companyProfile?.company_name,
+      companyProfile?.founder_information?.founder_name,
+      companyProfile?.industry_sector,
+      JSON.parse(companyProfile?.country || '{}').label,
+      fundingInformation?.total_funding_ask ? 'Funded' : 'Not Funded',
+      companyProfile?.current_stage,
+    ];
+
+    const matchesSearch = searchFields.some((field) =>
+      field?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
+      matchesSearch &&
       (selectedSector === 'All' ||
         companyProfile?.industry_sector === selectedSector) &&
       (selectedStage === 'All' ||
@@ -111,6 +126,7 @@ const CuratedDealflow = () => {
           !fundingInformation?.total_funding_ask))
     );
   });
+
   console.log('selectedstartuops:', selectedStartup);
 
   const totalPages = Math.ceil(filteredStartups.length / itemsPerPage);
@@ -136,6 +152,7 @@ const CuratedDealflow = () => {
     setSelectedStage('All');
     setSelectedLocation('All');
     setSelectedFunding('All');
+    setSearchQuery(''); // Clear search query when filters are cleared
   };
 
   const handleExpressInterest = async (
@@ -182,13 +199,18 @@ const CuratedDealflow = () => {
         <title>Registered Startups</title>
       </Head>
       <main className='container mx-auto p-4'>
-        <h1 className='text-3xl font-bold mb-4 text-center'>
-          Registered Startups
-        </h1>
-        {/* <p className='mb-6 text-center'>
-          Welcome to the Curated Dealflow page. Here you can find the latest
-          deal flow opportunities from around the world.
-        </p> */}
+        <div className='flex justify-between mb-4'>
+          <h1 className='text-3xl font-bold mb-4'>
+            Registered Startups
+          </h1>
+          <input 
+            type='text'
+            placeholder='Search startups...'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className='px-3 py-2 border border-gray-300 rounded'
+          />
+        </div>
         <div className='flex flex-col lg:flex-row lg:items-center lg:space-x-4 mb-4'>
           <div className='mb-4 lg:mb-0'>
             <label
@@ -311,12 +333,6 @@ const CuratedDealflow = () => {
                       Previous Funding
                     </th>
                   </tr>
-                  {/* <tr>
-                    <th className='py-4 px-4 border-b border-gray-300 text-left'>
-                      Status
-                    </th>
-             
-                  </tr> */}
                 </thead>
                 <tbody>
                   {currentStartups.map((startup, index) => {
@@ -400,20 +416,6 @@ const CuratedDealflow = () => {
                             ? 'Funded'
                             : 'Not Funded'}
                         </td>
-                        {/* <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          <select
-                            value={status}
-                            onChange={(e) => handleStatusChange(e.target.value)}
-                            className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-                          >
-                            <option value='evaluated'>Evaluated</option>
-                            <option value='meeting_done'>Meeting Done</option>
-                            <option value='moving_forward'>
-                              Moving Forward
-                            </option>
-                            <option value='rejected'>Rejected</option>
-                          </select>
-                        </td> */}
                       </tr>
                     );
                   })}
@@ -516,7 +518,17 @@ const CuratedDealflow = () => {
                   }`}
                   onClick={() => setActiveTab('companyDocuments')}
                 >
-                  Company Dcouments
+                  Company Documents
+                </button>
+                <button
+                  className={`w-full py-2 px-4 border rounded ${
+                    activeTab === 'CTO_info'
+                      ? 'bg-black-500 text-white'
+                      : 'bg-white text-black'
+                  }`}
+                  onClick={() => setActiveTab('CTO_info')}
+                >
+                  CTO Info
                 </button>
               </div>
             </div>
@@ -1457,6 +1469,180 @@ const CuratedDealflow = () => {
                   </div>
                 </div>
               )}
+              {activeTab === 'CTO_info' && (
+                <div className='space-y-3'>
+                  <h3 className='text-2xl font-bold mb-6'>CTO Details</h3>
+                  <div className='grid gap-2 md:gap-3 lg:gap-4 text-gray-700'>
+                    {/* CTO Name */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:user' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          CTO NAME
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          {selectedStartup?.CTO_info?.cto_name ||
+                            'Not provided'}
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* CTO Email */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:envelope' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          EMAIL
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          {selectedStartup?.CTO_info?.cto_email ||
+                            'Not provided'}
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* CTO Mobile */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:phone' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          MOBILE NUMBER
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          {selectedStartup?.CTO_info?.cto_mobile ||
+                            'Not provided'}
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* CTO LinkedIn */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:link' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          LINKEDIN PROFILE
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          <a
+                            href={
+                              selectedStartup?.CTO_info?.cto_linkedin || '#'
+                            }
+                            className='text-blue-600 hover:underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            {selectedStartup?.CTO_info?.cto_linkedin ||
+                              'Not provided'}
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* Tech Team Size */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:users' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          TECH TEAM SIZE
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          {selectedStartup?.CTO_info?.tech_team_size ||
+                            'Not provided'}
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* Mobile App Link (iOS) */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:link' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          MOBILE APP LINK (iOS)
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          <a
+                            href={
+                              selectedStartup?.CTO_info?.mobile_app_link_ios ||
+                              '#'
+                            }
+                            className='text-blue-600 hover:underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            {selectedStartup?.CTO_info?.mobile_app_link_ios ||
+                              'Not provided'}
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* Mobile App Link (Android) */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:link' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          MOBILE APP LINK (Android)
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          <a
+                            href={
+                              selectedStartup?.CTO_info
+                                ?.mobile_app_link_android || '#'
+                            }
+                            className='text-blue-600 hover:underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            {selectedStartup?.CTO_info
+                              ?.mobile_app_link_android || 'Not provided'}
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+
+                    {/* Technology Roadmap */}
+                    <li className='flex space-x-3 rtl:space-x-reverse'>
+                      <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+                        <Icon icon='heroicons:document' />
+                      </div>
+                      <div className='flex-1'>
+                        <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                          TECHNOLOGY ROADMAP
+                        </div>
+                        <div className='text-base text-slate-600 dark:text-slate-50'>
+                          <a
+                            href={
+                              selectedStartup?.CTO_info?.technology_roadmap ||
+                              '#'
+                            }
+                            className='text-blue-600 hover:underline'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            {selectedStartup?.CTO_info?.technology_roadmap
+                              ? 'View Technology Roadmap'
+                              : 'Not provided'}
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+                  </div>
+                </div>
+              )}
               {activeTab === 'companyDocuments' && (
                 <div className='space-y-3'>
                   <h3 className='text-2xl font-bold mb-6'>Company Documents</h3>
@@ -1983,27 +2169,6 @@ const CuratedDealflow = () => {
                   </div>
                 </div>
               )}
-
-              {/* <div className='flex gap-4 mt-4'>
-                <button
-                  className='rounded-md py-2 px-4 border bg-success-500 text-white'
-                  onClick={() => setShowForm(true)}
-                >
-                  Express Interest
-                </button>
-                <button
-                  className='rounded-md py-2 px-4 border bg-danger-500 text-white'
-                  onClick={() => setShowForm(true)}
-                >
-                  Reject
-                </button>
-                <button
-                  className='rounded-md py-2 px-4 border bg-info-500 text-white'
-                  onClick={() => setShowForm(true)}
-                >
-                  Evaluate
-                </button>
-              </div> */}
             </div>
           </div>
         )}

@@ -7,12 +7,14 @@ import ViewAssignedInvestorsModal from '@/components/ViewAssignedInvestorsModal'
 
 const CuratedDealflow = () => {
   const [connectedInvestors, setConnectedInvestors] = useState([]);
+  const [filteredInvestors, setFilteredInvestors] = useState([]);
   const [selectedType, setSelectedType] = useState('');
   const [uniqueTypes, setUniqueTypes] = useState([]);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedInvestor, setSelectedInvestor] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchConnectedInvestors = async () => {
@@ -25,6 +27,7 @@ const CuratedDealflow = () => {
         if (error) throw error;
 
         setConnectedInvestors(data);
+        setFilteredInvestors(data);
 
         const types = [...new Set(data.map((investor) => investor.user_type))];
         setUniqueTypes(types);
@@ -44,10 +47,7 @@ const CuratedDealflow = () => {
     setShowAssignModal(true);
   };
 
-  console.log('selectedInvestor', selectedInvestor);
-
   const handleSaveAssignedStartups = async (startups) => {
-    console.log('startups', startups);
     if (!selectedInvestor) {
       console.error('No investor selected');
       return;
@@ -58,11 +58,10 @@ const CuratedDealflow = () => {
       startup_id: startup.startup_id,
       created_at: new Date(),
     }));
-    console.log('assignedData', assignedData);
 
     try {
       const { error } = await supabase
-        .from('investor_startup_assignments') // Updated table name
+        .from('investor_startup_assignments')
         .insert(assignedData);
 
       if (error) {
@@ -81,13 +80,51 @@ const CuratedDealflow = () => {
     setShowViewModal(true);
   };
 
-  const filteredInvestors = connectedInvestors.filter(
-    (investor) => !selectedType || investor.user_type === selectedType
-  );
+  const handleSearch = (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    setSearchTerm(searchTerm);
+
+    const filtered = connectedInvestors.filter((investor) => {
+      return (
+        investor.name.toLowerCase().includes(searchTerm) ||
+        investor.email.toLowerCase().includes(searchTerm) ||
+        investor.mobile.toLowerCase().includes(searchTerm)
+      );
+    });
+
+    setFilteredInvestors(filtered);
+  };
+
+  const handleTypeChange = (event) => {
+    setSelectedType(event.target.value);
+
+    const filtered = connectedInvestors.filter((investor) => {
+      const matchesType =
+        !event.target.value || investor.user_type === event.target.value;
+      const matchesSearch =
+        investor.name.toLowerCase().includes(searchTerm) ||
+        investor.email.toLowerCase().includes(searchTerm) ||
+        investor.mobile.toLowerCase().includes(searchTerm);
+
+      return matchesType && matchesSearch;
+    });
+
+    setFilteredInvestors(filtered);
+  };
 
   return (
     <div className='container mx-auto p-4'>
-      <h1 className='text-3xl font-bold mb-4'>Curated Dealflow</h1>
+      <div className='flex items-center justify-between mb-4'>
+        <h1 className='text-3xl font-bold'>Curated Dealflow</h1>
+        <input
+          type='text'
+          value={searchTerm}
+          onChange={handleSearch}
+          placeholder='Search'
+          className='py-2 px-4 rounded border border-gray-300'
+          style={{ maxWidth: '300px' }}
+        />
+      </div>
 
       {errorMessage && (
         <div className='bg-red-500 text-white p-2 mb-4 rounded'>
@@ -98,7 +135,7 @@ const CuratedDealflow = () => {
       <div className='mb-4'>
         <select
           value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value)}
+          onChange={handleTypeChange}
           className='py-2 px-4 rounded border-gray-300'
         >
           <option value=''>All Types</option>
@@ -145,17 +182,6 @@ const CuratedDealflow = () => {
               <td className='py-2 px-4 border-b border-gray-300'>
                 {investor.mobile}
               </td>
-              {/* <td className='py-2 px-4 border-b border-gray-300'>
-                <textarea
-                  value={comments[investor.id] || ''}
-                  onChange={(e) =>
-                    handleCommentChange(investor.id, e.target.value)
-                  }
-                  onBlur={() => saveComment(investor.id)}
-                  className='w-full p-1 border rounded'
-                  rows='2'
-                />
-              </td> */}
               <td className='py-2 px-4 border-b border-gray-300'>
                 <button
                   onClick={() => openAssignModal(investor)}
