@@ -1,125 +1,101 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import useUserDetails from '@/hooks/useUserDetails';
 
 const useNotifications = () => {
   const [notifications, setNotifications] = useState([]);
-  const { companyProfile, investorSignup, loading } = useCompleteUserDetails();
+  const { companyProfile, loading } = useCompleteUserDetails();
   const { user } = useUserDetails();
 
-  useEffect(() => {
-    if (loading) {
-      console.log('Loading user details...');
-      return;
-    }
+  // Memoized function to fetch additional notification details
+  const fetchNotificationDetails = useCallback(async (notification) => {
+    let logo = null;
+    let companyName = null;
+    let senderName = null;
 
-    if (!user?.id) {
-      console.log('User ID not available');
-      return;
-    }
+    // Try fetching from profiles table
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('company_logo, name')
+      .eq('id', notification.sender_id)
+      .single();
 
-    const fetchNotifications = async () => {
-      try {
-        let query;
-        if (user?.user_type === 'startup') {
-          if (companyProfile?.id) {
-            query = supabase
-              .from('notifications')
-              .select('*')
-              .eq('receiver_id', companyProfile?.id);
-          } else {
-            console.log('Company profile ID not available');
-          }
-        } else if (user?.user_type === 'investor') {
-          if (user?.id) {
-            query = supabase
-              .from('notifications')
-              .select('*')
-              .eq('receiver_id', user?.id);
-          } else {
-            console.log('Investor signup ID not available');
-          }
-        } else {
-          console.log('User type not recognized:', user?.user_type);
+    if (!profileError && profileData) {
+      logo = profileData.company_logo;
+      senderName = profileData.name;
+    } else {
+      // If not found, try fetching from company_profile table
+      const { data: companyProfileData, error: companyProfileError } =
+        await supabase
+          .from('company_profile')
+          .select('profile_id, company_name')
+          .eq('id', notification.sender_id)
+          .single();
+
+      if (!companyProfileError && companyProfileData) {
+        companyName = companyProfileData.company_name;
+        const {
+          data: profileFromCompanyProfileData,
+          error: profileFromCompanyProfileError,
+        } = await supabase
+          .from('profiles')
+          .select('company_logo, name')
+          .eq('id', companyProfileData.profile_id)
+          .single();
+
+        if (!profileFromCompanyProfileError && profileFromCompanyProfileData) {
+          logo = profileFromCompanyProfileData.company_logo;
+          senderName = profileFromCompanyProfileData.name;
         }
-
-        if (!query) {
-          console.log('No valid query created');
-          return;
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          console.error('Error fetching notifications:', error);
-          return;
-        }
-
-        const notificationsWithDetails = await Promise.all(
-          data.map(async (notification) => {
-            let logo = null;
-            let companyName = null;
-            let senderName = null;
-
-            // First, try to get the logo and name directly from the profiles table
-            let { data: profileData, error: profileError } = await supabase
-              .from('profiles')
-              .select('company_logo, name')
-              .eq('id', notification.sender_id)
-              .single();
-
-            if (!profileError && profileData) {
-              logo = profileData.company_logo;
-              senderName = profileData.name;
-            } else {
-              // If not found in profiles, check the company_profile table
-              let { data: companyProfileData, error: companyProfileError } =
-                await supabase
-                  .from('company_profile')
-                  .select('profile_id, company_name')
-                  .eq('id', notification.sender_id)
-                  .single();
-
-              if (!companyProfileError && companyProfileData) {
-                companyName = companyProfileData.company_name;
-                // Use the profile_id to get the logo and name from profiles
-                let {
-                  data: profileFromCompanyProfileData,
-                  error: profileFromCompanyProfileError,
-                } = await supabase
-                  .from('profiles')
-                  .select('company_logo, name')
-                  .eq('id', companyProfileData.profile_id)
-                  .single();
-
-                if (
-                  !profileFromCompanyProfileError &&
-                  profileFromCompanyProfileData
-                ) {
-                  logo = profileFromCompanyProfileData.company_logo;
-                  senderName = profileFromCompanyProfileData.name;
-                }
-              }
-            }
-
-            return {
-              ...notification,
-              company_logo: logo,
-              company_name: companyName,
-              sender_name: senderName,
-            };
-          })
-        );
-
-        setNotifications(notificationsWithDetails);
-      } catch (error) {
-        console.error('Unexpected error fetching notifications:', error);
       }
-    };
+    }
 
+    return {
+      ...notification,
+      company_logo: logo,
+      company_name: companyName,
+      sender_name: senderName,
+    };
+  }, []);
+
+  // Function to fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    if (loading || !user?.id) return;
+
+    let query;
+    if (user.user_type === 'startup' && companyProfile?.id) {
+      query = supabase
+        .from('notifications')
+        .select('*')
+        .eq('receiver_id', companyProfile.id);
+    } else if (user.user_type === 'investor' && user?.id) {
+      query = supabase
+        .from('notifications')
+        .select('*')
+        .eq('receiver_id', user.id);
+    } else {
+      console.log('User type not recognized or missing ID:', user?.user_type);
+      return;
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching notifications:', error);
+      return;
+    }
+
+    const notificationsWithDetails = await Promise.all(
+      data.map(fetchNotificationDetails)
+    );
+    setNotifications(notificationsWithDetails);
+  }, [fetchNotificationDetails, loading, user, companyProfile?.id]);
+
+  // Fetch notifications on component mount and set up real-time updates
+  useEffect(() => {
     fetchNotifications();
 
     const notificationSubscription = supabase
@@ -136,7 +112,7 @@ const useNotifications = () => {
     return () => {
       supabase.removeChannel(notificationSubscription);
     };
-  }, [loading, companyProfile?.id, investorSignup?.id]);
+  }, [fetchNotifications]);
 
   return notifications;
 };
