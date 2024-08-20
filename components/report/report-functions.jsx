@@ -5,6 +5,7 @@ import * as cheerio from 'cheerio';
 import generateResponse from '@/components/report/sector-analysis';
 import generateFinancialResponse from '@/components/report/financial-projections';
 import generateTechnologyRoadmap from '@/components/report/technology-roadmap'
+import generateCompetitorAnalysis from '@/components/report/competitor-analysis';
 // import unirest from 'unirest';
 
 // Function to fetch financial data
@@ -79,34 +80,12 @@ const getOrganicData = async (searchQuery) => {
 
 // Function to get competitors data
 async function getCompetitors(companyName) {
-  try {
-    const link = await getOrganicData(companyName + " Traxcn");
-
-    const competitorsUrl = link + '/competitors'; // Adjust the URL based on the actual structure
-    const competitorsResponse = await axios.get(competitorsUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-      }
-    });
-
-    const $competitors = cheerio.load(competitorsResponse.data);
-
-    const competitors = [];
-    $competitors('.txn--seo-tab--companies').each((index, element) => {
-      if (index >= 4) return false; // Extract only the first 4 competitors
-
-      const name = $competitors(element).find('h2 a').text().trim();
-      const foundedYear = $competitors(element).find('dt:contains("Founded Year") + dd').text().trim();
-      const stage = $competitors(element).find('dt:contains("Stage") + dd').text().trim();
-      const funding = $competitors(element).find('dt:contains("Funding") + dd').text().trim();
-
-      competitors.push({ name, foundedYear, stage, funding });
-    });
-
-    return competitors;
-
+  try{
+    const cData = generateCompetitorAnalysis(companyName);
+    return cData;
   } catch (error) {
-    console.error('Error fetching competitors:', error.message);
+    console.error("Error generating structured competitor data:", error);
+    throw error;
   }
 }
 
@@ -185,7 +164,7 @@ const generateReport = async (
       const missingMessage = `${missingDocuments.join(', ')}`;
       return { status: 'error', message: missingMessage };
     }
-  const competitors = exampleCompetitors;
+  
   const totalFunding = previousFunding.reduce((total, funding) => total + parseFloat(funding.amountRaised || 0), 0);
   const coFounders = founderInformation?.co_founders || [];
   const newsQuery = `${companyName} news inc42 1 year`;
@@ -239,31 +218,13 @@ const generateReport = async (
     }
 
     
-    // Example usage
-    let stocks;
-    try{
-        getTop5Stocks(industrySector).then(top5Stocks => {
-            // Assigning the returned value to a variable
-            stocks = top5Stocks;
-
-            console.log('Top 5 Stocks:', stocks);
-
-            // Example: Accessing individual stock details
-            stocks.forEach(stock => {
-                console.log(`Name: ${stock.name}`);
-                console.log(`Market Cap: ${stock.marketCap}`);
-                console.log(`P/E Ratio: ${stock.peRatio}`);
-                console.log(`Profit: ${stock.profit}`);
-            });
-        });
-    }catch{
-        stocks = []
-    }
-
     const financialProjections = await generateFinancialResponse(financialProjectionsLink);
     
-    console.log("FP Link:", financialProjectionsLink);
+    // console.log("FP Link:", financialProjectionsLink);
+    const competitors = await getCompetitors(companyName);
     const technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
+
+    
 
     let roadmapArray = [];
 
@@ -342,58 +303,37 @@ const generateReport = async (
                 </div>
 
                 <!-- Competitors -->
-                <!-- 
-                <div class="mb-8">
-                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Competitors</h3>
-                    <table class="table-auto w-full text-left border-collapse">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border px-6 py-2">Name</th>
-                                <th class="border px-6 py-2">Founded Year</th>
-                                <th class="border px-6 py-2">Stage</th>
-                                <th class="border px-6 py-2">Funding</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${competitors.map(comp => `
-                                <tr class="border-t border-gray-200">
-                                    <td class="border px-6 py-2">${comp.name}</td>
-                                    <td class="border px-6 py-2">${comp.foundedYear}</td>
-                                    <td class="border px-6 py-2">${comp.stage}</td>
-                                    <td class="border px-6 py-2">${comp.funding}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    </div>
-                    -->
+                <div class="mb-8 w-full">
+    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Competitors</h3>
+    <table class="table-auto w-full text-left border-collapse">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="border px-6 py-2">Name</th>
+                <th class="border px-6 py-2">Annual Revenue</th>
+                <th class="border px-6 py-2">Total Funding</th>
+                <th class="border px-6 py-2">Valuation</th>
+                <th class="border px-6 py-2">Stage</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${Object.keys(competitors).length > 0
+                ? Object.keys(competitors).map(company => `
+                <tr class="border-t border-gray-200">
+                    <td class="border px-6 py-2">${company}</td>
+                    <td class="border px-6 py-2">${competitors[company].annual_revenue}</td>
+                    <td class="border px-6 py-2">${competitors[company].total_funding}</td>
+                    <td class="border px-6 py-2">${competitors[company].valuation}</td>
+                    <td class="border px-6 py-2">${competitors[company].stage}</td>
+                </tr>
+            `).join('')
+            : `<tr><td colspan="7" class="border px-4 py-2">No data available</td></tr>`
+            }
+        </tbody>
+    </table>
+</div>
 
-                <div class="mb-8">
-                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Competitors</h3>
-                    <table class="table-auto w-full text-left border-collapse">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border px-6 py-2">Name</th>
-                                <th class="border px-6 py-2">Market Cap (Rs.Cr.)</th>
-                                <th class="border px-6 py-2">P/E Ratio</th>
-                                <th class="border px-6 py-2">Net Profit (Rs.Cr.)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${stocks.length > 0
-                                ? stocks.map(stock => `
-                                <tr class="border-t border-gray-200">
-                                    <td class="border px-6 py-2">${stock.name}</td>
-                                    <td class="border px-6 py-2">${stock.marketCap}</td>
-                                    <td class="border px-6 py-2">${stock.peRatio}</td>
-                                    <td class="border px-6 py-2">${stock.profit}</td>
-                                </tr>
-                            `).join('')
-                            : `<tr><td class="border px-4 py-2">${funding.investorName}</td></tr>`
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                
+                <!-- Top 5 Sector stocks -->
 
                 
                 <!-- Funding Details -->
@@ -467,7 +407,7 @@ const generateReport = async (
                             </tr>
                             <tr>
                                 <th class="border px-6 py-2">Location</td>
-                                <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country?.value || "NA"}</td>
+                                <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country.label || "NA"}</td>
                             </tr>
                             <tr class="bg-gray-50">
                                 <th class="border px-6 py-2">Editor's Rating</td>
