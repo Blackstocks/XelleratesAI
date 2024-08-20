@@ -8,6 +8,7 @@ const AssignStartupsModal = ({
   profileId,
 }) => {
   const [startups, setStartups] = useState([]);
+  const [filteredStartups, setFilteredStartups] = useState([]);
   const [selectedStartups, setSelectedStartups] = useState([]);
   const [filters, setFilters] = useState({
     sector: '',
@@ -15,6 +16,7 @@ const AssignStartupsModal = ({
     state_city: '',
     current_stage: '',
   });
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchStartups = async () => {
@@ -24,6 +26,7 @@ const AssignStartupsModal = ({
           .select('*');
         if (error) throw error;
         setStartups(data);
+        setFilteredStartups(data);
       } catch (error) {
         console.error('Error fetching startups:', error.message);
       }
@@ -46,18 +49,73 @@ const AssignStartupsModal = ({
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+
+    const filtered = startups.filter((startup) => {
+      const matchesSector =
+        !filters.sector || startup.industry_sector?.includes(filters.sector);
+      const matchesCountry =
+        !filters.country || startup.country?.includes(filters.country);
+      const matchesStateCity =
+        !filters.state_city ||
+        startup.state_city?.includes(filters.state_city);
+      const matchesStage =
+        !filters.current_stage ||
+        startup.current_stage?.includes(filters.current_stage);
+      const matchesSearch =
+        (startup.company_name || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (startup.industry_sector || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (startup.country || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (startup.state_city || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (startup.current_stage || '')
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+
+      return (
+        matchesSector &&
+        matchesCountry &&
+        matchesStateCity &&
+        matchesStage &&
+        matchesSearch
+      );
+    });
+
+    setFilteredStartups(filtered);
   };
 
-  const filteredStartups = startups.filter((startup) => {
-    return (
-      (!filters.sector || startup.industry_sector?.includes(filters.sector)) &&
-      (!filters.country || startup.country?.includes(filters.country)) &&
-      (!filters.state_city ||
-        startup.state_city?.includes(filters.state_city)) &&
-      (!filters.current_stage ||
-        startup.current_stage?.includes(filters.current_stage))
-    );
-  });
+  const handleSearch = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    setSearchTerm(searchTerm);
+
+    const filtered = startups.filter((startup) => {
+      return (
+        (startup.company_name || '')
+          .toLowerCase()
+          .includes(searchTerm) ||
+        (startup.industry_sector || '')
+          .toLowerCase()
+          .includes(searchTerm) ||
+        (startup.country || '')
+          .toLowerCase()
+          .includes(searchTerm) ||
+        (startup.state_city || '')
+          .toLowerCase()
+          .includes(searchTerm) ||
+        (startup.current_stage || '')
+          .toLowerCase()
+          .includes(searchTerm)
+      );
+    });
+
+    setFilteredStartups(filtered);
+  };
 
   const handleCheckboxChange = (startup) => {
     setSelectedStartups((prevSelected) => {
@@ -70,7 +128,6 @@ const AssignStartupsModal = ({
   };
 
   const handleSave = () => {
-    // Include the profile_id in the data passed to the onSave callback
     const assignments = selectedStartups.map((startup) => ({
       startup_id: startup.id,
       profile_id: profileId,
@@ -86,7 +143,18 @@ const AssignStartupsModal = ({
       }`}
     >
       <div className='bg-white rounded shadow-lg p-4 max-w-4xl w-full overflow-auto max-h-full'>
-        <h2 className='text-2xl font-bold mb-4'>Assign Startups</h2>
+        <div className='flex items-center justify-between mb-4'>
+          <h2 className='text-2xl font-bold'>Assign Startups</h2>
+          <input
+            type='text'
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder='Search'
+            className='py-2 px-4 rounded border border-gray-300'
+            style={{ maxWidth: '300px' }}
+          />
+        </div>
+
         <div className='flex flex-wrap -mx-2 mb-4'>
           <div className='w-1/4 px-2'>
             <label className='block text-sm font-medium'>Sector</label>

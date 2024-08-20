@@ -24,6 +24,7 @@ const InvestorDealflow = () => {
     sector: '',
     investmentStage: '',
   });
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
 
   const itemsPerPage = 8;
   const router = useRouter();
@@ -74,6 +75,24 @@ const InvestorDealflow = () => {
     fetchInvestors();
   }, []);
 
+  useEffect(() => {
+    const filtered = investors.filter((investor) => {
+      const searchFields = [
+        investor.name,
+        investor.company_name,
+        investor.Geography,
+        investor.typeof,
+        investor.sectors,
+        investor.investment_stage,
+      ];
+
+      return searchFields.some((field) =>
+        field?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    });
+    setFilteredInvestors(filtered);
+  }, [searchQuery, investors]);
+
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };
@@ -97,6 +116,7 @@ const InvestorDealflow = () => {
       sector: '',
       investmentStage: '',
     });
+    setSearchQuery(''); // Clear search query when filters are cleared
   };
 
   const totalPages = Math.ceil(filteredInvestors.length / itemsPerPage);
@@ -115,13 +135,14 @@ const InvestorDealflow = () => {
         <title>Investor Connect</title>
       </Head>
       <main className='container mb-1 p-4 relative'>
-        <div className='absolute top-4 left-4 z-20'>
-          {/* <button
-            onClick={() => router.back()}
-            className='bg-blue-500 text-white px-4 py-2 rounded'
-          >
-            Back
-          </button> */}
+        <div className='absolute top-4 right-4 z-20'>
+          <input 
+            type='text'
+            placeholder='Search investors...'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className='px-3 py-2 border border-gray-300 rounded'
+          />
         </div>
         <h1 className='text-3xl font-bold mb-4 text-center'>
           Registered Investors

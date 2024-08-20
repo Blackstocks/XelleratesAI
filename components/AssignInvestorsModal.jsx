@@ -11,6 +11,7 @@ const AssignInvestorsModal = ({ isOpen, onClose, onSave }) => {
     investment_stage: '',
     typeof: '',
   });
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
 
   useEffect(() => {
     const fetchInvestors = async () => {
@@ -43,13 +44,15 @@ const AssignInvestorsModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const filteredInvestors = investors.filter((investor) => {
-    return (
+    const matchesSearchTerm = Object.values(investor)
+      .some(value => value?.toString().toLowerCase().includes(searchTerm.toLowerCase()));
+
+    return matchesSearchTerm &&
       (!filters.sector || investor.sectors?.includes(filters.sector)) &&
       (!filters.Geography || investor.Geography?.includes(filters.Geography)) &&
       (!filters.cheque_size || investor.cheque_size === filters.cheque_size) &&
       (!filters.investment_stage || investor.investment_stage?.includes(filters.investment_stage)) &&
-      (!filters.typeof || investor.typeof?.includes(filters.typeof))
-    );
+      (!filters.typeof || investor.typeof?.includes(filters.typeof));
   });
 
   const handleCheckboxChange = (investor) => {
@@ -65,7 +68,16 @@ const AssignInvestorsModal = ({ isOpen, onClose, onSave }) => {
   return (
     <div className={`fixed inset-0 bg-gray-800 bg-opacity-50 z-50 flex items-center justify-center ${isOpen ? 'block' : 'hidden'}`}>
       <div className="bg-white rounded shadow-lg p-4 max-w-4xl w-full overflow-auto max-h-full">
-        <h2 className="text-2xl font-bold mb-4">Assign Investors</h2>
+        <div className="flex justify-between mb-4">
+          <h2 className="text-2xl font-bold">Assign Investors</h2>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border border-gray-300 rounded py-2 px-4"
+          />
+        </div>
         <div className="flex flex-wrap -mx-2 mb-4">
           <div className="w-1/5 px-2">
             <label className="block text-sm font-medium">Sector</label>

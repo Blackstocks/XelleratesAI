@@ -15,6 +15,7 @@ const ConnectWithIncubators = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [startupsData, setStartupsData] = useState([]);
   const [startupsProfileData, setStartupsProfileData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
 
   const [filters, setFilters] = useState({
     state: [],
@@ -35,18 +36,14 @@ const ConnectWithIncubators = () => {
     const fetchIncubatorsAndConnections = async () => {
       setIncubatorsLoading(true);
       try {
-        // Fetch connections between startups and incubators, including the unique identifier (id)
         const { data: connectionsData, error: connectionsError } =
           await supabase
             .from('connect_startup_incubator')
-            .select('id, incubator_id, startup_id, status'); // Ensure 'id' and 'status' are selected
+            .select('id, incubator_id, startup_id, status');
         if (connectionsError) throw connectionsError;
-
-        // console.log('Connections Data:', connectionsData); // Log connections data to verify
 
         setConnections(connectionsData);
 
-        // Fetch all incubators
         const incubatorIds = connectionsData.map((conn) => conn.incubator_id);
         const { data: incubatorsData, error: incubatorsError } = await supabase
           .from('Incubators')
@@ -56,7 +53,6 @@ const ConnectWithIncubators = () => {
 
         setIncubators(incubatorsData);
 
-        // Fetch all startups
         const startupIds = connectionsData.map((conn) => conn.startup_id);
         const { data: startupsData, error: startupsError } = await supabase
           .from('company_profile')
@@ -66,16 +62,13 @@ const ConnectWithIncubators = () => {
 
         setStartupsData(startupsData);
 
-        // Fetch profiles for each startup
         const profileIds = startupsData.map((startup) => startup.profile_id);
         const { data: startupsProfilesData, error: startupsProfilesError } =
           await supabase.from('profiles').select('*').in('id', profileIds);
         if (startupsProfilesError) throw startupsProfilesError;
 
-        // console.log('startupsProfilesData:', startupsProfilesData);
         setStartupsProfileData(startupsProfilesData);
 
-        // Process filters
         const states = new Set();
         const cities = new Set();
         const categories = new Set();
@@ -129,7 +122,7 @@ const ConnectWithIncubators = () => {
       );
     }
 
-    setCurrentPage(1); // Reset to first page whenever filters change
+    setCurrentPage(1);
   }, [selectedFilters, incubators]);
 
   const handleNextPage = () => {
@@ -164,8 +157,14 @@ const ConnectWithIncubators = () => {
       .join(' ');
   };
 
-  const totalPages = Math.ceil(incubators.length / itemsPerPage);
-  const currentIncubators = incubators.slice(
+  const filteredIncubators = incubators.filter((incubator) =>
+    Object.values(incubator).some((value) =>
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  const totalPages = Math.ceil(filteredIncubators.length / itemsPerPage);
+  const currentIncubators = filteredIncubators.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -188,6 +187,15 @@ const ConnectWithIncubators = () => {
             Back
           </button>
         </div>
+        <div className='absolute top-4 right-4 z-20'>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border border-gray-300 rounded py-2 px-4"
+          />
+        </div>
         <h1 className='text-3xl font-bold mb-4 text-center'>
           Incubator Connect
         </h1>
@@ -195,67 +203,6 @@ const ConnectWithIncubators = () => {
           Welcome to the Incubator Connect page. Here you can find information
           about various incubators.
         </p>
-        {/* <div className='mb-4'>
-          <h2 className='text-xl font-bold mb-2'>Filters</h2>
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2'>
-            <div>
-              <label className='block text-sm font-medium mb-1'>State</label>
-              <select
-                name='state'
-                value={selectedFilters.state}
-                onChange={handleFilterChange}
-                className='w-full px-3 py-2 border border-gray-300 rounded'
-              >
-                <option value=''>Select State</option>
-                {filters.state.map((state, index) => (
-                  <option key={index} value={state}>
-                    {state}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className='block text-sm font-medium mb-1'>City</label>
-              <select
-                name='city'
-                value={selectedFilters.city}
-                onChange={handleFilterChange}
-                className='w-full px-3 py-2 border border-gray-300 rounded'
-              >
-                <option value=''>Select City</option>
-                {filters.city.map((city, index) => (
-                  <option key={index} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className='block text-sm font-medium mb-1'>Sector</label>
-              <select
-                name='category'
-                value={selectedFilters.category}
-                onChange={handleFilterChange}
-                className='w-full px-3 py-2 border border-gray-300 rounded'
-              >
-                <option value=''>Select Sector</option>
-                {filters.category.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className='flex items-end'>
-              <button
-                onClick={handleClearFilters}
-                className='py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded transition duration-200 w-1/2'
-              >
-                Clear All Filters
-              </button>
-            </div>
-          </div>
-        </div> */}
 
         <div className='relative mb-4'>
           <div className='overflow-x-auto'>
@@ -320,16 +267,13 @@ const ConnectWithIncubators = () => {
                         );
                       }
 
-                      console.log('Approving connection:', connection); // Debugging output
-
                       const { error } = await supabase
                         .from('connect_startup_incubator')
                         .update({ status: 'approved' })
-                        .eq('id', connection.id); // Ensure connection.id is correct
+                        .eq('id', connection.id);
                       if (error) throw error;
 
                       toast.success('Incubator approved successfully!');
-                      // Optionally update the state or refetch data to reflect changes
                       setConnections((prevConnections) =>
                         prevConnections.map((conn) =>
                           conn.id === connection.id
