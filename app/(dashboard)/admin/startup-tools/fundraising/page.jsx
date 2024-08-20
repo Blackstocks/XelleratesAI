@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseclient";
 import AssignInvestorsModal from "@/components/AssignInvestorsModal";
-import ViewAssignedInvestorsModal from "@/components/ViewAssignedInvestorsModal";
+import ViewAssignedInvestorsModal from "@/components/viewAssignedInvestorEquity";
 
 const Fundraising = () => {
   const [connectedStartups, setConnectedStartups] = useState([]);
