@@ -527,36 +527,6 @@ const generateReport = async (
                     </div>
                 </div>
 
-                <script>
-                    const ctx = document.getElementById('revenueChart').getContext('2d');
-                    const revenueChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: ${JSON.stringify(yearlyRevenue.map(item => item.month))},
-                            datasets: [{
-                                label: 'Revenue',
-                                data: ${JSON.stringify(yearlyRevenue.map(item => item.value))},
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top',
-                                }
-                            }
-                        }
-                    });
-                </script>
-
                 <!-- Cap Table -->
                 <div class="mb-8">
                     <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Cap Table</h3>
@@ -664,154 +634,155 @@ const generateReport = async (
                 console.log("Years:", years);
 
                 const colorPalette = [
-    'rgba(255, 99, 132, 0.6)',  // Red
-    'rgba(54, 162, 235, 0.6)',  // Blue
-    'rgba(75, 192, 192, 0.6)',  // Green
-    'rgba(255, 206, 86, 0.6)',  // Yellow
-    'rgba(153, 102, 255, 0.6)', // Purple
-    'rgba(255, 159, 64, 0.6)',  // Orange
-    'rgba(199, 199, 199, 0.6)', // Grey
-    'rgba(255, 99, 71, 0.6)',   // Tomato
-    'rgba(60, 179, 113, 0.6)',  // MediumSeaGreen
-    'rgba(106, 90, 205, 0.6)',  // SlateBlue
-];
+                    'rgba(255, 99, 132, 0.6)',  // Red
+                    'rgba(54, 162, 235, 0.6)',  // Blue
+                    'rgba(75, 192, 192, 0.6)',  // Green
+                    'rgba(255, 206, 86, 0.6)',  // Yellow
+                    'rgba(153, 102, 255, 0.6)', // Purple
+                    'rgba(255, 159, 64, 0.6)',  // Orange
+                    'rgba(199, 199, 199, 0.6)', // Grey
+                    'rgba(255, 99, 71, 0.6)',   // Tomato
+                    'rgba(60, 179, 113, 0.6)',  // MediumSeaGreen
+                    'rgba(106, 90, 205, 0.6)',  // SlateBlue
+                ];
 
-const datasets = yearlyTotals.map((projection, index) => ({
-    label: projection.revenue_stream,
-    data: years.map(year => projection.yearly_totals[year]),
-    backgroundColor: colorPalette[index % colorPalette.length],
-    borderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-    borderWidth: 2,
-    fill: false,
-    pointBackgroundColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-    pointBorderColor: '#fff',
-    pointHoverBackgroundColor: '#fff',
-    pointHoverBorderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-}));
+                const datasets = yearlyTotals.map((projection, index) => ({
+                    label: projection.revenue_stream,
+                    data: years.map(year => projection.yearly_totals[year]),
+                    backgroundColor: colorPalette[index % colorPalette.length],
+                    borderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+                    borderWidth: 2,
+                    fill: false,
+                    pointBackgroundColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+                }));
 
 
-            // Create the chart
-            const ctx = document.getElementById('financialProjectionsChart').getContext('2d');
-            const chartHeight = 400; 
-            const financialProjectionsChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: years,
-        datasets: datasets
-    },
-    options: {
-        maintainAspectRatio: false, // Allows the chart to take full height
-        scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Revenue (in Millions)',
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 14,
-                        weight: 'bold',
-                    }
-                },
-                grid: {
-                    color: '#E0E0E0',
-                }
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: 'Year',
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 14,
-                        weight: 'bold',
-                    }
-                },
-                grid: {
-                    color: '#E0E0E0',
-                }
-            }
-        },
-        plugins: {
-            legend: {
-                display: true,
-                position: 'bottom',
-                labels: {
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 10, // Smaller font size for legend items
-                        weight: 'bold',
+                // Create the chart
+                const ctx = document.getElementById('financialProjectionsChart').getContext('2d');
+                const chartHeight = 400; 
+                const financialProjectionsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: years,
+                        datasets: datasets
                     },
-                    boxWidth: 15,
-                    padding: 10, // Adjusted padding to save space
-                },
-                maxHeight: 100, // Limit the height of the legend area
-            },
-            tooltip: {
-                backgroundColor: '#333',
-                titleFont: {
-                    family: 'Arial',
-                    size: 14,
-                    weight: 'bold',
-                },
-                bodyFont: {
-                    family: 'Arial',
-                    size: 12,
-                },
-                footerFont: {
-                    family: 'Arial',
-                    size: 10,
-                    style: 'italic',
-                },
-                borderColor: '#777',
-                borderWidth: 1,
-            },
-        },
-        responsive: true,
-        layout: {
-            padding: {
-                top: 10,
-                right: 10,
-                bottom: 10,
-                left: 10
-            }
-        },
-    }
-});
+                    options: {
+                        maintainAspectRatio: false, // Allows the chart to take full height
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Revenue (in Millions)',
+                                    color: '#4A4A4A',
+                                    font: {
+                                        family: 'Arial',
+                                        size: 14,
+                                        weight: 'bold',
+                                    }
+                                },
+                                grid: {
+                                    color: '#E0E0E0',
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Year',
+                                    color: '#4A4A4A',
+                                    font: {
+                                        family: 'Arial',
+                                        size: 14,
+                                        weight: 'bold',
+                                    }
+                                },
+                                grid: {
+                                    color: '#E0E0E0',
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    color: '#4A4A4A',
+                                    font: {
+                                        family: 'Arial',
+                                        size: 10, // Smaller font size for legend items
+                                        weight: 'bold',
+                                    },
+                                    boxWidth: 15,
+                                    padding: 10, // Adjusted padding to save space
+                                },
+                                maxHeight: 100, // Limit the height of the legend area
+                            },
+                            tooltip: {
+                                backgroundColor: '#333',
+                                titleFont: {
+                                    family: 'Arial',
+                                    size: 14,
+                                    weight: 'bold',
+                                },
+                                bodyFont: {
+                                    family: 'Arial',
+                                    size: 12,
+                                },
+                                footerFont: {
+                                    family: 'Arial',
+                                    size: 10,
+                                    style: 'italic',
+                                },
+                                borderColor: '#777',
+                                borderWidth: 1,
+                            },
+                        },
+                        responsive: true,
+                        layout: {
+                            padding: {
+                                top: 10,
+                                right: 10,
+                                bottom: 10,
+                                left: 10
+                            }
+                        },
+                    }
+                });
+
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                    const revenueChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ${JSON.stringify(yearlyRevenue.map(item => item.month))},
+                            datasets: [{
+                                label: 'Revenue',
+                                data: ${JSON.stringify(yearlyRevenue.map(item => item.value))},
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                }
+                            }
+                        }
+                    });
 
                 console.log("Chart successfully created");
             });
 
-            
-
-
-
-        document.getElementById('downloadBtn').addEventListener('click', async function() {
-            const reportHtml = document.getElementById('pdfContent').outerHTML;
-            const response = await fetch('/api/generate-pdf', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ htmlContent: reportHtml }),
-            });
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(new Blob([blob]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'InvestmentReadinessReport.pdf');
-                document.body.appendChild(link);
-                link.click();
-                link.parentNode.removeChild(link);
-            } else {
-                console.error('Failed to generate PDF');
-            }
-        });
 
       </script>
 </body>
