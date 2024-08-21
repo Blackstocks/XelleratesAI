@@ -82,11 +82,6 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
             newWindow.document.write(result.html);
             newWindow.document.close();
 
-            newWindow.addEventListener('load', () => {
-              // Load Tailwind CSS and Chart.js dynamically
-              loadExternalScripts(newWindow);
-          });
-
           } else {
             throw new Error("Popup blocked. Please allow popups for this site.");
           }
