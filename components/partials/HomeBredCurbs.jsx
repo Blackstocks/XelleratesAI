@@ -75,24 +75,64 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
           autoClose: 5000,
         });
 
-        const newWindow = window.open('', '_blank');
-        newWindow.document.write(result.html);
-        newWindow.document.close();
+        try {
+          const newWindow = window.open('', '_blank');
+      
+          if (newWindow) {
+            newWindow.document.write(result.html);
+            newWindow.document.close();
+
+            newWindow.addEventListener('load', () => {
+              // Load Tailwind CSS and Chart.js dynamically
+              loadExternalScripts(newWindow);
+          });
+
+          } else {
+            throw new Error("Popup blocked. Please allow popups for this site.");
+          }
+        } catch (error) {
+          toast.update(toastIdRef.current, {
+            render: `Cannot generate Report! ${error.message || error}`,
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          });
+        }
       }
       } catch (error) {
-        //toast.update(toastId, { render: "Cannot generate Report!", type: "error", isLoading: false, autoClose: 5000 });
         toast.update(toastIdRef.current, {
           render: `Cannot generate Report! Error: ${error.message || error}`,
           type: "error",
           isLoading: false,
           autoClose: 5000,
         });
+        // console.error('Error Generating Report', error.message);
       }
     } else {
       setModalType(type);
       setIsModalOpen(true);
     }
   };
+
+  function loadExternalScripts(win) {
+    // Load Tailwind CSS
+    const tailwindScript = win.document.createElement('script');
+    tailwindScript.src = "https://cdn.tailwindcss.com";
+    tailwindScript.onload = () => {
+        console.log("Tailwind CSS loaded in new window.");
+    };
+    win.document.head.appendChild(tailwindScript);
+
+    // Load Chart.js
+    const chartScript = win.document.createElement('script');
+    chartScript.src = "https://cdn.jsdelivr.net/npm/chart.js";
+    chartScript.onload = () => {
+        console.log("Chart.js loaded in new window.");
+    };
+    win.document.head.appendChild(chartScript);
+}
+
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setModalType(null);
