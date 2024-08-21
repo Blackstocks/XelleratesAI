@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const generateFinancialResponse = async (fileUrl) => {
   try {
-    const response = await axios.post('/api/getFinancialProjections', fileUrl, {
+    const response = await axios.post('/api/getFinancialProjectionsNew', fileUrl, {
       headers: {
         'Content-Type': 'application/json',
       },

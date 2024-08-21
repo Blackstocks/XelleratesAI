@@ -140,7 +140,19 @@ const Chatbot = () => {
           const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (emailPattern.test(inputMessage)) {
               botResponseText = "Great! Do you have any questions for me?";
-              setStage("waitingForInvestorOrStartup"); // Move to asking questions
+              //setStage("waitingForInvestorOrStartup");
+
+              const botMessageWithButtons = {
+                role: "model",
+                parts: [{ text: botResponseText }],
+                buttons: [
+                  { label: "Continue to chat with Zephyr", action: "continueChat", icon: "/assets/images/chat/zephyr.png" },
+                  { label: "Talk to customer care on WhatsApp", action: "customerCare", icon: "/assets/images/chat/whatsapp.png" }
+                ]
+              };
+              setChatHistory((prevChatHistory) => [...prevChatHistory, botMessageWithButtons]);
+              setIsTyping(false);
+              return
           } else {
               botResponseText = "Please enter a valid email address.";
               setStage("waitingForEmail"); // Stay in the email stage
@@ -193,7 +205,7 @@ const Chatbot = () => {
           if (botResponseText.includes("{contact_info}")) {
             botResponseText = botResponseText.replace(
               "{contact_info}",
-              `<a href="https://wa.me/9818446004?text=Hello" target="_blank" style="color: blue; text-decoration: underline; padding: 2px 4px; ">Click Here to chat on WhatsApp</a>`
+              `<a href="https://wa.me/9818446004?text=Hello%2C%0AMy%20name%20is%20${profile?.name}%2E%0ANeed%20an%20assistance%20from%20an%20Investment%20banker%20@Xellerates%20AI" target="_blank" style="color: blue; text-decoration: underline; padding: 2px 4px; ">Click Here to chat on WhatsApp</a>`
             );
           }
 
