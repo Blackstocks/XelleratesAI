@@ -230,7 +230,7 @@ const generateReport = async (
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${companyName} Investment Readiness Report</title>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Set a fixed height for the chart container */
         #chartContainer {
@@ -596,7 +596,7 @@ const generateReport = async (
         -->
     </div>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     const financialProjections = ${JSON.stringify(financialProjections)};
 
