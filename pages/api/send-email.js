@@ -8,10 +8,15 @@ export default async function handler(req, res) {
   const { to, subject, text } = req.body;
 
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    host: 'smtp.gmail.com',
+    port: 587, // Use 587 for TLS (STARTTLS)
+    secure: false, // Set to false for STARTTLS
     auth: {
-      user: process.env.GMAIL_USER, // Your email
+      user: process.env.GMAIL_USER, // Your Gmail email
       pass: process.env.GMAIL_PASS, // Your app-specific password
+    },
+    tls: {
+      rejectUnauthorized: false, // Helps prevent SSL issues (optional)
     },
   });
 
@@ -19,7 +24,9 @@ export default async function handler(req, res) {
     from: process.env.GMAIL_USER,
     to,
     subject: subject || 'New Task Assigned',
-    text: text || 'You have been assigned a new task. Please log in to view the details.',
+    text:
+      text ||
+      'You have been assigned a new task. Please log in to view the details.',
   };
 
   try {

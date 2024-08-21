@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseclient';
 import Dropdowntype from '@/components/ui/Dropdown1';
 import InputGroup from '@/components/ui/InputGroup';
-import { handleFileUpload } from '@/lib/actions/insertformdetails'; // Assuming this is the path where your function is located
+import { handleFileUpload } from '@/lib/actions/insertformdetails';
 
 const schema = yup
   .object({
@@ -54,7 +54,6 @@ const RegForm1 = () => {
     console.log(data);
     setIsSubmitting(true);
 
-    // Ensure the company_logo field is a valid FileList and contains at least one file
     const logoFile =
       data?.company_logo && data.company_logo.length > 0
         ? data.company_logo[0]
@@ -83,7 +82,6 @@ const RegForm1 = () => {
         return;
       }
 
-      // Check if the user already exists in the profiles table
       const { data: existingUsers, error: existingUserError } = await supabase
         .from('profiles')
         .select('id')
@@ -101,7 +99,6 @@ const RegForm1 = () => {
         return;
       }
 
-      // Proceed with signing up the new user
       const { data: signUpData, error: signUpError } =
         await supabase.auth.signUp({
           email: data.email,
@@ -161,20 +158,25 @@ const RegForm1 = () => {
               toast.success(
                 'Account created successfully! Please wait for approval.'
               );
+              setIsSubmitting(false);
               router.push('/');
             } else {
               const errorData = await response.json();
               toast.error(
                 errorData.error || 'Failed to send registration email.'
               );
+              setIsSubmitting(false);
             }
           } catch (error) {
             toast.error('Failed to send registration email.');
+            setIsSubmitting(false);
           }
         }
       }
     } catch (error) {
       toast.error('An error occurred during file upload.');
+      setIsSubmitting(false);
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -270,7 +272,7 @@ const RegForm1 = () => {
       <button
         className='btn btn-dark block w-full text-center'
         type='submit'
-        // disabled={isSubmitting}
+        disabled={isSubmitting} // disable button during submission
       >
         {isSubmitting ? 'Submitting...' : 'Create an account'}
       </button>
