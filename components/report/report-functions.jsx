@@ -330,8 +330,8 @@ const generateReport = async (
                         </tr>
                     </thead>
                     <tbody>
-                    ${Object.keys(competitors).length > 0
-                        ? Object.keys(competitors).map(funding => `
+                    ${Object.keys(previousFunding).length > 0
+                        ? Object.keys(previousFunding).map(funding => `
                         <tr>
                         <td class="border px-4 py-2">${funding.investorName}</td>
                         <td class="border px-4 py-2">${funding.firmName}</td>
@@ -569,9 +569,8 @@ const generateReport = async (
                             </tr>
                         </thead>
                         <tbody>
-                            ${
-                                capTable.length === 0 
-                                ? capTable.map(person => `
+                                ${Object.keys(capTable).length > 0
+                                    ? Object.keys(capTable).map(person => `
                                 <tr class="border-t border-gray-200">
                                     <td class="border px-6 py-2">${person.firstName}</td>
                                     <td class="border px-6 py-2">${person.designation}</td>
