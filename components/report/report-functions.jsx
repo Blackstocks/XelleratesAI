@@ -178,6 +178,10 @@ const generateReport = async (
   const latestProfit = yearlyProfit[yearlyProfit.length - 1];
   const capTable = fundingInformation?.cap_table || [];
 
+
+  //console.log("funding data: ", previousFunding);
+  //console.log("CAP table: ", capTable);
+
     try {
         const response = await axios.get('/api/fetch-news-no-summary', {
         params: { q: newsQuery },
@@ -218,7 +222,7 @@ const generateReport = async (
     }
     }
 
-    console.log('Technology Roadmap: ', technologyRoadmap); 
+    //console.log('Technology Roadmap: ', technologyRoadmap); 
 
 
     //console.log("Sector: ", sector);
@@ -243,6 +247,16 @@ const generateReport = async (
         #financialProjectionsChart {
             width: 100%;
             height: 100%;
+        }
+
+        .hidden-download {
+            display: none;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -329,8 +343,8 @@ const generateReport = async (
                         </tr>
                     </thead>
                     <tbody>
-                    ${Object.keys(previousFunding).length > 0
-                        ? Object.keys(previousFunding).map(funding => `
+                    ${previousFunding.length > 0
+                        ? previousFunding.map(funding => `
                         <tr>
                         <td class="border px-4 py-2">${funding.investorName}</td>
                         <td class="border px-4 py-2">${funding.firmName}</td>
@@ -538,8 +552,8 @@ const generateReport = async (
                             </tr>
                         </thead>
                         <tbody>
-                                ${Object.keys(capTable).length > 0
-                                    ? Object.keys(capTable).map(person => `
+                                ${capTable.length > 0
+                                    ? capTable.map(person => `
                                 <tr class="border-t border-gray-200">
                                     <td class="border px-6 py-2">${person.firstName}</td>
                                     <td class="border px-6 py-2">${person.designation}</td>
@@ -586,17 +600,17 @@ const generateReport = async (
             <p>Date of Report Generation: ${new Date().toLocaleDateString()}</p>
             <p>Copyright © 2024 by Xellerates AI. All rights reserved.</p>
         </div>
-        
-        <!--
-        <div class="mt-8 text-center">
-              <button id="downloadBtn" class="bg-blue-500 text-white p-2 rounded">
-                  Download Report as PDF
-              </button>
-          </div>
-        -->
+    </div>
+
+    <!-- Download Button -->
+    <div class="text-center mt-8 no-print">
+        <button id="downloadBtn" class="bg-blue-500 text-white p-2 rounded">
+            Download Report as PDF
+        </button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <script>
     const financialProjections = ${JSON.stringify(financialProjections)};
 
@@ -779,7 +793,20 @@ const generateReport = async (
                         }
                     });
 
-                console.log("Chart successfully created");
+                    console.log("Chart successfully created");
+
+                    document.getElementById('downloadBtn').addEventListener('click', function () {
+                        const element = document.getElementById('pdfContent');
+                        const opt = {
+                            margin: 0.2,
+                            filename: 'InvestmentReadinessReport.pdf',
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: { scale: 2 },
+                            jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
+                        };
+                        html2pdf().from(element).set(opt).save();
+                    });
+
             });
 
 
