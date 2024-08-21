@@ -90,33 +90,7 @@ async function getCompetitors(companyName) {
 }
 
 // Example usage:
-const exampleCompetitors = [
-    {
-      name: '1. Greenlight',
-      foundedYear: '2014',
-      stage: 'Series D',
-      funding: '$556M'
-    },
-    {
-      name: '2. Junio',
-      foundedYear: '2020',
-      stage: 'Seed',
-      funding: '$8.17M'
-    },
-    {
-      name: '3. YPay Card',
-      foundedYear: '2020',
-      stage: 'Seed',
-      funding: '$667K'
-    },
-    {
-      name: '4. Yodaa',
-      foundedYear: '2020',
-      stage: 'Seed',
-      funding: '$125K'
-    }
-  ];
-  
+
 
 async function getTop5Stocks(sector) {
     try {
@@ -151,7 +125,8 @@ const generateReport = async (
   
     const financialProjectionsLink = companyDocuments?.financial_projections;
     const technologyRoadmapLink = ctoInfo?.technology_roadmap;
-  
+    const financialData = await fetchFinancials(companyProfile);
+
     const missingDocuments = [];
   
     if (!financialProjectionsLink) {
@@ -159,6 +134,9 @@ const generateReport = async (
     }
     if (!technologyRoadmapLink) {
       missingDocuments.push('Technology Roadmap');
+    }
+    if (financialData === null){
+        missingDocuments.push('MIS');
     }
     if (missingDocuments.length > 0) {
       const missingMessage = `${missingDocuments.join(', ')}`;
@@ -191,7 +169,7 @@ const generateReport = async (
     (normalizedLTV * 0.2)
   )
 
-  const financialData = await fetchFinancials(companyProfile);
+  
   const yearlyRevenue = financialData?.revenue.Yearly
   const latestRevenue = yearlyRevenue[yearlyRevenue.length - 1];
   const yearlyProfit = financialData?.profit.Yearly;
@@ -243,27 +221,42 @@ const generateReport = async (
 
     //console.log("Sector: ", sector);
     const reportHtml = `
-    
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${companyName} Investment Readiness Report</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.9.2/dist/html2pdf.bundle.min.js"></script>
     <style>
-        /* Set a fixed height for the chart container */
+        /* Custom Tailwind styles */
+        @import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
+
+        /* Ensure the chart container maintains a fixed height */
         #chartContainer {
+            height: 300px;
+            max-width: 100%;
+            position: relative;
+        }
+        #chartContainer1 {
             height: 300px;
             max-width: 100%;
             position: relative;
         }
 
         /* Ensure the canvas fills the container without stretching */
-        #financialProjectionsChart {
+        #financialProjectionsChart, #revenueChart {
             width: 100%;
             height: 100%;
+        }
+            .pdf-content {
+            margin: 0 auto;
+            padding: 20px; /* Adjusted padding inside the content */
+        }
+
+        /* Hide download button in PDF */
+        .hidden-download {
+            display: none;
         }
     </style>
 </head>
@@ -304,90 +297,81 @@ const generateReport = async (
 
                 <!-- Competitors -->
                 <div class="mb-8 w-full">
-    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Competitors</h3>
-    <table class="table-auto w-full text-left border-collapse">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="border px-6 py-2">Name</th>
-                <th class="border px-6 py-2">Annual Revenue</th>
-                <th class="border px-6 py-2">Total Funding</th>
-                <th class="border px-6 py-2">Valuation</th>
-                <th class="border px-6 py-2">Stage</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${Object.keys(competitors).length > 0
-                ? Object.keys(competitors).map(company => `
-                <tr class="border-t border-gray-200">
-                    <td class="border px-6 py-2">${company}</td>
-                    <td class="border px-6 py-2">${competitors[company].annual_revenue}</td>
-                    <td class="border px-6 py-2">${competitors[company].total_funding}</td>
-                    <td class="border px-6 py-2">${competitors[company].valuation}</td>
-                    <td class="border px-6 py-2">${competitors[company].stage}</td>
-                </tr>
-            `).join('')
-            : `<tr><td colspan="7" class="border px-4 py-2">No data available</td></tr>`
-            }
-        </tbody>
-    </table>
-</div>
+                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Competitors</h3>
+                    <table class="table-auto w-full text-left border-collapse">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="border px-6 py-2">Name</th>
+                                <th class="border px-6 py-2">Annual Revenue</th>
+                                <th class="border px-6 py-2">Total Funding</th>
+                                <th class="border px-6 py-2">Valuation</th>
+                                <th class="border px-6 py-2">Stage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.keys(competitors).length > 0
+                                ? Object.keys(competitors).map(company => `
+                                <tr class="border-t border-gray-200">
+                                    <td class="border px-6 py-2">${company}</td>
+                                    <td class="border px-6 py-2">${competitors[company].annual_revenue}</td>
+                                    <td class="border px-6 py-2">${competitors[company].total_funding}</td>
+                                    <td class="border px-6 py-2">${competitors[company].valuation}</td>
+                                    <td class="border px-6 py-2">${competitors[company].stage}</td>
+                                </tr>
+                            `).join('')
+                            : `<tr><td colspan="5" class="border px-4 py-2">No data available</td></tr>`
+                            }
+                        </tbody>
+                    </table>
+                </div>
 
-                
-                <!-- Top 5 Sector stocks -->
-
-                
                 <!-- Funding Details -->
                 <div class="mb-6">
-                <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Funding Details</h3>
-                <table class="table-auto w-full text-left">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="border px-6 py-2">Investor Name</th>
-                            <th class="border px-6 py-2">Firm Name</th>
-                            <th class="border px-6 py-2">Investor Type</th>
-                            <th class="border px-6 py-2">Amount</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                    ${previousFunding.map(funding => `
-                        <tr>
-                        <td class="border px-4 py-2">${funding.investorName}</td>
-                        <td class="border px-4 py-2">${funding.firmName}</td>
-                        <td class="border px-4 py-2">${funding.investorType}</td>                        
-                        <td class="border px-4 py-2">${funding.amountRaised}</td> 
-                        </tr>
-                    `).join('')}
-                    </tbody>
-                </table>
+                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Funding Details</h3>
+                    <table class="table-auto w-full text-left">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="border px-6 py-2">Investor Name</th>
+                                <th class="border px-6 py-2">Firm Name</th>
+                                <th class="border px-6 py-2">Investor Type</th>
+                                <th class="border px-6 py-2">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${previousFunding.map(funding => `
+                                <tr>
+                                    <td class="border px-4 py-2">${funding.investorName}</td>
+                                    <td class="border px-4 py-2">${funding.firmName}</td>
+                                    <td class="border px-4 py-2">${funding.investorType}</td>                        
+                                    <td class="border px-4 py-2">${funding.amountRaised}</td> 
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 </div>
 
                 <!-- News -->
                 <div class="mb-6">
-                      <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">News</h3>
-                      <table class="table-auto w-full text-left">
-                          <thead class="bg-gray-100">
-                              <tr>
-                                  <th class="border px-6 py-2">Date</th>
-                                  <th class="border px-6 py-2">Headline</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                            ${
-                              newsList.length > 0
+                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">News</h3>
+                    <table class="table-auto w-full text-left">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="border px-6 py-2">Date</th>
+                                <th class="border px-6 py-2">Headline</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${newsList.length > 0
                                 ? newsList.map(news => `
-                                  <tr class="${newsList.indexOf(news) % 2 === 0 ? 'bg-gray-50' : ''}">
-                                      <td class="border-t border-gray-300 px-4 py-2">${news.date}</td>
-                                      <td class="border-t border-gray-300 px-4 py-2">${news.title}</td>
-                                  </tr>`).join('')
-                                : `<tr><td colspan="2" class="px-4 py-2" > Currently, there is no media presence of ${companyName} </td></tr>`
+                                    <tr class="${newsList.indexOf(news) % 2 === 0 ? 'bg-gray-50' : ''}">
+                                        <td class="border-t border-gray-300 px-4 py-2">${news.date}</td>
+                                        <td class="border-t border-gray-300 px-4 py-2">${news.title}</td>
+                                    </tr>`).join('')
+                                : `<tr><td colspan="2" class="px-4 py-2">Currently, there is no media presence of ${companyName}</td></tr>`
                             }
-                          </tbody>
-                      </table>
+                        </tbody>
+                    </table>
                 </div>
-
-                
-
             </div>
 
             <!-- Right Side (40%) -->
@@ -410,38 +394,38 @@ const generateReport = async (
                                 <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country.label || "NA"}</td>
                             </tr>
                             <tr class="bg-gray-50">
-                                <th class="border px-6 py-2">Editor's Rating</td>
+                                <th class="border px-6 py-2">Editor's Rating</th>
                                 <td class="border px-6 py-2">Coming Soon</td>
                             </tr>
                             <tr>
-                                <th class="border px-6 py-2">Valuation</td>
+                                <th class="border px-6 py-2">Valuation</th>
                                 <td class="border px-6 py-2">Coming Soon</td>
                             </tr>
                             <tr class="bg-gray-50">
-                                <th class="border px-6 py-2">Company Website</td>
+                                <th class="border px-6 py-2">Company Website</th>
                                 <td class="border px-6 py-2">
                                     <a href="${companyWebsite}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
-                                            Link
+                                        Link
                                     </a>
                                 </td>
                             </tr>
                             <tr>
-                                <th class="border px-6 py-2">Company Linkedin</td>
+                                <th class="border px-6 py-2">Company Linkedin</th>
                                 <td class="border px-6 py-2">
                                     <a href="${companyLinkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
-                                            Link
+                                        Link
                                     </a>
                                 </td>
                             </tr>
                             <tr>
-                                <th class="border px-6 py-2">App Link</td>
+                                <th class="border px-6 py-2">App Link</th>
                                 <td class="border px-6 py-2">
                                     Android: <a href="${ctoInfo?.mobile_app_link_android}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
-                                            Link
+                                        Link
                                     </a>
                                     <br>
                                     IOS: <a href="${ctoInfo?.mobile_app_link_ios}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
-                                            Link
+                                        Link
                                     </a>
                                 </td>
                             </tr>
@@ -476,7 +460,6 @@ const generateReport = async (
                 <div class="mb-8">
                     <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Leadership Team</h3>
                     <table class="table-auto w-full text-left border-collapse">
-
                         <thead class="bg-gray-100">
                             <tr>
                                 <th class="border px-6 py-2">Name</th>
@@ -489,7 +472,7 @@ const generateReport = async (
                                 <td class="border px-6 py-2">${founderInformation?.founder_name}</td>
                                 <td class="border px-6 py-2">Founder</td>
                                 <td class="border px-6 py-2">
-                                <a href="${founderInformation?.founder_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                    <a href="${founderInformation?.founder_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
                                         Link
                                     </a>
                                 </td>
@@ -500,9 +483,9 @@ const generateReport = async (
                                     <td class="border px-6 py-2">${cf.co_founder_name}</td>
                                     <td class="border px-6 py-2">Co-Founder</td>
                                     <td class="border px-6 py-2">
-                                    <a href="${cf.co_founder_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
-                                        Link
-                                    </a>
+                                        <a href="${cf.co_founder_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                            Link
+                                        </a>
                                     </td>
                                 </tr>`).join('')
                                 : '<tr></tr>'
@@ -511,7 +494,7 @@ const generateReport = async (
                                 <td class="border px-6 py-2">${ctoInfo?.cto_name}</td>
                                 <td class="border px-6 py-2">CTO</td>
                                 <td class="border px-6 py-2">
-                                <a href="${ctoInfo?.cto_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                    <a href="${ctoInfo?.cto_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
                                         Link
                                     </a>
                                 </td>
@@ -520,18 +503,12 @@ const generateReport = async (
                     </table>
                 </div>
 
-                <!-- Valuation Trends -->
-                <!--
-                <div class="mb-8">
-                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Valuation Trends (USD)</h3>
-                    <p class="text-lg">Coming Soon</p>
-                </div>
-                -->
-
                 <!-- Revenue Trends -->
                 <div class="mb-8">
                     <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Revenue Trends (USD)</h3>
-                    <canvas id="revenueChart"></canvas>
+                    <div id="chartContainer1">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
 
                 <!-- Financial Projections -->
@@ -541,36 +518,6 @@ const generateReport = async (
                         <canvas id="financialProjectionsChart"></canvas>
                     </div>
                 </div>
-
-                <script>
-                    const ctx = document.getElementById('revenueChart').getContext('2d');
-                    const revenueChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: ${JSON.stringify(yearlyRevenue.map(item => item.month))},
-                            datasets: [{
-                                label: 'Revenue',
-                                data: ${JSON.stringify(yearlyRevenue.map(item => item.value))},
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top',
-                                }
-                            }
-                        }
-                    });
-                </script>
 
                 <!-- Cap Table -->
                 <div class="mb-8">
@@ -596,234 +543,323 @@ const generateReport = async (
                 </div>
             </div>
         </div>
+
         <!-- Technology Roadmap -->
-                <div class="mb-6">
-                      <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Technology Roadmap</h3>
-                      <table class="table-auto w-full text-left">
-                          <thead class="bg-gray-100">
-                              <tr>
-                                  <th class="border px-6 py-2">Time</th>
-                                  <th class="border px-6 py-2">Initiative</th>
-                                  <th class="border px-6 py-2">Impact</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                            ${
-                                roadmapArray.length > 0
-                                ? roadmapArray.map(tech => `
-                                  <tr class="${roadmapArray.indexOf(tech) % 2 === 0 ? 'bg-gray-50' : ''}">
-                                      <td class="border-t border-gray-300 px-4 py-2">${tech.Time}</td>
-                                      <td class="border-t border-gray-300 px-4 py-2">${tech.Initiative}</td>
-                                      <td class="border-t border-gray-300 px-4 py-2">${tech.Impact}</td>
-                                  </tr>`).join('')
-                                : '<tr><td colspan="2" class="px-4 py-2">No Technology Roadmap available.</td></tr>'
-                            }
-                          </tbody>
-                      </table>
-                </div>
+        <div class="mb-6">
+            <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Technology Roadmap</h3>
+            <table class="table-auto w-full text-left">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="border px-6 py-2">Time</th>
+                        <th class="border px-6 py-2">Initiative</th>
+                        <th class="border px-6 py-2">Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${roadmapArray.length > 0
+                        ? roadmapArray.map(tech => `
+                            <tr class="${roadmapArray.indexOf(tech) % 2 === 0 ? 'bg-gray-50' : ''}">
+                                <td class="border-t border-gray-300 px-4 py-2">${tech.Time}</td>
+                                <td class="border-t border-gray-300 px-4 py-2">${tech.Initiative}</td>
+                                <td class="border-t border-gray-300 px-4 py-2">${tech.Impact}</td>
+                            </tr>`).join('')
+                        : '<tr><td colspan="3" class="px-4 py-2">No Technology Roadmap available.</td></tr>'
+                    }
+                </tbody>
+            </table>
+        </div>
 
         <!-- Footer Section -->
         <div class="mt-16 text-sm text-gray-600 text-center border-t pt-8">
             <p>Date of Report Generation: ${new Date().toLocaleDateString()}</p>
             <p>Copyright © 2024 by Xellerates AI. All rights reserved.</p>
         </div>
+
         
-        <!--
-        <div class="mt-8 text-center">
-              <button id="downloadBtn" class="bg-blue-500 text-white p-2 rounded">
-                  Download Report as PDF
-              </button>
-          </div>
-        -->
+
+    </div>
+    <div class="mt-8 text-center">
+        <button id="downloadBtn" class="bg-blue-500 text-white p-2 rounded">
+            Download Report
+        </button>
     </div>
 
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-    const financialProjections = ${JSON.stringify(financialProjections)};
+        const financialProjections = ${JSON.stringify(financialProjections)};
 
- document.addEventListener("DOMContentLoaded", function () {
-                console.log("DOM fully loaded and parsed");
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("DOM fully loaded and parsed");
 
-                if (typeof financialProjections === 'undefined') {
-                    console.error("financialProjections is not defined");
-                    return;
-                }
-                console.log("Financial Projections Data:", financialProjections);
+            if (typeof financialProjections === 'undefined') {
+                console.error("financialProjections is not defined");
+                return;
+            }
+            console.log("Financial Projections Data:", financialProjections);
 
-                // Function to calculate yearly totals
-                function calculateYearlyTotals(revenueProjections) {
-                    return revenueProjections.map(projection => {
-                        const yearlySums = {};
-                        projection.yearly_data.forEach(yearData => {
-                            const year = Object.keys(yearData)[0];
-                            const monthlyData = yearData[year];
-                            const yearlyTotal = monthlyData.reduce((sum, item) => sum + parseFloat(item.value), 0);
-                            yearlySums[year] = yearlyTotal;
-                        });
-                        return {
-                            revenue_stream: projection.revenue_stream,
-                            yearly_totals: yearlySums
-                        };
+            // Function to calculate yearly totals
+            function calculateYearlyTotals(revenueProjections) {
+                return revenueProjections.map(projection => {
+                    const yearlySums = {};
+                    projection.yearly_data.forEach(yearData => {
+                        const year = Object.keys(yearData)[0];
+                        const monthlyData = yearData[year];
+                        const yearlyTotal = monthlyData.reduce((sum, item) => sum + parseFloat(item.value), 0);
+                        yearlySums[year] = yearlyTotal;
                     });
-                }
-
-                const yearlyTotals = calculateYearlyTotals(financialProjections.revenue_projections);
-                console.log("Yearly Totals:", yearlyTotals);
-
-                const years = Object.keys(yearlyTotals[0].yearly_totals);
-                console.log("Years:", years);
-
-                const colorPalette = [
-    'rgba(255, 99, 132, 0.6)',  // Red
-    'rgba(54, 162, 235, 0.6)',  // Blue
-    'rgba(75, 192, 192, 0.6)',  // Green
-    'rgba(255, 206, 86, 0.6)',  // Yellow
-    'rgba(153, 102, 255, 0.6)', // Purple
-    'rgba(255, 159, 64, 0.6)',  // Orange
-    'rgba(199, 199, 199, 0.6)', // Grey
-    'rgba(255, 99, 71, 0.6)',   // Tomato
-    'rgba(60, 179, 113, 0.6)',  // MediumSeaGreen
-    'rgba(106, 90, 205, 0.6)',  // SlateBlue
-];
-
-const datasets = yearlyTotals.map((projection, index) => ({
-    label: projection.revenue_stream,
-    data: years.map(year => projection.yearly_totals[year]),
-    backgroundColor: colorPalette[index % colorPalette.length],
-    borderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-    borderWidth: 2,
-    fill: false,
-    pointBackgroundColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-    pointBorderColor: '#fff',
-    pointHoverBackgroundColor: '#fff',
-    pointHoverBorderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-}));
-
-
-            // Create the chart
-            const ctx = document.getElementById('financialProjectionsChart').getContext('2d');
-            const chartHeight = 400; 
-            const financialProjectionsChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: years,
-        datasets: datasets
-    },
-    options: {
-        maintainAspectRatio: false, // Allows the chart to take full height
-        scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Revenue (in Millions)',
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 14,
-                        weight: 'bold',
-                    }
-                },
-                grid: {
-                    color: '#E0E0E0',
-                }
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: 'Year',
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 14,
-                        weight: 'bold',
-                    }
-                },
-                grid: {
-                    color: '#E0E0E0',
-                }
+                    return {
+                        revenue_stream: projection.revenue_stream,
+                        yearly_totals: yearlySums
+                    };
+                });
             }
-        },
-        plugins: {
-            legend: {
-                display: true,
-                position: 'bottom',
-                labels: {
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 10, // Smaller font size for legend items
-                        weight: 'bold',
+
+            const yearlyTotals = calculateYearlyTotals(financialProjections.revenue_projections);
+            console.log("Yearly Totals:", yearlyTotals);
+
+            const years = Object.keys(yearlyTotals[0].yearly_totals);
+            console.log("Years:", years);
+
+            const colorPalette = [
+                'rgba(255, 99, 132, 0.6)',  // Red
+                'rgba(54, 162, 235, 0.6)',  // Blue
+                'rgba(75, 192, 192, 0.6)',  // Green
+                'rgba(255, 206, 86, 0.6)',  // Yellow
+                'rgba(153, 102, 255, 0.6)', // Purple
+                'rgba(255, 159, 64, 0.6)',  // Orange
+                'rgba(199, 199, 199, 0.6)', // Grey
+                'rgba(255, 99, 71, 0.6)',   // Tomato
+                'rgba(60, 179, 113, 0.6)',  // MediumSeaGreen
+                'rgba(106, 90, 205, 0.6)',  // SlateBlue
+            ];
+
+            const datasets = yearlyTotals.map((projection, index) => ({
+                label: projection.revenue_stream,
+                data: years.map(year => projection.yearly_totals[year]),
+                backgroundColor: colorPalette[index % colorPalette.length],
+                borderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+                borderWidth: 2,
+                fill: false,
+                pointBackgroundColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+            }));
+
+            // Create the Revenue chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: datasets,
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Revenue (in Millions)',
+                                color: '#4A4A4A',
+                                font: {
+                                    family: 'Arial',
+                                    size: 14,
+                                    weight: 'bold',
+                                },
+                            },
+                            grid: {
+                                color: '#E0E0E0',
+                            },
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year',
+                                color: '#4A4A4A',
+                                font: {
+                                    family: 'Arial',
+                                    size: 14,
+                                    weight: 'bold',
+                                },
+                            },
+                            grid: {
+                                color: '#E0E0E0',
+                            },
+                        },
                     },
-                    boxWidth: 15,
-                    padding: 10, // Adjusted padding to save space
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: '#4A4A4A',
+                                font: {
+                                    family: 'Arial',
+                                    size: 10,
+                                    weight: 'bold',
+                                },
+                                boxWidth: 15,
+                                padding: 10,
+                            },
+                            maxHeight: 100,
+                        },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleFont: {
+                                family: 'Arial',
+                                size: 14,
+                                weight: 'bold',
+                            },
+                            bodyFont: {
+                                family: 'Arial',
+                                size: 12,
+                            },
+                            footerFont: {
+                                family: 'Arial',
+                                size: 10,
+                                style: 'italic',
+                            },
+                            borderColor: '#777',
+                            borderWidth: 1,
+                        },
+                    },
+                    responsive: true,
+                    layout: {
+                        padding: {
+                            top: 10,
+                            right: 10,
+                            bottom: 10,
+                            left: 10,
+                        },
+                    },
                 },
-                maxHeight: 100, // Limit the height of the legend area
-            },
-            tooltip: {
-                backgroundColor: '#333',
-                titleFont: {
-                    family: 'Arial',
-                    size: 14,
-                    weight: 'bold',
-                },
-                bodyFont: {
-                    family: 'Arial',
-                    size: 12,
-                },
-                footerFont: {
-                    family: 'Arial',
-                    size: 10,
-                    style: 'italic',
-                },
-                borderColor: '#777',
-                borderWidth: 1,
-            },
-        },
-        responsive: true,
-        layout: {
-            padding: {
-                top: 10,
-                right: 10,
-                bottom: 10,
-                left: 10
-            }
-        },
-    }
-});
-
-                console.log("Chart successfully created");
             });
 
-            
-
-
-
-        document.getElementById('downloadBtn').addEventListener('click', async function() {
-            const reportHtml = document.getElementById('pdfContent').outerHTML;
-            const response = await fetch('/api/generate-pdf', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            // Create the Financial Projections chart
+            const financialCtx = document.getElementById('financialProjectionsChart').getContext('2d');
+            new Chart(financialCtx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: datasets,
                 },
-                body: JSON.stringify({ htmlContent: reportHtml }),
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Revenue (in Millions)',
+                                color: '#4A4A4A',
+                                font: {
+                                    family: 'Arial',
+                                    size: 14,
+                                    weight: 'bold',
+                                },
+                            },
+                            grid: {
+                                color: '#E0E0E0',
+                            },
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year',
+                                color: '#4A4A4A',
+                                font: {
+                                    family: 'Arial',
+                                    size: 14,
+                                    weight: 'bold',
+                                },
+                            },
+                            grid: {
+                                color: '#E0E0E0',
+                            },
+                        },
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: '#4A4A4A',
+                                font: {
+                                    family: 'Arial',
+                                    size: 10,
+                                    weight: 'bold',
+                                },
+                                boxWidth: 15,
+                                padding: 10,
+                            },
+                            maxHeight: 100,
+                        },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleFont: {
+                                family: 'Arial',
+                                size: 14,
+                                weight: 'bold',
+                            },
+                            bodyFont: {
+                                family: 'Arial',
+                                size: 12,
+                            },
+                            footerFont: {
+                                family: 'Arial',
+                                size: 10,
+                                style: 'italic',
+                            },
+                            borderColor: '#777',
+                            borderWidth: 1,
+                        },
+                    },
+                    responsive: true,
+                    layout: {
+                        padding: {
+                            top: 10,
+                            right: 10,
+                            bottom: 10,
+                            left: 10,
+                        },
+                    },
+                },
             });
 
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(new Blob([blob]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'InvestmentReadinessReport.pdf');
-                document.body.appendChild(link);
-                link.click();
-                link.parentNode.removeChild(link);
-            } else {
-                console.error('Failed to generate PDF');
-            }
+            console.log("Charts successfully created");
+        
+
+            document.getElementById('downloadBtn').addEventListener('click', function () {
+                const element = document.getElementById('pdfContent');
+                const opt = {
+                    margin: 0.2, // Adjusted margin
+                    filename: 'InvestmentReadinessReport.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' } // Changed format to 'a3'
+                };
+
+                // Hide the download button before generating the PDF
+                document.getElementById('downloadBtn').style.display = 'none';
+
+                // Ensure html2pdf is available
+                if (typeof html2pdf !== 'undefined') {
+                    // Generate the PDF
+                    html2pdf().from(element).set(opt).save().then(() => {
+                        // Show the download button again after the PDF is generated
+                        document.getElementById('downloadBtn').style.display = 'block';
+                    });
+                } else {
+                    console.error("html2pdf is not defined.");
+                }
+            });
+
         });
-
-      </script>
+    </script>
 </body>
 </html>
 `

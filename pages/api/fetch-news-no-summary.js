@@ -41,19 +41,13 @@ export default async function handler(req, res) {
 
                     const title = $(element).find('h2.wp-block-post-title a').text().trim();
 
-                    if (!title.toLowerCase().includes(searchString.toLowerCase())) {
-                        return null; 
-                    }
-
                     let date = $(element).find('time').text().trim();
                     const parts = date.split('•');
                     if (parts.length > 1) {
                         date = parts[1].trim();
                     }
 
-                    const summaryList = $(element).find('.wp-block-post-excerpt p').text().split('.')[0].replace('…','.').replace('. ','') + '.';
                     const summary = [];
-                    summary.push(summaryList);
 
                     articles.push({ title, date, summary });
                     return {

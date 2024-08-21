@@ -9,20 +9,6 @@ class Extract {
         this.misFilePath = misFilePath;
     }
 
-    // async downloadFile(url, outputPath) {
-    //     const writer = fs.createWriteStream(outputPath);
-    //     const response = await axios({
-    //         url,
-    //         method: 'GET',
-    //         responseType: 'stream',
-    //     });
-    //     response.data.pipe(writer);
-    //     return new Promise((resolve, reject) => {
-    //         writer.on('finish', resolve);
-    //         writer.on('error', reject);
-    //     });
-    // }
-
     async downloadFile(url) {
         const response = await axios({
             url,
@@ -99,9 +85,10 @@ class Extract {
     
         const monthlyColumns = headers.filter(header => header && header.v && header.v.includes('Monthly')).map(header => header.c);
         
+        let monthColumn = Math.min(...monthlyColumns);
         for (const [quarter, months] of Object.entries(quarterlyMonths)) {
             const quarterData = [];
-            let monthColumn = Math.min(...monthlyColumns);
+            
             for (const month of months) {
                 const formattedMonth = month.split("'")[0];
                 const value = sheet[xlsx.utils.encode_cell({ r: typeMap[rowLabel], c: monthColumn })]?.v || 0;
@@ -141,6 +128,11 @@ export default async function handler(req, res) {
             }
 
             const misFilePath = data.mis;
+
+            if (!data.mis) {
+                return res.status(404).json({ error: 'MIS file not found' });
+            }
+            
             // const localFilePath = path.join(__dirname, 'temp_mis_file.xlsx');
 
             const extractor = new Extract();

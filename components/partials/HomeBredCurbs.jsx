@@ -40,32 +40,6 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     };
   }, []);
 
-
-  // const generatePDF = async (htmlContent, fileName = 'report.pdf') => {
-  //   try {
-  //     const file = { content: htmlContent };
-  //     const options = { format: 'A4' };
-  
-  //     // Generate the PDF and save it
-  //     await pdf.generatePdf(file, options).then(pdfBuffer => {
-  //       fs.writeFileSync(fileName, pdfBuffer);
-  //       console.log(`PDF generated and saved as ${fileName}`);
-  //     });
-  
-  //     // Send the file as a download (assuming an Express.js environment)
-  //     // res.download(fileName, err => {
-  //     //   if (err) {
-  //     //     console.log('Error downloading the file:', err);
-  //     //   } else {
-  //     //     console.log('File downloaded successfully');
-  //     //   }
-  //     // });
-  
-  //   } catch (error) {
-  //     console.error('Error generating PDF:', error);
-  //   }
-  // };
-
   const handleImageClick = async (type) => {
     if (type === 'investment') {
       // if (loading) {
@@ -88,7 +62,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       
       if (result.status === 'error') {
         toast.update(toastIdRef.current, {
-          render: `Cannot generate report: Missing documents: ${result.message}`,
+          render: `Cannot generate report: Missing documents or incorrect format: ${result.message}`,
           type: "error",
           isLoading: false,
           autoClose: 5000,
@@ -125,10 +99,10 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   };
 
   return (
-    <div className="flex justify-between flex-wrap items-center mb-6">
-      <div className="flex w-full space-x-4 mt-4">
+<div className="flex flex-col lg:flex-row justify-between flex-wrap items-center mb-6">
+      <div className="w-full lg:flex lg:space-x-4 mt-4">
         <div
-          className="bg-no-repeat bg-cover bg-center shadow-lg p-5 rounded-[6px] relative flex-1"
+          className="bg-no-repeat bg-cover bg-center shadow-lg p-5 rounded-[6px] relative flex-1 mb-4 lg:mb-0"
           style={{
             backgroundImage: `url(/assets/images/all-img/widget-bg-2.png)`,
           }}
@@ -144,7 +118,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
             </h4>
           </div>
         </div>
-        <div className="p-4 rounded bg-white shadow-lg text-black flex-1">
+        <div className="p-4 rounded bg-white shadow-lg text-black flex-1 mb-4 lg:mb-0">
           <p>
             <h5>Welcome to Xellerates AI,</h5>
             I am <b>Zephyr</b>
@@ -152,42 +126,43 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
             , your personal Investment Banker
           </p>
         </div>
-        <div className="flex items-center justify-end flex-1">
-          {userType === "startup" ? (
-            <>
-              <img
-                src="/assets/images/dashboard/investment-readiness.png"
-                alt="Investment Readiness"
-                className="block dark:hidden w-50% h-auto cursor-pointer"
-                onClick={() => handleImageClick('investment')}
-              />
-              <img
-                src="/assets/images/dashboard/investment-redinessdark.svg"
-                alt="Investment Readiness Dark"
-                className="hidden dark:block w-50% h-auto cursor-pointer"
-                onClick={() => handleImageClick('investment')}
-              />
-            </>
-          ) : (
-            <>
-              <img
-                src="/assets/images/dashboard/latest-insight.png"
-                alt="Latest Insight"
-                className="block dark:hidden w-full h-auto cursor-pointer"
-                onClick={() => handleImageClick('insight')}
-              />
-              <img
-                src="/assets/images/dashboard/latest-insightdark.svg"
-                alt="Latest Insight Dark"
-                className="hidden dark:block w-full h-auto cursor-pointer"
-                onClick={() => handleImageClick('insight')}
-              />
-            </>
-          )}
-        </div>
+        <div className="flex items-center justify-center lg:justify-end flex-1 mt-4 lg:mt-0">
+  {userType === "startup" ? (
+    <>
+      <img
+        src="/assets/images/dashboard/investment-readiness.png"
+        alt="Investment Readiness"
+        className="block dark:hidden w-full h-auto cursor-pointer"
+        onClick={() => handleImageClick("investment")}
+      />
+      <img
+        src="/assets/images/dashboard/investment-readinessdark.svg"
+        alt="Investment Readiness Dark"
+        className="hidden dark:block w-full h-auto cursor-pointer"
+        onClick={() => handleImageClick("investment")}
+      />
+    </>
+  ) : (
+    <>
+      <img
+        src="/assets/images/dashboard/latest-insight.png"
+        alt="Latest Insight"
+        className="block dark:hidden w-full h-auto cursor-pointer"
+        onClick={() => handleImageClick("insight")}
+      />
+      <img
+        src="/assets/images/dashboard/latest-insightdark.svg"
+        alt="Latest Insight Dark"
+        className="hidden dark:block w-full h-auto cursor-pointer"
+        onClick={() => handleImageClick("insight")}
+      />
+    </>
+  )}
+</div>
+
       </div>
 
-      {isModalOpen && modalType === 'insight' && (
+      {isModalOpen && modalType === "insight" && (
         <GetStartupInsightsModal isOpen={isModalOpen} onClose={handleCloseModal} />
       )}
 
@@ -230,5 +205,6 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     </div>
   );
 };
+
 
 export default HomeBredCurbs;

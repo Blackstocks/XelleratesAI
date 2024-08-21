@@ -4,20 +4,19 @@ export default async function handler(req, res) {
   const { htmlContent } = req.body;
 
   const file = { content: htmlContent };
-  const options = { format: 'A4' };
+  const options = { format: 'A4', margin: { top: "10mm", bottom: "10mm", left: "10mm", right: "10mm" } };
 
   try {
     const pdfBuffer = await pdf.generatePdf(file, options);
-    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // const pdfBuffer = await pdf.generatePdf({ content: document.getElementById('pdfContent').innerHTML }, { format: 'A4' });
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=report.pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=InvestmentReadinessReport.pdf');
     res.send(pdfBuffer);
   } catch (error) {
     res.status(500).send('Error generating PDF');
   }
 }
+
 
 // import puppeteer from 'puppeteer';
 

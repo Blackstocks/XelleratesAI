@@ -155,7 +155,7 @@ const Fundraising = () => {
               <img
                 src='\assets\images\tools\whyus.png'
                 alt='Why Us?'
-                className='w-1/2 h-auto'
+                className='lg:w-1/2 sm:w-full h-auto'
               />
             </div>
           </div>

@@ -474,7 +474,10 @@ const Chatbot = () => {
       position: fixed;
       bottom: 80px;
       right: 20px;
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
+          height: 80vh;
+          max-height: 600px;
       height: 600px;
       background-color: #fff;
       border-radius: 8px;
@@ -484,6 +487,19 @@ const Chatbot = () => {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       border: 1px solid #e0e0e0;
     }
+
+    @media (max-width: 768px) {
+          .chatbot-container {
+            bottom: 60px;
+            right: 10px;
+            width: 90%;
+            height: 80vh;
+          }
+          .chatbot-icon {
+            margin-bottom: 12%;
+          }
+        }
+
     .chatbot-header {
       background-color: #4a90e2;
       color: #fff;

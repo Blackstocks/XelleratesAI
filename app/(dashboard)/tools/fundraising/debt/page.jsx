@@ -550,29 +550,30 @@ const Equity = () => {
 
       <div className='mt-12 p-6 bg-white shadow rounded text-center w-full'>
         <h4 className='text-2xl font-bold mb-8'>Our Products</h4>
-        <div className='flex justify-center gap-4'>
-          <div className='flex flex-col items-center'>
-            <img
-              src='/assets/images/tools/dpro1.png'
-              alt='Image 1'
-              className='w-full h-48 object-cover shadow-lg'
-            />
-          </div>
-          <div className='flex flex-col items-center'>
-            <img
-              src='/assets/images/tools/dpro2.png'
-              alt='Image 2'
-              className='w-full h-48 object-cover shadow-lg'
-            />
-          </div>
-          <div className='flex flex-col items-center'>
-            <img
-              src='/assets/images/tools/dpro3.png'
-              alt='Image 3'
-              className='w-full h-48 object-cover shadow-lg'
-            />
-          </div>
-        </div>
+        <div className='flex flex-wrap justify-center gap-4'>
+  <div className='flex flex-col items-center w-full sm:w-1/2 lg:w-1/4'>
+    <img
+      src='/assets/images/tools/dpro1.png'
+      alt='Fixed Term Loan'
+      className='w-full h-auto object-cover shadow-lg'
+    />
+  </div>
+  <div className='flex flex-col items-center w-full sm:w-1/2 lg:w-1/4'>
+    <img
+      src='/assets/images/tools/dpro2.png'
+      alt='Revenue Based Financing'
+      className='w-full h-auto object-cover shadow-lg'
+    />
+  </div>
+  <div className='flex flex-col items-center w-full sm:w-1/2 lg:w-1/4'>
+    <img
+      src='/assets/images/tools/dpro3.png'
+      alt='Embedded Finance'
+      className='w-full h-auto object-cover shadow-lg'
+    />
+  </div>
+</div>
+
       </div>
 
       {showCompletionModal && (

@@ -452,7 +452,7 @@ export default async function handler(req, res) {
     try {
         const financialProjectionData = await selectRevenueSheet(fileUrl);
 
-        const genAI = new GoogleGenerativeAI('AIzaSyC5SHITdbn39r46lODI_6YFRIo3Z6zo_5Y');
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({
             model: "gemini-1.5-flash",
             generationConfig: {

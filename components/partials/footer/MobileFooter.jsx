@@ -2,9 +2,12 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Icon from "@/components/ui/Icon";
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const MobileFooter = () => {
   const router = useRouter();
+
+  const {profile} = useCompleteUserDetails();
   return (
     <div className="bg-white bg-no-repeat custom-dropshadow footer-bg dark:bg-slate-700 flex justify-around items-center backdrop-filter backdrop-blur-[40px] fixed left-0 w-full z-[9999] bottom-0 py-[12px] px-4">
       <Link href="chat">
@@ -42,7 +45,7 @@ const MobileFooter = () => {
       >
         <div className="h-[50px] w-[50px] rounded-full relative left-[0px] top-[0px] custom-dropshadow">
           <img
-            src="/assets/images/users/user-1.jpg"
+            src={`${profile?.company_logo}`}
             alt=""
             className={` w-full h-full rounded-full
           ${
