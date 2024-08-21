@@ -142,10 +142,12 @@ const generateReport = async (
       const missingMessage = `${missingDocuments.join(', ')}`;
       return { status: 'error', message: missingMessage };
     }
+
+    const pFunding = founderInformation?.previous_funding || [];
   
   const totalFunding = previousFunding.reduce((total, funding) => total + parseFloat(funding.amountRaised || 0), 0);
   const coFounders = founderInformation?.co_founders || [];
-  const newsQuery = `${companyName} news inc42 1 year`;
+  const newsQuery = `${companyName}`;
   const companyWebsite = companyProfile?.company_website || 'NA';
   const companyLinkedin = companyProfile?.linkedin_profile || 'NA';
   const targetAudience = companyProfile?.target_audience;
@@ -174,7 +176,7 @@ const generateReport = async (
   const latestRevenue = yearlyRevenue[yearlyRevenue.length - 1];
   const yearlyProfit = financialData?.profit.Yearly;
   const latestProfit = yearlyProfit[yearlyProfit.length - 1];
-  const capTable = fundingInformation?.cap_table;
+  const capTable = fundingInformation?.cap_table || [];
 
     try {
         const response = await axios.get('/api/fetch-news-no-summary', {
@@ -328,14 +330,17 @@ const generateReport = async (
                         </tr>
                     </thead>
                     <tbody>
-                    ${previousFunding.map(funding => `
+                    ${Object.keys(competitors).length > 0
+                        ? Object.keys(competitors).map(funding => `
                         <tr>
                         <td class="border px-4 py-2">${funding.investorName}</td>
                         <td class="border px-4 py-2">${funding.firmName}</td>
                         <td class="border px-4 py-2">${funding.investorType}</td>                        
                         <td class="border px-4 py-2">${funding.amountRaised}</td> 
                         </tr>
-                    `).join('')}
+                    `).join('')
+                        : `<tr><td colspan="3" class="border px-6 py-2 text-center">No information available</td></tr>`
+                        }
                     </tbody>
                 </table>
                 </div>
@@ -385,7 +390,7 @@ const generateReport = async (
                             </tr>
                             <tr>
                                 <th class="border px-6 py-2">Location</td>
-                                <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country.label || "NA"}</td>
+                                <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country?.label || "NA"}</td>
                             </tr>
                             <tr class="bg-gray-50">
                                 <th class="border px-6 py-2">Editor's Rating</td>
@@ -483,7 +488,9 @@ const generateReport = async (
                                     </a>
                                     </td>
                                 </tr>`).join('')
-                                : '<tr></tr>'
+                                : `<tr>
+                                <td colspan="3" class="border px-6 py-2 text-center">No information available</td>
+                                </tr>`
                             }
                             <tr>
                                 <td class="border px-6 py-2">${ctoInfo?.cto_name}</td>
@@ -562,13 +569,19 @@ const generateReport = async (
                             </tr>
                         </thead>
                         <tbody>
-                            ${capTable.map(person => `
+                            ${
+                                capTable.length === 0 
+                                ? capTable.map(person => `
                                 <tr class="border-t border-gray-200">
                                     <td class="border px-6 py-2">${person.firstName}</td>
                                     <td class="border px-6 py-2">${person.designation}</td>
                                     <td class="border px-6 py-2">${person.percentage}%</td>
                                 </tr>
-                            `).join('')}
+                            `).join('')
+                            : `<tr class="border-t border-gray-200">
+                                    <td colspan="3" class="border px-6 py-2 text-center">No information available</td>
+                                </tr>
+                                `}
                         </tbody>
                     </table>
                 </div>
