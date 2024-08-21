@@ -430,7 +430,7 @@ async function selectRevenueSheet(fileUrl) {
         });
         csvData = rows.filter(row => row !== '').join('\n').trim();
 
-        console.log('csvData: ', csvData);
+        // console.log('csvData: ', csvData);
         return csvData;
     } catch (error) {
         console.error("Error processing the Excel file:", error);

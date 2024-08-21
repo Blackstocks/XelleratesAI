@@ -105,10 +105,10 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
         newWindow.document.write(result.html);
         newWindow.document.close();
       }
-      } catch{
+      } catch (error) {
         //toast.update(toastId, { render: "Cannot generate Report!", type: "error", isLoading: false, autoClose: 5000 });
         toast.update(toastIdRef.current, {
-          render: "Cannot generate Report!",
+          render: `Cannot generate Report! Error: ${error.message || error}`,
           type: "error",
           isLoading: false,
           autoClose: 5000,

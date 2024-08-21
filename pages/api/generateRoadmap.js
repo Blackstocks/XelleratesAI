@@ -66,9 +66,9 @@ const generateResponse = async (fileContent) => {
 
     **INSTRUCTIONS**
     - Don't be overconfident and don't hallucinate.
-    - Try giving short answers.
     - You should only return the json file
-    - Keep the roadmap short. It should be not more than 200 words.
+    - STRICTLY !! Keep the roadmap short. It should be not more than 200 words or more than 20 columns.
+    - For each Initiative and Impact: your response should not be max 5 words.
     - There should be only one entry for every quarter (if present).
     - If you don't find the Time Frame in the report then write 'NA'.
 
