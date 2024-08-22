@@ -114,6 +114,8 @@ const Profile = () => {
           if (result) {
             setInvestorProfileLoc(result[0]);
           }
+
+          window.location.reload();
           break;
         default:
           console.error('Unknown section:', section);

@@ -10,13 +10,14 @@ import Chatbot from '@/components/chatbot';
 
 const Tools = () => {
   const { user, loading: userLoading } = useUserDetails();
-  const { investorSignup } = useCompleteUserDetails(); // Get investor details
-  console.log(investorSignup);
+  const { investorSignup, loading: userCompleteDetailsLoading } =
+    useCompleteUserDetails(); // Get investor details
+  // console.log(investorSignup);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  if (userLoading || loading) {
+  if (userCompleteDetailsLoading || userLoading || loading) {
     return <Loading />;
   }
 
