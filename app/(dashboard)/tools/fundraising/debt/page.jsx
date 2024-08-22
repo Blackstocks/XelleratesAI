@@ -1,3 +1,4 @@
+// Debt final code 
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -113,40 +114,20 @@ const Equity = () => {
     try {
       setLoading(true);
       setGstinError('');
-  
-      // Check if the GSTIN already exists for the user
-      const { data: existingGstinData, error: gstinCheckError } = await supabase
-        .from('debt_gstin')
-        .select('gstin')
-        .eq('user_id', user.id)
-        .eq('gstin', gstin)
-        .single();
-  
-      if (gstinCheckError && gstinCheckError.code !== 'PGRST116') {
-        console.error('Error checking existing GSTIN:', gstinCheckError);
-        throw new Error('Error checking existing GSTIN');
-      }
-  
-      if (existingGstinData) {
-        // GSTIN already exists, redirect to investor/page.jsx
-        router.push('/tools/fundraising/debt/investor');
-        return;
-      }
-  
-      // Fetch and store GSTIN data if it doesn't exist
+
       await fetchGstinData(gstin);
-  
+
       setShowGstinModal(false);
       setShowProgressModal(true);
       startProgress();
-  
+
       router.push('/tools/fundraising/debt/investor');
     } catch (error) {
       setGstinError(error.message);
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   const checkProfileCompletion = async () => {
     if (!user) {
@@ -291,33 +272,9 @@ const Equity = () => {
     setCollateral('No');
   };
 
-  const handleUnlockCapital = async () => {
-    try {
-      // Check if the GSTIN already exists for the user
-      const { data: existingGstinData, error: gstinCheckError } = await supabase
-        .from('debt_gstin')
-        .select('gstin')
-        .eq('user_id', user.id)
-        .single();
-  
-      if (gstinCheckError && gstinCheckError.code !== 'PGRST116') {
-        console.error('Error checking existing GSTIN:', gstinCheckError);
-        throw new Error('Error checking existing GSTIN');
-      }
-  
-      if (existingGstinData) {
-        // GSTIN already exists, redirect to investor/page.jsx
-        router.push('/tools/fundraising/debt/investor');
-        return;
-      }
-  
-      // If GSTIN doesn't exist, open the unlock capital modal
-      setShowUnlockCapitalModal(true);
-    } catch (error) {
-      console.error('Error handling unlock capital:', error);
-    }
+  const handleUnlockCapital = () => {
+    setShowUnlockCapitalModal(true);
   };
-  
 
   const settings = {
     dots: true,
@@ -550,36 +507,35 @@ const Equity = () => {
 
       <div className='mt-12 p-6 bg-white shadow rounded text-center w-full'>
         <h4 className='text-2xl font-bold mb-8'>Our Products</h4>
-        <div className='flex flex-wrap justify-center gap-4'>
-  <div className='flex flex-col items-center w-full sm:w-1/2 lg:w-1/4'>
-    <img
-      src='/assets/images/tools/dpro1.png'
-      alt='Fixed Term Loan'
-      className='w-full h-auto object-cover shadow-lg'
-    />
-  </div>
-  <div className='flex flex-col items-center w-full sm:w-1/2 lg:w-1/4'>
-    <img
-      src='/assets/images/tools/dpro2.png'
-      alt='Revenue Based Financing'
-      className='w-full h-auto object-cover shadow-lg'
-    />
-  </div>
-  <div className='flex flex-col items-center w-full sm:w-1/2 lg:w-1/4'>
-    <img
-      src='/assets/images/tools/dpro3.png'
-      alt='Embedded Finance'
-      className='w-full h-auto object-cover shadow-lg'
-    />
-  </div>
-</div>
-
+        <div className='flex justify-center gap-4'>
+          <div className='flex flex-col items-center'>
+            <img
+              src='/assets/images/tools/dpro1.png'
+              alt='Image 1'
+              className='w-full h-48 object-cover shadow-lg'
+            />
+          </div>
+          <div className='flex flex-col items-center'>
+            <img
+              src='/assets/images/tools/dpro2.png'
+              alt='Image 2'
+              className='w-full h-48 object-cover shadow-lg'
+            />
+          </div>
+          <div className='flex flex-col items-center'>
+            <img
+              src='/assets/images/tools/dpro3.png'
+              alt='Image 3'
+              className='w-full h-48 object-cover shadow-lg'
+            />
+          </div>
+        </div>
       </div>
 
       {showCompletionModal && (
         <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
           <div className='bg-white p-8 rounded shadow-lg w-1/3'>
-            <h2 className='text-2xl mb-4'>Complete Your Profile</h2>
+            <h2 className='text-2xl mb-4'>Complete Your Profile first!!</h2>
             <p>Please complete all required fields in your profile.</p>
             <button
               onClick={() => setShowCompletionModal(false)}
