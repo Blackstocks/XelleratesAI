@@ -7,6 +7,10 @@ export default async function handler(req, res) {
 
   const { to, subject, text } = req.body;
 
+  if (!to || !subject || !text) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587, // Use 587 for TLS (STARTTLS)
@@ -23,10 +27,8 @@ export default async function handler(req, res) {
   const mailOptions = {
     from: process.env.GMAIL_USER,
     to,
-    subject: subject || 'New Task Assigned',
-    text:
-      text ||
-      'You have been assigned a new task. Please log in to view the details.',
+    subject,
+    text,
   };
 
   try {
@@ -35,6 +37,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
-    return res.status(500).json({ error: 'Failed to send email' });
+    return res
+      .status(500)
+      .json({ error: 'Failed to send email', details: error.message });
   }
 }
