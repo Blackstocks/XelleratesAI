@@ -63,7 +63,7 @@ const Chatbot = () => {
       const initialGreetingMessage = {
         role: "model",
         parts: [{
-          text: "How are you doing today? Welcome to Xellerates AI! I am Zephyr, your personal Investment Banker. (I am an AI, trained for your fundraising journey). Are you an existing customer? Yes or No"
+          text: "Hello, <br>How are you doing today? Welcome to Xellerates AI! I am Zephyr, your personal Investment Banker. (I am an AI, trained for your fundraising journey). Are you an existing customer? Yes or No"
         }]
       };
       setChatHistory([initialGreetingMessage]);

@@ -1,9 +1,27 @@
 import axios from 'axios';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const fetchCompetitorData = async (companyName) => {
+const fetchCompetitorData = async (companyName, shortDescription, targetAudience, uspMoat) => {
   try {
-    const PTEMPLATE = `Find me the top 7 competitors of ${companyName} along with the following data of the competitors: (Total Funding, Annual Revenue, Valuation, Stage (meaning the stage of the startup like Series A, B, Pre-seed, public etc.)) from the competitors section of the company page of ${companyName} and its competitors page on Traxcn.com . You can also refer to crunchbase.com, pitchbook.com, craft.co, semrush.com . Remember to find all the available data of the competitor (companies/startups).`;
+    const PTEMPLATE = `
+Request:
+Please identify the top 7 competitors of ${companyName}. The competitors should be companies that are also involved in "${shortDescription.toLowerCase().replace(/we are|our|we/i, `${companyName} is`)}". The competitors must be relevant to ${companyName}’s focus on this specific niche, USP/MOAT of the ${companyName} is: ${uspMoat}. Target Audience: ${targetAudience}.
+
+For each competitor, please provide the following data:
+1. **Total Funding** (if available)
+2. **Annual Revenue** (if available)
+3. **Valuation** (if available)
+4. **Stage** (Investment Round Name - e.g., Series A, B, Pre-seed, Public, etc. )
+
+Sources to consider:
+- Competitors section on the company page of ${companyName} on platforms like Traxcn.com, Crunchbase.com, Pitchbook.com, Craft.co, Semrush.com or any other sources you find on internet.
+
+Important Note:
+- Ensure that the competitors are directly relevant based on the business description, USP/MOAT and Target Audience that is provided above. Do not create any hypothetical competitors. 
+- If you do not find any relavent competitors just return NA.
+- Please focus on finding companies that are direct competitors based on their role in "${shortDescription.toLowerCase().replace(/we are|our|we/i, `${companyName} is`)}", rather than just any company in the broader industry space.
+- In Stage you have to find the Investment Round Name (like Series A, B, Pre-seed, Public, etc.)
+`;
 
     const options = {
       method: 'POST',
@@ -14,7 +32,7 @@ const fetchCompetitorData = async (companyName) => {
         authorization: `Bearer ${process.env.PERPLEXITY_API_KEY}`,
       },
       data: {
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'llama-3.1-sonar-large-128k-online',
         messages: [
           {
             role: 'system',
@@ -38,7 +56,7 @@ const fetchCompetitorData = async (companyName) => {
   }
 };
 
-const structureCompetitionData = async (companyName) => {
+const structureCompetitionData = async (companyName, shortDescription, targetAudience, uspMoat) => {
   const GTEMPLATE = `
     You are given the data of competitor analysis of a startup. Your task is to simply make a json file of the data. You should not add anything(data) by yourself. The format of the json file is below:
 
@@ -101,7 +119,7 @@ const structureCompetitionData = async (companyName) => {
   `;
 
   try {
-    const content = await fetchCompetitorData(companyName);
+    const content = await fetchCompetitorData(companyName, shortDescription, targetAudience, uspMoat);
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
@@ -126,10 +144,10 @@ const structureCompetitionData = async (companyName) => {
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { companyName } = req.body;
+    const { companyName, shortDescription, targetAudience, uspMoat } = req.body;
 
     try {
-      const data = await structureCompetitionData(companyName);
+      const data = await structureCompetitionData(companyName, shortDescription, targetAudience, uspMoat);
       return res.status(200).json(data);
     } catch (error) {
       return res.status(500).json({ message: 'Failed to generate competitor analysis.' });

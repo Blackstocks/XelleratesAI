@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const generateCompetitorAnalysis = async (companyName) => {
+const generateCompetitorAnalysis = async (companyName, shortDescription, targetAudience, uspMoat) => {
   try {
-    const response = await axios.post('/api/getCompetitorAnalysis', { companyName }, {
+    const response = await axios.post('/api/getCompetitorAnalysis', { companyName, shortDescription, targetAudience, uspMoat }, {
       headers: {
         'Content-Type': 'application/json',
       },
