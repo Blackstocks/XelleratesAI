@@ -44,7 +44,7 @@ const Tools = () => {
       }
 
       // Redirect to the global dealflow page after successful connection
-      window.location.href = '/tools/global-dealflow';
+      window.location.href = '/tools/curated-dealflow';
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -245,7 +245,7 @@ const Tools = () => {
                   {cardContent(
                     'Curated Dealflow',
                     '/assets/images/tools/11.svg',
-                    '/tools/global-dealflow',
+                    '/tools/curated-dealflow',
                     handleCuratedDealflowClick
                   )}
                   {cardContent(

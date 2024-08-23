@@ -2,7 +2,8 @@
 import useStartupsRaw from '@/hooks/useStartupsRaw'; // Adjust the import path as needed
 import useMatchingStartups from '@/hooks/useMatchingStartups';
 import React from 'react';
-
+import useStartups from '@/hooks/useStartups';
+import useUserDetails from '@/hooks/useUserDetails';
 const statisticsTemplate = [
   {
     title: 'Total Startups',
@@ -48,11 +49,9 @@ const statisticsTemplate = [
 
 const GroupChartNew3 = () => {
   const { startups, loading: startupsLoading, startupCount } = useStartupsRaw();
-  const {
-    matchingStartups,
-    loading: matchingLoading,
-    count: curatedCount,
-  } = useMatchingStartups();
+  const { matchingStartups, loading: matchingLoading } = useMatchingStartups();
+  const { user, loading: userLoading } = useUserDetails();
+  const { startupCount: curatedCount } = useStartups(user?.id);
 
   const statistics = statisticsTemplate.map((stat) => {
     if (stat.title === 'Total Startups') {
@@ -64,7 +63,7 @@ const GroupChartNew3 = () => {
     return stat;
   });
 
-  const isLoading = startupsLoading || matchingLoading;
+  const isLoading = startupsLoading || matchingLoading || userLoading;
 
   return (
     <>
