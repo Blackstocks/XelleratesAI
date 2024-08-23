@@ -6,6 +6,7 @@ import generateResponse from '@/components/report/sector-analysis';
 import generateFinancialResponse from '@/components/report/financial-projections';
 import generateTechnologyRoadmap from '@/components/report/technology-roadmap'
 import generateCompetitorAnalysis from '@/components/report/competitor-analysis';
+import getCollegeType from '@/components/report/college-analysis';
 // import unirest from 'unirest';
 
 // Function to fetch financial data
@@ -59,29 +60,12 @@ function selectRevenueSheet(filePath) {
         sheetName: selectedSheetName,
         data: sheetData
     };
-}
-
-// Function to extract the first organic search result URL
-const getOrganicData = async (searchQuery) => {
-    try {
-      const response = await fetch(`/api/getOrganicData?query=${encodeURIComponent(searchQuery)}`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        return data.firstLink;
-      } else {
-        console.error("Error fetching data:", data.error);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-  
+}  
 
 // Function to get competitors data
-async function getCompetitors(companyName) {
+async function getCompetitors(companyName, shortDescription, targetAudience, uspMoat) {
   try{
-    const cData = generateCompetitorAnalysis(companyName);
+    const cData = generateCompetitorAnalysis(companyName, shortDescription, targetAudience, uspMoat);
     return cData;
   } catch (error) {
     console.error("Error generating structured competitor data:", error);
@@ -89,25 +73,43 @@ async function getCompetitors(companyName) {
   }
 }
 
-// Example usage:
-
-
-async function getTop5Stocks(sector) {
-    try {
-        const response = await fetch(`/api/getTop5Stocks?sector=${encodeURIComponent(sector)}`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const top5Stocks = await response.json();
-        return top5Stocks;
-    } catch (error) {
-        console.error('There was a problem with the fetch operation:', error);
+function determineCompanyIsTech(companyProfile) {
+    const techKeywords = ["software", "technology", "IT", "SaaS", "AI", "ML", "blockchain", "cloud", "cybersecurity", "fintech", "edtech", "healthtech", "tech"];
+    const combinedString = `${companyProfile?.shortDescription} ${companyProfile?.industrySector}`
+    if (combinedString) {
+      const industry = combinedString.toLowerCase();
+      const isTech = techKeywords.some(keyword => industry.includes(keyword));
+      return isTech ? "Tech" : "Non-Tech";
     }
-}
+    return "Non-Tech";
+  }
 
+function calculateMediaPresenceScore(newsList, companyName) {
+    let score = 0;
+    const companyNameLowerCase = companyName.toLowerCase();
+  
+    newsList.forEach(article => {
+      const titleLowerCase = article.title.toLowerCase();
+      const summaryLowerCase = article.summary.join(' ').toLowerCase();
+  
+      if (titleLowerCase.includes(companyNameLowerCase) || summaryLowerCase.includes(companyNameLowerCase)) {
+        score = 10;
+      }
+    });
+    return score;
+  }
 
+function calculateFundingScore(capTable) {
+    const foundersEquity = capTable.reduce((total, person) => {
+      if (person.designation.toLowerCase() === "founder" || person.designation.toLowerCase() === "co-founder") {
+        return total + parseFloat(person.percentage);
+      }
+      return total;
+    }, 0);
+  
+    return foundersEquity > 50 ? 10 : 0;
+  }
 
-// Main report generation function
 const generateReport = async (
   companyProfile,
   fundingInformation,
@@ -150,10 +152,28 @@ const generateReport = async (
   const newsQuery = `${companyName}`;
   const companyWebsite = companyProfile?.company_website || 'NA';
   const companyLinkedin = companyProfile?.linkedin_profile || 'NA';
-  const targetAudience = companyProfile?.target_audience;
+  const yearlyRevenue = financialData?.revenue.Yearly
+  const latestRevenue = yearlyRevenue[yearlyRevenue.length - 1];
+  const yearlyProfit = financialData?.profit.Yearly;
+  const latestProfit = yearlyProfit[yearlyProfit.length - 1];
+  const capTable = fundingInformation?.cap_table || [];
+  const targetAudience = companyProfile?.target_audience || 'NA';
+  const uspMoat = companyProfile?.usp_moat || 'NA';
+
 
   let newsList = [];
-  
+
+  try {
+    const response = await axios.get('/api/fetch-news-no-summary', {
+    params: { q: newsQuery },
+    });
+    newsList = response.data;
+  } catch (error) {
+        console.error('Error fetching news:', error);
+    }
+
+  // Investment Readiness Score
+
   const currentTraction = businessDetails?.current_traction;
   const newCustomers = businessDetails?.new_Customers;
   const CAC = businessDetails?.customer_AcquisitionCost;
@@ -171,27 +191,35 @@ const generateReport = async (
     (normalizedLTV * 0.2)
   )
 
-  
-  const yearlyRevenue = financialData?.revenue.Yearly
-  const latestRevenue = yearlyRevenue[yearlyRevenue.length - 1];
-  const yearlyProfit = financialData?.profit.Yearly;
-  const latestProfit = yearlyProfit[yearlyProfit.length - 1];
-  const capTable = fundingInformation?.cap_table || [];
+  const incorporationScore = companyProfile?.incorporation_date ? 10 : 0;
+  const companyTechScore = determineCompanyIsTech(companyProfile) === 'Tech' ? 5 : 0;
+  const fundingScore = previousFunding.length > 0 ? 10 : 0;
+  let educationScore = 0;
+  let collegeName = null;
 
+
+  const mediaPresenceScore = calculateMediaPresenceScore(newsList, companyName);
+  const foundersEquityScore = calculateFundingScore(capTable);
+  try {
+        collegeName = await getCollegeType(founderInformation?.college_name);
+    } catch {
+        collegeName = industrySector;
+    }
+
+    if (collegeName?.type === 'T1' || 'Foreign'){
+        educationScore = 5;
+        console.log('College: ', collegeName?.type);
+    }
+
+  const totalScore = incorporationScore + companyTechScore + fundingScore + educationScore + tractionScore * 0.5 + mediaPresenceScore + foundersEquityScore;
+  const InvestmentReadinessScore = Math.min(totalScore, 100);
+
+  console.log("IRS: ", InvestmentReadinessScore);
 
   //console.log("funding data: ", previousFunding);
   //console.log("CAP table: ", capTable);
 
-    try {
-        const response = await axios.get('/api/fetch-news-no-summary', {
-        params: { q: newsQuery },
-        });
-        newsList = response.data;
 
-
-    } catch (error) {
-        console.error('Error fetching news:', error);
-    }
 
     let sector;
 
@@ -205,7 +233,7 @@ const generateReport = async (
     const financialProjections = await generateFinancialResponse(financialProjectionsLink);
     
     // console.log("FP Link:", financialProjectionsLink);
-    const competitors = await getCompetitors(companyName);
+    const competitors = await getCompetitors(companyName, shortDescription, targetAudience, uspMoat);
     const technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
 
     
@@ -273,7 +301,7 @@ const generateReport = async (
                     </div>
                 </div>
                 <div class="text-center bg-blue-800 p-6 rounded-lg shadow-md">
-                    <p class="text-5xl font-extrabold">${tractionScore}</p>
+                    <p class="text-5xl font-extrabold">${InvestmentReadinessScore}</p>
                     <p class="text-lg font-medium mt-1">Investment <br> Readiness Score</p>
                 </div>
             </div>
