@@ -10,8 +10,8 @@ export default async function handler(req, res) {
       method: 'GET',
       headers: {
         'accept': 'application/json',
-        'X-APISETU-CLIENTID': 'com.xellerates',
-        'X-APISETU-APIKEY': 'roGCqhznIzXVJxyKVzyjCMgQoNuL1FeL'
+        'X-APISETU-CLIENTID': process.env.X_APISETU_CLIENTID,
+        'X-APISETU-APIKEY': process.env.X_APISETU_APIKEY
       }
     });
 
