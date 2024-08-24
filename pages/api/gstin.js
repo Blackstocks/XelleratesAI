@@ -1,4 +1,3 @@
-// Next.js API route to fetch GSTIN details
 export default async function handler(req, res) {
   const { gstin } = req.query;
 
@@ -7,7 +6,9 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'GSTIN is required' });
   }
 
-  // Function to fetch data with retry mechanism
+  console.log("Client ID:", process.env.X_APISETU_CLIENTID);
+  console.log("API Key:", process.env.X_APISETU_APIKEY);
+
   const fetchWithRetry = async (url, options, retries = 3) => {
     for (let i = 0; i < retries; i++) {
       try {
@@ -32,8 +33,8 @@ export default async function handler(req, res) {
       method: 'GET',
       headers: {
         'accept': 'application/json',
-        'X-APISETU-CLIENTID': process.env.X_APISETU_CLIENTID,
-        'X-APISETU-APIKEY': process.env.X_APISETU_APIKEY
+        'X-APISETU-CLIENTID': process.env.X_APISETU_CLIENTID, // Correct HTTP header name
+        'X-APISETU-APIKEY': process.env.X_APISETU_APIKEY      // Correct HTTP header name
       }
     };
 
