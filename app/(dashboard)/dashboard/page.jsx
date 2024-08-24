@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 import useUserDetails from '@/hooks/useUserDetails';
 import { useTable, useSortBy, useExpanded } from 'react-table';
@@ -24,7 +24,7 @@ const Portfolios = [
 ];
 
 const RecentOrderTable = () => {
-  const { fundingInformation, loading } = useCompleteUserDetails();
+  const { fundingInformation, loading: completeUserDetailsLoading } = useCompleteUserDetails();
 
   const data = useMemo(
     () => fundingInformation?.cap_table || [],
@@ -199,7 +199,8 @@ const Dashboard = () => {
   //
   const [financials, setFinancials] = useState([]);
   const [loadingFinancials, setLoadingFinancials] = useState(false);
-  const {companyProfile} = useCompleteUserDetails();
+  const {companyProfile, loading: completeUserDetailsLoading} = useCompleteUserDetails();
+  const toastIdRef = useRef(null);
 
   useEffect(() => {
     const fetchCompanyName = async () => {
@@ -230,71 +231,63 @@ const Dashboard = () => {
   const fetchFinancials = async () => {
     try {
       setLoadingFinancials(true);
-      //console.log('Company Name:', companyName);
-
-      // Fetch company ID from Supabase
-
-      // const { data: companyData, error: companyError } = await supabase
-      //   .from('company_profile')
-      //   .select('id')
-      //   .eq('company_name', companyName)
-      //   .single();
-
-      // if (companyError || !companyData) {
-      //   throw new Error('Failed to fetch company ID');
-      // }
-
+      toastIdRef.current = toast.loading('Loading financial data...');
+  
+      // Ensure companyProfile is loaded before proceeding
+      if (!companyProfile) {
+        throw new Error('Company profile is not available');
+      }
+  
       const company_id = companyProfile?.id;
-      console.log("CP:", companyProfile);
-      //console.log('Company ID:', company_id);
-
+  
       if (!company_id) {
         throw new Error('Company ID is not available');
       }
-
+  
       // API request to extract financial data
       const response = await fetch('/api/apiDataExtraction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company_id }),
       });
-
-      //console.log('Response status:', response.status);
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Error:', errorData.error);
-
+  
         if (errorData.error === 'MIS file not found') {
-            toast.error('MIS file is not present.');
+          toast.error('MIS file is not present.');
         } else {
-            toast.error(errorData.error || 'Failed to load financial data');
+          toast.error(errorData.error || 'Failed to load financial data');
         }
-
+  
         return;
-    }
-
+      }
+  
       const data = await response.json();
-      //console.log('Financial Data:', data);
-
-      // Update financialData state
       setFinancialData(data);
     } catch (error) {
       console.error('Error fetching financial data:', error.message);
       toast.error('An unexpected error occurred');
-      
     } finally {
       setLoadingFinancials(false);
+      toast.dismiss(toastIdRef.current);
     }
   };
+  
 
   const handleQuarterChange = (e) => {
     setSelectedQuarter(e.target.value);
   };
 
-  const handleUnlockClick = (cardName) => {
+  const handleUnlockClick = async (cardName) => {
+
+    if (!user || completeUserDetailsLoading || !companyProfile) {
+      toast.error('Please wait, loading data...');
+      return;
+    }
     if (cardName === 'currentNumbers') {
-      fetchFinancials(); // Fetch financials only for 'currentNumbers'
+      await fetchFinancials();
     }
     setUnlockedCards((prevState) => ({ ...prevState, [cardName]: true }));
   };
@@ -386,9 +379,10 @@ const Dashboard = () => {
     </Card>
   );
 
-  if (loading) {
-    return <Loading />;
-  }
+  if (loading || completeUserDetailsLoading) {
+  return <Loading />;
+}
+
 
   return (
     <div className="w-full">
@@ -417,31 +411,35 @@ const Dashboard = () => {
               )}
             </div>
             <div className="lg:col-span-4 col-span-12 space-y-5">
-              {renderLockedCard(
-                'Current Numbers',
-                <div>
-                  <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-                    <span>Select Time Frame:</span>
-                    <select
-                      value={selectedQuarter}
-                      onChange={handleQuarterChange}
-                      className="border p-2 rounded mt-2 md:mt-0"
-                    >
-                      {['Q1', 'Q2', 'Q3', 'Q4', 'Yearly'].map((quarter) => (
-                        <option key={quarter} value={quarter}>
-                          {quarter}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {loadingFinancials ? (
-                    <div className="py-4 text-center">Loading...</div>
-                  ) : (
-                    renderFinancialData()
-                  )}
-                </div>,
-                'currentNumbers'
-              )}
+            {renderLockedCard(
+  'Current Numbers',
+  <div>
+    <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+      <span>Select Time Frame:</span>
+      <select
+        value={selectedQuarter}
+        onChange={handleQuarterChange}
+        className="border p-2 rounded mt-2 md:mt-0"
+      >
+        {['Q1', 'Q2', 'Q3', 'Q4', 'Yearly'].map((quarter) => (
+          <option key={quarter} value={quarter}>
+            {quarter}
+          </option>
+        ))}
+      </select>
+    </div>
+    <div>
+      {loadingFinancials ? (
+        <div className="py-4 text-center">Loading financial data...</div>
+      ) : (
+        renderFinancialData()
+      )}
+    </div>
+  </div>,
+  'currentNumbers'
+)}
+
+
 
               {renderLockedCard(
                 'Cap Table',

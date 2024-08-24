@@ -113,6 +113,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
             isLoading: false,
             autoClose: 5000,
           });
+          clearToastUpdates();
         } else {
           toast.update(toastIdRef.current, {
             render: "Report generated successfully!",
@@ -120,6 +121,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
             isLoading: false,
             autoClose: 5000,
           });
+          clearToastUpdates();
 
           try {
             const newWindow = window.open("", "_blank");
@@ -139,6 +141,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
               isLoading: false,
               autoClose: 5000,
             });
+            clearToastUpdates();
           }
         }
       } catch (error) {
@@ -148,6 +151,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
           isLoading: false,
           autoClose: 5000,
         });
+        clearToastUpdates();
         // console.error('Error Generating Report', error.message);
       }
     } else {

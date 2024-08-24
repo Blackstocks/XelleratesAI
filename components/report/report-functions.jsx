@@ -133,14 +133,19 @@ const generateReport = async (
 
     const missingDocuments = [];
   
-    if (!financialProjectionsLink) {
-      missingDocuments.push('Financial Projections');
-    }
-    if (!technologyRoadmapLink) {
-      missingDocuments.push('Technology Roadmap');
-    }
+    // if (!financialProjectionsLink) {
+    //   missingDocuments.push('Financial Projections');
+    // }
+    // if (!technologyRoadmapLink) {
+    //   missingDocuments.push('Technology Roadmap');
+    // }
+
+    if (!companyDocuments?.certificate_of_incorporation) {
+        missingDocuments.push('Certificate of Incorporation');
+      }
+
     if (financialData === null){
-        missingDocuments.push('MIS');
+        missingDocuments.push('MIS Report');
     }
     if (missingDocuments.length > 0) {
       const missingMessage = `${missingDocuments.join(', ')}`;
@@ -231,12 +236,19 @@ const generateReport = async (
         sector = industrySector;
     }
 
-    
-    const financialProjections = await generateFinancialResponse(financialProjectionsLink);
+    let financialProjections = {};
+    if (!financialProjectionsLink) {
+      financialProjections = await generateFinancialResponse(financialProjectionsLink);
+    }
+
+    let technologyRoadmap = {};
+    if (!technologyRoadmapLink) {
+      technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
+    }
     
     // console.log("FP Link:", financialProjectionsLink);
     const competitors = await getCompetitors(companyName, shortDescription, targetAudience, uspMoat);
-    const technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
+    
 
     
 
@@ -425,7 +437,7 @@ const generateReport = async (
                         <tbody>
                             <tr>
                                 <th class="border px-6 py-2">Founded Year</th>
-                                <td class="border px-6 py-2">2020</td>
+                                <td class="border px-6 py-2">${companyProfile?.incorporation_date}</td>
                             </tr>
                             <tr class="bg-gray-50">
                                 <th class="border px-6 py-2">Total Funding</th>
@@ -563,12 +575,21 @@ const generateReport = async (
                 </div>
 
                 <!-- Financial Projections -->
-                <div class="mb-8">
-                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
-                    <div id="chartContainer">
-                        <canvas id="financialProjectionsChart"></canvas>
-                    </div>
-                </div>
+                ${financialProjections && Object.keys(financialProjections).length > 0 ?
+                    `<div class="mb-8">
+                        <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
+                        <div id="chartContainer">
+                            <canvas id="financialProjectionsChart"></canvas>
+                        </div>
+                    </div>`
+                    :
+                    `<div class="mb-8">
+                        <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
+                        <div id="chartContainer">
+                           <h3>Upload finanical projections to see the chart</h3>
+                        </div>
+                    </div>`
+                }
 
                 <!-- Cap Table -->
                 <div class="mb-8">
@@ -648,6 +669,36 @@ const generateReport = async (
 
  document.addEventListener("DOMContentLoaded", function () {
                 console.log("DOM fully loaded and parsed");
+
+
+                const ctx1 = document.getElementById('revenueChart').getContext('2d');
+                    const revenueChart = new Chart(ctx1, {
+                        type: 'bar',
+                        data: {
+                            labels: ${JSON.stringify(yearlyRevenue.map(item => item.month))},
+                            datasets: [{
+                                label: 'Revenue',
+                                data: ${JSON.stringify(yearlyRevenue.map(item => item.value))},
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                }
+                            }
+                        }
+                    });
+                    
 
                 if (typeof financialProjections === 'undefined') {
     console.error("financialProjections is not defined");
@@ -814,33 +865,7 @@ const financialProjectionsChart = new Chart(ctx, {
 });
 
 
-                const ctx1 = document.getElementById('revenueChart').getContext('2d');
-                    const revenueChart = new Chart(ctx1, {
-                        type: 'bar',
-                        data: {
-                            labels: ${JSON.stringify(yearlyRevenue.map(item => item.month))},
-                            datasets: [{
-                                label: 'Revenue',
-                                data: ${JSON.stringify(yearlyRevenue.map(item => item.value))},
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top',
-                                }
-                            }
-                        }
-                    });
+                
 
                     console.log("Chart successfully created");
 

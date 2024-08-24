@@ -276,6 +276,7 @@ const CuratedDealflow = () => {
             isLoading: false,
             autoClose: 5000,
           });
+          clearToastUpdates();
         } else {
           toast.update(toastIdRef.current, {
             render: "Report generated successfully!",
@@ -283,6 +284,7 @@ const CuratedDealflow = () => {
             isLoading: false,
             autoClose: 5000,
           });
+          clearToastUpdates();
 
           try {
             const newWindow = window.open("", "_blank");
@@ -302,6 +304,7 @@ const CuratedDealflow = () => {
               isLoading: false,
               autoClose: 5000,
             });
+            clearToastUpdates();
           }
         }
       } catch (error) {
@@ -311,6 +314,7 @@ const CuratedDealflow = () => {
           isLoading: false,
           autoClose: 5000,
         });
+        clearToastUpdates();
         console.error('Error generating report:', error);
       }
     } else {
