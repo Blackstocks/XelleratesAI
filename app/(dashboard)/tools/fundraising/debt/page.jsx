@@ -1,4 +1,4 @@
-// Debt final code 
+// Modified Debt final code 
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -96,6 +96,11 @@ const Equity = () => {
         state_jurisdiction: data.stateJurisdiction,
         cancellation_date: formattedCancellationDate || null,
         nature_business_activities: JSON.stringify(data.natureBusinessActivities),
+        annual_revenue: annualRevenue,
+        annual_growth_rate: growthRate,
+        cash_runway: cashRunway,
+        existing_debt: existingDebt,
+        sector: sector,
       });
 
       if (error) {
@@ -103,7 +108,7 @@ const Equity = () => {
         throw new Error('Failed to store GSTIN data');
       }
 
-      console.log('GSTIN data stored successfully in Supabase');
+      console.log('GSTIN and additional data stored successfully in Supabase');
     } catch (error) {
       console.error('Error fetching GSTIN data:', error);
       throw error;
