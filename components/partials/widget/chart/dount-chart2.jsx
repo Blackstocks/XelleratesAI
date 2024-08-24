@@ -2,42 +2,24 @@ import React from "react";
 import dynamic from "next/dynamic";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import useDarkMode from "@/hooks/useDarkMode";
+import Loading from '@/components/Loading';
 
-const DonutChart2 = (
-  { height = 200, 
-    colors = ["#0CE7FA", "#E2F6FD"],
-    businessDetails
-
-   }) => {
+const DonutChart2 = ({ height = 200, colors = ["#0CE7FA", "#E2F6FD"], InvestmentReadinessScore }) => {
   const [isDark] = useDarkMode();
 
-  // Calculate investment readiness score
-  const currentTraction = businessDetails?.current_traction;
-  const newCustomers = businessDetails?.new_Customers;
-  const CAC = businessDetails?.customer_AcquisitionCost;
-  const LTV = businessDetails?.customer_Lifetime_Value;
-
-  const normalizedTraction = Math.min((currentTraction / 1000000) * 100, 100);
-  const normalizedNewCustomers = Math.min((newCustomers / 5000) * 100, 100);
-  const normalizedCAC = Math.min((1000 / CAC) * 100, 100);
-  const normalizedLTV = Math.min((LTV / 1000) * 100, 100);
-
-  const tractionScore = Math.round(
-    (normalizedTraction * 0.4) +
-    (normalizedNewCustomers * 0.2) +
-    (normalizedCAC * 0.2) +
-    (normalizedLTV * 0.2)
-  );
+  // Check if InvestmentReadinessScore is available
+  if (InvestmentReadinessScore === null || InvestmentReadinessScore === undefined) {
+      return <Loading />; // Show loading component while loading
+  }
 
   // Chart series: the readiness score and the remaining percentage
-  const series = [tractionScore, 100 - tractionScore];
+  const series = [InvestmentReadinessScore, 100 - InvestmentReadinessScore];
 
   const options = {
     labels: ["Investment Readiness Score", ""],
     dataLabels: {
       enabled: false,
     },
-
     colors: [...colors],
     legend: {
       position: "bottom",
@@ -46,7 +28,6 @@ const DonutChart2 = (
       fontWeight: 400,
       show: false,
     },
-
     plotOptions: {
       pie: {
         donut: {
@@ -73,7 +54,7 @@ const DonutChart2 = (
               fontSize: "16px",
               label: "",
               formatter() {
-                return `${tractionScore}`;
+                return `${InvestmentReadinessScore}`;
               },
             },
           },

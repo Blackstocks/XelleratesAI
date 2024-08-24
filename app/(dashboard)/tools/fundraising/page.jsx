@@ -1,17 +1,60 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails'; // Ensure this hook exists and the path is correct
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import Loading from '@/app/loading';
-import DountChart from '@/components/partials/widget/chart/dount-chart2';
+import DonutChart2 from '@/components/partials/widget/chart/dount-chart2';
 import DonutChart3 from '@/components/partials/widget/chart/dount-chart3';
-import DountChart4 from '@/components/partials/widget/chart/dount-chart4';
+import DonutChart4 from '@/components/partials/widget/chart/dount-chart4';
 import ImageBlock2 from '@/components/partials/widget/block/image-block-2';
-import 'react-toastify/dist/ReactToastify.css';
 import Button from '@/components/ui/Button';
 import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';
+import axios from 'axios';
+import getCollegeType from '@/components/report/college-analysis';
+
+function companyIsTechScore(companyProfile) {
+  const techKeywords = ["software", "technology", "IT", "SaaS", "AI", "ML", "blockchain", "cloud", "cybersecurity", "fintech", "edtech", "healthtech", "tech"];
+  const combinedString = `${companyProfile?.shortDescription} ${companyProfile?.industrySector}`;
+  if (combinedString) {
+    const industry = combinedString.toLowerCase();
+    const isTech = techKeywords.some(keyword => industry.includes(keyword));
+    return 5;
+  }
+  return 0;
+}
+
+function calculateMediaPresenceScore(newsList, companyName) {
+  let score = 0;
+  if (!companyName) return score;
+
+  const companyNameLowerCase = companyName.toLowerCase();
+
+  newsList.forEach(article => {
+    const titleLowerCase = article.title.toLowerCase();
+    const summaryLowerCase = article.summary.join(' ').toLowerCase();
+
+    if (titleLowerCase.includes(companyNameLowerCase) || summaryLowerCase.includes(companyNameLowerCase)) {
+      score = 10;
+    }
+  });
+  return score;
+}
+
+function calculateFundingScore(capTable) {
+  let foundersEquity = 0;
+
+  if (capTable.length > 0) {
+    foundersEquity = capTable.reduce((total, person) => {
+      if (person.designation.toLowerCase() === "founder" || person.designation.toLowerCase() === "co-founder") {
+        return total + parseFloat(person.percentage);
+      }
+      return total;
+    }, 0);
+  }
+
+  return foundersEquity > 50 ? 10 : 0;
+}
 
 const Fundraising = () => {
   const {
@@ -25,8 +68,10 @@ const Fundraising = () => {
     investorSignup,
     loading,
   } = useCompleteUserDetails();
+
   const [greeting, setGreeting] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [investmentReadinessScore, setInvestmentReadinessScore] = useState(null);  // Initialized to null
 
   useEffect(() => {
     const currentHour = new Date().getHours();
@@ -38,6 +83,65 @@ const Fundraising = () => {
       setGreeting('Good evening,');
     }
   }, []);
+
+  useEffect(() => {
+    const fetchInvestmentReadinessScore = async () => {
+      if (!companyProfile) return;
+
+      const companyName = companyProfile?.company_name;
+      let newsList = [];
+
+      try {
+        const response = await axios.get('/api/fetch-news-no-summary', {
+          params: { q: companyName },
+        });
+        newsList = response.data;
+      } catch (error) {
+        console.error('Error fetching news:', error);
+      }
+
+      const currentTraction = businessDetails?.current_traction || 0;
+      const newCustomers = businessDetails?.new_Customers || 0;
+      const CAC = businessDetails?.customer_AcquisitionCost || 0;
+      const LTV = businessDetails?.customer_Lifetime_Value || 0;
+
+      const normalizedTraction = Math.min((currentTraction / 1000000) * 100, 100);
+      const normalizedNewCustomers = Math.min((newCustomers / 5000) * 100, 100);
+      const normalizedCAC = Math.min((1000 / CAC) * 100, 100);
+      const normalizedLTV = Math.min((LTV / 1000) * 100, 100);
+
+      const tractionScore = Math.round(
+        (normalizedTraction * 0.4) +
+        (normalizedNewCustomers * 0.2) +
+        (normalizedCAC * 0.2) +
+        (normalizedLTV * 0.2)
+      );
+
+      const incorporationScore = companyProfile?.incorporation_date ? 10 : 0;
+      const companyTechScore = companyIsTechScore(companyProfile);
+      const fundingScore = fundingInformation?.previous_funding?.length > 0 ? 10 : 0;
+      let educationScore = 0;
+
+      const mediaPresenceScore = calculateMediaPresenceScore(newsList, companyName);
+      const foundersEquityScore = calculateFundingScore(fundingInformation?.cap_table || []);
+
+      try {
+        const collegeName = await getCollegeType(founderInformation?.college_name);
+        if (collegeName?.type === 'T1' || collegeName?.type === 'Foreign') {
+          educationScore = 5;
+        }
+      } catch (error) {
+        console.error('Error fetching college type:', error);
+      }
+
+      const totalScore = incorporationScore + companyTechScore + fundingScore + educationScore + tractionScore * 0.5 + mediaPresenceScore + foundersEquityScore;
+      const finalScore = Math.min(totalScore, 100);
+
+      setInvestmentReadinessScore(finalScore);  // Update the state
+    };
+
+    fetchInvestmentReadinessScore();
+  }, [businessDetails, companyProfile, fundingInformation, founderInformation]);
 
   const handleImageClick = () => {
     setIsModalOpen(true);
@@ -121,15 +225,17 @@ const Fundraising = () => {
                 Investment Readiness Score
               </h3>
              
-                <DountChart 
-                businessDetails={businessDetails}/>
+                <DonutChart2 
+                businessDetails={businessDetails}
+                InvestmentReadinessScore={investmentReadinessScore} // Pass the calculated score here
+                />
 
             </div>
             <div className='h-60 flex flex-col items-center justify-center bg-white shadow-lg rounded-lg'>
               <h3 className='text-lg font-semibold mb-2 text-center'>
                 Equity Available with Founders
               </h3>
-              <DountChart4 />
+              <DonutChart4 />
             </div>
           </div>
         </div>

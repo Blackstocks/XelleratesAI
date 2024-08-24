@@ -8,11 +8,13 @@ import useCompleteUserDetails from "@/hooks/useCompleUserDetails";
 // import * as fs from 'fs';
 // import * as pdf from 'html-pdf-node';
 
-const HomeBredCurbs = ({ title, companyName, userType }) => {
+const HomeBredCurbs = ({ title, userType }) => {
   const [greeting, setGreeting] = useState("Good evening");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   const toastIdRef = useRef(null);
+
+  
 
   const {
     fundingInformation,
@@ -24,6 +26,9 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     profile,
     loading,
   } = useCompleteUserDetails();
+
+  const companyName = companyProfile?.company_name || 'NA';
+  // console.log(companyProfile);
 
   useEffect(() => {
     const currentHour = new Date().getHours();

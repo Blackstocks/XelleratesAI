@@ -19,7 +19,7 @@ Sources to consider:
 Important Note:
 - Ensure that the competitors are directly relevant based on the business description, USP/MOAT and Target Audience that is provided above. Do not create any hypothetical competitors. 
 - If you do not find any relavent competitors just return NA.
-- Please focus on finding companies that are direct competitors based on their role in "${shortDescription.toLowerCase().replace(/we are|our|we/i, `${companyName} is`)}", rather than just any company in the broader industry space.
+- Please focus on finding companies that are direct competitors based on their focus on "${uspMoat}", rather than just any company in the broader industry space.
 - In Stage you have to find the Investment Round Name (like Series A, B, Pre-seed, Public, etc.)
 `;
 

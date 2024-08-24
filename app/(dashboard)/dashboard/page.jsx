@@ -201,25 +201,27 @@ const Dashboard = () => {
   const [loadingFinancials, setLoadingFinancials] = useState(false);
   const {companyProfile} = useCompleteUserDetails();
 
-  // useEffect(() => {
-  //   const fetchCompanyName = async () => {
-  //     if (user) {
-  //       const { data, error } = await supabase
-  //         .from('profiles')
-  //         .select('company_name')
-  //         .eq('id', user.id)
-  //         .single();
+  useEffect(() => {
+    // const fetchCompanyName = async () => {
+    //   if (user) {
+    //     const { data, error } = await supabase
+    //       .from('profiles')
+    //       .select('company_name')
+    //       .eq('id', user.id)
+    //       .single();
 
-  //       if (error) {
-  //         console.error('Error fetching company name:', error);
-  //       } else {
-  //         setCompanyName(data.company_name);
-  //       }
-  //     }
-  //   };
+    //     if (error) {
+    //       console.error('Error fetching company name:', error);
+    //     } else {
+    //       setCompanyName(data.company_name);
+    //     }
+    //   }
+    // };
 
-  //   fetchCompanyName();
-  // }, [user]);
+    // fetchCompanyName();
+
+    setCompanyName(companyProfile?.company_name);
+  }, [user]);
 
   //
   // const { companyDocuments } = useCompleteUserDetails();
