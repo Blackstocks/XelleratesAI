@@ -125,18 +125,23 @@ const Equity = () => {
       setGstinError("");
 
       // Construct the API URL based on the current pathname
-      const apiUrl = `${window.location.pathname}/api/gstin?gstin=${gstin}`;
+      // const apiUrl = `${window.location.pathname}/api/gstin?gstin=${gstin}`;
+
+      const apiUrl = `/api/gstin?gstin=${gstin}`;
+
+      console.log(apiUrl);
 
       // Fetch GSTIN data from the constructed API URL
       const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error("Failed to fetch GSTIN data");
-      }
+      // if (!response.ok) {
+      //   throw new Error("Failed to fetch GSTIN data");
+      // }
 
       const data = await response.json();
+      console.log(data);
 
       // Process the fetched data (you can keep this part as it is)
-      await fetchGstinData(data);
+      // await fetchGstinData(data);
 
       setShowGstinModal(false);
       setShowProgressModal(true);
