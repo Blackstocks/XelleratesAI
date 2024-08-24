@@ -124,6 +124,8 @@ const generateReport = async (
   currentStage, 
   previousFunding
 ) => {
+
+    console.log("Company name: ", companyName);
   
     const financialProjectionsLink = companyDocuments?.financial_projections;
     const technologyRoadmapLink = ctoInfo?.technology_roadmap;
@@ -431,7 +433,7 @@ const generateReport = async (
                             </tr>
                             <tr>
                                 <th class="border px-6 py-2">Location</td>
-                                <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}, ${companyProfile?.country?.label || "NA"}</td>
+                                <td class="border px-6 py-2">${companyProfile?.state_city || "NA"}</td>
                             </tr>
                             <tr class="bg-gray-50">
                                 <th class="border px-6 py-2">Editor's Rating</td>

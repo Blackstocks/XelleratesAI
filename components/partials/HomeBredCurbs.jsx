@@ -57,7 +57,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       try{
   
       const result = await generateReport(companyProfile, fundingInformation, founderInformation, businessDetails, companyDocuments, 
-        ctoInfo, profile, shortDescription, industrySector, companyName, currentStage, previousFunding);
+        ctoInfo, profile, shortDescription, industrySector, companyProfile?.company_name, currentStage, previousFunding);
       //generatePDF(reportHtml);
       
       if (result.status === 'error') {
