@@ -250,6 +250,7 @@ const CuratedDealflow = () => {
         "target_audience": selectedStartup?.target_audience,
         "industry_sector": selectedStartup?.industry_sector,
         "current_stage": selectedStartup?.current_stage,
+        "incorporation_date": selectedStartup?.incorporation_date,
       }
       
       try {
