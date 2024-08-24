@@ -209,6 +209,30 @@ const CuratedDealflow = () => {
   const handleImageClick = async (type, selectedStartup) => {
     if (type === 'investment') {
       toastIdRef.current = toast.loading("Generating report, please wait...");
+
+      const firstUpdate = setTimeout(() => {
+        toast.update(toastIdRef.current, {
+          render: "Taking longer than usual...",
+          type: toast.TYPE.INFO,
+          isLoading: true,
+          autoClose: false,
+        });
+      }, 30000);
+    
+      // Second update after 10 seconds
+      const secondUpdate = setTimeout(() => {
+        toast.update(toastIdRef.current, {
+          render: "Almost there...",
+          type: toast.TYPE.INFO,
+          isLoading: true,
+          autoClose: false,
+        });
+      }, 60000);
+
+      const clearToastUpdates = () => {
+        clearTimeout(firstUpdate);
+        clearTimeout(secondUpdate);
+      };
   
       const shortDescription = selectedStartup?.companyProfile?.short_description || "Default description";
       const industrySector = selectedStartup?.companyProfile?.industry_sector || "Default sector";
@@ -245,9 +269,9 @@ const CuratedDealflow = () => {
           selectedStartup?.funding_information?.previous_funding
         );
         
-        if (result.status === 'error') {
+        if (result.status === "error") {
           toast.update(toastIdRef.current, {
-            render: `Cannot generate report: Missing documents of startup - ${result.message}`,
+            render: `Cannot generate report: Missing documents or incorrect format: ${result.message}`,
             type: "error",
             isLoading: false,
             autoClose: 5000,
@@ -259,10 +283,26 @@ const CuratedDealflow = () => {
             isLoading: false,
             autoClose: 5000,
           });
-  
-          const newWindow = window.open('', '_blank');
-          newWindow.document.write(result.html);
-          newWindow.document.close();
+
+          try {
+            const newWindow = window.open("", "_blank");
+
+            if (newWindow) {
+              newWindow.document.write(result.html);
+              newWindow.document.close();
+            } else {
+              throw new Error(
+                "Popup blocked. Please allow popups for this site."
+              );
+            }
+          } catch (error) {
+            toast.update(toastIdRef.current, {
+              render: `Cannot generate Report! ${error.message || error}`,
+              type: "error",
+              isLoading: false,
+              autoClose: 5000,
+            });
+          }
         }
       } catch (error) {
         toast.update(toastIdRef.current, {

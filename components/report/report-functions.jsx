@@ -633,11 +633,13 @@ const generateReport = async (
     </div>
 
     <!-- Download Button -->
+    <!--
     <div class="text-center mt-8 no-print">
         <button id="downloadBtn" class="bg-blue-500 text-white p-2 rounded">
             Download Report as PDF
         </button>
     </div>
+    -->
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
@@ -842,17 +844,17 @@ const financialProjectionsChart = new Chart(ctx, {
 
                     console.log("Chart successfully created");
 
-                    document.getElementById('downloadBtn').addEventListener('click', function () {
-                        const element = document.getElementById('pdfContent');
-                        const opt = {
-                            margin: 0.2,
-                            filename: 'InvestmentReadinessReport.pdf',
-                            image: { type: 'jpeg', quality: 0.98 },
-                            html2canvas: { scale: 2 },
-                            jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
-                        };
-                        html2pdf().from(element).set(opt).save();
-                    });
+                    // document.getElementById('downloadBtn').addEventListener('click', function () {
+                    //     const element = document.getElementById('pdfContent');
+                    //     const opt = {
+                    //         margin: 0.2,
+                    //         filename: 'InvestmentReadinessReport.pdf',
+                    //         image: { type: 'jpeg', quality: 0.98 },
+                    //         html2canvas: { scale: 2 },
+                    //         jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
+                    //     };
+                    //     html2pdf().from(element).set(opt).save();
+                    // });
 
             });
 

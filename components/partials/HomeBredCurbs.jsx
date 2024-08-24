@@ -8,7 +8,7 @@ import useCompleteUserDetails from "@/hooks/useCompleUserDetails";
 // import * as fs from 'fs';
 // import * as pdf from 'html-pdf-node';
 
-const HomeBredCurbs = ({ title, userType }) => {
+const HomeBredCurbs = ({ title, companyName, userType }) => {
   const [greeting, setGreeting] = useState("Good evening");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
@@ -27,7 +27,7 @@ const HomeBredCurbs = ({ title, userType }) => {
     loading,
   } = useCompleteUserDetails();
 
-  const companyName = companyProfile?.company_name || 'NA';
+  //const companyName = companyProfile?.company_name || 'NA';
   // console.log(companyProfile);
 
   useEffect(() => {
@@ -56,6 +56,31 @@ const HomeBredCurbs = ({ title, userType }) => {
       // }
 
       toastIdRef.current = toast.loading("Generating report, please wait...");
+
+      const firstUpdate = setTimeout(() => {
+        toast.update(toastIdRef.current, {
+          render: "Taking longer than usual...",
+          type: toast.TYPE.INFO,
+          isLoading: true,
+          autoClose: false,
+        });
+      }, 30000);
+    
+      // Second update after 10 seconds
+      const secondUpdate = setTimeout(() => {
+        toast.update(toastIdRef.current, {
+          render: "Almost there...",
+          type: toast.TYPE.INFO,
+          isLoading: true,
+          autoClose: false,
+        });
+      }, 60000);
+    
+      // Ensure to clear the timeouts if the process completes early or fails
+      const clearToastUpdates = () => {
+        clearTimeout(firstUpdate);
+        clearTimeout(secondUpdate);
+      };
 
       const shortDescription =
         companyProfile?.short_description || "Default description";
