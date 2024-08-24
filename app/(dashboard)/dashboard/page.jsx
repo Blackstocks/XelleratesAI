@@ -14,6 +14,7 @@ import Customer from '@/components/partials/widget/customer';
 import HomeBredCurbs from '@/components/partials/HomeBredCurbs';
 import Chatbot from '@/components/chatbot';
 import { toast } from 'react-toastify';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const Portfolios = [
   { name: 'Portfolio Name', value: '' },
@@ -22,7 +23,6 @@ const Portfolios = [
   // { name: 'Adios', value: '' },
 ];
 
-import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 const RecentOrderTable = () => {
   const { fundingInformation, loading } = useCompleteUserDetails();
 
@@ -199,26 +199,27 @@ const Dashboard = () => {
   //
   const [financials, setFinancials] = useState([]);
   const [loadingFinancials, setLoadingFinancials] = useState(false);
+  const {companyProfile} = useCompleteUserDetails();
 
-  useEffect(() => {
-    const fetchCompanyName = async () => {
-      if (user) {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('company_name')
-          .eq('id', user.id)
-          .single();
+  // useEffect(() => {
+  //   const fetchCompanyName = async () => {
+  //     if (user) {
+  //       const { data, error } = await supabase
+  //         .from('profiles')
+  //         .select('company_name')
+  //         .eq('id', user.id)
+  //         .single();
 
-        if (error) {
-          console.error('Error fetching company name:', error);
-        } else {
-          setCompanyName(data.company_name);
-        }
-      }
-    };
+  //       if (error) {
+  //         console.error('Error fetching company name:', error);
+  //       } else {
+  //         setCompanyName(data.company_name);
+  //       }
+  //     }
+  //   };
 
-    fetchCompanyName();
-  }, [user]);
+  //   fetchCompanyName();
+  // }, [user]);
 
   //
   // const { companyDocuments } = useCompleteUserDetails();
@@ -232,17 +233,19 @@ const Dashboard = () => {
       //console.log('Company Name:', companyName);
 
       // Fetch company ID from Supabase
-      const { data: companyData, error: companyError } = await supabase
-        .from('company_profile')
-        .select('id')
-        .eq('company_name', companyName)
-        .single();
 
-      if (companyError || !companyData) {
-        throw new Error('Failed to fetch company ID');
-      }
+      // const { data: companyData, error: companyError } = await supabase
+      //   .from('company_profile')
+      //   .select('id')
+      //   .eq('company_name', companyName)
+      //   .single();
 
-      const company_id = companyData?.id;
+      // if (companyError || !companyData) {
+      //   throw new Error('Failed to fetch company ID');
+      // }
+
+      const company_id = companyProfile?.id;
+      console.log("CP:", companyProfile);
       //console.log('Company ID:', company_id);
 
       if (!company_id) {

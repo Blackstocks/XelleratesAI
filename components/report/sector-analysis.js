@@ -10,18 +10,21 @@ You should:
 4. If you are unsure about anything return 'NA'.
 
 **INSTRUCTIONS**
-- Don't be overconfident and don't hallucinate.
-- If you cannot categorise based on the description then don't assume by yourslef.
-- You should give not more than 3-4 subcategories.
+- Don't be overconfident.
+- Do not halucinate.
+- If you cannot categorise based on the description then do not assume by yourslef.
+- You should give not more than 3-4 subcategories which should aling with the USP/MOAT.
 - Include the Target Audience as one of the subcategory.
 - Give short answers.
 - You should only output the sector.
+- If you are not able to sub categorosie based on available information, just return others or NA.
 
 Use the following pieces of context to answer the user's question.
 ==============================
 Business Description: {businessDescription}
 Broad Sector: {sector}
 Target Audience: {target}
+USP/MOAT: {uspMoat}
 ==============================
 
 One Example of your task is below: (Use this only as reference)
@@ -33,7 +36,7 @@ Your Output:  Food and Agriculture Tech > Online Grocery > B2C Ecommerce > Ultra
 Now take a deep breath and proceed with the task.
 `;
 
-const generateResponse = async (businessDescription, sector, targetAudience) => {
+const generateResponse = async (businessDescription, sector, targetAudience, uspMoat) => {
     const genAI = new GoogleGenerativeAI("AIzaSyC5SHITdbn39r46lODI_6YFRIo3Z6zo_5Y");
     const model = genAI.getGenerativeModel({
         model: "gemini-1.5-flash",
@@ -42,7 +45,8 @@ const generateResponse = async (businessDescription, sector, targetAudience) => 
     const prompt = TEMPLATE
         .replace('{businessDescription}', businessDescription)
         .replace('{sector}', sector)
-        .replace('{target}', targetAudience);
+        .replace('{target}', targetAudience)
+        .replace('{uspMoat}', uspMoat);
 
     // Ensure correct method to generate content
     const result = await model.generateContent(prompt);

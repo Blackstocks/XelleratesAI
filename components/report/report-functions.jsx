@@ -174,10 +174,10 @@ const generateReport = async (
 
   // Investment Readiness Score
 
-  const currentTraction = businessDetails?.current_traction;
-  const newCustomers = businessDetails?.new_Customers;
-  const CAC = businessDetails?.customer_AcquisitionCost;
-  const LTV = businessDetails?.customer_Lifetime_Value;
+  const currentTraction = businessDetails?.current_traction || 0;
+  const newCustomers = businessDetails?.new_Customers || 0;
+  const CAC = businessDetails?.customer_AcquisitionCost || 0;
+  const LTV = businessDetails?.customer_Lifetime_Value || 0;
 
   const normalizedTraction = Math.min((currentTraction / 1000000) * 100, 100);
   const normalizedNewCustomers = Math.min((newCustomers / 5000) * 100, 100);
@@ -224,7 +224,7 @@ const generateReport = async (
     let sector;
 
     try {
-        sector = await generateResponse(shortDescription, industrySector, targetAudience);
+        sector = await generateResponse(shortDescription, industrySector, targetAudience, uspMoat);
     } catch {
         sector = industrySector;
     }
