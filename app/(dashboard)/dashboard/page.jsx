@@ -205,6 +205,10 @@ const Dashboard = () => {
     companyDocuments,
     loading: completeUserDetailsLoading,
   } = useCompleteUserDetails();
+  const [isDataFetched, setIsDataFetched] = useState(false);
+
+  console.log('COMPANY PROFILE: ', companyProfile);
+  console.log('COMPANY DOCS: ', companyDocuments);
   const toastIdRef = useRef(null);
 
   useEffect(() => {
@@ -222,6 +226,7 @@ const Dashboard = () => {
           setCompanyName(data.company_name);
         }
       }
+      setIsDataFetched(true); // Set this to true after fetching is complete
     };
 
     fetchCompanyName();
@@ -247,6 +252,10 @@ const Dashboard = () => {
 
       if (!companyDocuments?.mis) {
         toast.warn('Please upload MIS Report to see Financial Data');
+      } else if (!companyDocuments.mis.endsWith('.xlsx')) {
+        toast.warn(
+          'Please upload MIS Report in correct format to see Financial Data'
+        );
       } else {
         if (!company_id) {
           throw new Error('Company ID is not available');
@@ -289,8 +298,8 @@ const Dashboard = () => {
 
   const handleUnlockClick = async (cardName, user) => {
     if (user?.user_type === 'startup') {
-      if (!user || completeUserDetailsLoading || !companyProfile) {
-        toast.error('Please wait, loading data...');
+      if (!user || completeUserDetailsLoading) {
+        toast.warn('Please wait, loading data...');
         return;
       }
     }
@@ -371,13 +380,21 @@ const Dashboard = () => {
       <div className='relative'>
         {!unlockedCards[cardName] && (
           <div className='absolute inset-0 flex flex-col items-center justify-center z-10 text-xl font-semibold text-slate-700 bg-opacity-50'>
-            <span>Unlock through credits</span>
-            <button
-              onClick={() => handleUnlockClick(cardName, user)}
-              className='mt-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
-            >
-              Unlock
-            </button>
+            {isDataFetched && !companyProfile ? (
+              <span style={{ textAlign: 'center' }}>
+                Please fill startup profile to unlock this feature
+              </span>
+            ) : (
+              <>
+                {/* <span>Unlock through credits</span> */}
+                <button
+                  onClick={() => handleUnlockClick(cardName, user)}
+                  className='mt-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
+                >
+                  Unlock
+                </button>
+              </>
+            )}
           </div>
         )}
         <div className={`${unlockedCards[cardName] ? '' : 'blur'}`}>

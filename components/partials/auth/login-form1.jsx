@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabaseclient';
+import PasswordInput from "@/components/partials/passwordInput";
 
 const schema = yup
   .object({
@@ -143,12 +144,20 @@ const LoginForm1 = () => {
         register={register}
         error={errors?.email}
       />
-      <Textinput
+      {/* <Textinput
         name='password'
         label='Password'
         type='password'
         placeholder='Type your password'
         register={register}
+        error={errors.password}
+      /> */}
+
+      <PasswordInput
+        label="Password"
+        name="password"
+        register={register}
+        placeholder='Type your password'
         error={errors.password}
       />
       <div className='flex justify-between'>

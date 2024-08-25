@@ -65,8 +65,9 @@ function selectRevenueSheet(filePath) {
 
 // Function to get competitors data
 async function getCompetitors(companyName, shortDescription, targetAudience, uspMoat) {
+  let cData = {};
   try{
-    const cData = generateCompetitorAnalysis(companyName, shortDescription, targetAudience, uspMoat);
+    cData = generateCompetitorAnalysis(companyName, shortDescription, targetAudience, uspMoat);
     return cData;
   } catch (error) {
     console.error("Error generating structured competitor data:", error);
@@ -130,6 +131,7 @@ const generateReport = async (
   
     const financialProjectionsLink = companyDocuments?.financial_projections;
     const technologyRoadmapLink = ctoInfo?.technology_roadmap;
+    console.log("Tech Roadmap: ", technologyRoadmapLink);
     const financialData = await fetchFinancials(companyProfile);
 
     const missingDocuments = [];
@@ -141,13 +143,13 @@ const generateReport = async (
     //   missingDocuments.push('Technology Roadmap');
     // }
 
-    if (!companyDocuments?.certificate_of_incorporation) {
+    if (!companyDocuments?.certificate_of_incorporation || !companyDocuments.certificate_of_incorporation.endsWith('.pdf')) {
         missingDocuments.push('Certificate of Incorporation');
       }
 
-    if (financialData === null){
+      if (!companyDocuments?.mis || !companyDocuments.mis.endsWith('.xlsx')) {
         missingDocuments.push('MIS Report');
-    }
+      }
     // if (missingDocuments.length > 0) {
     //     const missingMessage = missingDocuments.map(doc => `• ${doc}`).join('\n');
     //     return { status: 'error', message: missingMessage };
@@ -255,9 +257,11 @@ const generateReport = async (
       financialProjections = await generateFinancialResponse(financialProjectionsLink);
     }
 
-    let technologyRoadmap = {};
-    if (!technologyRoadmapLink) {
+    let technologyRoadmap;
+    if (technologyRoadmapLink) {
       technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
+    } else {
+        technologyRoadmap = {};
     }
     
     // console.log("FP Link:", financialProjectionsLink);
@@ -426,7 +430,7 @@ const generateReport = async (
                         <td class="border px-4 py-2">${funding.amountRaised}</td> 
                         </tr>
                     `).join('')
-                        : `<tr><td colspan="3" class="border px-6 py-2 text-center">No information available</td></tr>`
+                        : `<tr><td colspan="4" class="border px-6 py-2 text-center">No information available</td></tr>`
                         }
                     </tbody>
                 </table>
@@ -555,15 +559,18 @@ const generateReport = async (
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="border px-6 py-2">${founderInformation?.founder_name}</td>
-                                <td class="border px-6 py-2">Founder</td>
-                                <td class="border px-6 py-2">
-                                <a href="${founderInformation?.founder_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
-                                        Link
-                                    </a>
-                                </td>
-                            </tr>
+                            ${founderInformation?.founder_name ? 
+                                `<tr>
+                                    <td class="border px-6 py-2">${founderInformation?.founder_name}</td>
+                                    <td class="border px-6 py-2">Founder</td>
+                                    <td class="border px-6 py-2">
+                                    <a href="${founderInformation?.founder_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                            Link
+                                        </a>
+                                    </td>
+                                </tr>`
+                                : ``
+                            }
                             ${coFounders.length > 0
                                 ? coFounders.map(cf => `
                                 <tr>
@@ -580,13 +587,16 @@ const generateReport = async (
                                 </tr>`
                             }
                             <tr>
-                                <td class="border px-6 py-2">${ctoInfo?.cto_name}</td>
+                            ${ctoInfo?.cto_name ? 
+                                `<td class="border px-6 py-2">${ctoInfo?.cto_name}</td>
                                 <td class="border px-6 py-2">CTO</td>
                                 <td class="border px-6 py-2">
                                 <a href="${ctoInfo?.cto_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
                                         Link
                                     </a>
-                                </td>
+                                </td>`
+                                : ``
+                            }
                             </tr>
                         </tbody>
                     </table>
@@ -678,7 +688,7 @@ const generateReport = async (
                                       <td class="border-t border-gray-300 px-4 py-2">${tech.Initiative}</td>
                                       <td class="border-t border-gray-300 px-4 py-2">${tech.Impact}</td>
                                   </tr>`).join('')
-                                : '<tr><td colspan="2" class="px-4 py-2">No Technology Roadmap available.</td></tr>'
+                                : '<tr class="border-t border-gray-200"><td colspan="3" class="px-4 py-2 text-center">No Technology Roadmap available</td></tr>'
                             }
                           </tbody>
                       </table>
@@ -711,35 +721,61 @@ const generateReport = async (
 
 
                 const ctxD = document.getElementById('financialProjectionsChartDummy').getContext('2d');
-                
+
                 const dummyData = {
-                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'], // Example labels
-                    datasets: [{
-                        label: 'Projected Revenue',
-                        data: [10, 20, 30, 40, 50], // Example data points
-                        backgroundColor: 'rgba(200, 200, 200, 0.6)',
-                        borderColor: 'rgba(200, 200, 200, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                        pointBackgroundColor: 'rgba(200, 200, 200, 1)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgba(200, 200, 200, 1)',
-                    }]
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                    datasets: [
+                        {
+                            label: 'Revenue by A',
+                            data: [10, 25, 15, 35, 45], // Example data points with increases and decreases
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 3,
+                            fill: true,
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+                        },
+                        {
+                            label: 'Revenue by B',
+                            data: [8, 18, 10, 28, 35], // Example data points with different variations
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 3,
+                            fill: true,
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(255, 99, 132, 1)',
+                        },
+                        {
+                            label: 'Revenue by C',
+                            data: [2, 7, 5, 7, 10], // Net Profit line showing different pattern
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 3,
+                            fill: true,
+                            pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(75, 192, 192, 1)',
+                        }
+                    ]
                 };
 
                 // Create the chart using Chart.js
                 new Chart(ctxD, {
-                    type: 'line', // Line chart type
-                    data: dummyData, // Use dummy data
+                    type: 'line',
+                    data: dummyData,
                     options: {
-                        maintainAspectRatio: false, // Adjust chart size
+                        maintainAspectRatio: false,
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Revenue (in Millions)',
+                                    text: 'Amount (in Millions)',
                                     color: '#4A4A4A',
                                     font: {
                                         family: 'Arial',
@@ -769,23 +805,43 @@ const generateReport = async (
                         },
                         plugins: {
                             legend: {
-                                display: false, // Hide the legend
+                                display: true, // Show the legend to differentiate the lines
+                                position: 'top',
+                                labels: {
+                                    color: '#4A4A4A',
+                                    font: {
+                                        family: 'Arial',
+                                        size: 12,
+                                    }
+                                }
                             },
                             tooltip: {
-                                enabled: false, // Disable tooltips
+                                enabled: true, // Enable tooltips for better user interaction
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                titleFont: {
+                                    family: 'Arial',
+                                    size: 14,
+                                    weight: 'bold',
+                                },
+                                bodyFont: {
+                                    family: 'Arial',
+                                    size: 12,
+                                },
+                                cornerRadius: 4,
                             },
                         },
                         responsive: true,
                         layout: {
                             padding: {
-                                top: 10,
-                                right: 10,
-                                bottom: 10,
-                                left: 10
+                                top: 20,
+                                right: 20,
+                                bottom: 20,
+                                left: 20
                             }
                         },
                     }
                 });
+
 
 
 

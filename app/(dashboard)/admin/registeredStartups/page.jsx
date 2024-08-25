@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import useUserDetails from '@/hooks/useUserDetails';
 import useStartupsRaw from '@/hooks/useStartupsRaw';
@@ -10,6 +10,9 @@ import 'flatpickr/dist/flatpickr.css';
 import Textarea from '@/components/ui/Textarea';
 import Icon from '@/components/ui/Icon';
 import DocumentSubmissionModal from '@/components/documentModal';
+import generateReport from "@/components/report/report-functions";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CuratedDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
@@ -29,6 +32,8 @@ const CuratedDealflow = () => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showFullUSP, setShowFullUSP] = useState(false);
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
+
+  const toastIdRef = useRef(null);
 
   // console.log('startups:', startups);
   console.log('selectedStartup:', selectedStartup);
@@ -191,6 +196,122 @@ const CuratedDealflow = () => {
       setShowForm(false);
     } catch (error) {
       console.error('Unexpected error sending interest notification:', error);
+    }
+  };
+
+  const handleImageClick = async (type, selectedStartup) => {
+    if (type === 'investment') {
+      toastIdRef.current = toast.loading("Generating report, please wait...");
+
+      const firstUpdate = setTimeout(() => {
+        toast.update(toastIdRef.current, {
+          render: "Taking longer than usual...",
+          type: toast.TYPE.INFO,
+          isLoading: true,
+          autoClose: false,
+        });
+      }, 15000);
+    
+      // Second update after 10 seconds
+      const secondUpdate = setTimeout(() => {
+        toast.update(toastIdRef.current, {
+          render: "Almost there...",
+          type: toast.TYPE.INFO,
+          isLoading: true,
+          autoClose: false,
+        });
+      }, 30000);
+
+      const clearToastUpdates = () => {
+        clearTimeout(firstUpdate);
+        clearTimeout(secondUpdate);
+      };
+  
+      const companyProfile = selectedStartup?.company_profile;
+      console.log('selectedStartup?.company_profile', selectedStartup?.company_profile);
+      console.log("SELECTED STARTUP: ", selectedStartup);
+
+      const profiles = {
+        "company_logo": selectedStartup?.company_logo,
+        "id": selectedStartup?.id,
+        "name": selectedStartup?.name,
+        "user_type": selectedStartup?.user_type
+      }
+
+      try {
+        
+        const result = await generateReport(
+          companyProfile, 
+          companyProfile?.funding_information, 
+          companyProfile?.founder_information, 
+          companyProfile?.business_details,
+          companyProfile?.company_documents[0], 
+          companyProfile?.CTO_info, 
+          profiles, 
+          companyProfile?.short_description, 
+          companyProfile?.industry_sector,
+          companyProfile?.company_name || 'N/A', 
+          companyProfile?.current_stage, 
+          companyProfile?.funding_information?.previous_funding
+        );
+        
+        if (result.status === "docs") {
+          toast.update(toastIdRef.current, {
+            render: (
+                <div>
+                    Cannot generate report: Missing documents or incorrect format:
+                    <br />
+                    {result.message}
+                </div>
+            ),
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+        });
+          clearToastUpdates();
+        } else {
+          toast.update(toastIdRef.current, {
+            render: "Report generated successfully!",
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+          });
+          clearToastUpdates();
+
+          try {
+            const newWindow = window.open("", "_blank");
+
+            if (newWindow) {
+              newWindow.document.write(result.html);
+              newWindow.document.close();
+            } else {
+              throw new Error(
+                "Popup blocked. Please allow popups for this site."
+              );
+            }
+          } catch (error) {
+            toast.update(toastIdRef.current, {
+              render: `Cannot generate Report! ${error.message || error}`,
+              type: "error",
+              isLoading: false,
+              autoClose: 5000,
+            });
+            clearToastUpdates();
+          }
+        }
+      } catch (error) {
+        toast.update(toastIdRef.current, {
+          render: "Cannot generate Report!",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        clearToastUpdates();
+        console.error('Error generating report:', error);
+      }
+    } else {
+      setModalType(type);
+      setIsModalOpen(true);
     }
   };
 
@@ -2193,11 +2314,19 @@ const CuratedDealflow = () => {
                     </div>
                   </div>
                 )}
-                <div className='flex justify-between items-center mt-4'>
+                <div className='flex justify-center items-center mt-4'>
                   {' '}
                   <DocumentSubmissionModal
                     id={selectedStartup?.company_profile?.id}
                   />
+                  <button
+                  className='btn btn-outline-dark flex justify-between ml-10'
+                  onClick={() => {
+                    handleImageClick('investment', selectedStartup);
+                  }}
+                >
+                  Investment Readiness Report
+                </button>
                 </div>
               </div>
             </div>

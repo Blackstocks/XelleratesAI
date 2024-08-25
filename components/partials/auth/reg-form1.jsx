@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabaseclient';
 import Dropdowntype from '@/components/ui/Dropdown1';
 import InputGroup from '@/components/ui/InputGroup';
 import { handleFileUpload } from '@/lib/actions/insertformdetails';
+import PasswordInput from "@/components/partials/passwordInput"; // Adjust the path accordingly
+
 
 const schema = yup
   .object({
@@ -220,7 +222,7 @@ const RegForm1 = () => {
         register={register}
         error={errors.mobile}
       />
-      <Textinput
+      {/* <Textinput
         name='password'
         label='Password'
         type='password'
@@ -235,7 +237,23 @@ const RegForm1 = () => {
         placeholder='Confirm your password'
         register={register}
         error={errors.confirmpassword}
-      />
+      /> */}
+
+<PasswordInput
+  label="Password"
+  name="password"
+  placeholder='Type your password'
+  register={register}
+  error={errors.password}
+/>
+
+<PasswordInput
+  label="Confirm Password"
+  name="confirmpassword"
+  placeholder='Type your password'
+  register={register}
+  error={errors.confirmpassword}
+/>
       <Dropdowntype
         label={userType}
         items={[

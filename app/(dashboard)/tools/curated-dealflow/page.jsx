@@ -215,7 +215,7 @@ const CuratedDealflow = () => {
           isLoading: true,
           autoClose: false,
         });
-      }, 30000);
+      }, 15000);
 
       // Second update after 10 seconds
       const secondUpdate = setTimeout(() => {
@@ -225,7 +225,7 @@ const CuratedDealflow = () => {
           isLoading: true,
           autoClose: false,
         });
-      }, 60000);
+      }, 30000);
 
       const clearToastUpdates = () => {
         clearTimeout(firstUpdate);
@@ -273,7 +273,7 @@ const CuratedDealflow = () => {
           selectedStartup?.funding_information?.previous_funding
         );
 
-        if (result.status === 'error') {
+        if (result.status === 'docs') {
           toast.update(toastIdRef.current, {
             render: (
               <div>

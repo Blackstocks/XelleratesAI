@@ -79,7 +79,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
           isLoading: true,
           autoClose: false,
         });
-      }, 30000);
+      }, 15000);
 
       // Second update after 10 seconds
       const secondUpdate = setTimeout(() => {
@@ -89,7 +89,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
           isLoading: true,
           autoClose: false,
         });
-      }, 60000);
+      }, 30000);
 
       // Ensure to clear the timeouts if the process completes early or fails
       const clearToastUpdates = () => {
@@ -130,7 +130,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
                 {result.message}
               </div>
             ),
-            type: 'error',
+            type: 'warning',
             isLoading: false,
             autoClose: 5000,
           });

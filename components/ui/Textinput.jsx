@@ -112,25 +112,21 @@ const Textinput = ({
         )}
         {/* icon */}
         <div className="flex text-xl absolute ltr:right-[14px] rtl:left-[14px] top-1/2 -translate-y-1/2  space-x-1 rtl:space-x-reverse">
-          {hasicon && (
-            <span
-              className="cursor-pointer text-secondary-500"
-              onClick={handleOpen}
-            >
-              {open && type === "password" && (
-                <Icon icon="heroicons-outline:eye" />
-              )}
-              {!open && type === "password" && (
-                <Icon icon="heroicons-outline:eye-off" />
-              )}
-            </span>
-          )}
+        {!error && hasicon && (
+    <span
+      className="cursor-pointer text-secondary-500 absolute inset-y-0 right-0 pr-3 flex items-center"
+      onClick={handleOpen}
+    >
+      {open && type === "password" && <Icon icon="heroicons-outline:eye" />}
+      {!open && type === "password" && <Icon icon="heroicons-outline:eye-off" />}
+    </span>
+  )}
 
-          {error && (
-            <span className="text-danger-500">
-              <Icon icon="heroicons-outline:information-circle" />
-            </span>
-          )}
+  {error && (
+    <span className="text-danger-500 absolute inset-y-0 right-0 pr-4 flex items-center">
+      <Icon icon="heroicons-outline:information-circle" />
+    </span>
+  )}
           {validate && (
             <span className="text-success-500">
               <Icon icon="bi:check-lg" />
