@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 
 const useStartups = (investorProfileId) => {
-  console.log('Investor Profile ID:', investorProfileId);
   const [startups, setStartups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [startupCount, setStartupCount] = useState(0);

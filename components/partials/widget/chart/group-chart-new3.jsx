@@ -4,6 +4,8 @@ import useMatchingStartups from '@/hooks/useMatchingStartups';
 import React from 'react';
 import useStartups from '@/hooks/useStartups';
 import useUserDetails from '@/hooks/useUserDetails';
+
+import useInvestorMeetingCount from '@/hooks/useInvestorMeetingCount'; // Import the hook
 const statisticsTemplate = [
   {
     title: 'Total Startups',
@@ -52,6 +54,9 @@ const GroupChartNew3 = () => {
   const { matchingStartups, loading: matchingLoading } = useMatchingStartups();
   const { user, loading: userLoading } = useUserDetails();
   const { startupCount: curatedCount } = useStartups(user?.id);
+  const { meetingCount, loading: meetingLoading } = useInvestorMeetingCount(
+    user?.id
+  );
 
   const statistics = statisticsTemplate.map((stat) => {
     if (stat.title === 'Total Startups') {
@@ -60,10 +65,14 @@ const GroupChartNew3 = () => {
     if (stat.title === 'Curated Startups') {
       return { ...stat, count: matchingLoading ? 'Loading...' : curatedCount };
     }
+    if (stat.title === 'Open Conversations') {
+      return { ...stat, count: meetingLoading ? 'Loading...' : meetingCount };
+    }
     return stat;
   });
 
-  const isLoading = startupsLoading || matchingLoading || userLoading;
+  const isLoading =
+    startupsLoading || matchingLoading || userLoading || meetingLoading;
 
   return (
     <>

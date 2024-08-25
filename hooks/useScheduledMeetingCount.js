@@ -2,14 +2,12 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 
 const useScheduledMeetingCount = (startupId) => {
-  console.log('startupId:', startupId);
   const [scheduledMeetingCount, setScheduledMeetingCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchScheduledMeetingCount = async () => {
       setLoading(true);
-
       try {
         // Fetch count of scheduled meetings with this startup
         const { count, error } = await supabase
