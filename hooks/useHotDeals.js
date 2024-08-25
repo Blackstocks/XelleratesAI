@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseclient'; // Ensure the correct path to your Supabase client
 
 const useHotDeals = (investorId, shouldFetch = true) => {
-  console.log('useHotDeals investorId:', investorId);
+  // console.log('useHotDeals investorId:', investorId);
   const [hotDeals, setHotDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

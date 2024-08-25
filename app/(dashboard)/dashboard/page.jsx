@@ -207,8 +207,8 @@ const Dashboard = () => {
   } = useCompleteUserDetails();
   const [isDataFetched, setIsDataFetched] = useState(false);
 
-  console.log('COMPANY PROFILE: ', companyProfile);
-  console.log('COMPANY DOCS: ', companyDocuments);
+  // console.log('COMPANY PROFILE: ', companyProfile);
+  // console.log('COMPANY DOCS: ', companyDocuments);
   const toastIdRef = useRef(null);
 
   useEffect(() => {
@@ -249,7 +249,6 @@ const Dashboard = () => {
       }
 
       const company_id = companyProfile?.id;
-
       if (!companyDocuments?.mis) {
         toast.warn('Please upload MIS Report to see Financial Data');
       } else if (!companyDocuments.mis.endsWith('.xlsx')) {
@@ -261,6 +260,7 @@ const Dashboard = () => {
           throw new Error('Company ID is not available');
         }
 
+        // API request to extract financial data
         const response = await fetch('/api/apiDataExtraction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -298,8 +298,8 @@ const Dashboard = () => {
 
   const handleUnlockClick = async (cardName, user) => {
     if (user?.user_type === 'startup') {
-      if (!user || completeUserDetailsLoading) {
-        toast.warn('Please wait, loading data...');
+      if (!user || completeUserDetailsLoading || !companyProfile) {
+        toast.error('Please wait, loading data...');
         return;
       }
     }
@@ -380,20 +380,34 @@ const Dashboard = () => {
       <div className='relative'>
         {!unlockedCards[cardName] && (
           <div className='absolute inset-0 flex flex-col items-center justify-center z-10 text-xl font-semibold text-slate-700 bg-opacity-50'>
-            {isDataFetched && !companyProfile ? (
-              <span style={{ textAlign: 'center' }}>
-                Please fill startup profile to unlock this feature
-              </span>
+            {user?.user_type === 'startup' ? (
+              <div>
+                {isDataFetched && !companyProfile ? (
+                  <span style={{ textAlign: 'center' }}>
+                    Please fill startup profile to unlock this feature
+                  </span>
+                ) : (
+                  <>
+                    {/* <span>Unlock through credits</span> */}
+                    <button
+                      onClick={() => handleUnlockClick(cardName, user)}
+                      className='mt-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
+                    >
+                      Unlock
+                    </button>
+                  </>
+                )}
+              </div>
             ) : (
-              <>
-                {/* <span>Unlock through credits</span> */}
+              <div>
+                <span>Unlock through credits</span>
                 <button
-                  onClick={() => handleUnlockClick(cardName, user)}
+                  onClick={() => handleUnlockClick(cardName)}
                   className='mt-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
                 >
                   Unlock
                 </button>
-              </>
+              </div>
             )}
           </div>
         )}
@@ -423,7 +437,7 @@ const Dashboard = () => {
                 <div className='lg:col-span-8 col-span-12 space-y-5'>
                   <Card>
                     <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-                      <GroupChart3 />
+                      <GroupChart3 startupId={companyProfile?.id} />
                     </div>
                   </Card>
                   {renderLockedCard(
