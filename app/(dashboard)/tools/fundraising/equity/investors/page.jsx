@@ -13,6 +13,7 @@ const InvestorDealflow = () => {
   const { profile, loading: profileLoading } = useCompleteUserDetails();
   const [investors, setInvestors] = useState([]);
   const [filteredInvestors, setFilteredInvestors] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [investorsLoading, setInvestorsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [dealflowEntries, setDealflowEntries] = useState([]);
@@ -33,6 +34,7 @@ const InvestorDealflow = () => {
   const [connectClicked, setConnectClicked] = useState(false);
   const [hasConnected, setHasConnected] = useState(false); // Track if user has connected before
   const [assignedInvestors, setAssignedInvestors] = useState([]); // State for assigned investors
+  const [filteredAssignedInvestors, setFilteredAssignedInvestors] = useState([]); // State for filtered assigned investors
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false); // State for message modal
 
   const itemsPerPage = 8;
@@ -162,6 +164,7 @@ const InvestorDealflow = () => {
           }));
 
           setAssignedInvestors(mappedInvestors);
+          setFilteredAssignedInvestors(mappedInvestors); // Initialize filtered assigned investors with all assigned investors
         } catch (error) {
           console.error("Error fetching assigned investors:", error.message);
         }
@@ -170,35 +173,42 @@ const InvestorDealflow = () => {
   }, [user, hasConnected]);
 
   useEffect(() => {
-    // Apply filters to the investors
-    const applyFilters = () => {
-      const filtered = investors.filter((investor) => {
+    // Apply filters and search to both the main and assigned investors
+    const applyFilters = (investorsList) => {
+      return investorsList.filter((investor) => {
         const matchesLocation =
           !selectedFilters.location ||
-          investor.Geography?.includes(selectedFilters.location);
+          investor.investor_signup?.Geography?.includes(selectedFilters.location);
         const matchesInvestmentType =
           !selectedFilters.investmentType ||
-          investor.typeof?.includes(selectedFilters.investmentType);
+          investor.investor_signup?.typeof?.includes(selectedFilters.investmentType);
         const matchesSector =
           !selectedFilters.sector ||
-          investor.sectors?.includes(selectedFilters.sector);
+          investor.investor_signup?.sectors?.includes(selectedFilters.sector);
         const matchesInvestmentStage =
           !selectedFilters.investmentStage ||
-          investor.investment_stage?.includes(selectedFilters.investmentStage);
+          investor.investor_signup?.investment_stage?.includes(selectedFilters.investmentStage);
+
+        const matchesSearch =
+          !searchQuery ||
+          investor.investor_signup?.name
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase());
 
         return (
           matchesLocation &&
           matchesInvestmentType &&
           matchesSector &&
-          matchesInvestmentStage
+          matchesInvestmentStage &&
+          matchesSearch
         );
       });
-      setFilteredInvestors(filtered);
-      setCurrentPage(1); // Reset to first page when filters change
     };
 
-    applyFilters();
-  }, [selectedFilters, investors]);
+    setFilteredInvestors(applyFilters(investors));
+    setFilteredAssignedInvestors(applyFilters(assignedInvestors));
+    setCurrentPage(1); // Reset to first page when filters or search change
+  }, [selectedFilters, searchQuery, investors, assignedInvestors]);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -258,6 +268,7 @@ const InvestorDealflow = () => {
       sector: "",
       investmentStage: "",
     });
+    setSearchQuery(""); // Clear search query as well
   };
 
   const handleAddDealflow = (newEntry) => {
@@ -284,7 +295,7 @@ const InvestorDealflow = () => {
       }
 
       // Update the local state
-      setAssignedInvestors((prevInvestors) =>
+      setFilteredAssignedInvestors((prevInvestors) =>
         prevInvestors.map((investor) =>
           investor.id === investorId
             ? { ...investor, comments: comment }
@@ -420,6 +431,17 @@ const InvestorDealflow = () => {
           </div>
         </div>
 
+        <div className="mb-4">
+          <h2 className="text-xl font-bold mb-2">Search</h2>
+          <input
+            type="text"
+            placeholder="Search by Investor Name"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded"
+          />
+        </div>
+
         {hasConnected ? (
           <div className="overflow-x-auto">
             <h2 className="text-xl font-bold mb-2">Assigned Investors</h2>
@@ -456,7 +478,7 @@ const InvestorDealflow = () => {
                 </tr>
               </thead>
               <tbody>
-                {assignedInvestors.map((investor, index) => (
+                {filteredAssignedInvestors.map((investor, index) => (
                   <tr
                     key={index}
                     className={`hover:bg-gray-100 transition-colors ${
@@ -464,22 +486,22 @@ const InvestorDealflow = () => {
                     }`}
                   >
                     <td className="py-2 px-4 border-b border-gray-300">
-                      {investor.investor_signup.name || "N/A"}
+                      {investor.investor_signup?.name || "N/A"}
                     </td>
                     <td className="py-2 px-4 border-b border-gray-300">
-                      {investor.investor_signup.Geography || "N/A"}
+                      {investor.investor_signup?.Geography || "N/A"}
                     </td>
                     <td className="py-2 px-4 border-b border-gray-300">
-                      {investor.investor_signup.typeof || "N/A"}
+                      {investor.investor_signup?.typeof || "N/A"}
                     </td>
                     <td className="py-2 px-4 border-b border-gray-300">
-                      {investor.investor_signup.sectors || "N/A"}
+                      {investor.investor_signup?.sectors || "N/A"}
                     </td>
                     <td className="py-2 px-4 border-b border-gray-300">
-                      {investor.investor_signup.investment_stage || "N/A"}
+                      {investor.investor_signup?.investment_stage || "N/A"}
                     </td>
                     <td className="py-2 px-4 border-b border-gray-300">
-                      {investor.investor_signup.company_name || "N/A"}
+                      {investor.investor_signup?.company_name || "N/A"}
                     </td>
                     <td className="py-2 px-4 border-b border-gray-300">
                       {investor.input_to_startup || "N/A"}
