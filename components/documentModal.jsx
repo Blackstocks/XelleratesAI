@@ -38,8 +38,7 @@ const documentTypeOptions = [
 ];
 
 const DocumentSubmissionModal = ({ id }) => {
-  //   console.log('id', id);
-  // Ensure `id` is passed as a prop
+  const startup_id = id; // Ensure correct extraction of the startup ID
   const { user } = useUserDetails();
   const {
     handleSubmit,
@@ -51,7 +50,8 @@ const DocumentSubmissionModal = ({ id }) => {
 
   const handleDocumentSubmit = async (data) => {
     const investorId = user?.id;
-    const startupId = id; // Ensure correct extraction of the startup ID
+    const role = user?.role;
+    const startupId = startup_id; // Ensure correct extraction of the startup ID
 
     try {
       setIsLoading(true); // Start loading state
@@ -70,6 +70,7 @@ const DocumentSubmissionModal = ({ id }) => {
         body: JSON.stringify({
           investorId,
           startupId,
+          role,
           documents, // Send the documents array with both value and label
         }),
       });
