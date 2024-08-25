@@ -55,9 +55,11 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       return;
     }
 
-    if (loading || !companyProfile || !fundingInformation || !founderInformation) {
-      toast.warning("Please wait, data is still loading...");
-      return;
+    if (type === "startup") {
+      if (loading || !companyProfile || !fundingInformation || !founderInformation){
+        toast.warning("Please wait, data is still loading...");
+        return;
+      }
     }
 
     if (type === "investment") {
@@ -233,30 +235,30 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
               <img
                 src="/assets/images/dashboard/investment-readiness.png"
                 alt="Investment Readiness"
-                className="block dark:hidden w-full h-auto cursor-pointer"
-                onClick={() => handleImageClick("investment")}
+                className={`block dark:hidden w-full h-auto cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={!loading ? () => handleImageClick("investment") : null}
               />
               <img
                 src="/assets/images/dashboard/investment-readinessdark.svg"
                 alt="Investment Readiness Dark"
-                className="hidden dark:block w-full h-auto cursor-pointer"
-                onClick={() => handleImageClick("investment")}
+                className={`hidden dark:block w-full h-auto cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={!loading ? () => handleImageClick("investment") : null}
               />
             </>
           ) : (
             <>
               <img
-  src="/assets/images/dashboard/investment-readiness.png"
-  alt="Investment Readiness"
-  className={`block dark:hidden w-full h-auto cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-  onClick={!loading ? () => handleImageClick("investment") : null}
-/>
-<img
-  src="/assets/images/dashboard/investment-readinessdark.svg"
-  alt="Investment Readiness Dark"
-  className={`hidden dark:block w-full h-auto cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-  onClick={!loading ? () => handleImageClick("investment") : null}
-/>
+                src="/assets/images/dashboard/latest-insight.png"
+                alt="Latest Insight"
+                className="block dark:hidden w-full h-auto cursor-pointer"
+                onClick={() => handleImageClick("insight")}
+              />
+              <img
+                src="/assets/images/dashboard/latest-insightdark.svg"
+                alt="Latest Insight Dark"
+                className="hidden dark:block w-full h-auto cursor-pointer"
+                onClick={() => handleImageClick("insight")}
+              />
             </>
           )}
         </div>
