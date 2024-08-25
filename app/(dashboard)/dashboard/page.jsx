@@ -199,7 +199,7 @@ const Dashboard = () => {
   //
   const [financials, setFinancials] = useState([]);
   const [loadingFinancials, setLoadingFinancials] = useState(false);
-  const {companyProfile, loading: completeUserDetailsLoading} = useCompleteUserDetails();
+  const {companyProfile, companyDocuments, loading: completeUserDetailsLoading} = useCompleteUserDetails();
   const toastIdRef = useRef(null);
 
   useEffect(() => {
@@ -239,33 +239,39 @@ const Dashboard = () => {
       }
   
       const company_id = companyProfile?.id;
-  
-      if (!company_id) {
-        throw new Error('Company ID is not available');
-      }
-  
-      // API request to extract financial data
-      const response = await fetch('/api/apiDataExtraction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company_id }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error:', errorData.error);
-  
-        if (errorData.error === 'MIS file not found') {
-          toast.error('Please upload MIS Report to see Financial Data.');
-        } else {
-          toast.error(errorData.error || 'Failed to load financial data');
+      
+      if (!companyDocuments?.mis) {
+        toast.warn('Please upload MIS Report to see Financial Data.');
+      } else{     
+          if (!company_id) {
+            throw new Error('Company ID is not available');
+          }
+
+
+
+          // API request to extract financial data
+          const response = await fetch('/api/apiDataExtraction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ company_id }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error:', errorData.error);
+
+            if (errorData.error === 'MIS file not found') {
+              toast.error('Please upload MIS Report to see Financial Data.');
+            } else {
+              toast.error(errorData.error || 'Failed to load financial data');
+            }
+
+            return;
+          }
+
+          const data = await response.json();
+          setFinancialData(data);
         }
-  
-        return;
-      }
-  
-      const data = await response.json();
-      setFinancialData(data);
     } catch (error) {
       console.error('Error fetching financial data:', error.message);
       toast.error('An unexpected error occurred');
@@ -273,6 +279,7 @@ const Dashboard = () => {
       setLoadingFinancials(false);
       toast.dismiss(toastIdRef.current);
     }
+  
   };
   
 
