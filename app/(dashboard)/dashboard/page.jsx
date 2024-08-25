@@ -24,7 +24,8 @@ const Portfolios = [
 ];
 
 const RecentOrderTable = () => {
-  const { fundingInformation, loading: completeUserDetailsLoading } = useCompleteUserDetails();
+  const { fundingInformation, loading: completeUserDetailsLoading } =
+    useCompleteUserDetails();
 
   const data = useMemo(
     () => fundingInformation?.cap_table || [],
@@ -199,7 +200,8 @@ const Dashboard = () => {
   //
   const [financials, setFinancials] = useState([]);
   const [loadingFinancials, setLoadingFinancials] = useState(false);
-  const {companyProfile, loading: completeUserDetailsLoading} = useCompleteUserDetails();
+  const { companyProfile, loading: completeUserDetailsLoading } =
+    useCompleteUserDetails();
   const toastIdRef = useRef(null);
 
   useEffect(() => {
@@ -232,38 +234,38 @@ const Dashboard = () => {
     try {
       setLoadingFinancials(true);
       toastIdRef.current = toast.loading('Loading financial data...');
-  
+
       // Ensure companyProfile is loaded before proceeding
       if (!companyProfile) {
         throw new Error('Company profile is not available');
       }
-  
+
       const company_id = companyProfile?.id;
-  
+
       if (!company_id) {
         throw new Error('Company ID is not available');
       }
-  
+
       // API request to extract financial data
       const response = await fetch('/api/apiDataExtraction', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company_id }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Error:', errorData.error);
-  
+
         if (errorData.error === 'MIS file not found') {
           toast.error('MIS file is not present.');
         } else {
           toast.error(errorData.error || 'Failed to load financial data');
         }
-  
+
         return;
       }
-  
+
       const data = await response.json();
       setFinancialData(data);
     } catch (error) {
@@ -274,14 +276,12 @@ const Dashboard = () => {
       toast.dismiss(toastIdRef.current);
     }
   };
-  
 
   const handleQuarterChange = (e) => {
     setSelectedQuarter(e.target.value);
   };
 
   const handleUnlockClick = async (cardName) => {
-
     if (!user || completeUserDetailsLoading || !companyProfile) {
       toast.error('Please wait, loading data...');
       return;
@@ -302,9 +302,9 @@ const Dashboard = () => {
     '07': 'July',
     '08': 'August',
     '09': 'September',
-    '10': 'October',
-    '11': 'November',
-    '12': 'December',
+    10: 'October',
+    11: 'November',
+    12: 'December',
   };
 
   const renderFinancialData = () => {
@@ -380,186 +380,184 @@ const Dashboard = () => {
   );
 
   if (loading || completeUserDetailsLoading) {
-  return <Loading />;
-}
-
+    return <Loading />;
+  }
 
   return (
-    <div className="w-full">
-  <div className={`${isModalOpen ? 'blur-background' : ''}`}>
-    {user?.user_type === 'startup' && (
-      <div>
-        <HomeBredCurbs
-          title="Crm"
-          companyName={companyName}
-          userType={user.user_type}
-        />
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            <div className="lg:col-span-8 col-span-12 space-y-5">
-              <Card>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  <GroupChart3 />
+    <div className='w-full'>
+      <div className={`${isModalOpen ? 'blur-background' : ''}`}>
+        {user?.user_type === 'startup' && (
+          <div>
+            <HomeBredCurbs
+              title='Crm'
+              companyName={companyName}
+              userType={user.user_type}
+            />
+            <div className='space-y-5'>
+              <div className='grid grid-cols-1 lg:grid-cols-12 gap-5'>
+                <div className='lg:col-span-8 col-span-12 space-y-5'>
+                  <Card>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
+                      <GroupChart3 startupId={companyProfile?.id} />
+                    </div>
+                  </Card>
+                  {renderLockedCard(
+                    'Top Conversations',
+                    <div className='col-span-12'>
+                      <RecentOrderTable2 />
+                    </div>,
+                    'topConversations'
+                  )}
                 </div>
-              </Card>
-              {renderLockedCard(
-                'Top Conversations',
-                <div className="col-span-12">
-                  <RecentOrderTable2 />
-                </div>,
-                'topConversations'
-              )}
+                <div className='lg:col-span-4 col-span-12 space-y-5'>
+                  {renderLockedCard(
+                    'Current Numbers',
+                    <div>
+                      <div className='flex flex-col md:flex-row justify-between items-center mb-4'>
+                        <span>Select Time Frame:</span>
+                        <select
+                          value={selectedQuarter}
+                          onChange={handleQuarterChange}
+                          className='border p-2 rounded mt-2 md:mt-0'
+                        >
+                          {['Q1', 'Q2', 'Q3', 'Q4', 'Yearly'].map((quarter) => (
+                            <option key={quarter} value={quarter}>
+                              {quarter}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        {loadingFinancials ? (
+                          <div className='py-4 text-center'>
+                            Loading financial data...
+                          </div>
+                        ) : (
+                          renderFinancialData()
+                        )}
+                      </div>
+                    </div>,
+                    'currentNumbers'
+                  )}
+
+                  {renderLockedCard(
+                    'Cap Table',
+                    <div>
+                      <div className='flex justify-between items-center'>
+                        <div className='text-lg font-semibold'>Cap Table</div>
+                        <label className='flex items-center'>
+                          <input
+                            type='checkbox'
+                            className='form-checkbox'
+                            checked={isTableViewChecked}
+                            onChange={handleCheckboxChange}
+                          />
+                          <span className='ml-2'>Table View</span>
+                        </label>
+                      </div>
+                      <div className='legend-ring3'>
+                        <Calculation />
+                      </div>
+                    </div>,
+                    'capTable'
+                  )}
+                </div>
+              </div>
+              <Chatbot />
             </div>
-            <div className="lg:col-span-4 col-span-12 space-y-5">
-            {renderLockedCard(
-  'Current Numbers',
-  <div>
-    <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-      <span>Select Time Frame:</span>
-      <select
-        value={selectedQuarter}
-        onChange={handleQuarterChange}
-        className="border p-2 rounded mt-2 md:mt-0"
-      >
-        {['Q1', 'Q2', 'Q3', 'Q4', 'Yearly'].map((quarter) => (
-          <option key={quarter} value={quarter}>
-            {quarter}
-          </option>
-        ))}
-      </select>
-    </div>
-    <div>
-      {loadingFinancials ? (
-        <div className="py-4 text-center">Loading financial data...</div>
-      ) : (
-        renderFinancialData()
+          </div>
+        )}
+        {user?.user_type === 'investor' && (
+          <div>
+            <HomeBredCurbs
+              title='Crm'
+              companyName={companyName}
+              userType={user.user_type}
+            />
+            <div className='space-y-5'>
+              <div className='grid grid-cols-1 lg:grid-cols-12 gap-5'>
+                <div className='lg:col-span-8 col-span-12 space-y-5'>
+                  <Card>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+                      <GroupChartNew3 />
+                    </div>
+                  </Card>
+                </div>
+                <div className='lg:col-span-4 col-span-12 space-y-5'>
+                  {renderLockedCard(
+                    'Top Performing Portfolios',
+                    <ul className='divide-y divide-slate-100 dark:divide-slate-700'>
+                      {Portfolios.map((item, i) => (
+                        <li
+                          key={i}
+                          className='first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase'
+                        >
+                          <div className='flex justify-between'>
+                            <span>{item.name}</span>
+                            <span>{item.value}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>,
+                    'topPerformingPortfolios'
+                  )}
+                </div>
+              </div>
+              <div className='grid grid-cols-1 lg:grid-cols-12 gap-5'>
+                <div className='lg:col-span-7 col-span-12 space-y-5'>
+                  {renderLockedCard(
+                    'Top Conversations',
+                    <div className='col-span-12'>
+                      <RecentOrderTable2 />
+                    </div>,
+                    'topConversations'
+                  )}
+                </div>
+                <div className='lg:col-span-5 col-span-12 space-y-5'>
+                  {renderLockedCard(
+                    'Hot Deals',
+                    <div>
+                      <Customer />
+                    </div>,
+                    'hotDeals'
+                  )}
+                </div>
+              </div>
+              <Chatbot />
+            </div>
+          </div>
+        )}
+      </div>
+      <style jsx>{`
+        .blur {
+          filter: blur(8px);
+        }
+        .blur-background {
+          filter: blur(8px);
+        }
+      `}</style>
+
+      {isModalOpen && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
+          <div className='bg-white rounded-lg shadow-lg overflow-hidden w-full md:w-3/4 lg:w-1/2 h-3/4'>
+            <div className='p-4 flex justify-end'>
+              <button
+                className='text-gray-500 hover:text-gray-700'
+                onClick={handleCloseModal}
+              >
+                ✕
+              </button>
+            </div>
+            <div className='p-4 overflow-y-auto h-full'>
+              <h2 className='text-xl font-semibold mb-4'>
+                Cap Table (Table View)
+              </h2>
+              <RecentOrderTable />
+            </div>
+          </div>
+        </div>
       )}
     </div>
-  </div>,
-  'currentNumbers'
-)}
-
-
-
-              {renderLockedCard(
-                'Cap Table',
-                <div>
-                  <div className="flex justify-between items-center">
-                    <div className="text-lg font-semibold">Cap Table</div>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="form-checkbox"
-                        checked={isTableViewChecked}
-                        onChange={handleCheckboxChange}
-                      />
-                      <span className="ml-2">Table View</span>
-                    </label>
-                  </div>
-                  <div className="legend-ring3">
-                    <Calculation />
-                  </div>
-                </div>,
-                'capTable'
-              )}
-            </div>
-          </div>
-          <Chatbot />
-        </div>
-      </div>
-    )}
-    {user?.user_type === 'investor' && (
-      <div>
-        <HomeBredCurbs
-          title="Crm"
-          companyName={companyName}
-          userType={user.user_type}
-        />
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            <div className="lg:col-span-8 col-span-12 space-y-5">
-              <Card>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                  <GroupChartNew3 />
-                </div>
-              </Card>
-            </div>
-            <div className="lg:col-span-4 col-span-12 space-y-5">
-              {renderLockedCard(
-                'Top Performing Portfolios',
-                <ul className="divide-y divide-slate-100 dark:divide-slate-700">
-                  {Portfolios.map((item, i) => (
-                    <li
-                      key={i}
-                      className="first:text-xs text-sm first:text-slate-600 text-slate-600 dark:text-slate-300 py-2 first:uppercase"
-                    >
-                      <div className="flex justify-between">
-                        <span>{item.name}</span>
-                        <span>{item.value}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>,
-                'topPerformingPortfolios'
-              )}
-            </div>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            <div className="lg:col-span-7 col-span-12 space-y-5">
-              {renderLockedCard(
-                'Top Conversations',
-                <div className="col-span-12">
-                  <RecentOrderTable2 />
-                </div>,
-                'topConversations'
-              )}
-            </div>
-            <div className="lg:col-span-5 col-span-12 space-y-5">
-              {renderLockedCard(
-                'Hot Deals',
-                <div>
-                  <Customer />
-                </div>,
-                'hotDeals'
-              )}
-            </div>
-          </div>
-          <Chatbot />
-        </div>
-      </div>
-    )}
-  </div>
-  <style jsx>{`
-    .blur {
-      filter: blur(8px);
-    }
-    .blur-background {
-      filter: blur(8px);
-    }
-  `}</style>
-
-  {isModalOpen && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full md:w-3/4 lg:w-1/2 h-3/4">
-        <div className="p-4 flex justify-end">
-          <button
-            className="text-gray-500 hover:text-gray-700"
-            onClick={handleCloseModal}
-          >
-            ✕
-          </button>
-        </div>
-        <div className="p-4 overflow-y-auto h-full">
-          <h2 className="text-xl font-semibold mb-4">
-            Cap Table (Table View)
-          </h2>
-          <RecentOrderTable />
-        </div>
-      </div>
-    </div>
-  )}
-</div>
-
   );
 };
 

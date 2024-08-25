@@ -1,66 +1,50 @@
-"use client";
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseclient";
-import Icon from "@/components/ui/Icon";
+'use client';
+import useInvestorCounts from '@/hooks/useInvestorCounts'; // Adjust the path based on your project structure
+import useScheduledMeetingCount from '@/hooks/useScheduledMeetingCount'; // Adjust the path based on your project structure
 
-const GroupChart3 = () => {
-  const [investorCount, setInvestorCount] = useState(0);
-
-  useEffect(() => {
-    const fetchInvestorCount = async () => {
-      const { count, error } = await supabase
-        .from("investor_signup")
-        .select("*", { count: "exact" });
-
-      if (error) {
-        console.error("Error fetching investor count:", error);
-      } else {
-        setInvestorCount(count);
-      }
-    };
-
-    fetchInvestorCount();
-  }, []);
+const GroupChart3 = ({ startupId }) => {
+  const { investorCount, assignedInvestorCount, loading } = useInvestorCounts();
+  const { scheduledMeetingCount, loading: meetingLoading } =
+    useScheduledMeetingCount(startupId);
 
   const statistics = [
     {
-      title: "Available Investors",
-      count: investorCount.toString(),
-      img: "/assets/images/dashboard/sdash1.svg",
+      title: 'Available Investors',
+      count: loading ? 'Loading...' : investorCount.toString(),
+      img: '/assets/images/dashboard/sdash1.svg',
     },
     {
-      title: "Reach Out",
-      count: "0",
-      img: "/assets/images/dashboard/sdash2.svg",
+      title: 'Reach Out',
+      count: loading ? 'Loading...' : assignedInvestorCount.toString(),
+      img: '/assets/images/dashboard/sdash2.svg',
     },
     {
-      title: "Interest Received",
-      count: "0",
-      img: "/assets/images/dashboard/sdash3.svg",
+      title: 'Scheduled Meetings',
+      count: meetingLoading ? 'Loading...' : scheduledMeetingCount.toString(), // New scheduled meetings count
+      img: '/assets/images/dashboard/sdash3.svg',
     },
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4">
-  {statistics.map((item, i) => (
-    <div key={i} className="relative w-35 h-32 flex-shrink-0 ml-3">
-      <img
-        src={item.img}
-        alt={item.title}
-        draggable="false"
-        className="w-full h-full object-contain rounded-md"
-      />
-      <div className="absolute inset-0 flex items-center justify-center ml-2">
-        <div className="bg-white dark:bg-slate-900 rounded-full h-10 w-10 flex items-center justify-center ml-12">
-          <span className="text-xl text-slate-900 dark:text-white font-medium">
-            {item.count}
-          </span>
+    <div className='flex flex-col lg:flex-row gap-4'>
+      {statistics.map((item, i) => (
+        <div key={i} className='relative w-35 h-32 flex-shrink-0 ml-3'>
+          <img
+            src={item.img}
+            alt={item.title}
+            draggable='false'
+            className='w-full h-full object-contain rounded-md'
+          />
+          <div className='absolute inset-0 flex items-center justify-center ml-2'>
+            <div className='bg-white dark:bg-slate-900 rounded-full h-10 w-10 flex items-center justify-center ml-12'>
+              <span className='text-xl text-slate-900 dark:text-white font-medium'>
+                {item.count}
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+      ))}
     </div>
-  ))}
-</div>
-
   );
 };
 
