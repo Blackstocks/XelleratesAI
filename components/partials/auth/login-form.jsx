@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import icons for eye and eye-slash
 
 const schema = yup
   .object({
@@ -20,6 +21,7 @@ const schema = yup
 
 const LoginForm = () => {
   const [checked, setChecked] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
   const {
     register,
     formState: { errors },
@@ -31,6 +33,10 @@ const LoginForm = () => {
 
   const router = useRouter();
   const { login } = useAuth();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevState) => !prevState);
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -134,14 +140,22 @@ const LoginForm = () => {
         register={register}
         error={errors?.email}
       />
-      <Textinput
-        name='password'
-        label='Password'
-        type='password'
-        placeholder='Type your password'
-        register={register}
-        error={errors.password}
-      />
+      <div className='relative'>
+        <Textinput
+          name='password'
+          label='Password'
+          type={showPassword ? 'text' : 'password'}
+          placeholder='Type your password'
+          register={register}
+          error={errors.password}
+        />
+        <div
+          onClick={togglePasswordVisibility}
+          className='absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 cursor-pointer'
+        >
+          {showPassword ? <FaEyeSlash /> : <FaEye />}
+        </div>
+      </div>
       <div className='flex justify-between'>
         <Checkbox
           value={checked}

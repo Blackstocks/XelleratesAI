@@ -67,25 +67,40 @@ const Equity = () => {
 
   const fetchGstinData = async (gstin) => {
     try {
-      const response = await fetch(`/api/gstin?gstin=${gstin}`);
+      setLoading(true);  // Start the loading indicator
+  
+      // Make a request to the apisetu.gov.in API
+      const response = await fetch(
+        `https://apisetu.gov.in/gstn/v1/taxpayers/${gstin}`,
+        {
+          headers: {
+            accept: "application/json",
+            "X-APISETU-CLIENTID": "com.xellerates",
+            "X-APISETU-APIKEY": "roGCqhznIzXVJxyKVzyjCMgQoNuL1FeL",
+          },
+        }
+      );
+  
+      // Check if the response is not okay (i.e., status code is not in the 200 range)
       if (!response.ok) {
-        throw new Error("Please enter a valid GSTIN data");
+        throw new Error("Invalid GSTIN or API error");
       }
+  
+      // Parse the response data as JSON
       const data = await response.json();
       console.log("GSTIN data fetched:", data);
-
-      // Check if the status is "Canceled" or "Expired"
-      if (data.status === "Cancelled" || data.status === "Expired") {
-        throw new Error(
-          `GSTIN status is ${data.status}. Please provide a valid GSTIN.`
-        );
+  
+      // Check the status of the GSTIN in the response
+      if (data.status !== "Active") {
+        throw new Error(`GSTIN status is ${data.status}. Please provide a valid GSTIN.`);
       }
-
+  
       const formattedRegistrationDate = convertDateToYMD(data.registrationDate);
       const formattedCancellationDate = data.cancellationDate
         ? convertDateToYMD(data.cancellationDate)
         : null;
-
+  
+      // Insert GSTIN data into Supabase
       const { error } = await supabase.from("debt_gstin").insert({
         user_id: user.id,
         gstin: data.gstin,
@@ -97,62 +112,39 @@ const Equity = () => {
         center_jurisdiction: data.centerJurisdiction,
         state_jurisdiction: data.stateJurisdiction,
         cancellation_date: formattedCancellationDate || null,
-        nature_business_activities: JSON.stringify(
-          data.natureBusinessActivities
-        ),
+        nature_business_activities: JSON.stringify(data.natureBusinessActivities),
         annual_revenue: annualRevenue,
         annual_growth_rate: growthRate,
         cash_runway: cashRunway,
         existing_debt: existingDebt,
         sector: sector,
       });
-
+  
       if (error) {
         console.error("Error storing GSTIN data in Supabase:", error);
         throw new Error("Failed to store GSTIN data");
       }
-
+  
       console.log("GSTIN and additional data stored successfully in Supabase");
-    } catch (error) {
-      console.error("Error fetching GSTIN data:", error);
-      throw error;
-    }
-  };
-
-  const handleGstinSubmit = async () => {
-    try {
-      setLoading(true);
-      setGstinError("");
-
-      // Construct the API URL based on the current pathname
-      // const apiUrl = `${window.location.pathname}/api/gstin?gstin=${gstin}`;
-
-      const apiUrl = `/api/gstin?gstin=${gstin}`;
-
-      console.log(apiUrl);
-
-      // Fetch GSTIN data from the constructed API URL
-      const response = await fetch(apiUrl);
-      // if (!response.ok) {
-      //   throw new Error("Failed to fetch GSTIN data");
-      // }
-
-      const data = await response.json();
-      console.log(data);
-
-      // Process the fetched data (you can keep this part as it is)
-      // await fetchGstinData(data);
-
-      setShowGstinModal(false);
-      setShowProgressModal(true);
-      startProgress();
-
+  
+      // Redirect to the investor page
       router.push("/tools/fundraising/debt/investor");
     } catch (error) {
-      setGstinError(error.message);
+      console.error("Error fetching GSTIN data:", error);
+      setGstinError(error.message);  // Display error to the user
     } finally {
-      setLoading(false);
+      setLoading(false);  // Stop the loading indicator
     }
+  };
+  
+
+  const handleGstinSubmit = () => {
+    setGstinError("");
+    if (!gstin || gstin.length !== 15) {
+      setGstinError("Please enter a valid 15-digit GSTIN.");
+      return;
+    }
+    fetchGstinData(gstin);
   };
 
   const checkProfileCompletion = async () => {
@@ -299,7 +291,7 @@ const Equity = () => {
   };
 
   const handleUnlockCapital = () => {
-    setShowUnlockCapitalModal(true);
+    checkProfileCompletion();
   };
 
   const settings = {
@@ -588,11 +580,11 @@ const Equity = () => {
         </div>
       )}
 
-      {showUnlockCapitalModal && (
+      {showGstinModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50">
           <div className="relative bg-[#1a235e] p-8 rounded shadow-lg w-3/4 md:w-1/2 lg:w-1/3">
             <button
-              onClick={() => setShowUnlockCapitalModal(false)}
+              onClick={() => setShowGstinModal(false)}
               className="absolute top-4 right-4 text-white hover:text-white"
             >
               <svg
