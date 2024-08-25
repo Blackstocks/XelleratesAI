@@ -241,15 +241,12 @@ const Dashboard = () => {
       const company_id = companyProfile?.id;
       
       if (!companyDocuments?.mis) {
-        toast.warn('Please upload MIS Report to see Financial Data.');
+        toast.warn('Please upload MIS Report to see Financial Data');
       } else{     
           if (!company_id) {
             throw new Error('Company ID is not available');
           }
 
-
-
-          // API request to extract financial data
           const response = await fetch('/api/apiDataExtraction', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
