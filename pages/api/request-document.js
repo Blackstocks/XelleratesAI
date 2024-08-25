@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabaseclient';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { investorId, startupId, documents } = req.body; // Updated to receive `documents` array
+    const { investorId, startupId, documents, role } = req.body; // Updated to receive `documents` array
     console.log('Requesting documents:', documents);
     console.log('Investor ID:', investorId);
     console.log('Startup ID:', startupId);
@@ -20,7 +20,8 @@ export default async function handler(req, res) {
           'handle_document_request',
           {
             investor_id: investorId,
-            startup_id: startupId, // Ensure startupId is passed correctly
+            startup_id: startupId,
+            role_param: role, // Ensure startupId is passed correctly
             document_label: documentLabel, // Pass document label
             document_value: documentValue, // Pass document value
           }

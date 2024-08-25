@@ -16,12 +16,9 @@ export default async function handler(req, res) {
 
       if (transactionError) throw transactionError;
 
-      res
-        .status(200)
-        .json({
-          message:
-            'Document upload processed successfully, investor notified if relevant.',
-        });
+      res.status(200).json({
+        message: 'Document upload processed successfully. Notification sent.',
+      });
     } catch (error) {
       console.error('Error processing document upload:', error);
       res.status(500).json({ error: 'Error processing document upload.' });

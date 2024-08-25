@@ -15,7 +15,7 @@ const DocumentPage = () => {
   if (!id) return <p>No startup ID provided.</p>;
 
   const { files, loading, error } = useDocumentsForStartup(id);
-  console.log('files', files);
+  // console.log('files', files);
 
   const [openFolders, setOpenFolders] = useState({
     founder_information: false,
