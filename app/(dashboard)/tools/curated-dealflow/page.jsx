@@ -217,7 +217,7 @@ const CuratedDealflow = () => {
           isLoading: true,
           autoClose: false,
         });
-      }, 30000);
+      }, 15000);
     
       // Second update after 10 seconds
       const secondUpdate = setTimeout(() => {
@@ -227,7 +227,7 @@ const CuratedDealflow = () => {
           isLoading: true,
           autoClose: false,
         });
-      }, 60000);
+      }, 30000);
 
       const clearToastUpdates = () => {
         clearTimeout(firstUpdate);
