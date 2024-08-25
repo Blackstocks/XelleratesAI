@@ -1,11 +1,11 @@
 'use client';
 import useStartupsRaw from '@/hooks/useStartupsRaw'; // Adjust the import path as needed
 import useMatchingStartups from '@/hooks/useMatchingStartups';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import useStartups from '@/hooks/useStartups';
 import useUserDetails from '@/hooks/useUserDetails';
-
 import useInvestorMeetingCount from '@/hooks/useInvestorMeetingCount'; // Import the hook
+
 const statisticsTemplate = [
   {
     title: 'Total Startups',
@@ -50,10 +50,15 @@ const statisticsTemplate = [
 ];
 
 const GroupChartNew3 = () => {
+  const { user, loading: userLoading } = useUserDetails();
+
+  // Default values
   const { startups, loading: startupsLoading, startupCount } = useStartupsRaw();
   const { matchingStartups, loading: matchingLoading } = useMatchingStartups();
-  const { user, loading: userLoading } = useUserDetails();
-  const { startupCount: curatedCount } = useStartups(user?.id);
+
+  const { startupCount: curatedCount, loading: curatedLoading } = useStartups(
+    user?.id
+  );
   const { meetingCount, loading: meetingLoading } = useInvestorMeetingCount(
     user?.id
   );
@@ -63,7 +68,7 @@ const GroupChartNew3 = () => {
       return { ...stat, count: startupsLoading ? 'Loading...' : startupCount };
     }
     if (stat.title === 'Curated Startups') {
-      return { ...stat, count: matchingLoading ? 'Loading...' : curatedCount };
+      return { ...stat, count: curatedLoading ? 'Loading...' : curatedCount };
     }
     if (stat.title === 'Open Conversations') {
       return { ...stat, count: meetingLoading ? 'Loading...' : meetingCount };
@@ -72,7 +77,11 @@ const GroupChartNew3 = () => {
   });
 
   const isLoading =
-    startupsLoading || matchingLoading || userLoading || meetingLoading;
+    startupsLoading ||
+    matchingLoading ||
+    userLoading ||
+    curatedLoading ||
+    meetingLoading;
 
   return (
     <>

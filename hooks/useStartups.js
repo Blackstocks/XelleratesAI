@@ -8,6 +8,11 @@ const useStartups = (investorProfileId) => {
 
   useEffect(() => {
     const fetchStartups = async () => {
+      if (!investorProfileId) {
+        setLoading(false); // No investor ID, no need to fetch data
+        return;
+      }
+
       try {
         // Step 1: Fetch the startup_profile_id(s) connected to the investor
         const { data: connectedStartups, error: connectedError } =
@@ -112,7 +117,7 @@ const useStartups = (investorProfileId) => {
               mou,
               nda
             ),
-             profiles (
+            profiles (
               company_logo
             )
           `

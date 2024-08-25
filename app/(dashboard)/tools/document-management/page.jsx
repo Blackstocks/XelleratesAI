@@ -44,7 +44,6 @@ const DocumentManagement = () => {
 
   return (
     <div>
-      <ToastContainer />
       <div className='flex flex-wrap justify-between items-center mb-4'>
         {/* <h4 className='font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4'>
           Document Management

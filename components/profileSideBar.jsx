@@ -107,7 +107,7 @@ const VerticalNavTabs = (props) => {
     fetchData,
   } = props;
 
-  console.log(investorSignup);
+  // console.log(investorSignup);
   // console.log('companyDocuments', companyDocuments)
   // console.log('companyProfile', companyProfile);
   // console.log('founderInformation', founderInformation);

@@ -9,9 +9,9 @@ import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Textarea from '@/components/ui/Textarea';
 import Icon from '@/components/ui/Icon';
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import generateReport from "@/components/report/report-functions";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import generateReport from '@/components/report/report-functions';
 
 const CuratedDealflow = () => {
   const [expressLoading, setExpressLoading] = useState(false);
@@ -204,25 +204,23 @@ const CuratedDealflow = () => {
     }
   };
 
-  
-
   const handleImageClick = async (type, selectedStartup) => {
     if (type === 'investment') {
-      toastIdRef.current = toast.loading("Generating report, please wait...");
+      toastIdRef.current = toast.loading('Generating report, please wait...');
 
       const firstUpdate = setTimeout(() => {
         toast.update(toastIdRef.current, {
-          render: "Taking longer than usual...",
+          render: 'Taking longer than usual...',
           type: toast.TYPE.INFO,
           isLoading: true,
           autoClose: false,
         });
       }, 30000);
-    
+
       // Second update after 10 seconds
       const secondUpdate = setTimeout(() => {
         toast.update(toastIdRef.current, {
-          render: "Almost there...",
+          render: 'Almost there...',
           type: toast.TYPE.INFO,
           isLoading: true,
           autoClose: false,
@@ -233,81 +231,86 @@ const CuratedDealflow = () => {
         clearTimeout(firstUpdate);
         clearTimeout(secondUpdate);
       };
-  
-      const shortDescription = selectedStartup?.companyProfile?.short_description || "Default description";
-      const industrySector = selectedStartup?.companyProfile?.industry_sector || "Default sector";
-      const currentStage = selectedStartup?.companyProfile?.current_stage || "Not Available";
-      const previousFunding = selectedStartup?.fundingInformation?.previous_funding || [];
+
+      const shortDescription =
+        selectedStartup?.companyProfile?.short_description ||
+        'Default description';
+      const industrySector =
+        selectedStartup?.companyProfile?.industry_sector || 'Default sector';
+      const currentStage =
+        selectedStartup?.companyProfile?.current_stage || 'Not Available';
+      const previousFunding =
+        selectedStartup?.fundingInformation?.previous_funding || [];
 
       const companyProfile = {
-        "id": selectedStartup?.id,
-        "company_name": selectedStartup?.company_name,
-        "country": selectedStartup?.country,
-        "state_city": selectedStartup?.state_city,
-        "company_website": selectedStartup?.company_website,
-        "linkedin_profile": selectedStartup?.linkedin_profile,
-        "short_description": selectedStartup?.short_description,
-        "target_audience": selectedStartup?.target_audience,
-        "industry_sector": selectedStartup?.industry_sector,
-        "current_stage": selectedStartup?.current_stage,
-        "incorporation_date": selectedStartup?.incorporation_date,
-      }
-      
+        id: selectedStartup?.id,
+        company_name: selectedStartup?.company_name,
+        country: selectedStartup?.country,
+        state_city: selectedStartup?.state_city,
+        company_website: selectedStartup?.company_website,
+        linkedin_profile: selectedStartup?.linkedin_profile,
+        short_description: selectedStartup?.short_description,
+        target_audience: selectedStartup?.target_audience,
+        industry_sector: selectedStartup?.industry_sector,
+        current_stage: selectedStartup?.current_stage,
+        incorporation_date: selectedStartup?.incorporation_date,
+      };
+
       try {
         console.log('selectedStartup?.company_profile', selectedStartup);
         const result = await generateReport(
-          companyProfile, 
-          selectedStartup?.funding_information, 
-          selectedStartup?.founder_information, 
+          companyProfile,
+          selectedStartup?.funding_information,
+          selectedStartup?.founder_information,
           selectedStartup?.business_details,
-          selectedStartup?.company_documents[0], 
-          selectedStartup?.CTO_info, 
-          selectedStartup?.profiles, 
-          companyProfile?.short_description, 
+          selectedStartup?.company_documents[0],
+          selectedStartup?.CTO_info,
+          selectedStartup?.profiles,
+          companyProfile?.short_description,
           companyProfile?.industry_sector,
-          selectedStartup?.company_name || 'N/A', 
-          companyProfile?.current_stage, 
+          selectedStartup?.company_name || 'N/A',
+          companyProfile?.current_stage,
           selectedStartup?.funding_information?.previous_funding
         );
-        
-        if (result.status === "error") {
+
+        if (result.status === 'error') {
           toast.update(toastIdRef.current, {
             render: (
-                <div>
-                    Cannot generate report: Missing documents or incorrect format:
-                    <br />
-                    {result.message}
-                </div>
+              <div>
+                Cannot generate report: Missing documents or incorrect format:
+                <br />
+                {result.message}
+              </div>
             ),
-            type: "error",
+            type: 'error',
             isLoading: false,
             autoClose: 5000,
-        });
+          });
           clearToastUpdates();
         } else {
           toast.update(toastIdRef.current, {
-            render: "Report generated successfully!",
-            type: "success",
+            render: 'Report generated successfully!',
+            type: 'success',
             isLoading: false,
             autoClose: 5000,
           });
           clearToastUpdates();
 
           try {
-            const newWindow = window.open("", "_blank");
+            const newWindow = window.open('', '_blank');
 
             if (newWindow) {
               newWindow.document.write(result.html);
               newWindow.document.close();
             } else {
               throw new Error(
-                "Popup blocked. Please allow popups for this site."
+                'Popup blocked. Please allow popups for this site.'
               );
             }
           } catch (error) {
             toast.update(toastIdRef.current, {
               render: `Cannot generate Report! ${error.message || error}`,
-              type: "error",
+              type: 'error',
               isLoading: false,
               autoClose: 5000,
             });
@@ -316,8 +319,8 @@ const CuratedDealflow = () => {
         }
       } catch (error) {
         toast.update(toastIdRef.current, {
-          render: "Cannot generate Report!",
-          type: "error",
+          render: 'Cannot generate Report!',
+          type: 'error',
           isLoading: false,
           autoClose: 5000,
         });
@@ -329,7 +332,6 @@ const CuratedDealflow = () => {
       setIsModalOpen(true);
     }
   };
-
 
   return (
     <>

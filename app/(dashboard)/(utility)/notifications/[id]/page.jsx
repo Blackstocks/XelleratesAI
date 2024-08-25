@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 import Loading from '@/app/loading';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useUserDetails from '@/hooks/useUserDetails';
 
@@ -159,7 +159,6 @@ const NotificationDetail = () => {
 
   return (
     <div className='container mx-auto p-4'>
-      <ToastContainer />
       <h1 className='text-2xl font-bold mb-4'>Notification Details</h1>
       <p>
         <strong>Type:</strong> {notification.notification_type}

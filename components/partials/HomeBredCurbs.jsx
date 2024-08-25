@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import ComingSoonModal from "@/components/ComingSoonModal";
-import GetStartupInsightsModal from "@/components/GetStartupInsights"; // Adjust import as needed
-import generateReport from "@/components/report/report-functions";
-import useCompleteUserDetails from "@/hooks/useCompleUserDetails";
+import React, { useState, useEffect, useRef } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ComingSoonModal from '@/components/ComingSoonModal';
+import GetStartupInsightsModal from '@/components/GetStartupInsights'; // Adjust import as needed
+import generateReport from '@/components/report/report-functions';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 // import * as fs from 'fs';
 // import * as pdf from 'html-pdf-node';
 
 const HomeBredCurbs = ({ title, companyName, userType }) => {
-  const [greeting, setGreeting] = useState("Good evening");
+  const [greeting, setGreeting] = useState('Good evening');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   const toastIdRef = useRef(null);
-
-  
 
   const {
     fundingInformation,
@@ -33,11 +31,11 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   useEffect(() => {
     const currentHour = new Date().getHours();
     if (currentHour < 12) {
-      setGreeting("Good Morning");
+      setGreeting('Good Morning');
     } else if (currentHour < 18) {
-      setGreeting("Good Afternoon");
+      setGreeting('Good Afternoon');
     } else {
-      setGreeting("Good Evening");
+      setGreeting('Good Evening');
     }
 
     return () => {
@@ -49,46 +47,50 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   }, []);
 
   const handleImageClick = async (type) => {
-
     if (toastIdRef.current) {
       // If a toast is already displayed, prevent further action
       return;
     }
 
-    if (type === "startup") {
-      if (loading || !companyProfile || !fundingInformation || !founderInformation){
-        toast.warning("Please wait, data is still loading...");
+    if (type === 'startup') {
+      if (
+        loading ||
+        !companyProfile ||
+        !fundingInformation ||
+        !founderInformation
+      ) {
+        toast.warning('Please wait, data is still loading...');
         return;
       }
     }
 
-    if (type === "investment") {
+    if (type === 'investment') {
       // if (loading) {
       //   toast.info("Loading data, please wait...");
       //   return;
       // }
 
-      toastIdRef.current = toast.loading("Generating report, please wait...");
+      toastIdRef.current = toast.loading('Generating report, please wait...');
 
       const firstUpdate = setTimeout(() => {
         toast.update(toastIdRef.current, {
-          render: "Taking longer than usual...",
+          render: 'Taking longer than usual...',
           type: toast.TYPE.INFO,
           isLoading: true,
           autoClose: false,
         });
       }, 30000);
-    
+
       // Second update after 10 seconds
       const secondUpdate = setTimeout(() => {
         toast.update(toastIdRef.current, {
-          render: "Almost there...",
+          render: 'Almost there...',
           type: toast.TYPE.INFO,
           isLoading: true,
           autoClose: false,
         });
       }, 60000);
-    
+
       // Ensure to clear the timeouts if the process completes early or fails
       const clearToastUpdates = () => {
         clearTimeout(firstUpdate);
@@ -96,10 +98,10 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       };
 
       const shortDescription =
-        companyProfile?.short_description || "Default description";
+        companyProfile?.short_description || 'Default description';
       const industrySector =
-        companyProfile?.industry_sector || "Default sector";
-      const currentStage = companyProfile?.current_stage || "Not Available";
+        companyProfile?.industry_sector || 'Default sector';
+      const currentStage = companyProfile?.current_stage || 'Not Available';
       const previousFunding = fundingInformation?.previous_funding || [];
 
       try {
@@ -119,44 +121,44 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
         );
         //generatePDF(reportHtml);
 
-        if (result.status === "docs") {
+        if (result.status === 'docs') {
           toast.update(toastIdRef.current, {
             render: (
-                <div>
-                    Cannot generate report: Missing documents or incorrect format:
-                    <br />
-                    {result.message}
-                </div>
+              <div>
+                Cannot generate report: Missing documents or incorrect format:
+                <br />
+                {result.message}
+              </div>
             ),
-            type: "error",
+            type: 'error',
             isLoading: false,
             autoClose: 5000,
-        });
+          });
           clearToastUpdates();
         } else {
           toast.update(toastIdRef.current, {
-            render: "Report generated successfully!",
-            type: "success",
+            render: 'Report generated successfully!',
+            type: 'success',
             isLoading: false,
             autoClose: 5000,
           });
           clearToastUpdates();
 
           try {
-            const newWindow = window.open("", "_blank");
+            const newWindow = window.open('', '_blank');
 
             if (newWindow) {
               newWindow.document.write(result.html);
               newWindow.document.close();
             } else {
               throw new Error(
-                "Popup blocked. Please allow popups for this site."
+                'Popup blocked. Please allow popups for this site.'
               );
             }
           } catch (error) {
             toast.update(toastIdRef.current, {
               render: `Cannot generate Report! ${error.message || error}`,
-              type: "error",
+              type: 'error',
               isLoading: false,
               autoClose: 5000,
             });
@@ -166,7 +168,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       } catch (error) {
         toast.update(toastIdRef.current, {
           render: `Cannot generate Report! Error: ${error.message || error}`,
-          type: "error",
+          type: 'error',
           isLoading: false,
           autoClose: 5000,
         });
@@ -181,18 +183,18 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
 
   function loadExternalScripts(win) {
     // Load Tailwind CSS
-    const tailwindScript = win.document.createElement("script");
-    tailwindScript.src = "https://cdn.tailwindcss.com";
+    const tailwindScript = win.document.createElement('script');
+    tailwindScript.src = 'https://cdn.tailwindcss.com';
     tailwindScript.onload = () => {
-      console.log("Tailwind CSS loaded in new window.");
+      console.log('Tailwind CSS loaded in new window.');
     };
     win.document.head.appendChild(tailwindScript);
 
     // Load Chart.js
-    const chartScript = win.document.createElement("script");
-    chartScript.src = "https://cdn.jsdelivr.net/npm/chart.js";
+    const chartScript = win.document.createElement('script');
+    chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
     chartScript.onload = () => {
-      console.log("Chart.js loaded in new window.");
+      console.log('Chart.js loaded in new window.');
     };
     win.document.head.appendChild(chartScript);
   }
@@ -203,75 +205,79 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row justify-between flex-wrap items-center mb-6">
-      <div className="w-full lg:flex lg:space-x-4 mt-4">
+    <div className='flex flex-col lg:flex-row justify-between flex-wrap items-center mb-6'>
+      <div className='w-full lg:flex lg:space-x-4 mt-4'>
         <div
-          className="bg-no-repeat bg-cover bg-center shadow-lg p-5 rounded-[6px] relative flex-1 mb-4 lg:mb-0"
+          className='bg-no-repeat bg-cover bg-center shadow-lg p-5 rounded-[6px] relative flex-1 mb-4 lg:mb-0'
           style={{
             backgroundImage: `url(/assets/images/all-img/widget-bg-2.png)`,
           }}
         >
           <div>
-            <h4 className="text-xl font-medium text-white mb-2">
-              <span className="block font-normal">{greeting},</span>
-              <span className="block">
-                <h5 className="text-white">
-                  <b>{companyName ? companyName : "Loading..."}</b>
+            <h4 className='text-xl font-medium text-white mb-2'>
+              <span className='block font-normal'>{greeting},</span>
+              <span className='block'>
+                <h5 className='text-white'>
+                  <b>{companyName ? companyName : 'Loading...'}</b>
                 </h5>
               </span>
             </h4>
           </div>
         </div>
-        <div className="p-4 rounded bg-white shadow-lg text-black flex-1 mb-4 lg:mb-0">
+        <div className='p-4 rounded bg-white shadow-lg text-black flex-1 mb-4 lg:mb-0'>
           <p>
             <h5>Welcome to Xellerates AI,</h5>I am <b>Zephyr</b>
-            <span className="inline-block ml-2 animate-waving-hand">👋🏻</span>,
+            <span className='inline-block ml-2 animate-waving-hand'>👋🏻</span>,
             your personal Investment Banker
           </p>
         </div>
-        <div className="flex items-center justify-center lg:justify-end flex-1 mt-4 lg:mt-0">
-          {userType === "startup" ? (
+        <div className='flex items-center justify-center lg:justify-end flex-1 mt-4 lg:mt-0'>
+          {userType === 'startup' ? (
             <>
               <img
-                src="/assets/images/dashboard/investment-readiness.png"
-                alt="Investment Readiness"
-                className={`block dark:hidden w-full h-auto cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                onClick={!loading ? () => handleImageClick("investment") : null}
+                src='/assets/images/dashboard/investment-readiness.png'
+                alt='Investment Readiness'
+                className={`block dark:hidden w-full h-auto cursor-pointer ${
+                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                onClick={!loading ? () => handleImageClick('investment') : null}
               />
               <img
-                src="/assets/images/dashboard/investment-readinessdark.svg"
-                alt="Investment Readiness Dark"
-                className={`hidden dark:block w-full h-auto cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                onClick={!loading ? () => handleImageClick("investment") : null}
+                src='/assets/images/dashboard/investment-readinessdark.svg'
+                alt='Investment Readiness Dark'
+                className={`hidden dark:block w-full h-auto cursor-pointer ${
+                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                onClick={!loading ? () => handleImageClick('investment') : null}
               />
             </>
           ) : (
             <>
               <img
-                src="/assets/images/dashboard/latest-insight.png"
-                alt="Latest Insight"
-                className="block dark:hidden w-full h-auto cursor-pointer"
-                onClick={() => handleImageClick("insight")}
+                src='/assets/images/dashboard/latest-insight.png'
+                alt='Latest Insight'
+                className='block dark:hidden w-full h-auto cursor-pointer'
+                onClick={() => handleImageClick('insight')}
               />
               <img
-                src="/assets/images/dashboard/latest-insightdark.svg"
-                alt="Latest Insight Dark"
-                className="hidden dark:block w-full h-auto cursor-pointer"
-                onClick={() => handleImageClick("insight")}
+                src='/assets/images/dashboard/latest-insightdark.svg'
+                alt='Latest Insight Dark'
+                className='hidden dark:block w-full h-auto cursor-pointer'
+                onClick={() => handleImageClick('insight')}
               />
             </>
           )}
         </div>
       </div>
 
-      {isModalOpen && modalType === "insight" && (
+      {isModalOpen && modalType === 'insight' && (
         <GetStartupInsightsModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
         />
       )}
 
-      <ToastContainer />
+      {/* <ToastContainer /> */}
 
       <style jsx>{`
         @keyframes wave {
