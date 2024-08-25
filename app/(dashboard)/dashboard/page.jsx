@@ -242,7 +242,9 @@ const Dashboard = () => {
       
       if (!companyDocuments?.mis) {
         toast.warn('Please upload MIS Report to see Financial Data');
-      } else{     
+      } else if (!companyDocuments.mis.endsWith('.xlsx')){
+          toast.warn('Please upload MIS Report in correct format to see Financial Data');
+      } else {     
           if (!company_id) {
             throw new Error('Company ID is not available');
           }

@@ -270,7 +270,7 @@ const CuratedDealflow = () => {
           selectedStartup?.funding_information?.previous_funding
         );
         
-        if (result.status === "error") {
+        if (result.status === "docs") {
           toast.update(toastIdRef.current, {
             render: (
                 <div>

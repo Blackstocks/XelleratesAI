@@ -130,6 +130,7 @@ const generateReport = async (
   
     const financialProjectionsLink = companyDocuments?.financial_projections;
     const technologyRoadmapLink = ctoInfo?.technology_roadmap;
+    console.log("Tech Roadmap: ", technologyRoadmapLink);
     const financialData = await fetchFinancials(companyProfile);
 
     const missingDocuments = [];
@@ -141,13 +142,13 @@ const generateReport = async (
     //   missingDocuments.push('Technology Roadmap');
     // }
 
-    if (!companyDocuments?.certificate_of_incorporation) {
+    if (!companyDocuments?.certificate_of_incorporation || !companyDocuments.certificate_of_incorporation.endsWith('.pdf')) {
         missingDocuments.push('Certificate of Incorporation');
       }
 
-    if (financialData === null){
+      if (!companyDocuments?.mis || !companyDocuments.mis.endsWith('.xlsx')) {
         missingDocuments.push('MIS Report');
-    }
+      }
     // if (missingDocuments.length > 0) {
     //     const missingMessage = missingDocuments.map(doc => `• ${doc}`).join('\n');
     //     return { status: 'error', message: missingMessage };
@@ -255,9 +256,11 @@ const generateReport = async (
       financialProjections = await generateFinancialResponse(financialProjectionsLink);
     }
 
-    let technologyRoadmap = {};
-    if (!technologyRoadmapLink) {
+    let technologyRoadmap;
+    if (technologyRoadmapLink) {
       technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
+    } else {
+        technologyRoadmap = {};
     }
     
     // console.log("FP Link:", financialProjectionsLink);
