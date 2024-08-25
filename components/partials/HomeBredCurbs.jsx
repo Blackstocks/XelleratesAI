@@ -128,7 +128,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
                     {result.message}
                 </div>
             ),
-            type: "error",
+            type: "warning",
             isLoading: false,
             autoClose: 5000,
         });

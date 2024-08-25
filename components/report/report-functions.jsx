@@ -430,7 +430,7 @@ const generateReport = async (
                         <td class="border px-4 py-2">${funding.amountRaised}</td> 
                         </tr>
                     `).join('')
-                        : `<tr><td colspan="3" class="border px-6 py-2 text-center">No information available</td></tr>`
+                        : `<tr><td colspan="4" class="border px-6 py-2 text-center">No information available</td></tr>`
                         }
                     </tbody>
                 </table>
@@ -559,15 +559,18 @@ const generateReport = async (
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="border px-6 py-2">${founderInformation?.founder_name}</td>
-                                <td class="border px-6 py-2">Founder</td>
-                                <td class="border px-6 py-2">
-                                <a href="${founderInformation?.founder_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
-                                        Link
-                                    </a>
-                                </td>
-                            </tr>
+                            ${founderInformation?.founder_name ? 
+                                `<tr>
+                                    <td class="border px-6 py-2">${founderInformation?.founder_name}</td>
+                                    <td class="border px-6 py-2">Founder</td>
+                                    <td class="border px-6 py-2">
+                                    <a href="${founderInformation?.founder_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
+                                            Link
+                                        </a>
+                                    </td>
+                                </tr>`
+                                : ``
+                            }
                             ${coFounders.length > 0
                                 ? coFounders.map(cf => `
                                 <tr>
@@ -584,13 +587,16 @@ const generateReport = async (
                                 </tr>`
                             }
                             <tr>
-                                <td class="border px-6 py-2">${ctoInfo?.cto_name}</td>
+                            ${ctoInfo?.cto_name ? 
+                                `<td class="border px-6 py-2">${ctoInfo?.cto_name}</td>
                                 <td class="border px-6 py-2">CTO</td>
                                 <td class="border px-6 py-2">
                                 <a href="${ctoInfo?.cto_linkedin}" class="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
                                         Link
                                     </a>
-                                </td>
+                                </td>`
+                                : ``
+                            }
                             </tr>
                         </tbody>
                     </table>
@@ -682,7 +688,7 @@ const generateReport = async (
                                       <td class="border-t border-gray-300 px-4 py-2">${tech.Initiative}</td>
                                       <td class="border-t border-gray-300 px-4 py-2">${tech.Impact}</td>
                                   </tr>`).join('')
-                                : '<tr><td colspan="2" class="px-4 py-2">No Technology Roadmap available.</td></tr>'
+                                : '<tr class="border-t border-gray-200"><td colspan="3" class="px-4 py-2 text-center">No Technology Roadmap available</td></tr>'
                             }
                           </tbody>
                       </table>
