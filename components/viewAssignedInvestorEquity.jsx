@@ -31,6 +31,7 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
               status,
               investor_id,
               input_to_startup,
+              comments,
               investor_signup (
                 name,
                 email,
@@ -140,6 +141,7 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
                   <th className="py-2 px-2 border-b border-gray-300 text-left">Geography</th>
                   <th className="py-2 px-2 border-b border-gray-300 text-left">Company Name</th>
                   <th className="py-2 px-2 border-b border-gray-300 text-left">Input to Startup</th>
+                  <th className="py-2 px-2 border-b border-gray-300 text-left">Message from Startup</th>
                   <th className="py-2 px-4 border-b border-gray-300 text-left" style={{ minWidth: '150px' }}>Status</th>
                 </tr>
               </thead>
@@ -164,6 +166,7 @@ const ViewAssignedInvestorsModal = ({ isOpen, onClose, startupId }) => {
                         rows="2"
                       />
                     </td>
+                    <td className="py-2 px-2 border-b border-gray-300"  style={{ minWidth: '150px' }}>{investor.comments}</td>
                     <td className="py-2 px-4 border-b border-gray-300">
                       <select
                         value={investor.status || "Introduction"}

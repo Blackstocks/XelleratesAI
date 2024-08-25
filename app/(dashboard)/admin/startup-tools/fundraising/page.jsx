@@ -16,14 +16,17 @@ const Fundraising = () => {
   const [comments, setComments] = useState({}); // State to track comments
   const [showGSTINModal, setShowGSTINModal] = useState(false);
   const [selectedGSTINData, setSelectedGSTINData] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(''); // Search term state
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
 
   useEffect(() => {
     const fetchConnectedStartups = async () => {
       setLoading(true);
       try {
         // Determine the correct table based on selectedType
-        const table = selectedType === "equity" ? "connected_startup_equity" : "connected_startups";
+        const table =
+          selectedType === "equity"
+            ? "connected_startup_equity"
+            : "connected_startups";
 
         const { data, error } = await supabase
           .from(table)
@@ -159,7 +162,10 @@ const Fundraising = () => {
 
   const saveComment = async (startupId) => {
     try {
-      const table = selectedType === "equity" ? "connected_startup_equity" : "connected_startups";
+      const table =
+        selectedType === "equity"
+          ? "connected_startup_equity"
+          : "connected_startups";
       const comment = comments[startupId];
       const { error } = await supabase
         .from(table)
@@ -194,10 +200,14 @@ const Fundraising = () => {
     (startup) =>
       startup.user_type === selectedType &&
       (startup.startup_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        startup.founder_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        startup.founder_name
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         startup.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         startup.mobile?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        startup.linkedin_profile?.toLowerCase().includes(searchTerm.toLowerCase()))
+        startup.linkedin_profile
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -283,55 +293,60 @@ const Fundraising = () => {
               </tr>
             </thead>
             <tbody>
-              {newDealflows.filter((dealflow) =>
-                Object.values(dealflow).some((value) =>
-                  value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+              {newDealflows
+                .filter((dealflow) =>
+                  Object.values(dealflow).some((value) =>
+                    value
+                      ?.toString()
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  )
                 )
-              ).map((dealflow, index) => (
-                <tr
-                  key={dealflow.id}
-                  className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
-                >
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.name}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.email}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.mobile}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.investment_thesis}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.cheque_size}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.sector}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.investment_stage}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.company_name}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.typeof}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    {dealflow.Geography}
-                  </td>
-                  <td className="py-2 px-4 border-b border-gray-300">
-                    <button
-                      onClick={() => handleUpdateDealflow(dealflow)}
-                      className="py-1 px-2 bg-blue-500 text-white rounded"
-                    >
-                      Update
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                .map((dealflow, index) => (
+                  <tr
+                    key={dealflow.id}
+                    className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                  >
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.name}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.email}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.mobile}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.investment_thesis}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.cheque_size}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.sector}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.investment_stage}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.company_name}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.typeof}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      {dealflow.Geography}
+                    </td>
+                    <td className="py-2 px-4 border-b border-gray-300">
+                      <button
+                        onClick={() => handleUpdateDealflow(dealflow)}
+                        className="py-1 px-2 bg-blue-500 text-white rounded"
+                      >
+                        Update
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -354,9 +369,11 @@ const Fundraising = () => {
               <th className="py-4 px-4 border-b border-gray-300 text-left">
                 LinkedIn
               </th>
-              <th className="py-4 px-4 border-b border-gray-300 text-left">
-                Comment
-              </th>
+              {selectedType === "debt" && (
+                <th className="py-4 px-4 border-b border-gray-300 text-left">
+                  Comment
+                </th>
+              )}
               <th className="py-4 px-4 border-b border-gray-300 text-left">
                 {selectedType === "debt" ? "Requested Debt Investor" : "Assign"}
               </th>
@@ -400,17 +417,20 @@ const Fundraising = () => {
                     LinkedIn Profile
                   </a>
                 </td>
-                <td className="py-2 px-4 border-b border-gray-300">
-                  <textarea
-                    value={comments[startup.id] || ""}
-                    onChange={(e) =>
-                      handleCommentChange(startup.id, e.target.value)
-                    }
-                    onBlur={() => saveComment(startup.id)} // Save the comment on blur (when focus leaves the textarea)
-                    className="w-full p-1 border rounded"
-                    rows="2"
-                  />
-                </td>
+                {selectedType === "debt" && (
+                  <td className="py-2 px-4 border-b border-gray-300">
+                    <textarea
+                      value={comments[startup.id] || ""}
+                      onChange={(e) =>
+                        handleCommentChange(startup.id, e.target.value)
+                      }
+                      onBlur={() => saveComment(startup.id)} // Save the comment on blur (when focus leaves the textarea)
+                      className="w-full p-1 border rounded"
+                      rows="2"
+                    />
+                  </td>
+                )}
+
                 <td className="py-2 px-4 border-b border-gray-300">
                   {selectedType === "debt" ? (
                     startup.connected_investor ? (
@@ -468,49 +488,91 @@ const Fundraising = () => {
       {showGSTINModal && selectedGSTINData && (
         <div className="fixed inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50 backdrop-blur-sm">
           <div className="bg-white rounded-lg p-6 max-w-lg w-full max-h-96 overflow-y-auto shadow-lg">
-            <h2 className="text-2xl font-semibold mb-4 text-center">GSTIN Information</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-center">
+              GSTIN Information
+            </h2>
             <table className="min-w-full bg-white">
               <tbody>
                 {selectedGSTINData.map((gstinInfo, index) => (
                   <React.Fragment key={gstinInfo.id}>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
                       <td className="py-2 px-4 font-semibold">GSTIN:</td>
                       <td className="py-2 px-4">{gstinInfo.gstin}</td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
                       <td className="py-2 px-4 font-semibold">Legal Name:</td>
                       <td className="py-2 px-4">{gstinInfo.legal_name}</td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
                       <td className="py-2 px-4 font-semibold">Constitution:</td>
                       <td className="py-2 px-4">{gstinInfo.constitution}</td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                      <td className="py-2 px-4 font-semibold">Registration Date:</td>
-                      <td className="py-2 px-4">{gstinInfo.registration_date}</td>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
+                      <td className="py-2 px-4 font-semibold">
+                        Registration Date:
+                      </td>
+                      <td className="py-2 px-4">
+                        {gstinInfo.registration_date}
+                      </td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
                       <td className="py-2 px-4 font-semibold">Status:</td>
                       <td className="py-2 px-4">{gstinInfo.status}</td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                      <td className="py-2 px-4 font-semibold">Taxpayer Type:</td>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
+                      <td className="py-2 px-4 font-semibold">
+                        Taxpayer Type:
+                      </td>
                       <td className="py-2 px-4">{gstinInfo.taxpayer_type}</td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                      <td className="py-2 px-4 font-semibold">Center Jurisdiction:</td>
-                      <td className="py-2 px-4">{gstinInfo.center_jurisdiction}</td>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
+                      <td className="py-2 px-4 font-semibold">
+                        Center Jurisdiction:
+                      </td>
+                      <td className="py-2 px-4">
+                        {gstinInfo.center_jurisdiction}
+                      </td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                      <td className="py-2 px-4 font-semibold">State Jurisdiction:</td>
-                      <td className="py-2 px-4">{gstinInfo.state_jurisdiction}</td>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
+                      <td className="py-2 px-4 font-semibold">
+                        State Jurisdiction:
+                      </td>
+                      <td className="py-2 px-4">
+                        {gstinInfo.state_jurisdiction}
+                      </td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                      <td className="py-2 px-4 font-semibold">Cancellation Date:</td>
-                      <td className="py-2 px-4">{gstinInfo.cancellation_date || "N/A"}</td>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
+                      <td className="py-2 px-4 font-semibold">
+                        Cancellation Date:
+                      </td>
+                      <td className="py-2 px-4">
+                        {gstinInfo.cancellation_date || "N/A"}
+                      </td>
                     </tr>
-                    <tr className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                      <td className="py-2 px-4 font-semibold">Nature of Business Activities:</td>
+                    <tr
+                      className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                    >
+                      <td className="py-2 px-4 font-semibold">
+                        Nature of Business Activities:
+                      </td>
                       <td className="py-2 px-4">
                         {Array.isArray(gstinInfo.nature_business_activities)
                           ? gstinInfo.nature_business_activities.join(", ")
@@ -530,7 +592,6 @@ const Fundraising = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
