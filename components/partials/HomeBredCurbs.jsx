@@ -49,6 +49,17 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
   }, []);
 
   const handleImageClick = async (type) => {
+
+    if (toastIdRef.current) {
+      // If a toast is already displayed, prevent further action
+      return;
+    }
+
+    if (loading || !companyProfile || !fundingInformation || !founderInformation) {
+      toast.warning("Please wait, data is still loading...");
+      return;
+    }
+
     if (type === "investment") {
       // if (loading) {
       //   toast.info("Loading data, please wait...");
@@ -106,13 +117,19 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
         );
         //generatePDF(reportHtml);
 
-        if (result.status === "error") {
+        if (result.status === "docs") {
           toast.update(toastIdRef.current, {
-            render: `Cannot generate report: Missing documents or incorrect format: ${result.message}`,
+            render: (
+                <div>
+                    Cannot generate report: Missing documents or incorrect format:
+                    <br />
+                    {result.message}
+                </div>
+            ),
             type: "error",
             isLoading: false,
             autoClose: 5000,
-          });
+        });
           clearToastUpdates();
         } else {
           toast.update(toastIdRef.current, {
@@ -229,17 +246,17 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
           ) : (
             <>
               <img
-                src="/assets/images/dashboard/latest-insight.png"
-                alt="Latest Insight"
-                className="block dark:hidden w-full h-auto cursor-pointer"
-                onClick={() => handleImageClick("insight")}
-              />
-              <img
-                src="/assets/images/dashboard/latest-insightdark.svg"
-                alt="Latest Insight Dark"
-                className="hidden dark:block w-full h-auto cursor-pointer"
-                onClick={() => handleImageClick("insight")}
-              />
+  src="/assets/images/dashboard/investment-readiness.png"
+  alt="Investment Readiness"
+  className={`block dark:hidden w-full h-auto cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+  onClick={!loading ? () => handleImageClick("investment") : null}
+/>
+<img
+  src="/assets/images/dashboard/investment-readinessdark.svg"
+  alt="Investment Readiness Dark"
+  className={`hidden dark:block w-full h-auto cursor-pointer ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+  onClick={!loading ? () => handleImageClick("investment") : null}
+/>
             </>
           )}
         </div>

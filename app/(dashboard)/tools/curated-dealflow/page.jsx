@@ -272,11 +272,17 @@ const CuratedDealflow = () => {
         
         if (result.status === "error") {
           toast.update(toastIdRef.current, {
-            render: `Cannot generate report: Missing documents or incorrect format: ${result.message}`,
+            render: (
+                <div>
+                    Cannot generate report: Missing documents or incorrect format:
+                    <br />
+                    {result.message}
+                </div>
+            ),
             type: "error",
             isLoading: false,
             autoClose: 5000,
-          });
+        });
           clearToastUpdates();
         } else {
           toast.update(toastIdRef.current, {

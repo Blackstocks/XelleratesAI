@@ -7,6 +7,7 @@ import generateFinancialResponse from '@/components/report/financial-projections
 import generateTechnologyRoadmap from '@/components/report/technology-roadmap'
 import generateCompetitorAnalysis from '@/components/report/competitor-analysis';
 import getCollegeType from '@/components/report/college-analysis';
+import findIncorporationDate from '@/components/report/incorporation-date';
 // import unirest from 'unirest';
 
 // Function to fetch financial data
@@ -147,9 +148,19 @@ const generateReport = async (
     if (financialData === null){
         missingDocuments.push('MIS Report');
     }
+    // if (missingDocuments.length > 0) {
+    //     const missingMessage = missingDocuments.map(doc => `• ${doc}`).join('\n');
+    //     return { status: 'error', message: missingMessage };
+    // }
+
     if (missingDocuments.length > 0) {
-      const missingMessage = `${missingDocuments.join(', ')}`;
-      return { status: 'error', message: missingMessage };
+        const missingMessage = missingDocuments.map((doc, index) => (
+            <React.Fragment key={index}>
+                • {doc}
+                <br />
+            </React.Fragment>
+        ));
+        return { status: 'docs', message: missingMessage };
     }
 
     const pFunding = founderInformation?.previous_funding || [];
@@ -166,6 +177,9 @@ const generateReport = async (
   const capTable = fundingInformation?.cap_table || [];
   const targetAudience = companyProfile?.target_audience || 'NA';
   const uspMoat = companyProfile?.usp_moat || 'NA';
+
+  const incorporationDate = await findIncorporationDate(companyDocuments?.certificate_of_incorporation);
+  console.log("IC Date: ", incorporationDate);
 
 
   let newsList = [];
@@ -300,6 +314,24 @@ const generateReport = async (
                 display: none;
             }
         }
+        
+        .blurred-chart {
+            filter: blur(1.5px);
+        }
+
+        #chartContainer .absolute {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none; /* Ensure the overlay text does not interfere with interactions */
+        }
+
+
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -437,7 +469,7 @@ const generateReport = async (
                         <tbody>
                             <tr>
                                 <th class="border px-6 py-2">Founded Year</th>
-                                <td class="border px-6 py-2">${companyProfile?.incorporation_date}</td>
+                                <td class="border px-6 py-2">${incorporationDate}</td>
                             </tr>
                             <tr class="bg-gray-50">
                                 <th class="border px-6 py-2">Total Funding</th>
@@ -583,10 +615,16 @@ const generateReport = async (
                         </div>
                     </div>`
                     :
-                    `<div class="mb-8">
+                    `<div class="mb-8 relative">
                         <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
-                        <div id="chartContainer">
-                           <h3>Upload finanical projections to see the chart</h3>
+                        <div id="chartContainer" class="relative">
+                            <canvas id="financialProjectionsChartDummy" class="blurred-chart"></canvas>
+                            <div class="absolute inset-0 flex items-center justify-center text-center">
+            <h3 class="text-lg font-semibold text-gray-700 bg-white bg-opacity-75 px-4 py-2 rounded">
+                Upload financial projections to see the chart
+            </h3>
+        </div>
+                            
                         </div>
                     </div>`
                 }
@@ -671,6 +709,86 @@ const generateReport = async (
                 console.log("DOM fully loaded and parsed");
 
 
+
+                const ctxD = document.getElementById('financialProjectionsChartDummy').getContext('2d');
+                
+                const dummyData = {
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'], // Example labels
+                    datasets: [{
+                        label: 'Projected Revenue',
+                        data: [10, 20, 30, 40, 50], // Example data points
+                        backgroundColor: 'rgba(200, 200, 200, 0.6)',
+                        borderColor: 'rgba(200, 200, 200, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        pointBackgroundColor: 'rgba(200, 200, 200, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(200, 200, 200, 1)',
+                    }]
+                };
+
+                // Create the chart using Chart.js
+                new Chart(ctxD, {
+                    type: 'line', // Line chart type
+                    data: dummyData, // Use dummy data
+                    options: {
+                        maintainAspectRatio: false, // Adjust chart size
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Revenue (in Millions)',
+                                    color: '#4A4A4A',
+                                    font: {
+                                        family: 'Arial',
+                                        size: 14,
+                                        weight: 'bold',
+                                    }
+                                },
+                                grid: {
+                                    color: '#E0E0E0',
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Year',
+                                    color: '#4A4A4A',
+                                    font: {
+                                        family: 'Arial',
+                                        size: 14,
+                                        weight: 'bold',
+                                    }
+                                },
+                                grid: {
+                                    color: '#E0E0E0',
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false, // Hide the legend
+                            },
+                            tooltip: {
+                                enabled: false, // Disable tooltips
+                            },
+                        },
+                        responsive: true,
+                        layout: {
+                            padding: {
+                                top: 10,
+                                right: 10,
+                                bottom: 10,
+                                left: 10
+                            }
+                        },
+                    }
+                });
+
+
+
                 const ctx1 = document.getElementById('revenueChart').getContext('2d');
                     const revenueChart = new Chart(ctx1, {
                         type: 'bar',
@@ -698,7 +816,7 @@ const generateReport = async (
                             }
                         }
                     });
-                    
+
 
                 if (typeof financialProjections === 'undefined') {
     console.error("financialProjections is not defined");
