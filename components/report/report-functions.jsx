@@ -252,35 +252,48 @@ const generateReport = async (
         sector = industrySector;
     }
 
-    let financialProjections = {};
-    if (!financialProjectionsLink) {
-      financialProjections = await generateFinancialResponse(financialProjectionsLink);
+        let financialProjections = {};
+    try {
+    if (financialProjectionsLink) {
+        financialProjections = await generateFinancialResponse(financialProjectionsLink);
+    }
+    } catch (error) {
+    console.error('Error generating financial projections:', error.message);
+    financialProjections = {}; // Initialize to an empty object in case of error
     }
 
-    let technologyRoadmap;
+    let technologyRoadmap = {};
+    try {
     if (technologyRoadmapLink) {
-      technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
-    } else {
-        technologyRoadmap = {};
+        technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
     }
-    
-    // console.log("FP Link:", financialProjectionsLink);
-    const competitors = await getCompetitors(companyName, shortDescription, targetAudience, uspMoat);
-    
+    } catch (error) {
+    console.error('Error generating technology roadmap:', error.message);
+    technologyRoadmap = {}; // Initialize to an empty object in case of error
+    }
 
-    
+    // console.log("FP Link:", financialProjectionsLink);
+
+    let competitors = [];
+    try {
+    competitors = await getCompetitors(companyName, shortDescription, targetAudience, uspMoat);
+    } catch (error) {
+    console.error('Error getting competitors:', error.message);
+    competitors = []; // Initialize to an empty array in case of error
+    }
 
     let roadmapArray = [];
-
-    if (Array.isArray(technologyRoadmap)) {
-    roadmapArray = technologyRoadmap;
-    } else if (typeof technologyRoadmap === 'string') {
     try {
+    if (Array.isArray(technologyRoadmap)) {
+        roadmapArray = technologyRoadmap;
+    } else if (typeof technologyRoadmap === 'string') {
         roadmapArray = JSON.parse(technologyRoadmap);
+    }
     } catch (error) {
-        console.error('Error parsing technologyRoadmap:', error.message);
+    console.error('Error parsing technologyRoadmap:', error.message);
+    roadmapArray = []; // Initialize to an empty array in case of error
     }
-    }
+
 
     //console.log('Technology Roadmap: ', technologyRoadmap); 
 
@@ -617,27 +630,26 @@ const generateReport = async (
                 </div>
 
                 <!-- Financial Projections -->
-                ${financialProjections && Object.keys(financialProjections).length > 0 ?
-                    `<div class="mb-8">
-                        <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
-                        <div id="chartContainer">
-                            <canvas id="financialProjectionsChart"></canvas>
-                        </div>
-                    </div>`
-                    :
-                    `<div class="mb-8 relative">
-                        <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
-                        <div id="chartContainer" class="relative">
-                            <canvas id="financialProjectionsChartDummy" class="blurred-chart"></canvas>
-                            <div class="absolute inset-0 flex items-center justify-center text-center">
-            <h3 class="text-lg font-semibold text-gray-700 bg-white bg-opacity-75 px-4 py-2 rounded">
-                Upload financial projections to see the chart
-            </h3>
-        </div>
-                            
-                        </div>
-                    </div>`
-                }
+                ${financialProjections && Object.keys(financialProjections).length > 0 
+                    ? `<div class="mb-8">
+                          <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
+                          <div id="chartContainer">
+                              <canvas id="financialProjectionsChart"></canvas>
+                          </div>
+                       </div>`
+                    : `<div class="mb-8 relative">
+                          <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">Financial Projections</h3>
+                          <div id="chartContainer" class="relative">
+                              <canvas id="financialProjectionsChartDummy" class="blurred-chart"></canvas>
+                              <div class="absolute inset-0 flex items-center justify-center text-center">
+                                  <h3 class="text-lg font-semibold text-gray-700 bg-white bg-opacity-75 px-4 py-2 rounded">
+                                      Upload financial projections to see the chart
+                                  </h3>
+                              </div>
+                          </div>
+                       </div>`
+                    }
+                  
 
                 <!-- Cap Table -->
                 <div class="mb-8">
@@ -713,22 +725,97 @@ const generateReport = async (
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <script>
-    const financialProjections = ${JSON.stringify(financialProjections)};
-
- document.addEventListener("DOMContentLoaded", function () {
-                console.log("DOM fully loaded and parsed");
+        const financialProjections = ${JSON.stringify(financialProjections)};
+        console.log("Financial Projections Data:", financialProjections);
 
 
+        function calculateYearlyTotals(revenueProjections) {
+            return revenueProjections.map(projection => {
+                const yearlySums = {};
+                const yearlyData = {};
 
-                const ctxD = document.getElementById('financialProjectionsChartDummy').getContext('2d');
+                projection.yearly_data.forEach(yearData => {
+                    const year = Object.keys(yearData)[0];
+                    const monthlyData = yearData[year];
 
-                const dummyData = {
+                    let yearlyTotal = 0;
+                    monthlyData.forEach(monthObj => {
+                        const month = Object.keys(monthObj)[0];
+                        const value = parseFloat(monthObj[month]);
+                        yearlyTotal += value;
+
+                        if (!yearlyData[year]) {
+                            yearlyData[year] = [];
+                        }
+                        yearlyData[year].push({ month, value });
+                    });
+
+                    yearlySums[year] = yearlyTotal;
+                });
+
+                return {
+                    revenue_stream: projection.revenue_stream,
+                    yearly_totals: yearlySums,
+                    monthly_data: yearlyData
+                };
+            });
+        }
+
+        const colorPalette = [
+            'rgba(255, 99, 132, 0.6)',  // Red
+            'rgba(54, 162, 235, 0.6)',  // Blue
+            'rgba(75, 192, 192, 0.6)',  // Green
+            'rgba(255, 206, 86, 0.6)',  // Yellow
+            'rgba(153, 102, 255, 0.6)', // Purple
+            'rgba(255, 159, 64, 0.6)',  // Orange
+            'rgba(199, 199, 199, 0.6)', // Grey
+            'rgba(255, 99, 71, 0.6)',   // Tomato
+            'rgba(60, 179, 113, 0.6)',  // MediumSeaGreen
+            'rgba(106, 90, 205, 0.6)',  // SlateBlue
+        ];
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM fully loaded and parsed");
+
+    const ctx1 = document.getElementById('revenueChart').getContext('2d');
+    const revenueChart = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ${JSON.stringify(yearlyRevenue.map(item => item.month))},
+            datasets: [{
+                label: 'Revenue',
+                data: ${JSON.stringify(yearlyRevenue.map(item => item.value))},
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    // Initialize the dummy chart if the real financial projections are not available
+    if (!financialProjections || Object.keys(financialProjections).length === 0) {
+        const ctxD = document.getElementById('financialProjectionsChartDummy').getContext('2d');
+        const dummyData = {
                     labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
                     datasets: [
                         {
                             label: 'Revenue by A',
                             data: [10, 25, 15, 35, 45], // Example data points with increases and decreases
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
                             borderColor: 'rgba(54, 162, 235, 1)',
                             borderWidth: 3,
                             fill: true,
@@ -740,7 +827,7 @@ const generateReport = async (
                         {
                             label: 'Revenue by B',
                             data: [8, 18, 10, 28, 35], // Example data points with different variations
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
                             borderColor: 'rgba(255, 99, 132, 1)',
                             borderWidth: 3,
                             fill: true,
@@ -752,7 +839,7 @@ const generateReport = async (
                         {
                             label: 'Revenue by C',
                             data: [2, 7, 5, 7, 10], // Net Profit line showing different pattern
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
                             borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 3,
                             fill: true,
@@ -842,220 +929,137 @@ const generateReport = async (
                     }
                 });
 
-
-
-
-                const ctx1 = document.getElementById('revenueChart').getContext('2d');
-                    const revenueChart = new Chart(ctx1, {
-                        type: 'bar',
-                        data: {
-                            labels: ${JSON.stringify(yearlyRevenue.map(item => item.month))},
-                            datasets: [{
-                                label: 'Revenue',
-                                data: ${JSON.stringify(yearlyRevenue.map(item => item.value))},
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top',
-                                }
-                            }
-                        }
-                    });
-
-
-                if (typeof financialProjections === 'undefined') {
-    console.error("financialProjections is not defined");
-    return;
-}
-
-console.log("Financial Projections Data:", financialProjections);
-
-// Function to calculate yearly totals
-function calculateYearlyTotals(revenueProjections) {
-    return revenueProjections.map(projection => {
-        const yearlySums = {};
-        const yearlyData = {};
-
-        projection.yearly_data.forEach(yearData => {
-            const year = Object.keys(yearData)[0];
-            const monthlyData = yearData[year];
-
-            let yearlyTotal = 0;
-            monthlyData.forEach(monthObj => {
-                const month = Object.keys(monthObj)[0];
-                const value = parseFloat(monthObj[month]);
-                yearlyTotal += value;
-
-                if (!yearlyData[year]) {
-                    yearlyData[year] = [];
-                }
-                yearlyData[year].push({ month, value });
-            });
-
-            yearlySums[year] = yearlyTotal;
-        });
-
-        return {
-            revenue_stream: projection.revenue_stream,
-            yearly_totals: yearlySums,
-            monthly_data: yearlyData
-        };
-    });
-}
-
-const yearlyTotals = calculateYearlyTotals(financialProjections.revenue_projections);
-console.log("Yearly Totals:", yearlyTotals);
-
-// Extract the years from the first projection's yearly data
-const years = Object.keys(yearlyTotals[0].yearly_totals);
-console.log("Years:", years);
-
-const colorPalette = [
-    'rgba(255, 99, 132, 0.6)',  // Red
-    'rgba(54, 162, 235, 0.6)',  // Blue
-    'rgba(75, 192, 192, 0.6)',  // Green
-    'rgba(255, 206, 86, 0.6)',  // Yellow
-    'rgba(153, 102, 255, 0.6)', // Purple
-    'rgba(255, 159, 64, 0.6)',  // Orange
-    'rgba(199, 199, 199, 0.6)', // Grey
-    'rgba(255, 99, 71, 0.6)',   // Tomato
-    'rgba(60, 179, 113, 0.6)',  // MediumSeaGreen
-    'rgba(106, 90, 205, 0.6)',  // SlateBlue
-];
-
-const datasets = yearlyTotals.map((projection, index) => ({
-    label: projection.revenue_stream,
-    data: years.map(year => projection.yearly_totals[year]),
-    backgroundColor: colorPalette[index % colorPalette.length],
-    borderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-    borderWidth: 2,
-    fill: false,
-    pointBackgroundColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-    pointBorderColor: '#fff',
-    pointHoverBackgroundColor: '#fff',
-    pointHoverBorderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
-}));
-
-// Create the chart
-const ctx = document.getElementById('financialProjectionsChart').getContext('2d');
-const financialProjectionsChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: years,
-        datasets: datasets
-    },
-    options: {
-        maintainAspectRatio: false, // Allows the chart to take full height
-        scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Revenue (in Millions)',
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 14,
-                        weight: 'bold',
-                    }
-                },
-                grid: {
-                    color: '#E0E0E0',
-                }
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: 'Year',
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 14,
-                        weight: 'bold',
-                    }
-                },
-                grid: {
-                    color: '#E0E0E0',
-                }
-            }
-        },
-        plugins: {
-            legend: {
-                display: true,
-                position: 'bottom',
-                labels: {
-                    color: '#4A4A4A',
-                    font: {
-                        family: 'Arial',
-                        size: 10, // Smaller font size for legend items
-                        weight: 'bold',
-                    },
-                    boxWidth: 15,
-                    padding: 10, // Adjusted padding to save space
-                },
-                maxHeight: 100, // Limit the height of the legend area
-            },
-            tooltip: {
-                backgroundColor: '#333',
-                titleFont: {
-                    family: 'Arial',
-                    size: 14,
-                    weight: 'bold',
-                },
-                bodyFont: {
-                    family: 'Arial',
-                    size: 12,
-                },
-                footerFont: {
-                    family: 'Arial',
-                    size: 10,
-                    style: 'italic',
-                },
-                borderColor: '#777',
-                borderWidth: 1,
-            },
-        },
-        responsive: true,
-        layout: {
-            padding: {
-                top: 10,
-                right: 10,
-                bottom: 10,
-                left: 10
-            }
-        },
     }
+
+    // Initialize the real financial projections chart if data is available
+    if (financialProjections && Object.keys(financialProjections).length > 0) {
+        const ctx = document.getElementById('financialProjectionsChart').getContext('2d');
+        const yearlyTotals = calculateYearlyTotals(financialProjections.revenue_projections);
+        const years = Object.keys(yearlyTotals[0].yearly_totals);
+        const datasets = yearlyTotals.map((projection, index) => ({
+            label: projection.revenue_stream,
+            data: years.map(year => projection.yearly_totals[year]),
+            backgroundColor: colorPalette[index % colorPalette.length],
+            borderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+            borderWidth: 2,
+            fill: false,
+            pointBackgroundColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: colorPalette[index % colorPalette.length].replace('0.6', '1'),
+        }));
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: years,
+                datasets: datasets
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue (in Millions)',
+                            color: '#4A4A4A',
+                            font: {
+                                family: 'Arial',
+                                size: 14,
+                                weight: 'bold',
+                            }
+                        },
+                        grid: {
+                            color: '#E0E0E0',
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Year',
+                            color: '#4A4A4A',
+                            font: {
+                                family: 'Arial',
+                                size: 14,
+                                weight: 'bold',
+                            }
+                        },
+                        grid: {
+                            color: '#E0E0E0',
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            color: '#4A4A4A',
+                            font: {
+                                family: 'Arial',
+                                size: 10, // Smaller font size for legend items
+                                weight: 'bold',
+                            },
+                            boxWidth: 15,
+                            padding: 10, // Adjusted padding to save space
+                        },
+                        maxHeight: 100, // Limit the height of the legend area
+                    },
+                    tooltip: {
+                        backgroundColor: '#333',
+                        titleFont: {
+                            family: 'Arial',
+                            size: 14,
+                            weight: 'bold',
+                        },
+                        bodyFont: {
+                            family: 'Arial',
+                            size: 12,
+                        },
+                        footerFont: {
+                            family: 'Arial',
+                            size: 10,
+                            style: 'italic',
+                        },
+                        borderColor: '#777',
+                        borderWidth: 1,
+                    },
+                },
+                responsive: true,
+                layout: {
+                    padding: {
+                        top: 10,
+                        right: 10,
+                        bottom: 10,
+                        left: 10
+                    }
+                },
+            }
+        });
+    }
+
+    console.log("Charts successfully created");
 });
 
 
-                
+        
+                        
 
-                    console.log("Chart successfully created");
+            console.log("Chart successfully created");
 
-                    // document.getElementById('downloadBtn').addEventListener('click', function () {
-                    //     const element = document.getElementById('pdfContent');
-                    //     const opt = {
-                    //         margin: 0.2,
-                    //         filename: 'InvestmentReadinessReport.pdf',
-                    //         image: { type: 'jpeg', quality: 0.98 },
-                    //         html2canvas: { scale: 2 },
-                    //         jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
-                    //     };
-                    //     html2pdf().from(element).set(opt).save();
-                    // });
+            // document.getElementById('downloadBtn').addEventListener('click', function () {
+            //     const element = document.getElementById('pdfContent');
+            //     const opt = {
+            //         margin: 0.2,
+            //         filename: 'InvestmentReadinessReport.pdf',
+            //         image: { type: 'jpeg', quality: 0.98 },
+            //         html2canvas: { scale: 2 },
+            //         jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
+            //     };
+            //     html2pdf().from(element).set(opt).save();
+            // });
 
-            });
 
 
       </script>
