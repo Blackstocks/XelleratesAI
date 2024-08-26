@@ -40,8 +40,6 @@ const NotificationDetail = () => {
             .from('notifications')
             .update({ notification_read_status: 'read' })
             .eq('id', id);
-
-          toast.success('Notification marked as read.');
         }
       }
       setLoading(false);
@@ -102,42 +100,64 @@ const NotificationDetail = () => {
         user?.user_type === 'startup' &&
         notification.available_time_slots?.length > 0
       ) {
-        const { error: createError } = await supabase
-          .from('notifications')
-          .insert({
-            sender_id: notification.receiver_id,
-            receiver_id: notification.sender_id,
-            notification_status: 'accepted',
-            notification_type: 'startup_accepted',
-            notification_read_status: 'unread',
-            notification_message: `Startup has accepted the interest. Join with the link: ${zoomMeetingLink}`,
-          });
+        try {
+          // Fetch startup details
+          const { data: startupData, error: startupError } = await supabase
+            .from('company_profile')
+            .select('company_name')
+            .eq('profile_id', notification.receiver_id)
+            .single();
 
-        if (createError) {
-          console.error('Error creating investor notification:', createError);
-          toast.error('Failed to notify investor');
-        } else {
-          const newEventData = {
-            name: `Meeting scheduled with startup ${notification.receiver_id}`,
-            date: selectedSlot,
-            details: notification.notification_message,
-            user_id: notification.sender_id,
-            zoom_link: zoomMeetingLink,
-            sender_id: notification.receiver_id,
-            receiver_id: notification.sender_id,
-          };
-
-          const { error: eventError } = await supabase
-            .from('events')
-            .insert([newEventData]);
-
-          if (eventError) {
-            console.error('Error adding event:', eventError);
-            toast.error('Failed to add event');
-          } else {
-            toast.success('Event created and investor notified.');
-            router.push('/schedule');
+          if (startupError) {
+            console.error('Error fetching startup details:', startupError);
+            toast.error('Failed to fetch startup details');
+            return;
           }
+
+          const startupName = startupData?.company_name || 'Startup';
+
+          // Create notification for investor with startup name
+          const { error: createError } = await supabase
+            .from('notifications')
+            .insert({
+              sender_id: notification.receiver_id,
+              receiver_id: notification.sender_id,
+              notification_status: 'accepted',
+              notification_type: 'startup_accepted',
+              notification_read_status: 'unread',
+              notification_message: `${startupName} has accepted the interest. Join with the link: ${zoomMeetingLink}`,
+            });
+
+          if (createError) {
+            console.error('Error creating investor notification:', createError);
+            toast.error('Failed to notify investor');
+          } else {
+            // Create event with the startup name in the event name
+            const newEventData = {
+              name: `Meeting scheduled with ${startupName}`,
+              date: selectedSlot,
+              details: notification.notification_message,
+              user_id: notification.sender_id,
+              zoom_link: zoomMeetingLink,
+              sender_id: notification.receiver_id,
+              receiver_id: notification.sender_id,
+            };
+
+            const { error: eventError } = await supabase
+              .from('events')
+              .insert([newEventData]);
+
+            if (eventError) {
+              console.error('Error adding event:', eventError);
+              toast.error('Failed to add event');
+            } else {
+              toast.success('Event created and investor notified.');
+              router.push('/schedule');
+            }
+          }
+        } catch (err) {
+          console.error('Unexpected error:', err);
+          toast.error('Something went wrong while scheduling the meeting');
         }
       } else {
         toast.success(
@@ -146,7 +166,7 @@ const NotificationDetail = () => {
         router.push('/chat');
       }
     } else {
-      toast.success(`Notification has been ${status}`);
+      // toast.success(`Notification has been ${status}`);
       router.push('/notifications');
     }
 
