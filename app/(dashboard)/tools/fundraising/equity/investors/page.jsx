@@ -18,24 +18,17 @@ const InvestorDealflow = () => {
   const [showModal, setShowModal] = useState(false);
   const [dealflowEntries, setDealflowEntries] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedInvestor, setSelectedInvestor] = useState(null);
   const [filters, setFilters] = useState({
-    location: [],
-    investmentType: [],
-    sector: [],
-    investmentStage: [],
-  });
-  const [selectedFilters, setSelectedFilters] = useState({
     location: "",
     investmentType: "",
     sector: "",
     investmentStage: "",
   });
   const [connectClicked, setConnectClicked] = useState(false);
-  const [hasConnected, setHasConnected] = useState(false); // Track if user has connected before
-  const [assignedInvestors, setAssignedInvestors] = useState([]); // State for assigned investors
-  const [filteredAssignedInvestors, setFilteredAssignedInvestors] = useState([]); // State for filtered assigned investors
-  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false); // State for message modal
+  const [hasConnected, setHasConnected] = useState(false);
+  const [assignedInvestors, setAssignedInvestors] = useState([]);
+  const [filteredAssignedInvestors, setFilteredAssignedInvestors] = useState([]);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
   const itemsPerPage = 8;
   const router = useRouter();
@@ -48,31 +41,6 @@ const InvestorDealflow = () => {
           .from("investor_signup")
           .select("*");
         if (error) throw error;
-
-        const locations = new Set();
-        const investmentTypes = new Set();
-        const sectors = new Set();
-        const investmentStages = new Set();
-
-        data.forEach((item) => {
-          item.Geography?.split(",").forEach((loc) =>
-            locations.add(loc.trim())
-          );
-          item.typeof
-            ?.split(",")
-            .forEach((type) => investmentTypes.add(type.trim()));
-          item.sectors?.split(",").forEach((sec) => sectors.add(sec.trim()));
-          item.investment_stage
-            ?.split(",")
-            .forEach((stage) => investmentStages.add(stage.trim()));
-        });
-
-        setFilters({
-          location: Array.from(locations).sort(),
-          investmentType: Array.from(investmentTypes).sort(),
-          sector: Array.from(sectors).sort(),
-          investmentStage: Array.from(investmentStages).sort(),
-        });
 
         setInvestors(data);
         setFilteredInvestors(data); // Initialize filtered investors with all investors
@@ -177,23 +145,21 @@ const InvestorDealflow = () => {
     const applyFilters = (investorsList) => {
       return investorsList.filter((investor) => {
         const matchesLocation =
-          !selectedFilters.location ||
-          investor.investor_signup?.Geography?.includes(selectedFilters.location);
+          !filters.location ||
+          investor.Geography?.split(",").map(loc => loc.trim()).includes(filters.location);
         const matchesInvestmentType =
-          !selectedFilters.investmentType ||
-          investor.investor_signup?.typeof?.includes(selectedFilters.investmentType);
+          !filters.investmentType ||
+          investor.typeof?.split(",").map(type => type.trim()).includes(filters.investmentType);
         const matchesSector =
-          !selectedFilters.sector ||
-          investor.investor_signup?.sectors?.includes(selectedFilters.sector);
+          !filters.sector ||
+          investor.sectors?.split(",").map(sec => sec.trim()).includes(filters.sector);
         const matchesInvestmentStage =
-          !selectedFilters.investmentStage ||
-          investor.investor_signup?.investment_stage?.includes(selectedFilters.investmentStage);
+          !filters.investmentStage ||
+          investor.investment_stage?.split(",").map(stage => stage.trim()).includes(filters.investmentStage);
 
         const matchesSearch =
           !searchQuery ||
-          investor.investor_signup?.name
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase());
+          investor.name?.toLowerCase().includes(searchQuery.toLowerCase());
 
         return (
           matchesLocation &&
@@ -208,7 +174,7 @@ const InvestorDealflow = () => {
     setFilteredInvestors(applyFilters(investors));
     setFilteredAssignedInvestors(applyFilters(assignedInvestors));
     setCurrentPage(1); // Reset to first page when filters or search change
-  }, [selectedFilters, searchQuery, investors, assignedInvestors]);
+  }, [filters, searchQuery, investors, assignedInvestors]);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -218,51 +184,16 @@ const InvestorDealflow = () => {
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
 
-  const handleCloseModal = () => {
-    setSelectedInvestor(null);
-  };
-
-  const handleConnect = async (userType) => {
-    try {
-      const { data, error } = await supabase
-        .from("connected_startup_equity")
-        .insert([
-          {
-            startup_name: profile.company_name,
-            founder_name: profile.name,
-            linkedin_profile: profile.linkedin_profile,
-            email: profile.email,
-            mobile: profile.mobile,
-            user_type: userType,
-            has_connected: true,
-            user_id: user.id,
-          },
-        ]);
-
-      if (error) {
-        throw error;
-      }
-
-      setConnectClicked(true);
-      setHasConnected(true); // Set hasConnected to true after connecting
-
-      // Show the modal after connection
-      setIsMessageModalOpen(true);
-    } catch (error) {
-      console.error("Error inserting data:", error.message);
-    }
-  };
-
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setSelectedFilters((prevFilters) => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
       [name]: value,
     }));
   };
 
   const handleClearFilters = () => {
-    setSelectedFilters({
+    setFilters({
       location: "",
       investmentType: "",
       sector: "",
@@ -281,30 +212,6 @@ const InvestorDealflow = () => {
         entry.id === updatedEntry.id ? updatedEntry : entry
       )
     );
-  };
-
-  const handleCommentChange = async (investorId, comment) => {
-    try {
-      const { error } = await supabase
-        .from("assigned_dealflow")
-        .update({ comments: comment })
-        .eq("id", investorId);
-
-      if (error) {
-        throw error;
-      }
-
-      // Update the local state
-      setFilteredAssignedInvestors((prevInvestors) =>
-        prevInvestors.map((investor) =>
-          investor.id === investorId
-            ? { ...investor, comments: comment }
-            : investor
-        )
-      );
-    } catch (error) {
-      console.error("Error updating comment:", error.message);
-    }
   };
 
   const totalPages = Math.ceil(filteredInvestors.length / itemsPerPage);
@@ -356,12 +263,12 @@ const InvestorDealflow = () => {
               <label className="block text-sm font-medium mb-1">Location</label>
               <select
                 name="location"
-                value={selectedFilters.location}
+                value={filters.location}
                 onChange={handleFilterChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded"
               >
                 <option value="">Select Location</option>
-                {filters.location.map((location, index) => (
+                {Array.from(new Set(investors.flatMap(inv => inv.Geography?.split(',').map(loc => loc.trim())))).sort().map((location, index) => (
                   <option key={index} value={location}>
                     {location}
                   </option>
@@ -374,12 +281,12 @@ const InvestorDealflow = () => {
               </label>
               <select
                 name="investmentType"
-                value={selectedFilters.investmentType}
+                value={filters.investmentType}
                 onChange={handleFilterChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded"
               >
                 <option value="">Select Investment Type</option>
-                {filters.investmentType.map((type, index) => (
+                {Array.from(new Set(investors.flatMap(inv => inv.typeof?.split(',').map(type => type.trim())))).sort().map((type, index) => (
                   <option key={index} value={type}>
                     {type}
                   </option>
@@ -390,12 +297,12 @@ const InvestorDealflow = () => {
               <label className="block text-sm font-medium mb-1">Sector</label>
               <select
                 name="sector"
-                value={selectedFilters.sector}
+                value={filters.sector}
                 onChange={handleFilterChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded"
               >
                 <option value="">Select Sector</option>
-                {filters.sector.map((sector, index) => (
+                {Array.from(new Set(investors.flatMap(inv => inv.sectors?.split(',').map(sec => sec.trim())))).sort().map((sector, index) => (
                   <option key={index} value={sector}>
                     {sector}
                   </option>
@@ -408,12 +315,12 @@ const InvestorDealflow = () => {
               </label>
               <select
                 name="investmentStage"
-                value={selectedFilters.investmentStage}
+                value={filters.investmentStage}
                 onChange={handleFilterChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded"
               >
                 <option value="">Select Investment Stage</option>
-                {filters.investmentStage.map((stage, index) => (
+                {Array.from(new Set(investors.flatMap(inv => inv.investment_stage?.split(',').map(stage => stage.trim())))).sort().map((stage, index) => (
                   <option key={index} value={stage}>
                     {stage}
                   </option>

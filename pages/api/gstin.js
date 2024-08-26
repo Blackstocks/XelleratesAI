@@ -6,18 +6,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`https://apisetu.gov.in/gstn/v1/taxpayers/${gstin}`, {
-      method: 'GET',
+    const response = await fetch('https://api.invincibleocean.com/invincible/gstAdvanceSearchV2', {
+      method: 'POST',
       headers: {
-        'accept': 'application/json',
-        'X-APISETU-CLIENTID': process.env.X_APISETU_CLIENTID,
-        'X-APISETU-APIKEY': process.env.X_APISETU_APIKEY,
+        'Content-Type': 'application/json',
+        'clientId': process.env.INVINCIBLE_OCEAN_CLIENT_ID,
+        'secretKey': process.env.INVINCIBLE_OCEAN_SECRET_KEY,
       },
+      body: JSON.stringify({ gstin }),
     });
 
     if (!response.ok) {
-      return res.status(response.status).json({ 
-        error: `Error: ${response.status} ${response.statusText}` 
+      return res.status(response.status).json({
+        error: `Error: ${response.status} ${response.statusText}`,
       });
     }
 
