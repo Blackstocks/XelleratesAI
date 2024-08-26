@@ -95,7 +95,7 @@ const companyDocumentsFiles = {
 
 const VerticalNavTabs = (props) => {
   let {
-    loading,
+    loadingUserCompleteProfile,
     user,
     investorSignup,
     companyProfile,
@@ -986,7 +986,7 @@ const VerticalNavTabs = (props) => {
   // Extract the label for rendering
   const renderedCountry = parsedCountry.label || '';
 
-  if (loading) {
+  if (loadingUserCompleteProfile) {
     return <Loading />;
   }
 

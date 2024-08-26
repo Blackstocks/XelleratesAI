@@ -25,6 +25,7 @@ import Loading from '@/app/loading';
 const Profile = () => {
   const { user, loading } = useUserDetails();
   const {
+    loading: loadingUserCompleteProfile,
     profile,
     companyProfile,
     businessDetails,
@@ -626,7 +627,7 @@ const Profile = () => {
 
         {user?.user_type === 'startup' && (
           <VerticalNavTabs
-            loading={loading}
+            loading={loadingUserCompleteProfile}
             user={user}
             investorSignup={investorSignup}
             profile={profile}

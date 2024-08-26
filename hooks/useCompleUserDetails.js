@@ -15,7 +15,11 @@ const useCompleteUserDetails = () => {
   const hasFetchedData = useRef(false); // Track whether data has been fetched
 
   const fetchData = useCallback(async () => {
-    if (hasFetchedData.current) return; // Skip if already fetched
+    if (hasFetchedData.current) {
+      setLoading(false); // Ensure loading is set to false if data is already fetched
+      return; // Skip if already fetched
+    }
+
     setLoading(true);
     try {
       const {
