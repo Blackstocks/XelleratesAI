@@ -100,7 +100,7 @@ const RecentOrderTable2 = () => {
     <>
       <div>
         <div className='overflow-x-auto -mx-6'>
-          <h6 className='ml-6 mb-4'>Top Meetings</h6>
+          <h6 className='ml-6 mb-4'>Top Conversations</h6>
           <div className='inline-block min-w-full align-middle'>
             <div className='overflow-hidden'>
               <table

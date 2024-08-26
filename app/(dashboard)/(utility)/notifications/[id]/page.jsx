@@ -198,9 +198,9 @@ const NotificationDetail = () => {
       <p>
         <strong>Message:</strong> {notification.notification_message}
       </p>
-      <p>
+      {/* <p>
         <strong>Status:</strong> {notification.notification_status}
-      </p>
+      </p> */}
 
       {notification.available_time_slots?.length > 0 && (
         <div>
