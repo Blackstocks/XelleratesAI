@@ -3499,8 +3499,7 @@ const VerticalNavTabs = (props) => {
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocuments?.[0]
-                                      ?.financial_projections
+                                    {companyDocuments?.financial_projections
                                       ? 'View Projections'
                                       : 'Not Provided'}
                                   </a>
