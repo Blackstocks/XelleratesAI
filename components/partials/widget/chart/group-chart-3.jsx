@@ -34,7 +34,7 @@ const GroupChart3 = ({ startupId, userId }) => {
   return (
     <div className='flex flex-col lg:flex-row gap-4'>
       {statistics.map((item, i) => (
-        <div key={i} className='relative w-35 h-32 flex-shrink-0 ml-3'>
+        <div key={i} className='relative w-full h-32 flex-shrink-0 m-auto rounded-md'>
           <img
             src={item.img}
             alt={item.title}
