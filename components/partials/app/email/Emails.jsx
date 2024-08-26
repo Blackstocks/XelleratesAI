@@ -110,7 +110,7 @@ const Emails = ({ email }) => {
           </span>
         </div>
         <span
-          className="absolute ltr:right-0 rtl:left-0 top-1/2 -translate-y-1/2 dark:text-slate-300 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 bg-white h-full w-[100px] flex flex-col items-center justify-center opacity-0 invisible group-hover:opacity-100 group-hover:visible"
+          className="absolute ltr:right-0 rtl:left-0 top-1/2 -translate-y-1/2 dark:text-slate-300 group-hover:bg-slate-100 dark:group-hover:bg-slate-900 bg-white h-full w-[100px] flex flex-col items-center justify-center opacity-0 invisible group-hover:opacity-100 group-hover:visible"
           onClick={(e) => {
             dispatch(deleteEmail(id));
             e.stopPropagation();

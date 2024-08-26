@@ -186,7 +186,7 @@ const TodoPage = () => {
         {/* overlay */}
         {width < breakpoints.lg && mobileTodoSidebar && (
           <div
-            className="overlay bg-slate-900 dark:bg-slate-900 dark:bg-opacity-60 bg-opacity-60 backdrop-filter
+            className="overlay bg-slate-950 dark:bg-slate-950 dark:bg-opacity-60 bg-opacity-60 backdrop-filter
          backdrop-blur-sm absolute w-full flex-1 inset-0 z-[99] rounded-md"
             onClick={() =>
               dispatch(toggleMobileTodoSidebar(!mobileTodoSidebar))

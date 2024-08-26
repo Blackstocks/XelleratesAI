@@ -64,7 +64,7 @@ const Fileinput = ({
                 )}
               </span>
             )}
-            <span className="file-name flex-none cursor-pointer border-l px-4 border-slate-200 dark:border-slate-700 h-full inline-flex items-center bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-base rounded-tr rounded-br font-normal">
+            <span className="file-name flex-none cursor-pointer border-l px-4 border-slate-200 dark:border-slate-700 h-full inline-flex items-center bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-base rounded-tr rounded-br font-normal">
               {label}
             </span>
           </div>

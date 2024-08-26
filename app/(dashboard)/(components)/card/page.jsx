@@ -262,7 +262,7 @@ const CardPage = () => {
           title="Sales Automation"
           titleClass="text-white"
           noborder
-          className="bg-slate-800"
+          className="bg-slate-900"
         >
           <div className="text-white">
             <div className="txt-sm">
@@ -278,7 +278,7 @@ const CardPage = () => {
         </Card>
         <Card
           title="Sales Automation"
-          className="bg-[#EDFFE5] dark:bg-slate-800"
+          className="bg-[#EDFFE5] dark:bg-slate-900"
           noborder
         >
           <div className="text-sm">
@@ -293,7 +293,7 @@ const CardPage = () => {
         </Card>
         <Card
           title="Sales Automation"
-          className="bg-[#E5F9FF] dark:bg-slate-800	"
+          className="bg-[#E5F9FF] dark:bg-slate-900	"
           noborder
         >
           <div className="text-sm">

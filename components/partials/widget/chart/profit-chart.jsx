@@ -5,7 +5,7 @@ const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import useDarkMode from '@/hooks/useDarkMode';
 
 const ProfitChart = ({
-  className = 'bg-slate-50 dark:bg-slate-900 rounded pt-3 px-4',
+  className = 'bg-slate-50 dark:bg-slate-950 rounded pt-3 px-4',
   color = '#4669FA',
 }) => {
   const [isDark] = useDarkMode();

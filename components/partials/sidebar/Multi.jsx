@@ -19,7 +19,7 @@ const Multilevel = ({ activeMultiMenu, j, subItem, locationName }) => {
                 <span
                   className={`${
                     locationName === item.multiLink
-                      ? " bg-slate-900 dark:bg-slate-300 ring-4 ring-opacity-[15%] ring-black-500 dark:ring-slate-300 dark:ring-opacity-20"
+                      ? " bg-slate-950 dark:bg-slate-300 ring-4 ring-opacity-[15%] ring-black-500 dark:ring-slate-300 dark:ring-opacity-20"
                       : ""
                   } h-2 w-2 rounded-full border border-slate-600 dark:border-white inline-block flex-none`}
                 ></span>

@@ -45,13 +45,13 @@ const slates = [
   },
   {
     name: "slate-800",
-    bg: "bg-slate-800",
+    bg: "bg-slate-900",
     color: "#1e293b",
   },
   {
     name: "slate-900",
-    bg: "bg-slate-900",
-    color: "#0f172a",
+    bg: "bg-slate-950",
+    color: "#020617",
   },
 ];
 const primary = [
@@ -335,12 +335,12 @@ const ColorsPage = () => {
             </div>
             <div className="flex flex-wrap space-xy-5">
               <div>
-                <div className="color-box h-[96px] 2xl:w-[107px] w-[96px] bg-slate-900 rounded-md flex flex-col text-white p-4 transition-all duration-200 hover:shadow-sm hover:-translate-y-1"></div>
+                <div className="color-box h-[96px] 2xl:w-[107px] w-[96px] bg-slate-950 rounded-md flex flex-col text-white p-4 transition-all duration-200 hover:shadow-sm hover:-translate-y-1"></div>
                 <div className="flex-1 text-sm my-1 pt-1 dark:text-slate-300">
                   Dark
                 </div>
                 <div className="flex-0 text-sm dark:text-slate-300">
-                  #0F172A
+                  #020617
                 </div>
               </div>
               <div>

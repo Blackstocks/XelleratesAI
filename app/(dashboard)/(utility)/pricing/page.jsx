@@ -51,7 +51,7 @@ const tables2 = [
     price_Yearly: "$196",
     price_Monthly: "$20",
     button: "Buy now",
-    bg: "bg-slate-900",
+    bg: "bg-slate-950",
     ribon: "Most popular",
   },
   {
@@ -86,7 +86,7 @@ const PricingPage = () => {
               <span
                 className={` ${
                   check
-                    ? "bg-slate-900 dark:bg-slate-900 text-white"
+                    ? "bg-slate-950 dark:bg-slate-950 text-white"
                     : "dark:text-slate-300"
                 } 
                 px-[18px] py-1 transition duration-100 rounded`}
@@ -97,7 +97,7 @@ const PricingPage = () => {
                 className={`
               ${
                 !check
-                  ? "bg-slate-900 dark:bg-slate-900 text-white"
+                  ? "bg-slate-950 dark:bg-slate-950 text-white"
                   : " dark:text-slate-300"
               }
                 px-[18px] py-1 transition duration-100 rounded
@@ -119,7 +119,7 @@ const PricingPage = () => {
                   <img src={item.img} alt="" className="ml-auto block" />
                 </div>
                 {item.ribon && (
-                  <div className="text-sm font-medium bg-slate-900 dark:bg-slate-900 text-white py-2 text-center absolute ltr:-right-[43px] rtl:-left-[43px] top-6 px-10 transform ltr:rotate-[45deg] rtl:-rotate-45">
+                  <div className="text-sm font-medium bg-slate-950 dark:bg-slate-950 text-white py-2 text-center absolute ltr:-right-[43px] rtl:-left-[43px] top-6 px-10 transform ltr:rotate-[45deg] rtl:-rotate-45">
                     {item.ribon}
                   </div>
                 )}
@@ -165,7 +165,7 @@ const PricingPage = () => {
             <div
               className={`${item.bg} 
             
-            price-table rounded-[6px] shadow-base dark:bg-slate-800 p-6 text-slate-900 dark:text-white relative overflow-hidden z-[1]
+            price-table rounded-[6px] shadow-base dark:bg-slate-900 p-6 text-slate-900 dark:text-white relative overflow-hidden z-[1]
             `}
               key={i}
             >
@@ -181,7 +181,7 @@ const PricingPage = () => {
                 <h4
                   className={` 
              ${
-               item.bg === "bg-slate-900"
+               item.bg === "bg-slate-950"
                  ? "text-slate-100"
                  : "text-slate-900 dark:text-slate-300"
              }
@@ -192,7 +192,7 @@ const PricingPage = () => {
                 <div
                   className={`
              ${
-               item.bg === "bg-slate-900"
+               item.bg === "bg-slate-950"
                  ? "text-slate-100"
                  : "text-slate-900 dark:text-slate-300"
              }
@@ -215,7 +215,7 @@ const PricingPage = () => {
                 <p
                   className={` text-sm
              ${
-               item.bg === "bg-slate-900"
+               item.bg === "bg-slate-950"
                  ? "text-slate-100"
                  : "text-slate-500 dark:text-slate-300"
              }
@@ -228,7 +228,7 @@ const PricingPage = () => {
                 <p
                   className={`
               ${
-                item.bg === "bg-slate-900"
+                item.bg === "bg-slate-950"
                   ? "text-slate-100"
                   : "text-slate-600 dark:text-slate-300"
               }
@@ -242,7 +242,7 @@ const PricingPage = () => {
                   <Button
                     text={item.button}
                     className={` w-full ${
-                      item.bg === "bg-slate-900"
+                      item.bg === "bg-slate-950"
                         ? "text-slate-100 border-slate-300 border"
                         : "btn-outline-dark dark:border-slate-400"
                     }`}

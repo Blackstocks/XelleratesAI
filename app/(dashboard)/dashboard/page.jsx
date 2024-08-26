@@ -550,7 +550,7 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className='grid grid-cols-1 lg:grid-cols-12 gap-5'>
-                <div className='lg:col-span-7 col-span-12 space-y-5'>
+                <div className='lg:col-span-8 col-span-12 space-y-5'>
                   {renderLockedCard(
                     'Top Conversations',
                     <div className='col-span-12'>
@@ -560,7 +560,7 @@ const Dashboard = () => {
                     user
                   )}
                 </div>
-                <div className='lg:col-span-5 col-span-12 space-y-5'>
+                <div className='lg:col-span-4 col-span-12 space-y-5'>
                   {renderLockedCard(
                     'Hot Deals',
                     <div>

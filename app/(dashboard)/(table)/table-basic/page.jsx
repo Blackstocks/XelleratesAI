@@ -36,7 +36,7 @@ const BasicTablePage = () => {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                <tbody className="bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700">
                   {rows.map((row, i) => (
                     <tr key={i}>
                       <td className="table-td">{row.age}</td>
@@ -64,7 +64,7 @@ const BasicTablePage = () => {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                <tbody className="bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700">
                   {rows.map((row, i) => (
                     <tr key={i}>
                       <td className="table-td">{row.age}</td>
@@ -89,7 +89,7 @@ const BasicTablePage = () => {
                       <th
                         key={i}
                         scope="col"
-                        className=" table-th border border-slate-100 dark:bg-slate-800 dark:border-slate-700 "
+                        className=" table-th border border-slate-100 dark:bg-slate-900 dark:border-slate-700 "
                       >
                         {column.label}
                       </th>
@@ -99,13 +99,13 @@ const BasicTablePage = () => {
                 <tbody className="bg-white ">
                   {rows.map((row, i) => (
                     <tr key={i}>
-                      <td className="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                      <td className="table-td border border-slate-100 dark:bg-slate-900 dark:border-slate-700">
                         {row.age}
                       </td>
-                      <td className="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                      <td className="table-td border border-slate-100 dark:bg-slate-900 dark:border-slate-700">
                         {row.first_name}
                       </td>
-                      <td className="table-td border border-slate-100 dark:bg-slate-800 dark:border-slate-700 ">
+                      <td className="table-td border border-slate-100 dark:bg-slate-900 dark:border-slate-700 ">
                         {row.email}
                       </td>
                     </tr>
@@ -130,7 +130,7 @@ const BasicTablePage = () => {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-slate-800 ">
+                <tbody className="bg-white dark:bg-slate-900 ">
                   {rows.map((row, i) => (
                     <tr key={i}>
                       <td className="table-td ">{row.age}</td>
@@ -158,7 +158,7 @@ const BasicTablePage = () => {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                <tbody className="bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700">
                   {rows.map((row, i) => (
                     <tr
                       key={i}
@@ -189,7 +189,7 @@ const BasicTablePage = () => {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
+                <tbody className="bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700">
                   {rows.map((row, i) => (
                     <tr
                       key={i}

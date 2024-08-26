@@ -57,7 +57,7 @@ const Header = ({ className = 'custom-class' }) => {
   return (
     <header className={className + ' ' + navbarTypeClass()}>
       <div
-        className={` app-header md:px-6 px-[15px]  dark:bg-slate-800 shadow-base dark:shadow-base3 bg-white
+        className={` app-header md:px-6 px-[15px]  dark:bg-slate-900 shadow-base dark:shadow-base3 bg-white
         ${borderSwicthClass()}
              ${
                menuType === 'horizontal' && width > breakpoints.xl

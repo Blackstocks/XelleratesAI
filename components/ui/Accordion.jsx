@@ -41,7 +41,7 @@ const Accordion = ({ items, className = "space-y-5" }) => {
                 index === activeIndex
                   ? "dark:border dark:border-slate-700 dark:border-t-0"
                   : "l"
-              } text-sm text-slate-600 font-normal bg-white dark:bg-slate-900 dark:text-slate-300 rounded-b-md`}
+              } text-sm text-slate-600 font-normal bg-white dark:bg-slate-950 dark:text-slate-300 rounded-b-md`}
             >
               <div
                 className="px-8 py-4"

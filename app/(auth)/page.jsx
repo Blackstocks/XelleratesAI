@@ -42,7 +42,7 @@ const Login = () => {
             </div>
           </div>
           <div className='right-column relative'>
-            <div className='inner-content h-full flex flex-col bg-white dark:bg-slate-800'>
+            <div className='inner-content h-full flex flex-col bg-white dark:bg-slate-900'>
               <div className='auth-box h-full flex flex-col justify-center'>
                 <div className='mobile-logo text-center mb-6 lg:hidden block'>
                   <Link href='/'>

@@ -202,7 +202,7 @@ const TooltipPage = () => {
               maxWidth='320px'
               content={
                 <div className='dark:text-slate-300 text-slate-600 text-sm'>
-                  <h1 className='text-base bg-slate-900 dark:bg-slate-600 dark:bg-opacity-70 text-white rounded-t px-[9px] mt-[-5px] mx-[-9px] mb-3 py-2'>
+                  <h1 className='text-base bg-slate-950 dark:bg-slate-600 dark:bg-opacity-70 text-white rounded-t px-[9px] mt-[-5px] mx-[-9px] mb-3 py-2'>
                     Popover Top
                   </h1>
                   Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -223,7 +223,7 @@ const TooltipPage = () => {
               maxWidth='320px'
               content={
                 <div className='dark:text-slate-300 text-slate-600 text-sm'>
-                  <h1 className='text-base bg-slate-900 dark:bg-slate-600 dark:bg-opacity-70 text-white rounded-t px-[9px] mt-[-5px] mx-[-9px] mb-3 py-2'>
+                  <h1 className='text-base bg-slate-950 dark:bg-slate-600 dark:bg-opacity-70 text-white rounded-t px-[9px] mt-[-5px] mx-[-9px] mb-3 py-2'>
                     Popover Bottom
                   </h1>
                   Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -244,7 +244,7 @@ const TooltipPage = () => {
               maxWidth='320px'
               content={
                 <div className='dark:text-slate-300 text-slate-600 text-sm'>
-                  <h1 className='text-base bg-slate-900 dark:bg-slate-600 dark:bg-opacity-70 text-white rounded-t px-[9px] mt-[-5px] mx-[-9px] mb-3 py-2'>
+                  <h1 className='text-base bg-slate-950 dark:bg-slate-600 dark:bg-opacity-70 text-white rounded-t px-[9px] mt-[-5px] mx-[-9px] mb-3 py-2'>
                     Popover Left
                   </h1>
                   Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -265,7 +265,7 @@ const TooltipPage = () => {
               maxWidth='320px'
               content={
                 <div className='dark:text-slate-300 text-slate-600 text-sm'>
-                  <h1 className='text-base bg-slate-900 dark:bg-slate-600 dark:bg-opacity-70 text-white rounded-t px-[9px] mt-[-5px] mx-[-9px] mb-3 py-2'>
+                  <h1 className='text-base bg-slate-950 dark:bg-slate-600 dark:bg-opacity-70 text-white rounded-t px-[9px] mt-[-5px] mx-[-9px] mb-3 py-2'>
                     Popover Right
                   </h1>
                   Lorem ipsum dolor sit amet consectetur adipisicing elit.

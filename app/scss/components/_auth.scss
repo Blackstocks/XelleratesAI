@@ -11,7 +11,7 @@
     @apply overflow-y-auto flex flex-wrap w-full;
   }
   .left-column {
-    @apply bg-slate-100 dark:bg-slate-900  lg:block hidden flex-1 overflow-hidden;
+    @apply bg-slate-100 dark:bg-slate-950  lg:block hidden flex-1 overflow-hidden;
     h4 {
       @apply text-[40px] leading-[48px] text-slate-600 dark:text-slate-400;
     }
@@ -46,7 +46,7 @@
 }
 
 .auth-box-3 {
-  @apply bg-white dark:bg-slate-800 relative h-auto  lg:mr-[150px] mr-auto p-10 md:rounded-md max-w-[520px] w-full ml-auto;
+  @apply bg-white dark:bg-slate-900 relative h-auto  lg:mr-[150px] mr-auto p-10 md:rounded-md max-w-[520px] w-full ml-auto;
 }
 
 .logo-box-3 {

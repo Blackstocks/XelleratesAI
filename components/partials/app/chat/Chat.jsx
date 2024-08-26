@@ -158,7 +158,7 @@ const Chat = () => {
                         classMenuItems=' w-[100px] left-0 top-0  '
                         items={chatAction}
                         label={
-                          <div className='h-8 w-8 bg-slate-300 dark:bg-slate-900 dark:text-slate-400 flex flex-col justify-center items-center text-xl rounded-full text-slate-900'>
+                          <div className='h-8 w-8 bg-slate-300 dark:bg-slate-950 dark:text-slate-400 flex flex-col justify-center items-center text-xl rounded-full text-slate-900'>
                             <Icon icon='heroicons-outline:dots-horizontal' />
                           </div>
                         }
@@ -166,7 +166,7 @@ const Chat = () => {
                     </div>
 
                     <div className='whitespace-pre-wrap break-all'>
-                      <div className='text-contrent p-3 bg-slate-300 dark:bg-slate-900 dark:text-slate-300 text-slate-800 text-sm font-normal rounded-md flex-1 mb-1'>
+                      <div className='text-contrent p-3 bg-slate-300 dark:bg-slate-950 dark:text-slate-300 text-slate-800 text-sm font-normal rounded-md flex-1 mb-1'>
                         {item.content}
                       </div>
                       <span className='font-normal text-xs text-slate-400'>
@@ -192,10 +192,10 @@ const Chat = () => {
       </div>
       <footer className='md:px-6 px-4 sm:flex md:space-x-4 sm:space-x-2 rtl:space-x-reverse border-t md:pt-6 pt-4 border-slate-100 dark:border-slate-700'>
         <div className='flex-none sm:flex hidden md:space-x-3 space-x-1 rtl:space-x-reverse'>
-          <div className='h-8 w-8 cursor-pointer bg-slate-100 dark:bg-slate-900 dark:text-slate-400 flex flex-col justify-center items-center text-xl rounded-full'>
+          <div className='h-8 w-8 cursor-pointer bg-slate-100 dark:bg-slate-950 dark:text-slate-400 flex flex-col justify-center items-center text-xl rounded-full'>
             <Icon icon='heroicons-outline:link' />
           </div>
-          <div className='h-8 w-8 cursor-pointer bg-slate-100 dark:bg-slate-900 dark:text-slate-400 flex flex-col justify-center items-center text-xl rounded-full'>
+          <div className='h-8 w-8 cursor-pointer bg-slate-100 dark:bg-slate-950 dark:text-slate-400 flex flex-col justify-center items-center text-xl rounded-full'>
             <Icon icon='heroicons-outline:emoji-happy' />
           </div>
         </div>
@@ -222,7 +222,7 @@ const Chat = () => {
             />
           </div>
           <div className='flex-none md:pr-0 pr-3'>
-            <button className='h-8 w-8 bg-slate-900 text-white flex flex-col justify-center items-center text-lg rounded-full'>
+            <button className='h-8 w-8 bg-slate-950 text-white flex flex-col justify-center items-center text-lg rounded-full'>
               <Icon
                 icon='heroicons-outline:paper-airplane'
                 className='transform rotate-[60deg]'

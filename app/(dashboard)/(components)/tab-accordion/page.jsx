@@ -50,7 +50,7 @@ const TabAccrodain = () => {
                 {({ selected }) => (
                   <button
                     className={` text-sm font-medium mb-7 capitalize bg-white
-             dark:bg-slate-800 ring-0 foucs:ring-0 focus:outline-none px-2
+             dark:bg-slate-900 ring-0 foucs:ring-0 focus:outline-none px-2
               transition duration-150 before:transition-all before:duration-150 relative 
               before:absolute before:left-1/2 before:bottom-[-6px] before:h-[1.5px] before:bg-primary-500 
               before:-translate-x-1/2 
@@ -109,7 +109,7 @@ const TabAccrodain = () => {
               <Tab as={Fragment} key={i}>
                 {({ selected }) => (
                   <button
-                    className={` inline-flex items-start text-sm font-medium mb-7 capitalize bg-white dark:bg-slate-800 ring-0 foucs:ring-0 focus:outline-none px-2 transition duration-150 before:transition-all before:duration-150 relative before:absolute
+                    className={` inline-flex items-start text-sm font-medium mb-7 capitalize bg-white dark:bg-slate-900 ring-0 foucs:ring-0 focus:outline-none px-2 transition duration-150 before:transition-all before:duration-150 relative before:absolute
                      before:left-1/2 before:bottom-[-6px] before:h-[1.5px]
                       before:bg-primary-500 before:-translate-x-1/2
               

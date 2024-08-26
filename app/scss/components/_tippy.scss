@@ -1,6 +1,6 @@
 .custom-tippy {
   .tippy-box {
-    @apply bg-slate-900;
+    @apply bg-slate-950;
   }
   .tippy-arrow {
     @apply text-slate-900;
@@ -24,7 +24,7 @@
     @apply bg-danger-500 text-white;
   }
   .tippy-box[data-theme~="dark"] {
-    @apply bg-slate-900 text-white dark:bg-slate-900;
+    @apply bg-slate-950 text-white dark:bg-slate-950;
   }
   .tippy-box[data-theme~="custom-light"] {
     @apply bg-white text-slate-900 dark:bg-slate-700 shadow-dropdown dark:border-slate-700 dark:border;

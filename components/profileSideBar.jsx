@@ -3912,7 +3912,7 @@ const VerticalNavTabs = (props) => {
                                               </th>
                                             </tr>
                                           </thead>
-                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'>
                                             {(
                                               fundingInformationLoc?.previous_funding ||
                                               fundingInformation?.previous_funding
@@ -4010,7 +4010,7 @@ const VerticalNavTabs = (props) => {
                                               </th>
                                             </tr>
                                           </thead>
-                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'>
                                             {(
                                               fundingInformationLoc?.cap_table ||
                                               fundingInformation?.cap_table

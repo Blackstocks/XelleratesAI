@@ -161,7 +161,7 @@ const ScheduledMeetings = () => {
                 ))}
               </thead>
               <tbody
-                className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'
+                className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'
                 {...getTableBodyProps()}
               >
                 {page.map((row) => {

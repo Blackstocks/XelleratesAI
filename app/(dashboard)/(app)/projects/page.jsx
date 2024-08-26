@@ -46,8 +46,8 @@ const ProjectPostPage = () => {
             disabled={isLoaded}
             className={`${
               filler === "list"
-                ? "bg-slate-900 dark:bg-slate-700  text-white"
-                : " bg-white dark:bg-slate-800 dark:text-slate-300"
+                ? "bg-slate-950 dark:bg-slate-700  text-white"
+                : " bg-white dark:bg-slate-900 dark:text-slate-300"
             }   h-min text-sm font-normal`}
             iconClass=" text-lg"
             onClick={() => setfiller("list")}
@@ -58,8 +58,8 @@ const ProjectPostPage = () => {
             disabled={isLoaded}
             className={`${
               filler === "grid"
-                ? "bg-slate-900 dark:bg-slate-700 text-white"
-                : " bg-white dark:bg-slate-800 dark:text-slate-300"
+                ? "bg-slate-950 dark:bg-slate-700 text-white"
+                : " bg-white dark:bg-slate-900 dark:text-slate-300"
             }   h-min text-sm font-normal`}
             iconClass=" text-lg"
             onClick={() => setfiller("grid")}
@@ -67,13 +67,13 @@ const ProjectPostPage = () => {
           <Button
             icon="heroicons-outline:filter"
             text="On going"
-            className="bg-white dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-900 hover:text-white btn-md  h-min text-sm font-normal"
+            className="bg-white dark:bg-slate-900 dark:text-slate-300 hover:bg-slate-950 hover:text-white btn-md  h-min text-sm font-normal"
             iconClass=" text-lg"
           />
           <Button
             icon="heroicons-outline:plus"
             text="Add Project"
-            className="btn-dark dark:bg-slate-800  h-min text-sm font-normal"
+            className="btn-dark dark:bg-slate-900  h-min text-sm font-normal"
             iconClass=" text-lg"
             onClick={() => dispatch(toggleAddModal(true))}
           />

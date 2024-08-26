@@ -12,7 +12,7 @@ const Modal = ({
   footerContent,
   centered,
   scrollContent,
-  themeClass = 'bg-slate-900 dark:bg-slate-800 dark:border-b dark:border-slate-700',
+  themeClass = 'bg-slate-950 dark:bg-slate-900 dark:border-b dark:border-slate-700',
   title = 'Basic Modal',
   uncontrol,
   label = 'Basic Modal',
@@ -59,7 +59,7 @@ const Modal = ({
                   leaveFrom={noFade ? '' : 'opacity-100'}
                   leaveTo={noFade ? '' : 'opacity-0'}
                 >
-                  <div className='fixed inset-0 bg-slate-900/50 backdrop-filter backdrop-blur-sm' />
+                  <div className='fixed inset-0 bg-slate-950/50 backdrop-filter backdrop-blur-sm' />
                 </Transition.Child>
               )}
 
@@ -80,7 +80,7 @@ const Modal = ({
                   >
                     <Dialog.Panel
                       className={`w-full transform  rounded-md
-                 bg-white dark:bg-slate-800 text-left align-middle shadow-xl transition-alll ${className}`}
+                 bg-white dark:bg-slate-900 text-left align-middle shadow-xl transition-alll ${className}`}
                     >
                       <div
                         className={`relative  py-4 px-5 text-white flex justify-between  ${themeClass}`}
@@ -124,7 +124,7 @@ const Modal = ({
               leaveTo={noFade ? '' : 'opacity-0'}
             >
               {!disableBackdrop && (
-                <div className='fixed inset-0 bg-slate-900/50 backdrop-filter backdrop-blur-sm' />
+                <div className='fixed inset-0 bg-slate-950/50 backdrop-filter backdrop-blur-sm' />
               )}
             </Transition.Child>
 
@@ -145,7 +145,7 @@ const Modal = ({
                 >
                   <Dialog.Panel
                     className={`w-full transform overflow-hidden rounded-md
-                 bg-white dark:bg-slate-800 text-left align-middle shadow-xl transition-alll ${className}`}
+                 bg-white dark:bg-slate-900 text-left align-middle shadow-xl transition-alll ${className}`}
                   >
                     <div
                       className={`relative overflow-hidden py-4 px-5 text-white flex justify-between  ${themeClass}`}

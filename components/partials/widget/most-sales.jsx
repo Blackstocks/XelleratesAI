@@ -55,7 +55,7 @@ const MostSales = ({ filterMap }) => {
         <div className="text-xs font-light dark:text-slate-200">
           <span className="text-primary-500">+08%</span> From last month
         </div>
-        <ul className="bg-slate-50 dark:bg-slate-900 rounded p-4 min-w-[184px] space-y-5 mt-4">
+        <ul className="bg-slate-50 dark:bg-slate-950 rounded p-4 min-w-[184px] space-y-5 mt-4">
           {slaes.map((item, i) => (
             <li
               key={i}

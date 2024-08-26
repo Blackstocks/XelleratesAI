@@ -217,7 +217,7 @@ const statistics = [
     name: columnCharthome3,
     title: "Portfolio Counts",
     count: "10",
-    bg: "bg-[#E5F9FF] dark:bg-slate-900	",
+    bg: "bg-[#E5F9FF] dark:bg-slate-950	",
     text: "text-info-500",
     icon: "heroicons:shopping-cart",
   },
@@ -225,7 +225,7 @@ const statistics = [
     name: columnCharthome4,
     title: "Open Transactions",
     count: "$10,000",
-    bg: "bg-[#E5F9FF] dark:bg-slate-900	",
+    bg: "bg-[#E5F9FF] dark:bg-slate-950	",
     text: "text-warning-500",
     icon: "heroicons:cube",
   },
@@ -233,7 +233,7 @@ const statistics = [
     name: columnCharthome2,
     title: "Closed Transactions",
     count: "$8,000",
-    bg: "bg-[#E5F9FF] dark:bg-slate-900	",
+    bg: "bg-[#E5F9FF] dark:bg-slate-950	",
     text: "text-[#5743BE]",
     icon: "heroicons:arrow-trending-up-solid",
   },
@@ -242,7 +242,7 @@ const GroupChart5 = () => {
   return (
     <>
       {statistics.map((item, i) => (
-        <div className="bg-slate-50 dark:bg-slate-900 rounded p-4" key={i}>
+        <div className="bg-slate-50 dark:bg-slate-950 rounded p-4" key={i}>
           <div className="text-slate-600 dark:text-slate-400 text-sm mb-1 font-medium">
             <h6><b>{item.title}</b></h6>
           </div>

@@ -1751,7 +1751,7 @@ const CuratedDealflow = () => {
                                     </th>
                                   </tr>
                                 </thead>
-                                <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'>
                                   {selectedStartup?.funding_information?.previous_funding?.map(
                                     (funding, index) => (
                                       <tr key={index}>
@@ -1808,7 +1808,7 @@ const CuratedDealflow = () => {
                                     </th>
                                   </tr>
                                 </thead>
-                                <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'>
                                   {selectedStartup?.funding_information?.cap_table?.map(
                                     (entry, index) => (
                                       <tr key={index}>

@@ -44,7 +44,7 @@ const DonutChart2 = ({ height = 200, colors = ["#0CE7FA", "#E2F6FD"], Investment
               show: true,
               fontSize: "16px",
               fontFamily: "Outfit",
-              color: isDark ? "#cbd5e1" : "#0f172a",
+              color: isDark ? "#cbd5e1" : "#020617",
               formatter(val) {
                 return `${parseInt(val)}`;
               },

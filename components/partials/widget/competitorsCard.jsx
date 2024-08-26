@@ -12,22 +12,22 @@ const CompetitorsCard = () => {
         <button className="btn btn-primary">Compare</button>
       </div>
       <div className="flex flex-wrap justify-between items-center mb-6 space-x-4">
-        <div className="flex-1 min-w-[200px] p-4 bg-white dark:bg-slate-800 rounded-lg shadow-lg text-center">
+        <div className="flex-1 min-w-[200px] p-4 bg-white dark:bg-slate-900 rounded-lg shadow-lg text-center">
           <div className="text-2xl font-bold">2<sup>nd</sup></div>
           <div className="text-slate-500">Rank</div>
           <div className="text-slate-500 text-sm">Among 78 Competitors</div>
         </div>
-        <div className="flex-1 min-w-[200px] p-4 bg-white dark:bg-slate-800 rounded-lg shadow-lg text-center">
+        <div className="flex-1 min-w-[200px] p-4 bg-white dark:bg-slate-900 rounded-lg shadow-lg text-center">
           <div className="text-2xl font-bold">70</div>
           <div className="text-slate-500">Active Competitors</div>
           <div className="text-slate-500 text-sm">8 Funded / 4 Exited</div>
         </div>
-        <div className="flex-1 min-w-[200px] p-4 bg-white dark:bg-slate-800 rounded-lg shadow-lg text-center">
+        <div className="flex-1 min-w-[200px] p-4 bg-white dark:bg-slate-900 rounded-lg shadow-lg text-center">
           <div className="text-2xl font-bold">$2.85B</div>
           <div className="text-slate-500">Funding</div>
           <div className="text-slate-500 text-sm">32 Funding Rounds</div>
         </div>
-        <div className="flex-1 min-w-[200px] p-4 bg-white dark:bg-slate-800 rounded-lg shadow-lg text-center">
+        <div className="flex-1 min-w-[200px] p-4 bg-white dark:bg-slate-900 rounded-lg shadow-lg text-center">
           <div className="text-2xl font-bold">95</div>
           <div className="text-slate-500">Investors</div>
           <div className="text-slate-500 text-sm">Among 78 Competitors</div>

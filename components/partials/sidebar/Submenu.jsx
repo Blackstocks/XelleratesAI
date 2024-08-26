@@ -31,7 +31,7 @@ const Submenu = ({ activeSubmenu, item, i, locationName }) => {
                   <span
                     className={`${
                       activeMultiMenu
-                        ? " bg-slate-900 dark:bg-slate-300 ring-4 ring-opacity-[15%] ring-black-500 dark:ring-slate-300 dark:ring-opacity-20"
+                        ? " bg-slate-950 dark:bg-slate-300 ring-4 ring-opacity-[15%] ring-black-500 dark:ring-slate-300 dark:ring-opacity-20"
                         : ""
                     } h-2 w-2 rounded-full border border-slate-600 dark:border-white inline-block flex-none `}
                   ></span>
@@ -65,7 +65,7 @@ const Submenu = ({ activeSubmenu, item, i, locationName }) => {
                   <span
                     className={`${
                       locationName === subItem.childlink
-                        ? " bg-slate-900 dark:bg-slate-300 ring-4 ring-opacity-[15%] ring-black-500 dark:ring-slate-300 dark:ring-opacity-20"
+                        ? " bg-slate-950 dark:bg-slate-300 ring-4 ring-opacity-[15%] ring-black-500 dark:ring-slate-300 dark:ring-opacity-20"
                         : ""
                     } h-2 w-2 rounded-full border border-slate-600 dark:border-white inline-block flex-none`}
                   ></span>

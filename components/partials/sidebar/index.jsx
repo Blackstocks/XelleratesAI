@@ -32,7 +32,7 @@ const Sidebar = () => {
   return (
     <div className={isSemiDark ? "dark" : ""}>
       <div
-        className={`sidebar-wrapper bg-white dark:bg-primary-800     ${
+        className={`sidebar-wrapper bg-white dark:bg-slate-900     ${
           collapsed ? "w-[72px] close_sidebar" : "w-[248px]"
         }
       ${menuHover ? "sidebar-hovered" : ""}
@@ -62,7 +62,7 @@ const Sidebar = () => {
         >
           <Navmenu menus={menuItems} />
           {/* {!collapsed && (
-            <div className="bg-slate-900 mb-16 mt-4 p-3 relative text-center rounded-2xl text-white">
+            <div className="bg-slate-950 mb-16 mt-4 p-3 relative text-center rounded-2xl text-white">
               <div className="max-w-[160px] mx-auto mt-6">
                 <div className="widget-title">Unlimited Access</div>
                 <div className="text-xs font-light">

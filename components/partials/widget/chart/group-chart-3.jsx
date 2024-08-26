@@ -42,7 +42,7 @@ const GroupChart3 = ({ startupId, userId }) => {
             className='w-full h-full object-contain rounded-md'
           />
           <div className='absolute inset-0 flex items-center justify-center ml-2'>
-            <div className='bg-white dark:bg-slate-900 rounded-full h-10 w-10 flex items-center justify-center ml-12'>
+            <div className='bg-white dark:bg-slate-950 rounded-full h-10 w-10 flex items-center justify-center ml-12'>
               <span className='text-xl text-slate-900 dark:text-white font-medium'>
                 {item.count}
               </span>

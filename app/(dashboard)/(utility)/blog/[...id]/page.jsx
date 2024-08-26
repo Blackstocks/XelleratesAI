@@ -228,7 +228,7 @@ const BlogDetailsPage = () => {
                     <li key={i}>
                       <Link
                         href='#'
-                        className='text-xs font-normal text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-600 py-1 px-3 rounded-full hover:bg-slate-900 hover:text-white transition duration-150'
+                        className='text-xs font-normal text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-600 py-1 px-3 rounded-full hover:bg-slate-950 hover:text-white transition duration-150'
                       >
                         <span>{item.title}</span>
                       </Link>
@@ -376,7 +376,7 @@ const BlogDetailsPage = () => {
                     </div>
                   </li>
                 </ul>
-                <div className='post-comments bg-slate-100 dark:bg-slate-900 p-6 rounded-md mt-6'>
+                <div className='post-comments bg-slate-100 dark:bg-slate-950 p-6 rounded-md mt-6'>
                   <h4 className='text-lg font-medium text-slate-500 dark:text-slate-100 mb-4'>
                     Leave a comment
                   </h4>
