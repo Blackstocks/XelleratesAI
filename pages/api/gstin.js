@@ -17,71 +17,12 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      return res.status(response.status).json({ 
-        error: `Error: ${response.status} ${response.statusText}` 
+      return res.status(response.status).json({
+        error: `Error: ${response.status} ${response.statusText}`,
       });
     }
 
     const data = await response.json();
-
-    // Extract the required fields
-    const {
-      aggregate_turn_over,
-      authorized_signatory,
-      business_constitution,
-      business_details,
-      central_jurisdiction,
-      compliance_rating,
-      current_registration_status,
-      filing_status,
-      gstin,
-      is_field_visit_conducted,
-      legal_name,
-      mandate_e_invoice,
-      other_business_address,
-      primary_business_address,
-      register_cancellation_date,
-      register_date,
-      state_jurisdiction,
-      tax_payer_type,
-      trade_name,
-      gross_total_income,
-      gross_total_income_financial_year,
-    } = data.result;
-
-    // Store only the last three months of filing status
-    const recent_filing_status = filing_status[0].slice(0, 3);
-
-    // Insert the data into Supabase
-    const { error } = await supabase.from('debt_gstin').insert({
-      aggregate_turn_over,
-      authorized_signatory,
-      business_constitution,
-      business_details,
-      central_jurisdiction,
-      compliance_rating,
-      current_registration_status,
-      filing_status: recent_filing_status,
-      gstin,
-      is_field_visit_conducted: is_field_visit_conducted === 'Yes',
-      legal_name,
-      mandate_e_invoice: mandate_e_invoice === 'Yes',
-      other_business_address,
-      primary_business_address,
-      register_cancellation_date: register_cancellation_date ? new Date(register_cancellation_date) : null,
-      register_date: new Date(register_date),
-      state_jurisdiction,
-      tax_payer_type,
-      trade_name,
-      gross_total_income,
-      gross_total_income_financial_year,
-    });
-
-    if (error) {
-      console.error('Error storing GSTIN data in Supabase:', error);
-      throw new Error('Failed to store GSTIN data');
-    }
-
     return res.status(200).json(data);
   } catch (error) {
     console.error('Error fetching GSTIN data:', error.message);

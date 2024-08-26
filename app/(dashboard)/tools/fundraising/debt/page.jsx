@@ -68,22 +68,23 @@ const Equity = () => {
   const fetchGstinData = async (gstin) => {
     try {
       setLoading(true);
-  
+
       // Call the new gstin handler route, which now uses Invincible Ocean API
       const response = await fetch(`/api/gstin?gstin=${gstin}`);
-  
+
       if (!response.ok) {
         throw new Error("Invalid GSTIN or API error");
       }
-  
+
       const data = await response.json();
       console.log("GSTIN data fetched:", data);
-  
+
       // Assuming the data structure from Invincible Ocean API
       if (data.code !== 200) {
         throw new Error(`Error: ${data.message}`);
       }
-  
+
+      // Rename the destructured gstin variable to avoid conflict
       const {
         aggregate_turn_over,
         authorized_signatory,
@@ -93,7 +94,7 @@ const Equity = () => {
         compliance_rating,
         current_registration_status,
         filing_status,
-        gstin,
+        gstin: fetchedGstin, // Renamed variable
         is_field_visit_conducted,
         legal_name,
         mandate_e_invoice,
@@ -107,14 +108,14 @@ const Equity = () => {
         gross_total_income,
         gross_total_income_financial_year,
       } = data.result;
-  
+
       // Store only the last three months of filing status
-      const recent_filing_status = filing_status[0].slice(0, 3);
-  
+      const recent_filing_status = filing_status.slice(0, 3);
+
       // Insert GSTIN data into Supabase
       const { error } = await supabase.from("debt_gstin").insert({
         user_id: user.id,
-        gstin,
+        gstin: fetchedGstin, // Use the renamed variable here
         aggregate_turn_over,
         authorized_signatory,
         business_constitution,
@@ -123,12 +124,14 @@ const Equity = () => {
         compliance_rating,
         current_registration_status,
         filing_status: recent_filing_status,
-        is_field_visit_conducted: is_field_visit_conducted === 'Yes',
+        is_field_visit_conducted: is_field_visit_conducted === "Yes",
         legal_name,
-        mandate_e_invoice: mandate_e_invoice === 'Yes',
+        mandate_e_invoice: mandate_e_invoice === "Yes",
         other_business_address,
         primary_business_address,
-        register_cancellation_date: register_cancellation_date ? new Date(register_cancellation_date) : null,
+        register_cancellation_date: register_cancellation_date
+          ? new Date(register_cancellation_date)
+          : null,
         register_date: new Date(register_date),
         state_jurisdiction,
         tax_payer_type,
@@ -142,14 +145,14 @@ const Equity = () => {
         existing_debt: existingDebt,
         sector: sector,
       });
-  
+
       if (error) {
         console.error("Error storing GSTIN data in Supabase:", error);
         throw new Error("Failed to store GSTIN data");
       }
-  
+
       console.log("GSTIN and additional data stored successfully in Supabase");
-  
+
       // Redirect to the investor page
       router.push("/tools/fundraising/debt/investor");
     } catch (error) {
@@ -159,7 +162,6 @@ const Equity = () => {
       setLoading(false);
     }
   };
-
 
   const handleGstinSubmit = () => {
     setGstinError("");
