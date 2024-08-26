@@ -105,7 +105,7 @@ const NotificationDetail = () => {
           const { data: startupData, error: startupError } = await supabase
             .from('company_profile')
             .select('company_name')
-            .eq('profile_id', notification.receiver_id)
+            .eq('id', notification.receiver_id)
             .single();
 
           if (startupError) {
