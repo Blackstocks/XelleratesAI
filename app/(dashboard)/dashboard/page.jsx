@@ -330,9 +330,9 @@ const Dashboard = () => {
     const expenseData = financialData.expense?.[selectedQuarter] || [];
     const profitData = financialData.profit?.[selectedQuarter] || [];
 
-    console.log('Revenue Data:', revenueData);
-    console.log('Expense Data:', expenseData);
-    console.log('Profit Data:', profitData);
+    // console.log('Revenue Data:', revenueData);
+    // console.log('Expense Data:', expenseData);
+    // console.log('Profit Data:', profitData);
 
     return (
       <ul className='divide-y divide-slate-100 dark:divide-slate-700'>
@@ -437,7 +437,10 @@ const Dashboard = () => {
                 <div className='lg:col-span-8 col-span-12 space-y-5'>
                   <Card>
                     <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
-                      <GroupChart3 startupId={companyProfile?.id} />
+                      <GroupChart3
+                        startupId={companyProfile?.id}
+                        userId={user?.id}
+                      />
                     </div>
                   </Card>
                   {renderLockedCard(

@@ -2,9 +2,14 @@
 import useInvestorCounts from '@/hooks/useInvestorCounts'; // Adjust the path based on your project structure
 import useScheduledMeetingCount from '@/hooks/useScheduledMeetingCount'; // Adjust the path based on your project structure
 
-const GroupChart3 = ({ startupId }) => {
-  const { investorCount, assignedInvestorCount, loading } =
-    useInvestorCounts(startupId);
+const GroupChart3 = ({ startupId, userId }) => {
+  // console.log('startupId', startupId);
+  // console.log('userId', userId);
+  const { investorCount, assignedInvestorCount, loading } = useInvestorCounts(
+    startupId,
+    userId
+  );
+  // console.log('assignedInvestorCount', assignedInvestorCount);
   const { scheduledMeetingCount, loading: meetingLoading } =
     useScheduledMeetingCount(startupId);
 

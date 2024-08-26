@@ -234,7 +234,7 @@ const VerticalNavTabs = (props) => {
       // console.log('social_media_handles', socialMediaFields);
     }
     if (founderInformation) {
-      console.log('fundingInformation:', fundingInformation);
+      // console.log('fundingInformation:', fundingInformation);
 
       reset({
         advisors: founderInformation?.advisors || [],
