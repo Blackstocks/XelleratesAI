@@ -184,6 +184,37 @@ const InvestorDealflow = () => {
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
 
+  const handleConnect = async (userType) => {
+    try {
+      const { data, error } = await supabase
+        .from("connected_startup_equity")
+        .insert([
+          {
+            startup_name: profile.company_name,
+            founder_name: profile.name,
+            linkedin_profile: profile.linkedin_profile,
+            email: profile.email,
+            mobile: profile.mobile,
+            user_type: userType,
+            has_connected: true,
+            user_id: user.id,
+          },
+        ]);
+
+      if (error) {
+        throw error;
+      }
+
+      setConnectClicked(true);
+      setHasConnected(true); // Set hasConnected to true after connecting
+
+      // Show the modal after connection
+      setIsMessageModalOpen(true);
+    } catch (error) {
+      console.error("Error inserting data:", error.message);
+    }
+  };
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({
