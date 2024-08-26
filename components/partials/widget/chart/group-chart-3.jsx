@@ -3,7 +3,8 @@ import useInvestorCounts from '@/hooks/useInvestorCounts'; // Adjust the path ba
 import useScheduledMeetingCount from '@/hooks/useScheduledMeetingCount'; // Adjust the path based on your project structure
 
 const GroupChart3 = ({ startupId }) => {
-  const { investorCount, assignedInvestorCount, loading } = useInvestorCounts();
+  const { investorCount, assignedInvestorCount, loading } =
+    useInvestorCounts(startupId);
   const { scheduledMeetingCount, loading: meetingLoading } =
     useScheduledMeetingCount(startupId);
 

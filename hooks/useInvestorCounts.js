@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 
-const useInvestorCounts = () => {
+const useInvestorCounts = ({ startupId }) => {
   const [investorCount, setInvestorCount] = useState(0);
   const [assignedInvestorCount, setAssignedInvestorCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -20,10 +20,11 @@ const useInvestorCounts = () => {
 
         setInvestorCount(totalCount);
 
-        // Fetch assigned investors count
+        // Fetch assigned investors count for the specific startup
         const { count: assignedCount, error: assignedError } = await supabase
           .from('assigned_dealflow')
-          .select('*', { count: 'exact' });
+          .select('*', { count: 'exact' })
+          .eq('startup_id', startupId); // Filtering based on startupId
 
         if (assignedError) throw assignedError;
 
@@ -36,7 +37,7 @@ const useInvestorCounts = () => {
     };
 
     fetchInvestorCounts();
-  }, []);
+  }, [startupId]);
 
   return { investorCount, assignedInvestorCount, loading };
 };
