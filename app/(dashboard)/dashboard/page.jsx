@@ -400,7 +400,7 @@ const Dashboard = () => {
               </div>
             ) : (
               <div>
-                <span>Unlock through credits</span>
+                {/* <span>Unlock through credits</span> */}
                 <button
                   onClick={() => handleUnlockClick(cardName)}
                   className='mt-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700'
