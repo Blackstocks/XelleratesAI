@@ -7,7 +7,7 @@ import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 const Calculation = ({ height = 300 }) => {
   const [isDark] = useDarkMode();
   const { fundingInformation } = useCompleteUserDetails();
-  console.log('fundinginfo', fundingInformation);
+  // console.log('fundinginfo', fundingInformation);
 
   // Extract series and labels from fundingInformation.cap_table
   const capTable = fundingInformation?.cap_table || [];

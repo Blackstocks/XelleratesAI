@@ -308,7 +308,7 @@ const DropdownPage = () => {
             label={
               <Button
                 text="Dark"
-                className="text-slate-800 hover:bg-slate-800 hover:bg-opacity-20"
+                className="text-slate-800 hover:bg-slate-900 hover:bg-opacity-20"
                 icon="heroicons-outline:chevron-right"
                 iconPosition="right"
                 div

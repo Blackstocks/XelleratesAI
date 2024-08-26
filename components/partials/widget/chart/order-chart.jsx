@@ -4,7 +4,7 @@ const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import { colors } from '@/constant/data';
 
 const OrderChart = ({
-  className = 'bg-slate-50 dark:bg-slate-900 rounded pt-3 px-4',
+  className = 'bg-slate-50 dark:bg-slate-950 rounded pt-3 px-4',
   barColor = colors.warning,
 }) => {
   const series = [

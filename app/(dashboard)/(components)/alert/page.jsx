@@ -82,7 +82,7 @@ const AlertPage = () => {
       <div className="xl:col-span-2 col-span-1">
         <Card title="Link Colors">
           <div className="space-y-5">
-            <Alert className="bg-slate-800 bg-opacity-[14%] text-slate-800 dark:bg-slate-500 dark:bg-opacity-[14%]  dark:text-slate-300">
+            <Alert className="bg-slate-900 bg-opacity-[14%] text-slate-800 dark:bg-slate-500 dark:bg-opacity-[14%]  dark:text-slate-300">
               This is an alert with
               <Link
                 href="#"

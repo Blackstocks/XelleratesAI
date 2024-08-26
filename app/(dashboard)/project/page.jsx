@@ -28,7 +28,7 @@ const ProjectPage = () => {
               </div>
 
               <div className='xl:col-span-4 col-span-12'>
-                <div className='bg-slate-50 dark:bg-slate-900 rounded-md p-4'>
+                <div className='bg-slate-50 dark:bg-slate-950 rounded-md p-4'>
                   <span className='block dark:text-slate-400 text-sm text-slate-600'>
                     Progress
                   </span>

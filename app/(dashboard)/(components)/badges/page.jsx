@@ -17,7 +17,7 @@ const Badges = () => {
           <Badge label="warning" className="bg-warning-500 text-white" />
           <Badge
             label="Dark"
-            className="bg-slate-800 dark:bg-slate-900  text-white"
+            className="bg-slate-900 dark:bg-slate-950  text-white"
           />
         </div>
       </Card>
@@ -34,7 +34,7 @@ const Badges = () => {
           <Badge label="warning" className="bg-warning-500 text-white pill" />
           <Badge
             label="Dark"
-            className="bg-slate-800 dark:bg-slate-900 text-white pill"
+            className="bg-slate-900 dark:bg-slate-950 text-white pill"
           />
         </div>
       </Card>
@@ -66,7 +66,7 @@ const Badges = () => {
           />
           <Badge
             label="Dark"
-            className="bg-slate-800 dark:bg-slate-900 text-slate-800 dark:text-slate-400 bg-opacity-[0.12]"
+            className="bg-slate-900 dark:bg-slate-950 text-slate-800 dark:text-slate-400 bg-opacity-[0.12]"
           />
         </div>
       </Card>
@@ -98,7 +98,7 @@ const Badges = () => {
           />
           <Badge
             label="Dark"
-            className="bg-slate-800 dark:bg-slate-900 text-slate-800 dark:text-slate-400 bg-opacity-[0.12] pill"
+            className="bg-slate-900 dark:bg-slate-950 text-slate-800 dark:text-slate-400 bg-opacity-[0.12] pill"
           />
         </div>
       </Card>
@@ -136,7 +136,7 @@ const Badges = () => {
           />
           <Badge
             label="Dark"
-            className="bg-slate-800 dark:bg-slate-900 text-white"
+            className="bg-slate-900 dark:bg-slate-950 text-white"
             icon="heroicons-outline:star"
           />
         </div>

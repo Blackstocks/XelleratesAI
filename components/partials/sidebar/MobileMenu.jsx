@@ -31,9 +31,9 @@ const MobileMenu = ({ className = 'custom-class' }) => {
   const [mobileMenu, setMobileMenu] = useMobileMenu();
   return (
     <div
-      className={`${className} fixed  top-0 bg-white dark:bg-slate-800 shadow-lg  h-full   w-[248px]`}
+      className={`${className} fixed  top-0 bg-white dark:bg-slate-900 shadow-lg  h-full   w-[248px]`}
     >
-      <div className='logo-segment flex justify-between items-center bg-white dark:bg-slate-800 z-[9] h-[85px]  px-4 '>
+      <div className='logo-segment flex justify-between items-center bg-white dark:bg-slate-900 z-[9] h-[85px]  px-4 '>
         <Link href='/'>
           <div className='flex items-center space-x-4'>
             <div className='logo-icon'>
@@ -72,7 +72,7 @@ const MobileMenu = ({ className = 'custom-class' }) => {
         scrollableNodeProps={{ ref: scrollableNodeRef }}
       >
         <Navmenu menus={menuItems} />
-        {/* <div className='bg-slate-900 mb-24 lg:mb-10 mt-24 p-4 relative text-center rounded-2xl text-white'>
+        {/* <div className='bg-slate-950 mb-24 lg:mb-10 mt-24 p-4 relative text-center rounded-2xl text-white'>
           <img
             src='/assets/images/svg/rabit.svg'
             alt=''

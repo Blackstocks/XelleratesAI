@@ -24,11 +24,11 @@ const TodoHeader = ({ onChange }) => {
   ];
   const dispatch = useDispatch();
   return (
-    <div className="md:flex justify-between items-center sticky bg-white dark:bg-slate-800 top-0 pt-6 pb-4 px-6 z-[44] border-b border-slate-100 dark:border-slate-700 rounded-t-md">
+    <div className="md:flex justify-between items-center sticky bg-white dark:bg-slate-900 top-0 pt-6 pb-4 px-6 z-[44] border-b border-slate-100 dark:border-slate-700 rounded-t-md">
       <div className="flex items-center space-x-3 rtl:space-x-reverse">
         {width < breakpoints.lg && (
           <div
-            className="md:h-8 md:w-8 h-6 w-6 bg-slate-100 dark:bg-slate-900
+            className="md:h-8 md:w-8 h-6 w-6 bg-slate-100 dark:bg-slate-950
            dark:text-slate-400 flex flex-col justify-center items-center md:text-base
             text-sm rounded-full cursor-pointer"
             onClick={() =>
@@ -56,7 +56,7 @@ const TodoHeader = ({ onChange }) => {
         <Dropdown
           classMenuItems="w-[130px]"
           label={
-            <span className="text-lg inline-flex flex-col items-center justify-center h-8 w-8 rounded-full bg-gray-500-f7 dark:bg-slate-900 dark:text-slate-400 bg-slate-100">
+            <span className="text-lg inline-flex flex-col items-center justify-center h-8 w-8 rounded-full bg-gray-500-f7 dark:bg-slate-950 dark:text-slate-400 bg-slate-100">
               <Icon icon="heroicons-outline:dots-vertical" />
             </span>
           }
@@ -66,7 +66,7 @@ const TodoHeader = ({ onChange }) => {
               <div
                 className={`
                 
-                  ${"hover:bg-slate-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-70  dark:text-slate-300 hover:text-white"}
+                  ${"hover:bg-slate-950 dark:hover:bg-slate-600 dark:hover:bg-opacity-70  dark:text-slate-300 hover:text-white"}
                    w-full border-b border-b-gray-500 border-opacity-10   px-4 py-2 text-sm  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex  space-x-2 items-center  text-slate-600 capitalize rtl:space-x-reverse `}
               >
                 <span className="text-base">

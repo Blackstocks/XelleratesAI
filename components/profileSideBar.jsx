@@ -95,7 +95,7 @@ const companyDocumentsFiles = {
 
 const VerticalNavTabs = (props) => {
   let {
-    loading,
+    loadingUserCompleteProfile,
     user,
     investorSignup,
     companyProfile,
@@ -234,7 +234,7 @@ const VerticalNavTabs = (props) => {
       // console.log('social_media_handles', socialMediaFields);
     }
     if (founderInformation) {
-      console.log('fundingInformation:', fundingInformation);
+      // console.log('fundingInformation:', fundingInformation);
 
       reset({
         advisors: founderInformation?.advisors || [],
@@ -986,7 +986,7 @@ const VerticalNavTabs = (props) => {
   // Extract the label for rendering
   const renderedCountry = parsedCountry.label || '';
 
-  if (loading) {
+  if (loadingUserCompleteProfile) {
     return <Loading />;
   }
 
@@ -3499,8 +3499,7 @@ const VerticalNavTabs = (props) => {
                                     rel='noopener noreferrer'
                                     className='text-base text-slate-600 dark:text-slate-50'
                                   >
-                                    {companyDocuments?.[0]
-                                      ?.financial_projections
+                                    {companyDocuments?.financial_projections
                                       ? 'View Projections'
                                       : 'Not Provided'}
                                   </a>
@@ -3912,7 +3911,7 @@ const VerticalNavTabs = (props) => {
                                               </th>
                                             </tr>
                                           </thead>
-                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'>
                                             {(
                                               fundingInformationLoc?.previous_funding ||
                                               fundingInformation?.previous_funding
@@ -4010,7 +4009,7 @@ const VerticalNavTabs = (props) => {
                                               </th>
                                             </tr>
                                           </thead>
-                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                          <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'>
                                             {(
                                               fundingInformationLoc?.cap_table ||
                                               fundingInformation?.cap_table

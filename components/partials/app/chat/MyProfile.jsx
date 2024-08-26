@@ -92,7 +92,7 @@ const MyProfile = () => {
           </div>
           <div className='flex-none'>
             <div
-              className='h-8 w-8 bg-slate-100 dark:bg-slate-900 dark:text-slate-400 flex flex-col justify-center items-center text-xl rounded-full cursor-pointer'
+              className='h-8 w-8 bg-slate-100 dark:bg-slate-950 dark:text-slate-400 flex flex-col justify-center items-center text-xl rounded-full cursor-pointer'
               onClick={() => setOpenProfile(true)}
             >
               <Icon icon='heroicons-outline:dots-horizontal' />
@@ -108,12 +108,12 @@ const MyProfile = () => {
         >
           <div
             ref={nodeRef}
-            className='absolute bg-white dark:bg-slate-800 rounded-md h-full left-0 top-0 bottom-0  w-full z-[9]'
+            className='absolute bg-white dark:bg-slate-900 rounded-md h-full left-0 top-0 bottom-0  w-full z-[9]'
           >
             <SimpleBar className='h-full p-6'>
               <div className='text-right'>
                 <div
-                  className='h-8 w-8 bg-slate-100 dark:bg-slate-900 dark:text-slate-400 inline-flex ml-auto flex-col justify-center items-center text-xl rounded-full cursor-pointer'
+                  className='h-8 w-8 bg-slate-100 dark:bg-slate-950 dark:text-slate-400 inline-flex ml-auto flex-col justify-center items-center text-xl rounded-full cursor-pointer'
                   onClick={() => setOpenProfile(false)}
                 >
                   <Icon icon='heroicons-outline:x' />

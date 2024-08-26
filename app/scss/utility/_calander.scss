@@ -39,7 +39,7 @@
   }
   &.dark {
     .react-calendar {
-      @apply bg-slate-800;
+      @apply bg-slate-900;
     }
     .react-calendar__navigation__label {
       @apply text-slate-300;
@@ -59,6 +59,6 @@
     }
   }
   .react-calendar__tile--active {
-    @apply bg-slate-900 text-white;
+    @apply bg-slate-950 text-white;
   }
 }

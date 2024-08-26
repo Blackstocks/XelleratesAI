@@ -98,7 +98,7 @@
 .dashcode-app {
   .select__multi-value,
   .react-select__multi-value {
-    @apply text-white bg-slate-900;
+    @apply text-white bg-slate-950;
     border-radius: 3px;
     margin: 0 0.7rem 0 0;
 
@@ -141,7 +141,7 @@
 
 .dark {
   .select__control {
-    @apply bg-slate-900 border-slate-700;
+    @apply bg-slate-950 border-slate-700;
 
     .select__indicator svg {
       @apply fill-slate-500;
@@ -176,7 +176,7 @@
   }
 
   .select__menu {
-    @apply bg-slate-800;
+    @apply bg-slate-900;
   }
 
   .select__menu,
@@ -190,7 +190,7 @@
         }
 
         &.select__option--is-selected {
-          @apply bg-slate-900 text-slate-200;
+          @apply bg-slate-950 text-slate-200;
         }
       }
     }

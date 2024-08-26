@@ -12,6 +12,7 @@ import Icon from '@/components/ui/Icon';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import generateReport from '@/components/report/report-functions';
+import useNotificationStatus from '@/hooks/useNotificationStatus';
 
 const CuratedDealflow = () => {
   const [expressLoading, setExpressLoading] = useState(false);
@@ -31,7 +32,9 @@ const CuratedDealflow = () => {
   const [picker3, setPicker3] = useState(new Date());
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showFullUSP, setShowFullUSP] = useState(false);
-  const [hasConnected, setHasConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading: noticationsLoading, connectionStatus } =
+    useNotificationStatus(user?.id, selectedStartup?.id);
 
   const toastIdRef = useRef(null);
 
@@ -50,6 +53,47 @@ const CuratedDealflow = () => {
       </div>
     );
   }
+
+  // useEffect(() => {
+  //   if (user?.id && selectedStartup?.id) {
+  //     fetchNotificationStatus(user.id, selectedStartup?.id);
+  //   }
+  // }, [user?.id, selectedStartup?.id]);
+
+  // const fetchNotificationStatus = async (senderId, receiverId) => {
+  //   setIsLoading(true);
+
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from('notifications')
+  //       .select('notification_status')
+  //       .eq('sender_id', senderId)
+  //       .eq('receiver_id', receiverId)
+  //       .eq('notification_type', 'express_interest');
+
+  //     if (error) {
+  //       console.error('Error fetching notification status:', error);
+  //       return;
+  //     }
+
+  //     if (data && data.length > 0) {
+  //       const status = data[0].notification_status;
+  //       if (status === 'pending') {
+  //         setConnectionStatus('connection_sent');
+  //       } else if (status === 'accepted') {
+  //         setConnectionStatus('connected');
+  //       } else {
+  //         setConnectionStatus('connect');
+  //       }
+  //     } else {
+  //       setConnectionStatus('connect');
+  //     }
+  //   } catch (error) {
+  //     console.error('Unexpected error fetching notification status:', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const uniqueSectors = [
     'All',
@@ -1707,7 +1751,7 @@ const CuratedDealflow = () => {
                                     </th>
                                   </tr>
                                 </thead>
-                                <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'>
                                   {selectedStartup?.funding_information?.previous_funding?.map(
                                     (funding, index) => (
                                       <tr key={index}>
@@ -1764,7 +1808,7 @@ const CuratedDealflow = () => {
                                     </th>
                                   </tr>
                                 </thead>
-                                <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'>
+                                <tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'>
                                   {selectedStartup?.funding_information?.cap_table?.map(
                                     (entry, index) => (
                                       <tr key={index}>
@@ -1891,27 +1935,42 @@ const CuratedDealflow = () => {
 
               <div className='flex gap-4 mt-4'>
                 <button
-                  className='rounded-md px-4 border bg-success-500 text-white'
-                  onClick={() => setShowForm(true)}
+                  className={`rounded-md px-4 border text-white ${
+                    connectionStatus === 'connected'
+                      ? 'bg-gray-500 cursor-not-allowed' // Disabled state
+                      : connectionStatus === 'connection_sent'
+                      ? 'bg-success-500'
+                      : 'bg-blue-500'
+                  }`}
+                  onClick={() => {
+                    if (connectionStatus === 'connect') {
+                      setShowForm(true);
+                    }
+                  }}
+                  disabled={
+                    isLoading ||
+                    connectionStatus === 'connected' ||
+                    connectionStatus === 'connection_sent'
+                  }
                 >
-                  Connect
+                  {isLoading
+                    ? 'Loading...'
+                    : connectionStatus === 'connected'
+                    ? 'Connected'
+                    : connectionStatus === 'connection_sent'
+                    ? 'Connection Sent'
+                    : 'Connect'}
                 </button>
-                <button
-                  className='rounded-md px-4 border bg-danger-500 text-white'
-                  onClick={() => setShowForm(true)}
-                >
+
+                <button className='rounded-md px-4 border bg-danger-500 text-white'>
                   Reject
                 </button>
-                <button
-                  className='rounded-md  px-4 border bg-info-500 text-white'
-                  onClick={() => setShowForm(true)}
-                >
+                <button className='rounded-md  px-4 border bg-info-500 text-white'>
                   Evaluate
                 </button>
                 <button
                   className='text-sm rounded-md  px-4 border bg-info-500 text-white'
                   onClick={() => {
-                    setShowForm(true);
                     handleImageClick('investment', selectedStartup);
                   }}
                 >

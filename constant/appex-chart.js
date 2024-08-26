@@ -9,7 +9,7 @@ let colors = {
   success: "#50C793",
   "gray-f7": "#F7F8FC",
   dark: "#1E293B",
-  "dark-gray": "#0F172A",
+  "dark-gray": "#020617",
   gray: "#68768A",
   gray2: "#EEF1F9",
   "dark-light": "#CBD5E1",

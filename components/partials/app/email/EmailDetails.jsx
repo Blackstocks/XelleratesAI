@@ -10,7 +10,7 @@ const EmailDetails = () => {
   const dispatch = useDispatch();
   const { singleEmail } = useSelector((state) => state.email);
   return (
-    <div className="absolute left-0 top-0 w-full h-full bg-white dark:bg-slate-800 z-[55] rounded-md p-6 overflow-y-auto">
+    <div className="absolute left-0 top-0 w-full h-full bg-white dark:bg-slate-900 z-[55] rounded-md p-6 overflow-y-auto">
       <div className="flex items-center border-b border-slate-100 dark:border-slate-700 -mx-6 pb-6 mb-6 px-6">
         <div className="flex-1">
           <Tooltip content="Back" placement="top" arrow>
@@ -145,7 +145,7 @@ const EmailDetails = () => {
           <Button
             icon="heroicons-outline:chat-alt-2"
             text="Reply"
-            className="bg-slate-100 text-slate-900 dark:text-slate-300 hover:bg-slate-300 dark:bg-slate-900 btn-sm "
+            className="bg-slate-100 text-slate-900 dark:text-slate-300 hover:bg-slate-300 dark:bg-slate-950 btn-sm "
           />
         </div>
       </div>

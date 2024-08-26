@@ -210,19 +210,19 @@ const statistics = [
     name: shapeLine1,
     title: "Totel revenue",
     count: "3,564",
-    bg: "bg-[#E5F9FF] dark:bg-slate-900	",
+    bg: "bg-[#E5F9FF] dark:bg-slate-950	",
   },
   {
     name: shapeLine2,
     title: "Products sold",
     count: "564",
-    bg: "bg-[#FFEDE5] dark:bg-slate-900	",
+    bg: "bg-[#FFEDE5] dark:bg-slate-950	",
   },
   {
     name: shapeLine3,
     title: "Growth",
     count: "+5.0%",
-    bg: "bg-[#EAE5FF] dark:bg-slate-900	",
+    bg: "bg-[#EAE5FF] dark:bg-slate-950	",
   },
 ];
 const GroupChart1 = () => {

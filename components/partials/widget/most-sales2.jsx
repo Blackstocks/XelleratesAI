@@ -34,7 +34,7 @@ const MostSales2 = ({ filterMap }) => {
   return (
     <div>
       <VectorMap {...world} className="h-[280px] w-full dash-codevmap" />
-      <ul className="bg-slate-50 dark:bg-slate-900 rounded p-4 min-w-[184px] mt-8 flex justify-between flex-wrap items-center text-center">
+      <ul className="bg-slate-50 dark:bg-slate-950 rounded p-4 min-w-[184px] mt-8 flex justify-between flex-wrap items-center text-center">
         {sales.map((item, i) => (
           <li key={i} className="text-sm text-slate-600 dark:text-slate-300">
             <span className="block space-x-2 rtl:space-x-reverse">

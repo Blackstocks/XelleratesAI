@@ -9,7 +9,7 @@ const Swicth = ({
   disabled,
   value,
   onChange,
-  activeClass = "bg-slate-900 dark:bg-slate-900",
+  activeClass = "bg-slate-950 dark:bg-slate-950",
   wrapperClass = " ",
   labelClass = "text-slate-500 dark:text-slate-400 text-sm leading-6",
   badge,

@@ -131,7 +131,7 @@ const IconPage = () => {
         <li key={i}>
           <Tooltip placement="top" arrow content={item.name}>
             <div
-              className={`rounded-md bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xl  py-3 px-4 ${
+              className={`rounded-md bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 text-xl  py-3 px-4 ${
                 skin === "bordered"
                   ? " border border-gray-5002 dark:border-slate-700"
                   : "shadow-base"

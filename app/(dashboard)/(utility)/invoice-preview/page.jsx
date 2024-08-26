@@ -17,7 +17,7 @@ const InvoicePreviewPage = () => {
       <div className="lg:flex justify-between flex-wrap items-center mb-6">
         <h4>Preview</h4>
         <div className="flex lg:justify-end items-center flex-wrap space-xy-5">
-          <button className="invocie-btn inline-flex btn btn-sm whitespace-nowrap space-x-1 cursor-pointer bg-white dark:bg-slate-800 dark:text-slate-300 btn-md h-min text-sm font-normal text-slate-900 rtl:space-x-reverse">
+          <button className="invocie-btn inline-flex btn btn-sm whitespace-nowrap space-x-1 cursor-pointer bg-white dark:bg-slate-900 dark:text-slate-300 btn-md h-min text-sm font-normal text-slate-900 rtl:space-x-reverse">
             <span className="text-lg">
               <Icon icon="heroicons:pencil-square" />
             </span>
@@ -26,20 +26,20 @@ const InvoicePreviewPage = () => {
           <button
             type="button"
             onClick={printPage}
-            className="invocie-btn inline-flex btn btn-sm whitespace-nowrap space-x-1 cursor-pointer bg-white dark:bg-slate-800 dark:text-slate-300 btn-md h-min text-sm font-normal text-slate-900 rtl:space-x-reverse"
+            className="invocie-btn inline-flex btn btn-sm whitespace-nowrap space-x-1 cursor-pointer bg-white dark:bg-slate-900 dark:text-slate-300 btn-md h-min text-sm font-normal text-slate-900 rtl:space-x-reverse"
           >
             <span className="text-lg">
               <Icon icon="heroicons:printer" />
             </span>
             <span>Print</span>
           </button>
-          <button className="invocie-btn inline-flex btn btn-sm whitespace-nowrap space-x-1 cursor-pointer bg-white dark:bg-slate-800 dark:text-slate-300 btn-md h-min text-sm font-normal text-slate-900 rtl:space-x-reverse">
+          <button className="invocie-btn inline-flex btn btn-sm whitespace-nowrap space-x-1 cursor-pointer bg-white dark:bg-slate-900 dark:text-slate-300 btn-md h-min text-sm font-normal text-slate-900 rtl:space-x-reverse">
             <span className="text-lg">
               <Icon icon="heroicons:arrow-down-tray" />
             </span>
             <span>Download</span>
           </button>
-          <button className="invocie-btn inline-flex btn btn-sm whitespace-nowrap space-x-1 cursor-pointer bg-white dark:bg-slate-800 dark:text-slate-300 btn-md h-min text-sm font-normal text-slate-900 rtl:space-x-reverse">
+          <button className="invocie-btn inline-flex btn btn-sm whitespace-nowrap space-x-1 cursor-pointer bg-white dark:bg-slate-900 dark:text-slate-300 btn-md h-min text-sm font-normal text-slate-900 rtl:space-x-reverse">
             <span className="text-lg transform -rotate-45">
               <Icon icon="heroicons:paper-airplane" />
             </span>
@@ -48,7 +48,7 @@ const InvoicePreviewPage = () => {
         </div>
       </div>
       <Card bodyClass="p-0">
-        <div className="flex justify-between flex-wrap space-y-4 px-6 pt-6 bg-slate-50 dark:bg-slate-800 pb-6 rounded-t-md">
+        <div className="flex justify-between flex-wrap space-y-4 px-6 pt-6 bg-slate-50 dark:bg-slate-900 pb-6 rounded-t-md">
           <div>
             <img
               src={

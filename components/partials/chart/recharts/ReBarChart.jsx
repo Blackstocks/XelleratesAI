@@ -87,7 +87,7 @@ const data = [
 const CustomTooltip = (data) => {
   if (data.active && data.payload) {
     return (
-      <div className="bg-slate-900 text-white p-3 rounded-md">
+      <div className="bg-slate-950 text-white p-3 rounded-md">
         <p className="font-semibold text-base border-b border-slate-700 -mx-3  mb-3  pb-3 px-3 ">
           {data.label}
         </p>

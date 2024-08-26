@@ -11,7 +11,7 @@ const settings = () => {
         <Card>
           <div className="space-y-6">
             <div className="flex space-x-3 items-center rtl:space-x-reverse">
-              <div className="flex-none h-8 w-8 rounded-full bg-slate-800 dark:bg-slate-700 text-slate-300 flex flex-col items-center justify-center text-lg">
+              <div className="flex-none h-8 w-8 rounded-full bg-slate-900 dark:bg-slate-700 text-slate-300 flex flex-col items-center justify-center text-lg">
                 <Icon icon="heroicons:building-office-2" />
               </div>
               <div className="flex-1 text-base text-slate-900 dark:text-white font-medium">

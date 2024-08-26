@@ -20,7 +20,7 @@ const Repeater = () => {
   const index = 1;
   return (
     <div>
-      <div className="bg-slate-50 dark:bg-slate-800 -mx-6 px-6 py-6">
+      <div className="bg-slate-50 dark:bg-slate-900 -mx-6 px-6 py-6">
         <div className="mb-6 text-slate-600 dark:text-slate-300 text-xs font-medium uppercase">
           Items info-500
         </div>

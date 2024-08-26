@@ -81,7 +81,7 @@ const BankingPage = () => {
           </Card>
           <Card title="Quick transfer">
             <div className="space-y-6">
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-md p-4">
+              <div className="bg-slate-50 dark:bg-slate-950 rounded-md p-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-lg text-slate-900 dark:text-white">
                     Contacts
@@ -112,7 +112,7 @@ const BankingPage = () => {
                   </ul>
                 </SimpleBar>
               </div>
-              <div className="bg-slate-100 dark:bg-slate-900 rounded-md p-4">
+              <div className="bg-slate-100 dark:bg-slate-950 rounded-md p-4">
                 <span
                   className="text-xs text-slate-500 dark:text-slate-400 block mb-1 cursor-pointer font-normal"
                   htmlFor="cdp"
@@ -125,7 +125,7 @@ const BankingPage = () => {
                   className="bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 placeholder:font-medium  h-auto font-medium"
                 />
               </div>
-              <div className="bg-slate-100 dark:bg-slate-900 rounded-md p-4">
+              <div className="bg-slate-100 dark:bg-slate-950 rounded-md p-4">
                 <label
                   className="text-xs text-slate-500 dark:text-slate-400 block cursor-pointer mb-1"
                   htmlFor="cd"

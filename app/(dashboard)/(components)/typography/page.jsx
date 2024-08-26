@@ -451,7 +451,7 @@ const Typography = () => {
                       key={i}
                       className="text-sm text-slate-900 dark:text-slate-300 flex space-x-2 items-center rtl:space-x-reverse"
                     >
-                      <span className="h-[6px] w-[6px] bg-slate-900 dark:bg-slate-400 rounded-full inline-block"></span>
+                      <span className="h-[6px] w-[6px] bg-slate-950 dark:bg-slate-400 rounded-full inline-block"></span>
                       <span>Lorem ipsum dolor sit amet.</span>
                     </li>
                   ))}

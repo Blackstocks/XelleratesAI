@@ -35,7 +35,7 @@ const Dropdowntype = ({
         >
           <Menu.Items
             className={`absolute origin-top border border-slate-100
-            rounded bg-white dark:bg-slate-800 dark:border-slate-700 shadow-dropdown z-[9999]
+            rounded bg-white dark:bg-slate-900 dark:border-slate-700 shadow-dropdown z-[9999]
             ${classMenuItems}
             `}
           >

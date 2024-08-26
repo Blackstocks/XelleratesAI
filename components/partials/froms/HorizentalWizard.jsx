@@ -197,7 +197,7 @@ const FormWizard = () => {
                 <div
                   className={`${
                     stepNumber >= i
-                      ? 'bg-slate-900 text-white ring-slate-900 ring-offset-2 dark:ring-offset-slate-500 dark:bg-slate-900 dark:ring-slate-900'
+                      ? 'bg-slate-950 text-white ring-slate-900 ring-offset-2 dark:ring-offset-slate-500 dark:bg-slate-950 dark:ring-slate-900'
                       : 'bg-white ring-slate-900 ring-opacity-70 text-slate-900 dark:text-slate-300 dark:bg-slate-600 dark:ring-slate-600 text-opacity-70'
                   } transition duration-150 icon-box md:h-12 md:w-12 h-7 w-7 rounded-full flex flex-col items-center justify-center relative z-[66] ring-1 md:text-lg text-base font-medium`}
                 >
@@ -213,7 +213,7 @@ const FormWizard = () => {
                 <div
                   className={`${
                     stepNumber >= i
-                      ? 'bg-slate-900 dark:bg-slate-900'
+                      ? 'bg-slate-950 dark:bg-slate-950'
                       : 'bg-[#E0EAFF] dark:bg-slate-700'
                   } absolute top-1/2 h-[2px] w-full`}
                 ></div>

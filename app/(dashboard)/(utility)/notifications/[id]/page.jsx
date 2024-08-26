@@ -105,7 +105,7 @@ const NotificationDetail = () => {
           const { data: startupData, error: startupError } = await supabase
             .from('company_profile')
             .select('company_name')
-            .eq('profile_id', notification.receiver_id)
+            .eq('id', notification.receiver_id)
             .single();
 
           if (startupError) {
@@ -113,8 +113,20 @@ const NotificationDetail = () => {
             toast.error('Failed to fetch startup details');
             return;
           }
+          const { data: InvestorData, error: InvestorError } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', notification.sender_id)
+            .single();
+
+          if (InvestorError) {
+            console.error('Error fetching startup details:', InvestorError);
+            toast.error('Failed to fetch startup details');
+            return;
+          }
 
           const startupName = startupData?.company_name || 'Startup';
+          const InvestorName = InvestorData?.name || 'Investor';
 
           // Create notification for investor with startup name
           const { error: createError } = await supabase
@@ -134,7 +146,7 @@ const NotificationDetail = () => {
           } else {
             // Create event with the startup name in the event name
             const newEventData = {
-              name: `Meeting scheduled with ${startupName}`,
+              name: `Meeting has been arranged between ${startupName} and ${InvestorName}`,
               date: selectedSlot,
               details: notification.notification_message,
               user_id: notification.sender_id,

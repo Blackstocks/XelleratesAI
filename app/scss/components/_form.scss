@@ -1,5 +1,5 @@
 // .form-control {
-//   @apply bg-transparent dark:bg-slate-900 transition duration-300 ease-in-out border border-slate-200
+//   @apply bg-transparent dark:bg-slate-950 transition duration-300 ease-in-out border border-slate-200
 //    dark:border-slate-700 focus:ring-1 focus:ring-slate-600 focus:outline-none focus:ring-opacity-90 rounded
 //     placeholder:text-slate-400 text-slate-900 text-sm px-3  placeholder:font-normal block w-full h-[40px] dark:text-white;
 // }
@@ -9,7 +9,7 @@
 }
 
 .form-control {
-  @apply bg-white dark:bg-slate-900  transition duration-300 ease-in-out border border-slate-200
+  @apply bg-white dark:bg-slate-950  transition duration-300 ease-in-out border border-slate-200
    dark:border-slate-700 dark:text-slate-300  focus:ring-1 focus:ring-slate-600
    dark:focus:ring-slate-900 focus:outline-none focus:ring-opacity-90 rounded
     placeholder:text-slate-400 text-slate-900 text-sm px-3  placeholder:font-normal dark:placeholder:text-slate-400 block w-full;
@@ -42,13 +42,13 @@
 
 // vue date range picker css
 .text-vtd-primary-500-600 {
-  color: #0f172a !important;
+  color: #020617 !important;
 }
 .bg-vtd-primary-500-500 {
-  background-color: #0f172a !important;
+  background-color: #020617 !important;
 }
 .text-vtd-primary-500-500 {
-  color: #0f172a !important;
+  color: #020617 !important;
 }
 
 .dark {
@@ -65,10 +65,10 @@
 
 // file input
 .file-control {
-  @apply bg-transparent dark:bg-slate-900 dark:text-white transition duration-300 ease-in-out border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-900 focus:outline-none focus:ring-opacity-90 rounded   text-sm ltr:pl-3 rtl:pr-3   placeholder:font-normal;
+  @apply bg-transparent dark:bg-slate-950 dark:text-white transition duration-300 ease-in-out border border-slate-200 dark:border-slate-700 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-900 focus:outline-none focus:ring-opacity-90 rounded   text-sm ltr:pl-3 rtl:pr-3   placeholder:font-normal;
 }
 .badge-title {
-  @apply bg-slate-900 text-white px-2 py-[3px] rounded text-sm;
+  @apply bg-slate-950 text-white px-2 py-[3px] rounded text-sm;
 }
 
 // datae picker
@@ -90,5 +90,5 @@
 .flatpickr-day.selected.nextMonthDay,
 .flatpickr-day.startRange.nextMonthDay,
 .flatpickr-day.endRange.nextMonthDay {
-  @apply bg-slate-900 border-black-500;
+  @apply bg-slate-950 border-black-500;
 }

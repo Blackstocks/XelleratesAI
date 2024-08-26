@@ -25,6 +25,7 @@ import Loading from '@/app/loading';
 const Profile = () => {
   const { user, loading } = useUserDetails();
   const {
+    loading: loadingUserCompleteProfile,
     profile,
     companyProfile,
     businessDetails,
@@ -162,8 +163,8 @@ const Profile = () => {
         investorSignup={investorSignup}
       />
       <>
-        <div className='profiel-wrap px-[35px] pb-10 md:pt-[84px] pt-10 rounded-lg bg-white dark:bg-slate-800 lg:flex lg:space-y-0 space-y-6 justify-between items-end relative z-[1]'>
-          <div className='bg-slate-900 dark:bg-slate-700 absolute left-0 top-0 md:h-1/2 h-[150px] w-full z-[-1] rounded-t-lg'></div>
+        <div className='profiel-wrap px-[35px] pb-10 md:pt-[84px] pt-10 rounded-lg bg-white dark:bg-slate-900 lg:flex lg:space-y-0 space-y-6 justify-between items-end relative z-[1]'>
+          <div className='bg-slate-950 dark:bg-slate-700 absolute left-0 top-0 md:h-1/2 h-[150px] w-full z-[-1] rounded-t-lg'></div>
           <div className='profile-box flex-none md:text-start text-center'>
             <div className='md:flex items-end md:space-x-6 rtl:space-x-reverse'>
               <div className='flex-none'>
@@ -626,7 +627,7 @@ const Profile = () => {
 
         {user?.user_type === 'startup' && (
           <VerticalNavTabs
-            loading={loading}
+            loading={loadingUserCompleteProfile}
             user={user}
             investorSignup={investorSignup}
             profile={profile}
