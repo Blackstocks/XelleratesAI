@@ -9,7 +9,7 @@ const Customer = ({ investorId }) => {
 
   return (
     <div className='pb-2'>
-      <h6 className='ml-6 mb-4'>Hot Deals</h6>
+      <h6 className='ml-6 mb-4 text-center'>Hot Deals</h6>
       <div className='grid md:grid-cols-3 grid-cols-1 gap-5'>
         {hotDeals.map((item, i) => {
           // Determine the border and fill color based on rank
