@@ -73,7 +73,7 @@ const Equity = () => {
       const response = await fetch(`/api/gstin?gstin=${gstin}`);
   
       if (!response.ok) {
-        throw new Error("Invalid GSTIN or API error");
+        throw new Error("Please enter a valid GSTIN!!");
       }
   
       const data = await response.json();
