@@ -68,23 +68,23 @@ const Equity = () => {
   const fetchGstinData = async (gstin) => {
     try {
       setLoading(true);
-
-      // Call the new gstin handler route, which now uses Invincible Ocean API
+  
+      // Call the API handler route
       const response = await fetch(`/api/gstin?gstin=${gstin}`);
-
+  
       if (!response.ok) {
         throw new Error("Invalid GSTIN or API error");
       }
-
+  
       const data = await response.json();
       console.log("GSTIN data fetched:", data);
-
+  
       // Assuming the data structure from Invincible Ocean API
       if (data.code !== 200) {
         throw new Error(`Error: ${data.message}`);
       }
-
-      // Rename the destructured gstin variable to avoid conflict
+  
+      // Destructure the API response
       const {
         aggregate_turn_over,
         authorized_signatory,
@@ -108,10 +108,10 @@ const Equity = () => {
         gross_total_income,
         gross_total_income_financial_year,
       } = data.result;
-
+  
       // Store only the last three months of filing status
       const recent_filing_status = filing_status.slice(0, 3);
-
+  
       // Insert GSTIN data into Supabase
       const { error } = await supabase.from("debt_gstin").insert({
         user_id: user.id,
@@ -138,21 +138,15 @@ const Equity = () => {
         trade_name,
         gross_total_income,
         gross_total_income_financial_year,
-        // Additional fields based on the new API response can be added here
-        annual_revenue: annualRevenue,
-        annual_growth_rate: growthRate,
-        cash_runway: cashRunway,
-        existing_debt: existingDebt,
-        sector: sector,
       });
-
+  
       if (error) {
         console.error("Error storing GSTIN data in Supabase:", error);
         throw new Error("Failed to store GSTIN data");
       }
-
+  
       console.log("GSTIN and additional data stored successfully in Supabase");
-
+  
       // Redirect to the investor page
       router.push("/tools/fundraising/debt/investor");
     } catch (error) {
@@ -162,7 +156,6 @@ const Equity = () => {
       setLoading(false);
     }
   };
-
   const handleGstinSubmit = () => {
     setGstinError("");
     if (!gstin || gstin.length !== 15) {
