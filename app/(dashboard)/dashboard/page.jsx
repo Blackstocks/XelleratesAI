@@ -436,7 +436,7 @@ const Dashboard = () => {
               <div className='grid grid-cols-1 lg:grid-cols-12 gap-5'>
                 <div className='lg:col-span-8 col-span-12 space-y-5'>
                   <Card>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
+                    <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-4'>
                       <GroupChart3
                         startupId={companyProfile?.id}
                         userId={user?.id}
