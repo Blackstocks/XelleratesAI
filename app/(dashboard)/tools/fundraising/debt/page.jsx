@@ -67,52 +67,75 @@ const Equity = () => {
 
   const fetchGstinData = async (gstin) => {
     try {
-      setLoading(true);  // Start the loading indicator
+      setLoading(true);
   
-      // Make a request to the apisetu.gov.in API
-      const response = await fetch(
-        `https://apisetu.gov.in/gstn/v1/taxpayers/${gstin}`,
-        {
-          headers: {
-            accept: "application/json",
-            "X-APISETU-CLIENTID": "com.xellerates",
-            "X-APISETU-APIKEY": "roGCqhznIzXVJxyKVzyjCMgQoNuL1FeL",
-          },
-        }
-      );
+      // Call the new gstin handler route, which now uses Invincible Ocean API
+      const response = await fetch(`/api/gstin?gstin=${gstin}`);
   
-      // Check if the response is not okay (i.e., status code is not in the 200 range)
       if (!response.ok) {
         throw new Error("Invalid GSTIN or API error");
       }
   
-      // Parse the response data as JSON
       const data = await response.json();
       console.log("GSTIN data fetched:", data);
   
-      // Check the status of the GSTIN in the response
-      if (data.status !== "Active") {
-        throw new Error(`GSTIN status is ${data.status}. Please provide a valid GSTIN.`);
+      // Assuming the data structure from Invincible Ocean API
+      if (data.code !== 200) {
+        throw new Error(`Error: ${data.message}`);
       }
   
-      const formattedRegistrationDate = convertDateToYMD(data.registrationDate);
-      const formattedCancellationDate = data.cancellationDate
-        ? convertDateToYMD(data.cancellationDate)
-        : null;
+      const {
+        aggregate_turn_over,
+        authorized_signatory,
+        business_constitution,
+        business_details,
+        central_jurisdiction,
+        compliance_rating,
+        current_registration_status,
+        filing_status,
+        gstin,
+        is_field_visit_conducted,
+        legal_name,
+        mandate_e_invoice,
+        other_business_address,
+        primary_business_address,
+        register_cancellation_date,
+        register_date,
+        state_jurisdiction,
+        tax_payer_type,
+        trade_name,
+        gross_total_income,
+        gross_total_income_financial_year,
+      } = data.result;
+  
+      // Store only the last three months of filing status
+      const recent_filing_status = filing_status[0].slice(0, 3);
   
       // Insert GSTIN data into Supabase
       const { error } = await supabase.from("debt_gstin").insert({
         user_id: user.id,
-        gstin: data.gstin,
-        legal_name: data.legalName,
-        constitution: data.constitution,
-        registration_date: formattedRegistrationDate || null,
-        status: data.status,
-        taxpayer_type: data.taxPayerType,
-        center_jurisdiction: data.centerJurisdiction,
-        state_jurisdiction: data.stateJurisdiction,
-        cancellation_date: formattedCancellationDate || null,
-        nature_business_activities: JSON.stringify(data.natureBusinessActivities),
+        gstin,
+        aggregate_turn_over,
+        authorized_signatory,
+        business_constitution,
+        business_details,
+        central_jurisdiction,
+        compliance_rating,
+        current_registration_status,
+        filing_status: recent_filing_status,
+        is_field_visit_conducted: is_field_visit_conducted === 'Yes',
+        legal_name,
+        mandate_e_invoice: mandate_e_invoice === 'Yes',
+        other_business_address,
+        primary_business_address,
+        register_cancellation_date: register_cancellation_date ? new Date(register_cancellation_date) : null,
+        register_date: new Date(register_date),
+        state_jurisdiction,
+        tax_payer_type,
+        trade_name,
+        gross_total_income,
+        gross_total_income_financial_year,
+        // Additional fields based on the new API response can be added here
         annual_revenue: annualRevenue,
         annual_growth_rate: growthRate,
         cash_runway: cashRunway,
@@ -131,12 +154,12 @@ const Equity = () => {
       router.push("/tools/fundraising/debt/investor");
     } catch (error) {
       console.error("Error fetching GSTIN data:", error);
-      setGstinError(error.message);  // Display error to the user
+      setGstinError(error.message); // Display error to the user
     } finally {
-      setLoading(false);  // Stop the loading indicator
+      setLoading(false);
     }
   };
-  
+
 
   const handleGstinSubmit = () => {
     setGstinError("");
@@ -155,7 +178,8 @@ const Equity = () => {
 
     console.log("Checking profile completion for user:", user.id);
 
-    const { data, error: profileError } = await supabase
+    // Fetch the user's profile
+    const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select(
         "name, email, mobile, user_type, status, linkedin_profile, company_name"
@@ -165,24 +189,44 @@ const Equity = () => {
 
     if (profileError) {
       console.error("Error fetching profile:", profileError);
+      return;
+    }
+
+    // Check if the profile is complete
+    const requiredFields = [
+      "name",
+      "email",
+      "mobile",
+      "user_type",
+      "status",
+      "linkedin_profile",
+      "company_name",
+    ];
+    const isComplete = requiredFields.every((field) => profileData[field]);
+    setIsProfileComplete(isComplete);
+
+    if (!isComplete) {
+      setShowCompletionModal(true);
+      return;
+    }
+
+    // Check if GST data already exists for this user
+    const { data: gstData, error: gstError } = await supabase
+      .from("debt_gstin")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (gstData) {
+      // If GST data exists, redirect to investor page
+      router.push("/tools/fundraising/debt/investor");
     } else {
-      const requiredFields = [
-        "name",
-        "email",
-        "mobile",
-        "user_type",
-        "status",
-        "linkedin_profile",
-        "company_name",
-      ];
-      const isComplete = requiredFields.every((field) => data[field]);
-      setIsProfileComplete(isComplete);
-      console.log("Profile completion status:", isComplete);
-      if (!isComplete) {
-        setShowCompletionModal(true);
-      } else {
-        setShowGstinModal(true);
-      }
+      // If no GST data, show GSTIN input modal
+      setShowGstinModal(true);
+    }
+
+    if (gstError) {
+      console.error("Error checking GST data:", gstError);
     }
   };
 
