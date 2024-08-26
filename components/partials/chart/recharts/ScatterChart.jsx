@@ -62,7 +62,7 @@ const reactData = [
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload) {
     return (
-      <div className="bg-slate-900 text-white p-3 rounded-md  ">
+      <div className="bg-slate-950 text-white p-3 rounded-md  ">
         <span>{`${payload[0].value}%`}</span>
       </div>
     );

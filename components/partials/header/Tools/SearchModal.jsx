@@ -101,7 +101,7 @@ const SearchModal = () => {
             leaveFrom='opacity-100'
             leaveTo='opacity-0'
           >
-            <div className='fixed inset-0 bg-slate-900/60 backdrop-filter backdrop-blur-sm backdrop-brightness-10' />
+            <div className='fixed inset-0 bg-slate-950/60 backdrop-filter backdrop-blur-sm backdrop-brightness-10' />
           </Transition.Child>
 
           <Transition.Child
@@ -116,8 +116,8 @@ const SearchModal = () => {
             <Dialog.Panel>
               <Combobox>
                 <div className='relative'>
-                  <div className='relative mx-auto max-w-xl rounded-md bg-white dark:bg-slate-800 shadow-2xl ring-1 ring-gray-500-500 dark:ring-light divide-y divide-gray-500-300 dark:divide-light'>
-                    <div className='flex bg-white dark:bg-slate-800 px-3 rounded-md py-3 items-center'>
+                  <div className='relative mx-auto max-w-xl rounded-md bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-gray-500-500 dark:ring-light divide-y divide-gray-500-300 dark:divide-light'>
+                    <div className='flex bg-white dark:bg-slate-900 px-3 rounded-md py-3 items-center'>
                       <div className='flex-0 text-slate-700 dark:text-slate-300 ltr:pr-2 rtl:pl-2 text-lg'>
                         <Icon icon='heroicons-outline:search' />
                       </div>
@@ -152,7 +152,7 @@ const SearchModal = () => {
                               <div
                                 className={`px-4 text-[15px] font-normal capitalize py-2 ${
                                   active
-                                    ? 'bg-slate-900 dark:bg-slate-600 dark:bg-opacity-60 text-white'
+                                    ? 'bg-slate-950 dark:bg-slate-600 dark:bg-opacity-60 text-white'
                                     : 'text-slate-900 dark:text-white'
                                 }`}
                               >

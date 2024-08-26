@@ -48,7 +48,7 @@
 }
 
 .alert-dark {
-  @apply bg-slate-900 text-white;
+  @apply bg-slate-950 text-white;
   &.light-mode {
     @apply bg-opacity-[54%] text-slate-100;
   }

@@ -22,7 +22,7 @@ const KanbanLabel = () => {
       <button
         onClick={handleClick}
         className={`${
-          isClicked ? 'bg-slate-800 text-white' : 'bg-gray-100 text-slate-900'
+          isClicked ? 'bg-slate-900 text-white' : 'bg-gray-100 text-slate-900'
         } font-bold py-2 px-4 rounded shadow hover:bg-slate-700 hover:text-white transition-colors duration-200`}
       >
         CRM

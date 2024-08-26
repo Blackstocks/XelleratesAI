@@ -59,8 +59,8 @@ const DocumentManagement = () => {
             disabled={isLoaded}
             className={`${
               filler === 'list'
-                ? 'bg-slate-900 dark:bg-slate-700  text-white'
-                : ' bg-white dark:bg-slate-800 dark:text-slate-300'
+                ? 'bg-slate-950 dark:bg-slate-700  text-white'
+                : ' bg-white dark:bg-slate-900 dark:text-slate-300'
             }   h-min text-sm font-normal`}
             iconClass=' text-lg'
             onClick={() => setFiller('list')}
@@ -71,8 +71,8 @@ const DocumentManagement = () => {
             disabled={isLoaded}
             className={`${
               filler === 'grid'
-                ? 'bg-slate-900 dark:bg-slate-700 text-white'
-                : ' bg-white dark:bg-slate-800 dark:text-slate-300'
+                ? 'bg-slate-950 dark:bg-slate-700 text-white'
+                : ' bg-white dark:bg-slate-900 dark:text-slate-300'
             }   h-min text-sm font-normal`}
             iconClass=' text-lg'
             onClick={() => setFiller('grid')}
@@ -81,7 +81,7 @@ const DocumentManagement = () => {
           <Button
             icon='heroicons-outline:plus'
             text='Add Documents'
-            className='btn-dark dark:bg-slate-800  h-min text-sm font-normal'
+            className='btn-dark dark:bg-slate-900  h-min text-sm font-normal'
             iconClass=' text-lg'
             onClick={() => dispatch(toggleAddModal(true))}
           /> */}

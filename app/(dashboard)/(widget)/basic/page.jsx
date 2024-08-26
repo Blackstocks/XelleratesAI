@@ -3,7 +3,7 @@ import Button from "@/components/ui/Button";
 
 const rabitWidget = [
   {
-    bg: "bg-slate-900 dark:bg-slate-800",
+    bg: "bg-slate-950 dark:bg-slate-900",
   },
   {
     bg: "bg-primary-500",
@@ -17,7 +17,7 @@ const rabitWidget = [
 ];
 const griftWidget = [
   {
-    bg: "bg-slate-900 dark:bg-slate-800",
+    bg: "bg-slate-950 dark:bg-slate-900",
   },
   {
     bg: "bg-primary-500",

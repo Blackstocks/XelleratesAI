@@ -221,14 +221,14 @@ const KanbanPage = () => {
           <Button
             icon='heroicons-outline:plus'
             text='Add Board'
-            className='bg-slate-800 dark:hover:bg-opacity-70 h-min text-sm font-medium text-slate-50 hover:ring-2 hover:ring-opacity-80 ring-slate-900 hover:ring-offset-1 dark:hover:ring-0 dark:hover:ring-offset-0'
+            className='bg-slate-900 dark:hover:bg-opacity-70 h-min text-sm font-medium text-slate-50 hover:ring-2 hover:ring-opacity-80 ring-slate-900 hover:ring-offset-1 dark:hover:ring-0 dark:hover:ring-offset-0'
             iconclassName='text-lg'
             onClick={() => dispatch(toggleColumnModal(true))}
           />
         </div>
       </div>
       {/* Today's Summary Section */}
-      <div className='flex flex-col items-center mb-4 bg-white dark:bg-slate-800 rounded shadow-base p-4 w-3/5 mx-auto'>
+      <div className='flex flex-col items-center mb-4 bg-white dark:bg-slate-900 rounded shadow-base p-4 w-3/5 mx-auto'>
         <div className='text-center'>
           <h4 className='font-semibold lg:text-2xl text-xl text-slate-900 dark:text-white'>
             Today's Summary
@@ -239,7 +239,7 @@ const KanbanPage = () => {
         </div>
         {/* <Button
     icon="heroicons-outline:refresh"
-    className="bg-slate-800 dark:bg-slate-600 hover:bg-slate-700 text-sm text-white mt-4 flex items-center justify-center w-10 h-10 rounded-full"
+    className="bg-slate-900 dark:bg-slate-600 hover:bg-slate-700 text-sm text-white mt-4 flex items-center justify-center w-10 h-10 rounded-full"
     onClick={fetchTaskSummary} 
     disabled={refreshing}
   >
@@ -271,7 +271,7 @@ const KanbanPage = () => {
                           }`}
                         >
                           {/* Board Header */}
-                          <div className='relative flex justify-between items-center bg-white dark:bg-slate-800 rounded shadow-base px-6 py-5'>
+                          <div className='relative flex justify-between items-center bg-white dark:bg-slate-900 rounded shadow-base px-6 py-5'>
                             <div
                               className='absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[2px]'
                               style={{

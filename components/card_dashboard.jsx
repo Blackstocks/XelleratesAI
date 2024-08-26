@@ -6,7 +6,7 @@ const Card_D = ({ title, text, isLocked, href }) => {
   return (
     <div className='relative group'>
       <div
-        className={`relative bg-slate-50 dark:bg-slate-900 p-4 rounded text-center ${
+        className={`relative bg-slate-50 dark:bg-slate-950 p-4 rounded text-center ${
           isLocked ? 'pointer-events-none' : ''
         }`}
       >

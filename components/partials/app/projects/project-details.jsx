@@ -21,7 +21,7 @@ const ProjectDetailsPage = () => {
           <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
             <GroupChart4 />
           </div>
-          <div className="bg-slate-50 dark:bg-slate-900 rounded-md p-4 mt-4">
+          <div className="bg-slate-50 dark:bg-slate-950 rounded-md p-4 mt-4">
             <span className="block dark:text-slate-400 text-sm text-slate-600">
               Progress
             </span>

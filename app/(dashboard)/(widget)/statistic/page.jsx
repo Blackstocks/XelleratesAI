@@ -76,29 +76,29 @@ const StatisticWidget = () => {
         </Card>
       </div>
       <div className="grid xl:grid-cols-6 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
-        <OrderChart className="bg-white dark:bg-slate-800 rounded p-4" />
+        <OrderChart className="bg-white dark:bg-slate-900 rounded p-4" />
         <OrderChart
-          className="bg-white dark:bg-slate-800 rounded p-4"
+          className="bg-white dark:bg-slate-900 rounded p-4"
           barColor={"#F1595C"}
         />
         <OrderChart
-          className="bg-white dark:bg-slate-800 rounded p-4"
+          className="bg-white dark:bg-slate-900 rounded p-4"
           barColor={"#50C793"}
         />
-        <ProfitChart className="bg-white dark:bg-slate-800 rounded p-4" />
+        <ProfitChart className="bg-white dark:bg-slate-900 rounded p-4" />
         <ProfitChart
-          className="bg-white dark:bg-slate-800 rounded p-4"
+          className="bg-white dark:bg-slate-900 rounded p-4"
           color={"#F1595C"}
         />
         <ProfitChart
-          className="bg-white dark:bg-slate-800 rounded p-4"
+          className="bg-white dark:bg-slate-900 rounded p-4"
           color={"#50C793"}
         /> 
       </div>
       <div className="grid xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-4">
-        <EarningChart className="bg-white dark:bg-slate-800 rounded py-3 px-4" />
-        <EarningChart className="bg-white dark:bg-slate-800 rounded py-3 px-4" />
-        <EarningChart className="bg-white dark:bg-slate-800 rounded py-3 px-4" />
+        <EarningChart className="bg-white dark:bg-slate-900 rounded py-3 px-4" />
+        <EarningChart className="bg-white dark:bg-slate-900 rounded py-3 px-4" />
+        <EarningChart className="bg-white dark:bg-slate-900 rounded py-3 px-4" />
       </div>
     </div>
   );

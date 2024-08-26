@@ -63,12 +63,12 @@ const Dashboard = () => {
           <Card
             title="Most Sales"
             headerslot={
-              <div className="border border-slate-200 dark:border-slate-700 dark:bg-slate-900 rounded p-1 flex items-center">
+              <div className="border border-slate-200 dark:border-slate-700 dark:bg-slate-950 rounded p-1 flex items-center">
                 <span
                   className={` flex-1 text-sm font-normal px-3 py-1 transition-all duration-150 rounded cursor-pointer
                 ${
                   filterMap === "global"
-                    ? "bg-slate-900 text-white dark:bg-slate-700 dark:text-slate-300"
+                    ? "bg-slate-950 text-white dark:bg-slate-700 dark:text-slate-300"
                     : "dark:text-slate-300"
                 }
                 `}
@@ -80,7 +80,7 @@ const Dashboard = () => {
                   className={` flex-1 text-sm font-normal px-3 py-1 rounded transition-all duration-150 cursor-pointer
                   ${
                     filterMap === "usa"
-                      ? "bg-slate-900 text-white dark:bg-slate-700 dark:text-slate-300"
+                      ? "bg-slate-950 text-white dark:bg-slate-700 dark:text-slate-300"
                       : "dark:text-slate-300"
                   }
               `}
@@ -97,7 +97,7 @@ const Dashboard = () => {
         <div className="lg:col-span-4 col-span-12">
           <Card title="Overview" headerslot={<SelectMonth />}>
             <RadarChart />
-            <div className="bg-slate-50 dark:bg-slate-900 rounded p-4 mt-8 flex justify-between flex-wrap">
+            <div className="bg-slate-50 dark:bg-slate-950 rounded p-4 mt-8 flex justify-between flex-wrap">
               <div className="space-y-1">
                 <h4 className="text-slate-600 dark:text-slate-200 text-xs font-normal">
                   Invested amount

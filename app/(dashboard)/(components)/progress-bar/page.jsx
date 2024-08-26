@@ -51,7 +51,7 @@ const ProgressbarPage = () => {
         <div className="space-y-6">
           <ProgressBar
             value={30}
-            className="bg-slate-900 "
+            className="bg-slate-950 "
             striped
             backClass="h-3 rounded-[999px]"
           />{" "}
@@ -85,7 +85,7 @@ const ProgressbarPage = () => {
         <div className="space-y-6">
           <ProgressBar
             value={30}
-            className="bg-slate-900 "
+            className="bg-slate-950 "
             striped
             backClass="h-3 rounded-[999px]"
             animate
@@ -124,7 +124,7 @@ const ProgressbarPage = () => {
         <div className="space-y-6">
           <ProgressBar
             value={30}
-            className="bg-slate-900 "
+            className="bg-slate-950 "
             showValue
             backClass="h-3 rounded-[999px]"
           />

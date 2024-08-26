@@ -92,7 +92,7 @@ export default function RootLayout({ children }) {
       {/* mobile menu overlay*/}
       {width < breakpoints.xl && mobileMenu && (
         <div
-          className='overlay bg-slate-900/50 backdrop-filter backdrop-blur-sm opacity-100 fixed inset-0 z-[999]'
+          className='overlay bg-slate-950/50 backdrop-filter backdrop-blur-sm opacity-100 fixed inset-0 z-[999]'
           onClick={() => setMobileMenu(false)}
         ></div>
       )}

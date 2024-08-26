@@ -61,7 +61,7 @@ const Calculation = ({ height = 200 }) => {
               show: true,
               fontSize: '16px',
               fontFamily: 'Outfit',
-              color: isDark ? '#cbd5e1' : '#0f172a',
+              color: isDark ? '#cbd5e1' : '#020617',
               formatter(val) {
                 return `${parseInt(val)}%`;
               },

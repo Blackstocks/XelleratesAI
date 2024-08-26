@@ -206,9 +206,9 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
 
   return (
     <div className='flex flex-col lg:flex-row justify-between flex-wrap items-center mb-6'>
-      <div className='w-full lg:flex lg:space-x-4 mt-4'>
+      <div className='grid grid-cols-1 lg:grid-cols-12 gap-4 w-full lg:space-x-4 mt-4'>
         <div
-          className='bg-no-repeat bg-cover bg-center shadow-lg p-5 rounded-[6px] relative flex-1 mb-4 lg:mb-0'
+          className='lg:col-span-4 bg-no-repeat bg-cover bg-center shadow-lg p-5 rounded-[6px] relative flex-1 mb-4 lg:mb-0'
           style={{
             backgroundImage: `url(/assets/images/all-img/widget-bg-2.png)`,
           }}
@@ -224,14 +224,14 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
             </h4>
           </div>
         </div>
-        <div className='p-4 rounded bg-white shadow-lg text-black flex-1 mb-4 lg:mb-0'>
+        <div className='lg:col-span-4 p-4 rounded bg-white shadow-lg text-black flex-1 mb-4 lg:mb-0 dark:bg-slate-900'>
           <p>
             <h5>Welcome to Xellerates AI,</h5>I am <b>Zephyr</b>
             <span className='inline-block ml-2 animate-waving-hand'>👋🏻</span>,
             your personal Investment Banker
           </p>
         </div>
-        <div className='flex items-center justify-center lg:justify-end flex-1 mt-4 lg:mt-0'>
+        <div className='lg:col-span-4 flex items-center justify-center lg:justify-end flex-1 mt-4 lg:mt-0'>
           {userType === 'startup' ? (
             <>
               <img

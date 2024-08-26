@@ -301,7 +301,7 @@ const AdminDashboard = ({ userType }) => {
                         })}
                       </thead>
                       <tbody
-                        className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'
+                        className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'
                         {...getTableBodyProps()}
                       >
                         {page.map((row) => {
@@ -378,7 +378,7 @@ const AdminDashboard = ({ userType }) => {
                       <button
                         className={`${
                           pageIdx === pageIndex
-                            ? 'bg-slate-900 dark:bg-slate-600 dark:text-slate-200 text-white font-medium'
+                            ? 'bg-slate-950 dark:bg-slate-600 dark:text-slate-200 text-white font-medium'
                             : 'bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900 font-normal'
                         } text-sm rounded leading-[16px] flex h-6 w-6 items-center justify-center transition-all duration-150`}
                         onClick={() => gotoPage(pageIdx)}

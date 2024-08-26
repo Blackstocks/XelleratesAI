@@ -106,7 +106,7 @@ const ChangelogPage = () => {
                         </span>
                       </Disclosure.Button>
                       <Disclosure.Panel>
-                        <div className="text-sm text-slate-600 font-normal bg-white dark:bg-slate-900 dark:text-slate-300 rounded-b-md dark:border dark:border-slate-700 dark:border-t-0 border border-slate-100 border-t-0">
+                        <div className="text-sm text-slate-600 font-normal bg-white dark:bg-slate-950 dark:text-slate-300 rounded-b-md dark:border dark:border-slate-700 dark:border-t-0 border border-slate-100 border-t-0">
                           <div className="px-8 py-4">
                             {item.changes.map((data, j) => (
                               <div key={j}>

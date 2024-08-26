@@ -158,7 +158,7 @@ const Sidebar = () => {
             <li key={i} className='mr-2 mb-2'>
               <Link
                 href={item.link}
-                className='text-xs font-normal text-slate-600 bg-slate-100 dark:bg-slate-600 dark:text-slate-300 py-1 px-3 rounded-full hover:bg-slate-900 hover:text-white transition duration-150'
+                className='text-xs font-normal text-slate-600 bg-slate-100 dark:bg-slate-600 dark:text-slate-300 py-1 px-3 rounded-full hover:bg-slate-950 hover:text-white transition duration-150'
               >
                 <span>{item.title}</span>
               </Link>
@@ -166,7 +166,7 @@ const Sidebar = () => {
           ))}
         </ul>
       </div> */}
-      <div className='mx-6 bg-slate-900 dark:bg-slate-900 text-white rounded-xl p-6 space-y-4'>
+      <div className='mx-6 bg-slate-950 dark:bg-slate-950 text-white rounded-xl p-6 space-y-4'>
         <h4 className='text-xl font-medium text-white'>
           Subscribe to our blog
         </h4>

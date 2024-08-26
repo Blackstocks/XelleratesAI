@@ -56,7 +56,7 @@ const Customer = ({ investorId }) => {
               <h4 className='text-sm text-slate-600 font-semibold mb-4'>
                 {item.company_name || 'Unnamed Company'}
               </h4>
-              <div className='inline-block bg-slate-900 text-white px-[10px] py-[6px] text-xs font-medium rounded-full min-w-[60px]'>
+              <div className='inline-block bg-slate-950 text-white px-[10px] py-[6px] text-xs font-medium rounded-full min-w-[60px]'>
                 {item.founder_name || 'Unknown Founder'}
               </div>
               {/* <div>

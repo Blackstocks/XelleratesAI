@@ -107,7 +107,7 @@ const COLUMNS = [
                     className={`${
                       item.name === 'delete'
                         ? 'bg-danger-500 text-danger-500 bg-opacity-30   hover:bg-opacity-100 hover:text-white'
-                        : 'hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50'
+                        : 'hover:bg-slate-950 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50'
                     } w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm  last:mb-0 cursor-pointer 
                    first:rounded-t last:rounded-b flex  space-x-2 items-center rtl:space-x-reverse `}
                   >
@@ -202,7 +202,7 @@ const TransactionsTable = () => {
                   <Menu.Item key={filter}>
                     <div
                       onClick={() => setSelectedFilter(filter)}
-                      className={`hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center rtl:space-x-reverse ${
+                      className={`hover:bg-slate-950 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center rtl:space-x-reverse ${
                         selectedFilter === filter
                           ? 'bg-slate-200 dark:bg-slate-700'
                           : ''
@@ -258,7 +258,7 @@ const TransactionsTable = () => {
                   })}
                 </thead>
                 <tbody
-                  className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'
+                  className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'
                   {...getTableBodyProps()}
                 >
                   {page.map((row) => {

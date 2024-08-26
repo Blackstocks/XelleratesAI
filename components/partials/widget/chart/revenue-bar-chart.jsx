@@ -68,7 +68,7 @@ const RevenueBarChart = ({ height = 400 }) => {
         fontSize: "20px",
         fontWeight: "500",
         fontFamily: "Inter",
-        color: isDark ? "#fff" : "#0f172a",
+        color: isDark ? "#fff" : "#020617",
       },
     },
     dataLabels: {

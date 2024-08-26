@@ -75,12 +75,12 @@ const Ecommerce = () => {
           <Card
             title="Most Sales"
             headerslot={
-              <div className="border border-slate-200 dark:border-slate-700 dark:bg-slate-900 rounded p-1 flex items-center">
+              <div className="border border-slate-200 dark:border-slate-700 dark:bg-slate-950 rounded p-1 flex items-center">
                 <span
                   className={` flex-1 text-sm font-normal px-3 py-1 transition-all duration-150 rounded cursor-pointer
                 ${
                   filterMap === "global"
-                    ? "bg-slate-900 text-white dark:bg-slate-700 dark:text-slate-300"
+                    ? "bg-slate-950 text-white dark:bg-slate-700 dark:text-slate-300"
                     : "dark:text-slate-300"
                 }  
                 `}
@@ -92,7 +92,7 @@ const Ecommerce = () => {
                   className={` flex-1 text-sm font-normal px-3 py-1 rounded transition-all duration-150 cursor-pointer
                   ${
                     filterMap === "usa"
-                      ? "bg-slate-900 text-white dark:bg-slate-700 dark:text-slate-300"
+                      ? "bg-slate-950 text-white dark:bg-slate-700 dark:text-slate-300"
                       : "dark:text-slate-300"
                   }
               `}
