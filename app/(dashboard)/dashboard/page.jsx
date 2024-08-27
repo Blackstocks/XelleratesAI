@@ -446,7 +446,10 @@ const Dashboard = () => {
                   {renderLockedCard(
                     'Top Conversations',
                     <div className='col-span-12'>
-                      <RecentOrderTable2 />
+                      <RecentOrderTable2
+                        startupId={companyProfile?.id}
+                        userId={user?.id}
+                      />
                     </div>,
                     'topConversations',
                     user
@@ -554,7 +557,10 @@ const Dashboard = () => {
                   {renderLockedCard(
                     'Top Conversations',
                     <div className='col-span-12'>
-                      <RecentOrderTable2 />
+                      <RecentOrderTable2
+                        startupId={companyProfile?.id}
+                        userId={user?.id}
+                      />
                     </div>,
                     'topConversations',
                     user
