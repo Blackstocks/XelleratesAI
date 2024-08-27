@@ -194,7 +194,7 @@ const AssignStartupsModal = ({ isOpen, onClose, profileId }) => {
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('company_logo')
-          .eq('id', profileId)
+          .eq('id', startup?.id)
           .single();
 
         if (profileError) {
@@ -206,7 +206,7 @@ const AssignStartupsModal = ({ isOpen, onClose, profileId }) => {
         const { data: companyData, error: companyError } = await supabase
           .from('company_profile')
           .select('company_name')
-          .eq('id', startup.id)
+          .eq('id', startup?.id)
           .single();
 
         if (companyError) {
@@ -218,7 +218,7 @@ const AssignStartupsModal = ({ isOpen, onClose, profileId }) => {
         const { data: founderData, error: founderError } = await supabase
           .from('founder_information')
           .select('founder_name')
-          .eq('company_id', startup.id)
+          .eq('company_id', startup?.id)
           .single();
 
         if (founderError) {
@@ -229,7 +229,7 @@ const AssignStartupsModal = ({ isOpen, onClose, profileId }) => {
 
         // Insert the new startup into hot_deals with the gathered data
         const { error } = await supabase.from('hot_deals').upsert({
-          startup_id: startup.id,
+          startup_id: startup?.id,
           investor_id: profileId,
           rank: nextRank,
           created_at: new Date(),

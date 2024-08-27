@@ -104,12 +104,42 @@ const NotificationDetail = () => {
           // Fetch startup details
           const { data: startupData, error: startupError } = await supabase
             .from('company_profile')
-            .select('company_name')
+            .select('profile_id,company_name,linkedin_profile')
             .eq('id', notification.receiver_id)
             .single();
 
           if (startupError) {
             console.error('Error fetching startup details:', startupError);
+            toast.error('Failed to fetch startup details');
+            return;
+          }
+          const { data: startupProfileData, error: startupProfileError } =
+            await supabase
+              .from('profiles')
+              .select('company_logo')
+              .eq('id', startupData?.profile_id)
+              .single();
+
+          if (startupProfileError) {
+            console.error(
+              'Error fetching startup details:',
+              startupProfileError
+            );
+            toast.error('Failed to fetch startup details');
+            return;
+          }
+          const { data: startupFounderData, error: startupFounderError } =
+            await supabase
+              .from('founder_information')
+              .select('founder_name')
+              .eq('company_id', notification.receiver_id)
+              .single();
+
+          if (startupFounderError) {
+            console.error(
+              'Error fetching startup details:',
+              startupFounderError
+            );
             toast.error('Failed to fetch startup details');
             return;
           }
@@ -126,7 +156,13 @@ const NotificationDetail = () => {
           }
 
           const startupName = startupData?.company_name || 'Startup';
+          const linkedinProfile =
+            startupData?.linkedin_profile || 'Linkedin Profile';
           const InvestorName = InvestorData?.name || 'Investor';
+          const startupLogo =
+            startupProfileData?.company_logo || 'Company Logo';
+          const startupFounder =
+            startupFounderData?.founder_name || 'Founder Name';
 
           // Create notification for investor with startup name
           const { error: createError } = await supabase
@@ -153,6 +189,10 @@ const NotificationDetail = () => {
               zoom_link: zoomMeetingLink,
               sender_id: notification.receiver_id,
               receiver_id: notification.sender_id,
+              startup_name: startupName,
+              startup_linkedin_profile: linkedinProfile,
+              startup_logo: startupLogo,
+              startup_founder: startupFounder,
             };
 
             const { error: eventError } = await supabase
