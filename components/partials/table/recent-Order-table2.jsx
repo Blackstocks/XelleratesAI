@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import {
   useTable,
   useRowSelect,
@@ -6,7 +6,7 @@ import {
   useGlobalFilter,
   usePagination,
 } from 'react-table';
-import Icon from '@/components/ui/Icon';
+import useInvestorStartupMeets from '@/hooks/useInvestorStartupMeets'; // Import your custom hook
 
 const COLUMNS = [
   {
@@ -37,45 +37,30 @@ const COLUMNS = [
   },
 ];
 
-const RecentOrderTable2 = () => {
-  const [meetings, setMeetings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchMeetings = async () => {
-      try {
-        const response = await fetch('/api/fetchEventData');
-        if (!response.ok) throw new Error('Failed to fetch meetings');
-
-        const data = await response.json();
-        const sortedMeetings = data
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-          .slice(0, 3)
-          .map((meeting) => ({
-            ...meeting,
-            meeting_date: new Date(meeting.date).toLocaleDateString(),
-            meeting_time: new Date(meeting.date).toLocaleTimeString(),
-          }));
-
-        setMeetings(sortedMeetings);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMeetings();
-  }, []);
+const RecentOrderTable2 = ({ userId, startupId }) => {
+  console.log(userId, startupId);
+  const { meetings, loading, error } = useInvestorStartupMeets(
+    userId,
+    startupId
+  );
 
   const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => meetings, [meetings]);
+
+  // Transform the meetings data outside of the render cycle to prevent unnecessary re-renders
+  const transformedMeetings = useMemo(
+    () =>
+      meetings.map((meeting) => ({
+        ...meeting,
+        meeting_date: new Date(meeting.date).toLocaleDateString(),
+        meeting_time: new Date(meeting.date).toLocaleTimeString(),
+      })),
+    [meetings]
+  );
 
   const tableInstance = useTable(
     {
       columns,
-      data,
+      data: transformedMeetings,
       initialState: {
         pageSize: 3, // Show only 3 rows
       },
