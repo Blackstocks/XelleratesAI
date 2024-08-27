@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-
 import Header from '@/components/partials/header';
 import Sidebar from '@/components/partials/sidebar';
 import Settings from '@/components/partials/settings';
@@ -25,10 +24,14 @@ import Loading from '@/app/loading';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
 import useNavbarType from '@/hooks/useNavbarType';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabaseclient';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
+import useUserDetails from '@/hooks/useUserDetails';
+import Modal from '@/components/ui/Modal';
 
 export default function RootLayout({ children }) {
+  const { companyProfile } = useCompleteUserDetails();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
   const [isRtl] = useRtl();
@@ -37,7 +40,7 @@ export default function RootLayout({ children }) {
   const [navbarType] = useNavbarType();
   const [isMonoChrome] = useMonoChrome();
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading } = useUserDetails();
   useEffect(() => {
     const checkAuthToken = async () => {
       const {
@@ -64,6 +67,12 @@ export default function RootLayout({ children }) {
       return 'ltr:ml-[248px] rtl:mr-[248px]';
     }
   };
+
+  useEffect(() => {
+    if (user?.user_type === 'startup' && !companyProfile) {
+      setIsModalOpen(true);
+    }
+  }, [user, companyProfile]);
 
   if (loading) {
     return <Loading />;
@@ -143,6 +152,23 @@ export default function RootLayout({ children }) {
       {width > breakpoints.md && (
         <Footer className={width > breakpoints.xl ? switchHeaderClass() : ''} />
       )}
+      <Modal
+        activeModal={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title='Complete Your Profile'
+        className='max-w-lg'
+        themeClass='bg-[#0F172A] dark:bg-slate-900 dark:border-b dark:border-slate-700'
+      >
+        <p>Please complete your company profile to proceed.</p>
+        <div className='mt-4'>
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className='bg-[#0F172A] text-white py-2 px-4 rounded-md'
+          >
+            Got it
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
