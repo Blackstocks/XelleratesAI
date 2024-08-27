@@ -76,22 +76,47 @@ const InvestorDealflow = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = investors.filter((investor) => {
-      const searchFields = [
-        investor.name,
-        investor.company_name,
-        investor.Geography,
-        investor.typeof,
-        investor.sectors,
-        investor.investment_stage,
-      ];
+    const applyFilters = () => {
+      const filtered = investors.filter((investor) => {
+        const matchesLocation =
+          selectedFilters.location === '' ||
+          investor.Geography?.includes(selectedFilters.location);
+        const matchesInvestmentType =
+          selectedFilters.investmentType === '' ||
+          investor.typeof?.includes(selectedFilters.investmentType);
+        const matchesSector =
+          selectedFilters.sector === '' ||
+          investor.sectors?.includes(selectedFilters.sector);
+        const matchesInvestmentStage =
+          selectedFilters.investmentStage === '' ||
+          investor.investment_stage?.includes(selectedFilters.investmentStage);
 
-      return searchFields.some((field) =>
-        field?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    });
-    setFilteredInvestors(filtered);
-  }, [searchQuery, investors]);
+        const matchesSearchQuery = [
+          investor.name,
+          investor.company_name,
+          investor.Geography,
+          investor.typeof,
+          investor.sectors,
+          investor.investment_stage,
+        ].some((field) =>
+          field?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        return (
+          matchesLocation &&
+          matchesInvestmentType &&
+          matchesSector &&
+          matchesInvestmentStage &&
+          matchesSearchQuery
+        );
+      });
+
+      setFilteredInvestors(filtered);
+      setCurrentPage(1); // Reset to first page when filters or search query changes
+    };
+
+    applyFilters();
+  }, [selectedFilters, searchQuery, investors]);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -117,6 +142,8 @@ const InvestorDealflow = () => {
       investmentStage: '',
     });
     setSearchQuery(''); // Clear search query when filters are cleared
+    setFilteredInvestors(investors); // Reset to original investor list
+    setCurrentPage(1); // Reset to first page
   };
 
   const totalPages = Math.ceil(filteredInvestors.length / itemsPerPage);

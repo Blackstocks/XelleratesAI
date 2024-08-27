@@ -3,7 +3,7 @@
 // import dynamic from 'next/dynamic';
 // import Card from '@/components/ui/Card';
 // import Textinput from '@/components/ui/Textinput';
-// import GroupChart5 from '@/components/partials/widget/chart/group-chart5';
+// import GroupChart6 from '@/components/partials/widget/chart/group-chart6';
 // import Link from 'next/link';
 // import SimpleBar from 'simplebar-react';
 // import HistoryChart from '@/components/partials/widget/chart/history-chart';
@@ -13,13 +13,13 @@
 // import useUserDetails from '@/hooks/useUserDetails';
 // import Loading from '@/app/loading';
 
-// const CardSlider = dynamic(
-//   () => import('@/components/partials/widget/CardSlider'),
+// const CardSlider3 = dynamic(
+//   () => import('@/components/partials/widget/CardSlider3'),
 //   {
 //     ssr: false,
 //   }
 // );
-// import TransactionsTable from '@/components/partials/table/transactions';
+// import TransactionsTable2 from '@/components/partials/table/transactionwallet';
 // import SelectMonth from '@/components/partials/SelectMonth';
 
 // const users = [
@@ -111,114 +111,22 @@
 //               </p>
 //             </div>
 //           </div>
-//           <GroupChart5 />
+//           <GroupChart6 />
 //         </div>
 //       </Card>
 //       <div className='grid grid-cols-12 gap-5'>
 //         <div className='lg:col-span-4 col-span-12 space-y-5'>
-//           <Card title='My card'>
+//           <Card title='Saved Payment Method'>
 //             <div className='max-w-[90%] mx-auto mt-2'>
-//               <CardSlider />
-//             </div>
-//           </Card>
-//           <Card title='Quick transfer'>
-//             <div className='space-y-6'>
-//               <div className='bg-slate-50 dark:bg-slate-950 rounded-md p-4'>
-//                 <div className='flex justify-between mb-2'>
-//                   <span className='text-lg text-slate-900 dark:text-white'>
-//                     Contacts
-//                   </span>
-//                   <Link
-//                     href='#'
-//                     className='font-medium text-slate-900 dark:text-white underline text-sm'
-//                   >
-//                     View all
-//                   </Link>
-//                 </div>
-//                 <SimpleBar>
-//                   <ul className='flex space-x-6 py-3 px-1'>
-//                     {users.map((item, i) => (
-//                       <li
-//                         key={i}
-//                         onClick={() => setActiveIndex(i)}
-//                         className={` h-[42px] w-[42px] cursor-pointer text-xl font-medium capitalize flex-none rounded-full bg-primary-500 text-white flex flex-col items-center justify-center
-//                           ${
-//                             activeIndex === i
-//                               ? 'ring-2 ring-primary-500 ring-offset-2 '
-//                               : ''
-//                           }
-//                       `}
-//                       >
-//                         {item.name}
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 </SimpleBar>
-//               </div>
-//               <div className='bg-slate-100 dark:bg-slate-950 rounded-md p-4'>
-//                 <span
-//                   className='text-xs text-slate-500 dark:text-slate-400 block mb-1 cursor-pointer font-normal'
-//                   htmlFor='cdp'
-//                 >
-//                   Amount
-//                 </span>
-//                 <Textinput
-//                   placeholder='$6547'
-//                   id='cdp'
-//                   className='bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 placeholder:font-medium  h-auto font-medium'
-//                 />
-//               </div>
-//               <div className='bg-slate-100 dark:bg-slate-950 rounded-md p-4'>
-//                 <label
-//                   className='text-xs text-slate-500 dark:text-slate-400 block cursor-pointer mb-1'
-//                   htmlFor='cd'
-//                 >
-//                   Recipient account number
-//                 </label>
-
-//                 <Textinput
-//                   placeholder='3458-3548-6548-3244'
-//                   isMask
-//                   id='cd'
-//                   className='bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 h-auto placeholder:font-medium font-medium'
-//                 />
-//               </div>
-//               <div className='flex justify-between'>
-//                 <div>
-//                   <span className='text-xs text-slate-500 dark:text-slate-400 block mb-1'>
-//                     Total amount
-//                   </span>
-//                   <span className='text-lg font-medium text-slate-900 dark:text-white block'>
-//                     $6547
-//                   </span>
-//                 </div>
-//                 <div>
-//                   <button type='button' className='btn btn-dark'>
-//                     Send money
-//                   </button>
-//                 </div>
-//               </div>
+//               <CardSlider3 />
 //             </div>
 //           </Card>
 //         </div>
 //         <div className='lg:col-span-8 col-span-12'>
 //           <div className='space-y-5 bank-table'>
-//             <TransactionsTable />
-//             <Card title='History' headerslot={<SelectMonth />}>
-//               <div className='legend-ring4'>
-//                 <HistoryChart />
-//               </div>
-//             </Card>
+//             <TransactionsTable2 />
 //           </div>
 //         </div>
-//       </div>
-//       <div className='grid lg:grid-cols-2 grid-cols-1 gap-5'>
-//         <Card title='Account Receivable' headerslot={<SelectMonth />}>
-//           <AccountReceivable />
-//         </Card>
-//         <Card title='Account Payable' headerslot={<SelectMonth />}>
-//           <AccountPayable />
-//         </Card>
 //       </div>
 //     </div>
 //   );
@@ -227,17 +135,3 @@
 // export default Wallet;
 
 
-import React from 'react';
-import ComingSoonPage from '@/components/coming-soon/page';
-import Chatbot from '@/components/chatbot';
-
-const page = () => {
-  return (
-    <div>
-      <ComingSoonPage />
-      <Chatbot />
-    </div>
-  );
-};
-
-export default page;
