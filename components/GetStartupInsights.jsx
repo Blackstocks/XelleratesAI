@@ -117,7 +117,7 @@ const GetStartupInsightsModal = ({ isOpen, onClose }) => {
                                         <i className="fas fa-search"></i>
                                     </button>
                                 </div>
-                                <div className="mb-4">
+                                <div className="mb-4 mr-4 flex items-center justify-end">
                                     <label className="mr-2 font-semibold text-gray-700">Sort by:</label>
                                     <select
                                         value={sortOrder}

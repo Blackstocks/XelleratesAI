@@ -8,7 +8,7 @@ const Customer = ({ investorId }) => {
   if (error) return <p>Error: {error || 'An unexpected error occurred.'}</p>;
 
   return (
-    <div className='pb-2'>
+    <div className='pb-2 flex-col justify-center'>
       <h6 className='ml-6 mb-4 text-center'>Hot Deals</h6>
       <div className='grid md:grid-cols-3 grid-cols-1 gap-5'>
         {hotDeals.map((item, i) => {
@@ -64,7 +64,14 @@ const Customer = ({ investorId }) => {
             </div>
           );
         })}
+        
       </div>
+      <button
+                className="bg-slate-950 text-white px-[10px] py-[6px] text-xs font-medium rounded-full w-full mt-4"
+                onClick={() => window.location.href = "/tools/curated-dealflow"}
+              >
+                Connect
+        </button>
     </div>
   );
 };
