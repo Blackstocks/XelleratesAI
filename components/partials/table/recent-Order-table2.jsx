@@ -105,7 +105,7 @@ const STARTUP_COLUMNS = [
 ];
 
 const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
-  console.log('userType', userType);
+  // console.log('userType', userType);
   const { meetings, loading, error } = useInvestorStartupMeets(
     userId,
     companyProfileId

@@ -561,6 +561,7 @@ const Dashboard = () => {
                       <RecentOrderTable2
                         startupId={companyProfile?.id}
                         userId={user?.id}
+                        userType={user?.user_type}
                       />
                     </div>,
                     'topConversations',
