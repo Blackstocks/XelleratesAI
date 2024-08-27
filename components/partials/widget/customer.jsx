@@ -34,8 +34,7 @@ const Customer = ({ investorId }) => {
               }`}
             >
               <div
-                className={`h-[70px] w-[70px] rounded-full mx-auto mb-4 relative ${borderColor}`}
-              >
+                className={`h-[70px] w-[70px] rounded-full mx-auto mb-4 relative ${borderColor}`}>
                 {item.rank === 1 && (
                   <span className='crown absolute -top-[24px] left-1/2 -translate-x-1/2'>
                     <img src='/assets/images/icon/crown.svg' alt='Crown' />
@@ -53,17 +52,15 @@ const Customer = ({ investorId }) => {
                   {item.rank}
                 </span>
               </div>
-              <h4 className='text-sm text-slate-600 font-semibold mb-4'>
-                {item.company_name || 'Unnamed Company'}
-              </h4>
-              <div className='inline-block bg-slate-950 text-white px-[10px] py-[6px] text-xs font-medium rounded-full min-w-[60px]'>
-                {item.founder_name || 'Unknown Founder'}
-              </div>
-              {/* <div>
-                <h4 className='text-sm text-slate-600 font-semibold mt-4'>
+
+              <div className="grid grid-rows-3 flex flex-col items-center justify-center">
+                <h4 className='row-span-2 text-sm text-slate-600 font-semibold mb-2'>
                   {item.company_name || 'Unnamed Company'}
                 </h4>
-              </div> */}
+                <div className='row-span-1 bg-slate-950 text-white px-[10px] py-[6px] text-xs font-medium rounded-full min-w-[60px]'>
+                  {item.founder_name || 'Unknown Founder'}
+                </div>
+              </div>
             </div>
           );
         })}
