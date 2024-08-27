@@ -37,7 +37,7 @@ const useInvestorCounts = (startupId, userId) => {
             // Extract the id from the result
             const startupEquityId = connectedEquityData?.[0]?.id;
 
-            console.log('startupEquityId', startupEquityId);
+            // console.log('startupEquityId', startupEquityId);
 
             if (startupEquityId) {
               // Step 2: Use the id to fetch the count of assigned dealflows

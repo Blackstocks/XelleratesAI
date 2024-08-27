@@ -11,7 +11,58 @@ import {
 } from 'react-table';
 import useInvestorStartupMeets from '@/hooks/useInvestorStartupMeets'; // Adjust the path as needed
 
-const COLUMNS = [
+const INVESTOR_COLUMNS = [
+  {
+    Header: '',
+    accessor: 'investor_logo',
+    Cell: (row) => {
+      return (
+        <span className='flex items-center'>
+          <div className='flex-none'>
+            <div className='w-8 h-8 rounded-[100%] ltr:mr-3 rtl:ml-3'>
+              <img
+                src={row?.cell?.value}
+                alt=''
+                className='w-full h-full rounded-[100%] object-cover'
+              />
+            </div>
+          </div>
+          <div className='flex-1 text-start'>
+            <h4 className='text-sm font-medium text-slate-600 whitespace-nowrap'>
+              {row.row.original.investor_name}
+            </h4>
+            <div className='text-xs font-normal text-slate-600 dark:text-slate-400'>
+              {row.row.original.investor_type}
+            </div>
+          </div>
+        </span>
+      );
+    },
+  },
+  {
+    Header: 'Company',
+    accessor: 'investor_company',
+  },
+  {
+    Header: 'Sector',
+    accessor: 'investor_sectors',
+    Cell: (row) => {
+      const sectorArray = JSON.parse(row.row.original.investor_sectors || '[]');
+      const sectorLabels = sectorArray.join(', ');
+      return <span>{sectorLabels}</span>;
+    },
+  },
+  {
+    Header: 'Stage',
+    accessor: 'investor_stage',
+  },
+  {
+    Header: 'LinkedIn',
+    accessor: 'investor_linkedin_profile',
+  },
+];
+
+const STARTUP_COLUMNS = [
   {
     Header: '',
     accessor: 'startup_logo',
@@ -32,7 +83,7 @@ const COLUMNS = [
               {row.row.original.startup_name}
             </h4>
             <div className='text-xs font-normal text-slate-600 dark:text-slate-400'>
-              {row.row.original.startup_linkedin_profile}
+              {JSON.parse(row.row.original.startup_country || '{}').label}
             </div>
           </div>
         </span>
@@ -44,37 +95,26 @@ const COLUMNS = [
     accessor: 'startup_founder',
   },
   {
-    Header: 'Date',
-    accessor: 'date',
-    Cell: (row) => {
-      return <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>;
-    },
+    Header: 'Sector',
+    accessor: 'startup_industry',
   },
   {
-    Header: 'Zoom Link',
-    accessor: 'zoom_link',
-    Cell: (row) => {
-      return (
-        <a
-          href={row?.cell?.value}
-          target='_blank'
-          rel='noopener noreferrer'
-          className='text-blue-500'
-        >
-          Join Meeting
-        </a>
-      );
-    },
+    Header: 'LinkedIn',
+    accessor: 'startup_linkedin_profile',
   },
 ];
 
-const RecentOrderTable2 = ({ userId, companyProfileId }) => {
+const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
+  console.log('userType', userType);
   const { meetings, loading, error } = useInvestorStartupMeets(
     userId,
     companyProfileId
   );
 
-  const columns = useMemo(() => COLUMNS, []);
+  const columns = useMemo(() => {
+    return userType === 'investor' ? STARTUP_COLUMNS : INVESTOR_COLUMNS;
+  }, [userType]);
+
   const data = useMemo(() => meetings, [meetings]);
 
   const tableInstance = useTable(
@@ -112,7 +152,7 @@ const RecentOrderTable2 = ({ userId, companyProfileId }) => {
   const { pageIndex, pageSize } = state;
 
   if (loading) {
-    return <div>Loading...</div>;
+    return;
   }
 
   if (error) {
@@ -130,30 +170,6 @@ const RecentOrderTable2 = ({ userId, companyProfileId }) => {
                 className='min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700'
                 {...getTableProps()}
               >
-                <thead className='bg-slate-200 dark:bg-slate-700'>
-                  {headerGroups.map((headerGroup) => (
-                    <tr {...headerGroup.getHeaderGroupProps()}>
-                      {headerGroup.headers.map((column) => (
-                        <th
-                          {...column.getHeaderProps(
-                            column.getSortByToggleProps()
-                          )}
-                          scope='col'
-                          className='table-th'
-                        >
-                          {column.render('Header')}
-                          <span>
-                            {column.isSorted
-                              ? column.isSortedDesc
-                                ? ' 🔽'
-                                : ' 🔼'
-                              : ''}
-                          </span>
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
                 <tbody
                   className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'
                   {...getTableBodyProps()}
@@ -191,7 +207,6 @@ const RecentOrderTable2 = ({ userId, companyProfileId }) => {
             {pageOptions.map((page, pageIdx) => (
               <li key={pageIdx + 'sss'}>
                 <button
-                  href='#'
                   aria-current='page'
                   className={` ${
                     pageIdx === pageIndex

@@ -12,6 +12,7 @@ const useInvestorStartupMeets = (userId, companyProfileId) => {
         let data;
 
         if (companyProfileId) {
+          // console.log(companyProfileId);
           // Fetch meetings for a startup
           const { data: startupMeetings, error: startupError } = await supabase
             .from('events')

@@ -447,8 +447,9 @@ const Dashboard = () => {
                     'Top Conversations',
                     <div className='col-span-12'>
                       <RecentOrderTable2
-                        startupId={companyProfile?.id}
+                        companyProfileId={companyProfile?.id}
                         userId={user?.id}
+                        userType={user?.user_type}
                       />
                     </div>,
                     'topConversations',
