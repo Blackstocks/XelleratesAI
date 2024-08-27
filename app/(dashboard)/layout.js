@@ -30,7 +30,8 @@ import useUserDetails from '@/hooks/useUserDetails';
 import Modal from '@/components/ui/Modal';
 
 export default function RootLayout({ children }) {
-  const { companyProfile } = useCompleteUserDetails();
+  const { companyProfile, loading: usercompleteLoading } =
+    useCompleteUserDetails();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
@@ -69,10 +70,14 @@ export default function RootLayout({ children }) {
   };
 
   useEffect(() => {
-    if (user?.user_type === 'startup' && !companyProfile) {
-      setIsModalOpen(true);
+    if (!usercompleteLoading) {
+      if (user?.user_type === 'startup' && companyProfile !== undefined) {
+        if (!companyProfile) {
+          setIsModalOpen(true);
+        }
+      }
     }
-  }, [user, companyProfile]);
+  }, [user, companyProfile, usercompleteLoading]);
 
   if (loading) {
     return <Loading />;
