@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+
 import Header from '@/components/partials/header';
 import Sidebar from '@/components/partials/sidebar';
 import Settings from '@/components/partials/settings';
@@ -77,7 +78,7 @@ export default function RootLayout({ children }) {
         }
       }
     }
-  }, [user, companyProfile, usercompleteLoading]);
+  }, [user, companyProfile, usercompleteLoading, location]);
 
   if (loading) {
     return <Loading />;
