@@ -143,6 +143,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
             autoClose: 5000,
           });
           clearToastUpdates();
+          toastIdRef.current = null;
 
           try {
             const newWindow = window.open('', '_blank');
@@ -163,6 +164,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
               autoClose: 5000,
             });
             clearToastUpdates();
+            toastIdRef.current = null;
           }
         }
       } catch (error) {
@@ -173,6 +175,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
           autoClose: 5000,
         });
         clearToastUpdates();
+        toastIdRef.current = null;
         // console.error('Error Generating Report', error.message);
       }
     } else {

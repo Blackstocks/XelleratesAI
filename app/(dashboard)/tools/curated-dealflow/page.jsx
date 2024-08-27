@@ -339,6 +339,7 @@ const CuratedDealflow = () => {
             autoClose: 5000,
           });
           clearToastUpdates();
+          toastIdRef.current = null;
 
           try {
             const newWindow = window.open('', '_blank');
@@ -359,6 +360,7 @@ const CuratedDealflow = () => {
               autoClose: 5000,
             });
             clearToastUpdates();
+            toastIdRef.current = null;
           }
         }
       } catch (error) {
@@ -369,6 +371,7 @@ const CuratedDealflow = () => {
           autoClose: 5000,
         });
         clearToastUpdates();
+        toastIdRef.current = null;
         console.error('Error generating report:', error);
       }
     } else {

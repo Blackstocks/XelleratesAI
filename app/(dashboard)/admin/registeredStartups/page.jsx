@@ -13,6 +13,7 @@ import DocumentSubmissionModal from '@/components/documentModal';
 import generateReport from "@/components/report/report-functions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { supabase } from "@/lib/supabaseclient";
 
 const CuratedDealflow = () => {
   const { user, loading: userLoading } = useUserDetails();
@@ -32,6 +33,8 @@ const CuratedDealflow = () => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [showFullUSP, setShowFullUSP] = useState(false);
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [gstInformation, setGstInformation] = useState(null); // New state for GST information
+  const [loadingGstInformation, setLoadingGstInformation] = useState(false);
 
   const toastIdRef = useRef(null);
 
@@ -39,9 +42,40 @@ const CuratedDealflow = () => {
   console.log('selectedStartup:', selectedStartup);
   const itemsPerPage = 20;
 
-  useEffect(() => {
-    setCurrentPage(1); // Reset to the first page whenever a filter changes
-  }, [selectedSector, selectedStage, selectedLocation, selectedFunding]);
+  const fetchGstInformation = async (userId) => {
+    console.log("Fetching GST information for user ID:", userId);
+    setLoadingGstInformation(true);
+    try {
+      const { data, error } = await supabase
+        .from('debt_gstin')  // Replace with your GST info table name
+        .select('*')
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      console.log("GTSIn: ", data);
+
+      setGstInformation(data[0] || null); // Set the GST info or null if not found
+    } catch (error) {
+      console.error("Error fetching GST information:", error.message);
+      setGstInformation(null); // Ensure to set null if there's an error
+    } finally {
+      setLoadingGstInformation(false); // End loading
+    }
+  };
+
+  // Use effect to fetch GST information when the tab is selected
+    useEffect(() => {
+      if (activeTab === 'gstInfo' && selectedStartup) {
+        fetchGstInformation(selectedStartup.id); // Pass the user ID from the selected startup
+      }
+    }, [activeTab, selectedStartup]);
+
+    // Use effect to reset the current page when any of the filters change
+    useEffect(() => {
+      setCurrentPage(1); // Reset to the first page whenever a filter changes
+    }, [selectedSector, selectedStage, selectedLocation, selectedFunding]);
+
 
   if (userLoading || startupsLoading) {
     return (
@@ -277,6 +311,7 @@ const CuratedDealflow = () => {
             autoClose: 5000,
           });
           clearToastUpdates();
+          toastIdRef.current = null;
 
           try {
             const newWindow = window.open("", "_blank");
@@ -297,6 +332,7 @@ const CuratedDealflow = () => {
               autoClose: 5000,
             });
             clearToastUpdates();
+            toastIdRef.current = null;
           }
         }
       } catch (error) {
@@ -307,6 +343,7 @@ const CuratedDealflow = () => {
           autoClose: 5000,
         });
         clearToastUpdates();
+        toastIdRef.current = null;
         console.error('Error generating report:', error);
       }
     } else {
@@ -650,6 +687,9 @@ const CuratedDealflow = () => {
                     onClick={() => setActiveTab('CTO_info')}
                   >
                     CTO Info
+                  </button>
+                  <button onClick={() => setActiveTab('gstInfo')} className={`w-full py-2 px-4 border rounded ${activeTab === 'gstInfo' ? 'bg-black-500 text-white' : 'bg-white text-black'}`}>
+                    GST Information
                   </button>
                 </div>
               </div>
@@ -2314,6 +2354,227 @@ const CuratedDealflow = () => {
                     </div>
                   </div>
                 )}
+
+{activeTab === 'gstInfo' && (
+  <div className='space-y-3'>
+    <h3 className='text-2xl font-bold mb-6'>GST Information</h3>
+    {loadingGstInformation ? ( // Assuming you have a state variable `loadingGstInformation` to track loading
+      <div className="flex justify-center items-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+    </div>
+    ) : (
+      gstInformation ? (
+        <div className='grid gap-2 md:gap-3 lg:gap-4 text-gray-700'>
+          {/* GSTIN */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:document-text' />
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                GSTIN
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.gstin || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+          {/* Legal Name */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:user' />
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                LEGAL NAME
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.legal_name || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+          {/* Business Constitution */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:briefcase' />
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                BUSINESS CONSTITUTION
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.business_constitution || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+          {/* Aggregate Turnover */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:currency-dollar' /> {/* Icon for money/cash */}
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                AGGREGATE TURNOVER
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.aggregate_turn_over || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+          {/* Current Registration Status */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:credit-card' /> {/* Icon for status/check */}
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                CURRENT REGISTRATION STATUS
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.current_registration_status || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+          {/* State Jurisdiction */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:map' /> {/* Icon for location */}
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                STATE JURISDICTION
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.state_jurisdiction || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+          {/* Central Jurisdiction */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:map' /> {/* Icon for map/jurisdiction */}
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                CENTRAL JURISDICTION
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.central_jurisdiction || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+
+          {/* Taxpayer Type */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:document' />
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                TAXPAYER TYPE
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.tax_payer_type || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+          {/* Authorized Signatories */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:user-group' />
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                AUTHORIZED SIGNATORIES
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                {gstInformation.authorized_signatory?.join(", ") || 'N/A'}
+              </div>
+            </div>
+          </li>
+
+          {/* Business Details */}
+          <li className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:briefcase' />
+            </div>
+            <div className='flex-1'>
+              <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                BUSINESS DETAILS
+              </div>
+              <div className='text-base text-slate-600 dark:text-slate-50'>
+                <ul>
+                  {gstInformation.business_details?.bzsdtls?.map(
+                    (detail, index) => (
+                      <div key={index}>
+                        • {detail.sdes} ({detail.saccd})
+                      </div>
+                    )
+                  ) || 'N/A'}
+                </ul>
+              </div>
+            </div>
+          </li>
+
+          {/* Filing Status (Last 3 months) */}
+          <li className='flex space-x-3 rtl:space-x-reverse list-none'>
+            <div className='flex space-x-3 rtl:space-x-reverse'>
+            <div className='flex-none text-2xl text-slate-600 dark:text-slate-300'>
+              <Icon icon='heroicons:credit-card' /> 
+            </div>
+              
+              <div className='flex-1'>
+                <div className='uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]'>
+                  FILING STATUS (LAST 3 MONTHS)
+                </div>
+                <div className='text-base text-slate-600 dark:text-slate-50'>
+                  <table className='min-w-full bg-white dark:bg-slate-800'>
+                    <thead>
+                      <tr>
+                        <th className='py-2 px-4 text-left'>FY</th>
+                        <th className='py-2 px-4 text-left'>Tax Period</th>
+                        <th className='py-2 px-4 text-left'>Return Type</th>
+                        <th className='py-2 px-4 text-left'>Date of Filing</th>
+                        <th className='py-2 px-4 text-left'>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gstInformation.filing_status?.[0]?.slice(0, 3).map(
+                        (filing, index) => (
+                          <tr key={index}>
+                            <td className='border-t py-2 px-4'>{filing.fy}</td>
+                            <td className='border-t py-2 px-4'>{filing.taxp}</td>
+                            <td className='border-t py-2 px-4'>{filing.rtntype}</td>
+                            <td className='border-t py-2 px-4'>{filing.dof}</td>
+                            <td className='border-t py-2 px-4'>{filing.status}</td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </li>
+
+
+          {/* Add more fields as necessary */}
+        </div>
+      ) : (
+        <p>Startup hasn't registered for GST.</p>
+      )
+    )}
+  </div>
+)}
+
                 <div className='flex justify-center items-center mt-4'>
                   {' '}
                   <DocumentSubmissionModal
