@@ -280,7 +280,7 @@ const AssignStartupsModal = ({ isOpen, onClose, profileId }) => {
         isOpen ? 'block' : 'hidden'
       }`}
     >
-      <div className='bg-white rounded shadow-lg p-4 max-w-4xl w-full overflow-auto max-h-full'>
+      <div className='bg-white rounded shadow-lg p-4 max-w-4xl w-full overflow-auto max-h-5xl'>
         <div className='flex items-center justify-between mb-4'>
           <h2 className='text-2xl font-bold'>Assign Startups</h2>
           <input
@@ -293,7 +293,7 @@ const AssignStartupsModal = ({ isOpen, onClose, profileId }) => {
           />
         </div>
 
-        <div className='flex flex-wrap -mx-2 mb-4'>
+        {/* <div className='flex flex-wrap -mx-2 mb-4'>
           <div className='w-1/4 px-2'>
             <label className='block text-sm font-medium'>Sector</label>
             <select
@@ -354,7 +354,7 @@ const AssignStartupsModal = ({ isOpen, onClose, profileId }) => {
               ))}
             </select>
           </div>
-        </div>
+        </div> */}
 
         {errorMessage && (
           <div className='bg-red-500 text-white p-2 mb-4 rounded'>
