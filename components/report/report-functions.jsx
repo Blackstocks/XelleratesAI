@@ -195,6 +195,9 @@ const generateReport = async (
         console.error('Error fetching news:', error);
     }
 
+    const newsListLatest = newsList.length > 0 ? [...newsList].sort((a, b) => new Date(b.date) - new Date(a.date)) : [];
+    const newsListOldest = newsList.length > 0 ? [...newsList].sort((a, b) => new Date(a.date) - new Date(b.date)) : [];
+
   // Investment Readiness Score
 
   const currentTraction = businessDetails?.current_traction || 0;
@@ -276,10 +279,10 @@ const generateReport = async (
 
     let competitors = [];
     try {
-    competitors = await getCompetitors(companyName, shortDescription, targetAudience, uspMoat);
+        // competitors = await getCompetitors(companyName, shortDescription, targetAudience, uspMoat);
     } catch (error) {
-    console.error('Error getting competitors:', error.message);
-    competitors = []; // Initialize to an empty array in case of error
+        console.error('Error getting competitors:', error.message);
+        competitors = []; // Initialize to an empty array in case of error
     }
 
     let roadmapArray = [];
@@ -451,26 +454,29 @@ const generateReport = async (
 
                 <!-- News -->
                 <div class="mb-6">
-                      <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">News</h3>
-                      <table class="table-auto w-full text-left">
-                          <thead class="bg-gray-100">
-                              <tr>
-                                  <th class="border px-6 py-2">Date</th>
-                                  <th class="border px-6 py-2">Headline</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                            ${
-                              newsList.length > 0
-                                ? newsList.map(news => `
-                                  <tr class="${newsList.indexOf(news) % 2 === 0 ? 'bg-gray-50' : ''}">
-                                      <td class="border-t border-gray-300 px-4 py-2">${news.date}</td>
-                                      <td class="border-t border-gray-300 px-4 py-2">${news.title}</td>
-                                  </tr>`).join('')
-                                : `<tr><td colspan="2" class="px-4 py-2" > Currently, there is no media presence of ${companyName} </td></tr>`
-                            }
-                          </tbody>
-                      </table>
+
+                    <h3 class="text-2xl font-semibold text-blue-900 border-b-2 border-gray-200 pb-3 mb-4">News</h3>
+
+                    <table class="table-auto w-full text-left">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="border px-6 py-2">Date</th>
+                                <th class="border px-6 py-2">Headline</th>
+                            </tr>
+                        </thead>
+                        <tbody id="newsContent">
+                            ${newsListLatest.length > 0 ? 
+                                newsListLatest.map(news => `
+                                <tr class="${newsListLatest.indexOf(news) % 2 === 0 ? 'bg-gray-50' : ''}">
+                                    <td class="border-t border-gray-300 px-4 py-2">${news.date}</td>
+                                    <td class="border-t border-gray-300 px-4 py-2">${news.title}</td>
+                                </tr>
+                            `).join('')
+                            :
+                            `<tr><td colspan="2" class="border px-4 py-2 text-center">There is no media presence of ${companyName}</td></tr>`
+                        }
+                        </tbody>
+                    </table>
                 </div>
 
                 
@@ -1042,8 +1048,6 @@ const generateReport = async (
     console.log("Charts successfully created");
 });
 
-
-        
                         
 
             console.log("Chart successfully created");
