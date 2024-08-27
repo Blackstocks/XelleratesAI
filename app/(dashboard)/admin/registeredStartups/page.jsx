@@ -621,7 +621,7 @@ const CuratedDealflow = () => {
                     {selectedStartup.company_profile?.company_name || 'N/A'}
                   </h2>
                 </div>
-                <div className='space-y-2 w-full'>
+                <div className='space-y-2 w-full lg:h-80 sm:h-56 h-48 overflow-y-auto'>
                   <button
                     className={`w-full py-2 px-4 border rounded ${
                       activeTab === 'startupProfile'

@@ -424,7 +424,7 @@ const Navmenu = ({ menus }) => {
           flex-grow: 1;
           font-size: 15px;
           font-weight: 500;
-          color: #374151;
+          color: #657283;
         }
         .menu-arrow {
           margin-left: auto;
