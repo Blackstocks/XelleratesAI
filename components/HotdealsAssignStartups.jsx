@@ -190,28 +190,27 @@ const AssignStartupsModal = ({ isOpen, onClose, profileId }) => {
           return;
         }
 
-        // Gather necessary data for insertion
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('company_logo')
-          .eq('id', startup?.id)
-          .single();
-
-        if (profileError) {
-          console.error('Error fetching profile data:', profileError);
-          setErrorMessage('Error fetching profile data');
-          return;
-        }
-
         const { data: companyData, error: companyError } = await supabase
           .from('company_profile')
-          .select('company_name')
+          .select('profile_id, company_name')
           .eq('id', startup?.id)
           .single();
 
         if (companyError) {
           console.error('Error fetching company data:', companyError);
           setErrorMessage('Error fetching company data');
+          return;
+        }
+        // Gather necessary data for insertion
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('company_logo')
+          .eq('id', companyData?.profile_id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile data:', profileError);
+          setErrorMessage('Error fetching profile data');
           return;
         }
 

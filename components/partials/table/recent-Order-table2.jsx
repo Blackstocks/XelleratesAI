@@ -130,7 +130,7 @@ const RecentOrderTable2 = ({ userId, companyProfileId }) => {
                 className='min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700'
                 {...getTableProps()}
               >
-                {/* <thead className='bg-slate-200 dark:bg-slate-700'>
+                <thead className='bg-slate-200 dark:bg-slate-700'>
                   {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
@@ -153,7 +153,7 @@ const RecentOrderTable2 = ({ userId, companyProfileId }) => {
                       ))}
                     </tr>
                   ))}
-                </thead> */}
+                </thead>
                 <tbody
                   className='bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700'
                   {...getTableBodyProps()}
