@@ -5,7 +5,10 @@ const fetchCompetitorData = async (companyName, shortDescription, targetAudience
   try {
     const PTEMPLATE = `
 Request:
-Please identify the top 7 competitors of ${companyName}. The competitors should be companies that are also involved in "${shortDescription.toLowerCase().replace(/we are|our|we/i, `${companyName} is`)}". The competitors must be relevant to ${companyName}’s focus on this specific niche, USP/MOAT of the ${companyName} is: ${uspMoat}. Target Audience: ${targetAudience}.
+Please identify the top 5 competitors of ${companyName}. 
+The competitors should be companies that are also involved in "${shortDescription.toLowerCase().replace(/we are|our|we/i, `${companyName} is`)}". 
+The competitors must be relevant to ${companyName}’s focus on this specific niche, USP/MOAT of the ${companyName} is: ${uspMoat}. 
+Target Audience: ${targetAudience}.
 
 For each competitor, please provide the following data:
 1. **Total Funding** (if available)
@@ -17,9 +20,8 @@ Sources to consider:
 - Competitors section on the company page of ${companyName} on platforms like Traxcn.com, Crunchbase.com, Pitchbook.com, Craft.co, Semrush.com or any other sources you find on internet.
 
 Important Note:
-- Ensure that the competitors are directly relevant based on the business description, USP/MOAT and Target Audience that is provided above. Do not create any hypothetical competitors. 
+- Ensure that the competitors are relevant similar to the the business description, USP/MOAT and Target Audience that is provided above. Do not create any hypothetical competitors. 
 - If you do not find any relavent competitors just return NA.
-- Please focus on finding companies that are direct competitors based on their focus on "${uspMoat}", rather than just any company in the broader industry space.
 - In Stage you have to find the Investment Round Name (like Series A, B, Pre-seed, Public, etc.)
 `;
 
