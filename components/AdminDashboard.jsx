@@ -155,6 +155,10 @@ const AdminDashboard = ({ userType }) => {
         accessor: 'name',
       },
       {
+        Header: 'Linkedln',
+        accessor: 'linkedin_profile',
+      },
+      {
         Header: 'Email',
         accessor: 'email',
       },
@@ -195,12 +199,12 @@ const AdminDashboard = ({ userType }) => {
                 Approved
               </button>
             )}
-            <button
+            {/* <button
               className='btn btn-danger ml-2'
               onClick={() => disapproveUser(row.original.id)}
             >
               Disapprove
-            </button>
+            </button> */}
           </>
         ),
       },
