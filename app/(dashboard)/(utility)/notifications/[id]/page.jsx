@@ -13,6 +13,7 @@ const NotificationDetail = () => {
   const router = useRouter();
   const { id } = params;
   const [notification, setNotification] = useState(null);
+  const [senderDetails, setSenderDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState('');
@@ -22,26 +23,43 @@ const NotificationDetail = () => {
     const fetchNotification = async () => {
       if (!id) return;
 
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Fetch the notification from the notifications table
+      const { data: notificationData, error: notificationError } =
+        await supabase
+          .from('notifications')
+          .select('*, sender_id')
+          .eq('id', id)
+          .single();
 
-      if (error) {
-        console.error('Error fetching notification:', error);
+      if (notificationError) {
+        console.error('Error fetching notification:', notificationError);
         toast.error('Error fetching notification');
       } else {
-        setNotification(data);
+        setNotification(notificationData);
+
+        // Fetch the sender details using the sender_id from the profiles table
+        const { data: senderData, error: senderError } = await supabase
+          .from('profiles')
+          .select('name, company_name')
+          .eq('id', notificationData.sender_id)
+          .single();
+
+        if (senderError) {
+          console.error('Error fetching sender details:', senderError);
+          toast.error('Error fetching sender details');
+        } else {
+          setSenderDetails(senderData); // Assuming you have a state to store sender details
+        }
 
         // Update the notification status to "read" when the notification is loaded
-        if (data.notification_read_status !== 'read') {
+        if (notificationData.notification_read_status !== 'read') {
           await supabase
             .from('notifications')
             .update({ notification_read_status: 'read' })
             .eq('id', id);
         }
       }
+
       setLoading(false);
     };
 
@@ -268,9 +286,17 @@ const NotificationDetail = () => {
   return (
     <div className='container mx-auto p-4'>
       <h1 className='text-2xl font-bold mb-4'>Notification Details</h1>
-      <p>
+      {/* <p>
         <strong>Type:</strong> {notification.notification_type}
-      </p>
+      </p> */}
+      {notification.notification_type === 'express_interest' &&
+        senderDetails && (
+          <p>
+            <strong>{senderDetails.name}</strong> ({senderDetails.company_name})
+            wants to schedule a meet with you.
+          </p>
+        )}
+
       <p>
         <strong>Message:</strong> {notification.notification_message}
       </p>
@@ -322,12 +348,12 @@ const NotificationDetail = () => {
         </div>
       )}
 
-      {notification.notification_status === 'accepted' && (
+      {/* {notification.notification_status === 'accepted' && (
         <p className='mt-4 text-green-500'>
           You have accepted the interest. You can now interact with the other
           party.
         </p>
-      )}
+      )} */}
     </div>
   );
 };

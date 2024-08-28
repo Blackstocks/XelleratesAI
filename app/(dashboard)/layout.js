@@ -71,7 +71,8 @@ export default function RootLayout({ children }) {
   };
 
   useEffect(() => {
-    if (!usercompleteLoading) {
+    if (location !== '/profile' && !usercompleteLoading) {
+      // Add condition to check pathname
       if (user?.user_type === 'startup' && companyProfile !== undefined) {
         if (!companyProfile) {
           setIsModalOpen(true);
@@ -165,13 +166,25 @@ export default function RootLayout({ children }) {
         className='max-w-lg'
         themeClass='bg-[#0F172A] dark:bg-slate-900 dark:border-b dark:border-slate-700'
       >
-        <p>Please complete your company profile to proceed.</p>
-        <div className='mt-4'>
+        <p>Please complete your Starup profile to avail these features.</p>
+        <div className='mt-4 flex gap-4'>
+          {/* Proceed Button */}
           <button
-            onClick={() => setIsModalOpen(false)}
-            className='bg-[#0F172A] text-white py-2 px-4 rounded-md'
+            onClick={() => {
+              setIsModalOpen(false); // Close the modal
+              router.push('/profile'); // Navigate to /profile
+            }}
+            className='bg-white text-black border border-black py-2 px-4 rounded-md transition-colors duration-300 hover:bg-[#0F172A] hover:text-white hover:border-transparent'
           >
-            Got it
+            Proceed
+          </button>
+
+          {/* Close Button */}
+          <button
+            onClick={() => setIsModalOpen(false)} // Just close the modal
+            className='bg-white text-black border border-black py-2 px-4 rounded-md transition-colors duration-300 hover:bg-[#0F172A] hover:text-white hover:border-transparent'
+          >
+            Close
           </button>
         </div>
       </Modal>
