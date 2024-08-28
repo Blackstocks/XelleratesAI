@@ -218,7 +218,7 @@ const NotificationDetail = () => {
               notification_status: 'accepted',
               notification_type: 'startup_accepted',
               notification_read_status: 'unread',
-              notification_message: `${startupName} has accepted the interest. Join with the link: ${zoomMeetingLink}`,
+              notification_message: `${startupName} has accepted the interest. Join with the link: <a href="${zoomMeetingLink}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">Click Here</a>`,
             });
 
           if (createError) {
@@ -298,8 +298,12 @@ const NotificationDetail = () => {
         )}
 
       <p>
-        <strong>Message:</strong> {notification.notification_message}
+        <strong>Message: </strong>
+        <span
+          dangerouslySetInnerHTML={{ __html: notification.notification_message }} // Correct usage here
+        />
       </p>
+
       {/* <p>
         <strong>Status:</strong> {notification.notification_status}
       </p> */}
