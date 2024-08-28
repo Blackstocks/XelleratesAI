@@ -279,7 +279,7 @@ const generateReport = async (
 
     let competitors = [];
     try {
-        // competitors = await getCompetitors(companyName, shortDescription, targetAudience, uspMoat);
+         competitors = await getCompetitors(companyName, shortDescription, targetAudience, uspMoat);
     } catch (error) {
         console.error('Error getting competitors:', error.message);
         competitors = []; // Initialize to an empty array in case of error
