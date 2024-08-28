@@ -20,7 +20,7 @@ const INVESTOR_COLUMNS = [
               <img
                 src={row?.cell?.value}
                 alt=''
-                className='w-full h-full rounded-[100%] object-cover'
+                className='w-full h-full rounded-[100%] object-contain'
               />
             </div>
           </div>
@@ -87,7 +87,7 @@ const STARTUP_COLUMNS = [
               <img
                 src={row?.cell?.value}
                 alt=''
-                className='w-full h-full rounded-[100%] object-cover'
+                className='w-full h-full rounded-[100%] object-contain'
               />
             </div>
           </div>
@@ -251,7 +251,7 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
                       {headerGroup.headers.map((column) => (
                         <th
                           {...column.getHeaderProps(column.getSortByToggleProps())}
-                          className='table-th py-3 px-6 text-left text-xs font-medium text-slate-500 uppercase tracking-wider dark:text-slate-400'
+                          className='table-th py-3 px-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider dark:text-slate-400'
                         >
                           {column.render('Header')}
                         </th>
@@ -265,7 +265,7 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
                     return (
                       <tr {...row.getRowProps()} className='border-t'>
                         {row.cells.map((cell) => (
-                          <td {...cell.getCellProps()} className='py-4 px-6 text-sm text-slate-600 dark:text-slate-300'>
+                          <td {...cell.getCellProps()} className='py-3 px-2 text-sm text-slate-600 dark:text-slate-300'>
                             {cell.column.id === 'status' ? (
                               statusMap[row.original.sender_id] ? (
                                 <span className='text-sm font-medium text-slate-600'>
