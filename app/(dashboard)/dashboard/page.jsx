@@ -528,7 +528,7 @@ const Dashboard = () => {
                 <div className='lg:col-span-8 col-span-12 space-y-5'>
                   <Card>
                     <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
-                      <GroupChartNew3 />
+                      <GroupChartNew3 user={user} />
                     </div>
                   </Card>
                 </div>

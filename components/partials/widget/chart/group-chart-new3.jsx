@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import useStartups from '@/hooks/useStartups';
 import useUserDetails from '@/hooks/useUserDetails';
 import useInvestorMeetingCount from '@/hooks/useInvestorMeetingCount'; // Import the hook
+import useConversationCounts from '@/hooks/useConversationCounts'; // Import the hook
 
 const statisticsTemplate = [
   {
@@ -49,19 +50,20 @@ const statisticsTemplate = [
   },
 ];
 
-const GroupChartNew3 = () => {
-  const { user, loading: userLoading } = useUserDetails();
+const GroupChartNew3 = ({ user }) => {
+  const userId = user?.id;
 
-  // Default values
-  const { startups, loading: startupsLoading, startupCount } = useStartupsRaw();
-  const { matchingStartups, loading: matchingLoading } = useMatchingStartups();
+  const { loading: startupsLoading, startupCount } = useStartupsRaw();
+  const { startupCount: curatedCount, loading: curatedLoading } =
+    useStartups(userId);
+  const { meetingCount, loading: meetingLoading } =
+    useInvestorMeetingCount(userId);
 
-  const { startupCount: curatedCount, loading: curatedLoading } = useStartups(
-    user?.id
-  );
-  const { meetingCount, loading: meetingLoading } = useInvestorMeetingCount(
-    user?.id
-  );
+  const {
+    closedConversationsCount,
+    openConversationsCount,
+    loading: conversationLoading,
+  } = useConversationCounts(userId);
 
   const statistics = statisticsTemplate.map((stat) => {
     if (stat.title === 'Total Startups') {
@@ -71,17 +73,22 @@ const GroupChartNew3 = () => {
       return { ...stat, count: curatedLoading ? 'Loading...' : curatedCount };
     }
     if (stat.title === 'Open Conversations') {
-      return { ...stat, count: meetingLoading ? 'Loading...' : meetingCount };
+      return {
+        ...stat,
+        count: conversationLoading ? 'Loading...' : openConversationsCount,
+      };
+    }
+    if (stat.title === 'Closed Transactions') {
+      return {
+        ...stat,
+        count: conversationLoading ? 'Loading...' : closedConversationsCount,
+      };
     }
     return stat;
   });
 
   const isLoading =
-    startupsLoading ||
-    matchingLoading ||
-    userLoading ||
-    curatedLoading ||
-    meetingLoading;
+    startupsLoading || curatedLoading || meetingLoading || conversationLoading;
 
   return (
     <>
@@ -93,7 +100,7 @@ const GroupChartNew3 = () => {
           <div className='overlay absolute left-0 top-0 w-full h-full z-[-1]'>
             <img
               src={item.img}
-              alt=''
+              alt={`${item.title} background`}
               draggable='false'
               className='w-full h-full object-contain'
             />

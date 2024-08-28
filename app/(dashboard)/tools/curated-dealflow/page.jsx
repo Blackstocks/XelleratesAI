@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import generateReport from '@/components/report/report-functions';
 import useNotificationStatus from '@/hooks/useNotificationStatus';
+import { handleStatusChange } from '@/lib/actions/investorActions';
 
 const CuratedDealflow = () => {
   const [expressLoading, setExpressLoading] = useState(false);
@@ -614,18 +615,44 @@ const CuratedDealflow = () => {
                           {fundingStatus}
                         </td>
                         <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          <select
-                            value={status}
-                            onChange={(e) => handleStatusChange(e.target.value)}
-                            className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md'
-                          >
-                            <option value='evaluated'>Evaluated</option>
-                            <option value='meeting_done'>Meeting Done</option>
-                            <option value='moving_forward'>
-                              Moving Forward
-                            </option>
-                            <option value='rejected'>Rejected</option>
-                          </select>
+                          <td className='py-2 px-4 border-b border-gray-300 text-sm'>
+                            <select
+                              value={startup.current_status} // Ensure each startup has its own status value
+                              onClick={(e) => e.stopPropagation()} // Prevent row click when dropdown is clicked
+                              onMouseDown={(e) => e.stopPropagation()} // Prevent mousedown event propagation
+                              onChange={(e) => {
+                                e.stopPropagation(); // Prevent row click when dropdown value is changed
+                                handleStatusChange(
+                                  e.target.value,
+                                  startup.id,
+                                  user?.id
+                                ); // Handle status change logic
+                              }}
+                              className='mt-1 block w-full pl-4 pr-8 py-2.5 text-base bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 transition duration-150 ease-in-out sm:text-sm'
+                            >
+                              <option value='evaluated' className='py-2 px-3'>
+                                Evaluated
+                              </option>
+                              <option
+                                value='meeting_done'
+                                className='py-2 px-3'
+                              >
+                                Meeting Done
+                              </option>
+                              <option
+                                value='moving_forward'
+                                className='py-2 px-3'
+                              >
+                                Moving Forward
+                              </option>
+                              <option value='rejected' className='py-2 px-3'>
+                                Rejected
+                              </option>
+                              <option value='investment' className='py-2 px-3'>
+                                Investment
+                              </option>
+                            </select>
+                          </td>
                         </td>
                       </tr>
                     );
