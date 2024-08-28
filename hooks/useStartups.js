@@ -14,11 +14,11 @@ const useStartups = (investorProfileId) => {
       }
 
       try {
-        // Step 1: Fetch the startup_profile_id(s) connected to the investor
+        // Step 1: Fetch the startup_profile_id(s) connected to the investor and their statuses
         const { data: connectedStartups, error: connectedError } =
           await supabase
             .from('investor_startup_assignments')
-            .select('startup_id')
+            .select('startup_id, status')
             .eq('investor_id', investorProfileId);
 
         if (connectedError) throw connectedError;
@@ -35,7 +35,7 @@ const useStartups = (investorProfileId) => {
         }
 
         // Step 2: Fetch the startup details using the startup_profile_ids
-        const { data, error } = await supabase
+        const { data: startupData, error } = await supabase
           .from('company_profile')
           .select(
             `
@@ -126,9 +126,20 @@ const useStartups = (investorProfileId) => {
 
         if (error) throw error;
 
-        console.log('Fetched Startups Data:', data);
-        setStartups(data);
-        setStartupCount(data.length);
+        // Step 3: Combine the status from connectedStartups with the fetched startup data
+        const startupsWithStatus = startupData.map((startup) => {
+          const connection = connectedStartups.find(
+            (conn) => conn.startup_id === startup.id
+          );
+          return {
+            ...startup,
+            status: connection?.status || 'Unknown', // Add the status field to each startup
+          };
+        });
+
+        console.log('Fetched Startups Data with Status:', startupsWithStatus);
+        setStartups(startupsWithStatus);
+        setStartupCount(startupsWithStatus.length);
       } catch (error) {
         console.error('Error fetching startups:', error);
       } finally {

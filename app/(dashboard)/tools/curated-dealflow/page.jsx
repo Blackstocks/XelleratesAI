@@ -19,6 +19,7 @@ const CuratedDealflow = () => {
   const [expressLoading, setExpressLoading] = useState(false);
   const { user, loading: userLoading } = useUserDetails();
   const { startups, loading: startupsLoading } = useStartups(user?.id);
+  // console.log('startups:', startups);
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -302,7 +303,7 @@ const CuratedDealflow = () => {
       };
 
       try {
-        console.log('selectedStartup?.company_profile', selectedStartup);
+        // console.log('selectedStartup?.company_profile', selectedStartup);
         const result = await generateReport(
           companyProfile,
           selectedStartup?.funding_information,
@@ -550,6 +551,9 @@ const CuratedDealflow = () => {
                       ? 'Funded'
                       : 'Not Funded';
 
+                    // Fetch the current status from the backend
+                    const currentStatus = startup.status || 'evaluated'; // Default to 'evaluated' if status is not defined
+
                     return (
                       <tr
                         key={startup.id}
@@ -615,44 +619,39 @@ const CuratedDealflow = () => {
                           {fundingStatus}
                         </td>
                         <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                          <td className='py-2 px-4 border-b border-gray-300 text-sm'>
-                            <select
-                              value={startup.current_status} // Ensure each startup has its own status value
-                              onClick={(e) => e.stopPropagation()} // Prevent row click when dropdown is clicked
-                              onMouseDown={(e) => e.stopPropagation()} // Prevent mousedown event propagation
-                              onChange={(e) => {
-                                e.stopPropagation(); // Prevent row click when dropdown value is changed
-                                handleStatusChange(
-                                  e.target.value,
-                                  startup.id,
-                                  user?.id
-                                ); // Handle status change logic
-                              }}
-                              className='mt-1 block w-full pl-4 pr-8 py-2.5 text-base bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 transition duration-150 ease-in-out sm:text-sm'
+                          <select
+                            value={currentStatus} // Set fetched status as the default value
+                            onClick={(e) => e.stopPropagation()} // Prevent row click when dropdown is clicked
+                            onMouseDown={(e) => e.stopPropagation()} // Prevent mousedown event propagation
+                            onChange={(e) => {
+                              e.stopPropagation(); // Prevent row click when dropdown value is changed
+                              handleStatusChange(
+                                e.target.value,
+                                startup.id,
+                                user?.id
+                              ); // Handle status change logic
+                            }}
+                            className='mt-1 block w-full mr-10 pl-4 pr-2 py-2.5 text-base bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 transition duration-150 ease-in-out sm:text-sm'
+                          >
+                            <option value='evaluated' className='py-2 px-3'>
+                              Evaluated
+                            </option>
+                            <option value='meeting_done' className='py-2 px-3'>
+                              Meeting Done
+                            </option>
+                            <option
+                              value='moving_forward'
+                              className='py-2 px-3'
                             >
-                              <option value='evaluated' className='py-2 px-3'>
-                                Evaluated
-                              </option>
-                              <option
-                                value='meeting_done'
-                                className='py-2 px-3'
-                              >
-                                Meeting Done
-                              </option>
-                              <option
-                                value='moving_forward'
-                                className='py-2 px-3'
-                              >
-                                Moving Forward
-                              </option>
-                              <option value='rejected' className='py-2 px-3'>
-                                Rejected
-                              </option>
-                              <option value='investment' className='py-2 px-3'>
-                                Investment
-                              </option>
-                            </select>
-                          </td>
+                              Moving Forward
+                            </option>
+                            <option value='rejected' className='py-2 px-3'>
+                              Rejected
+                            </option>
+                            <option value='investment' className='py-2 px-3'>
+                              Investment
+                            </option>
+                          </select>
                         </td>
                       </tr>
                     );

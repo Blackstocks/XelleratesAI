@@ -202,7 +202,7 @@ const KanbanPage = () => {
       if (error) {
         console.error('Error updating task in database:', error);
       } else {
-        // fetchTaskSummary(); // Automatically fetch the summary after drag-and-drop
+        window.location.reload(); // Reload the page after successful update
       }
     } catch (error) {
       console.error('Unexpected error during task update:', error);
