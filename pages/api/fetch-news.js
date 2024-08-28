@@ -14,6 +14,7 @@ export default async function handler(req, res) {
     }
 
     const encodedString = encodeURI(searchString);
+    // console.log("SS:", searchString);
     let url;
     if (searchString === 'category+startups'){
         url = `https://techcrunch.com/category/startups/`

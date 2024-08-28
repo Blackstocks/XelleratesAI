@@ -393,10 +393,14 @@ const Chatbot = () => {
             <div ref={messageEndRef} />
           </div>
         );
-      default:
-        return (
-          <HomeContent onSendMessageClick={() => setActiveTab("messages")} />
-        );
+        case "help":
+          return <HelpContent />;
+        case "news":
+          return <NewsContent />;
+        default:
+          return (
+            <HomeContent onSendMessageClick={() => setActiveTab("messages")} />
+          );
     }
   };
   
@@ -870,11 +874,81 @@ const HelpContent = () => {
   );
 };
 
-const NewsContent = () => (
-  <div className="news-content">
-    <h2>Latest News</h2>
-    <p>Here are the some latest news articles...?</p>
-  </div>
-);
+const NewsContent = () => {
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedIndexes, setExpandedIndexes] = useState([]);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await axios.get('/api/fetch-news', {
+          params: { q: 'category startups' },
+        });
+        setNews(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching news:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, []);
+
+  // Function to toggle content expansion
+  const toggleExpansion = (index) => {
+    setExpandedIndexes((prevExpandedIndexes) =>
+      prevExpandedIndexes.includes(index)
+        ? prevExpandedIndexes.filter((i) => i !== index)
+        : [...prevExpandedIndexes, index]
+    );
+  };
+
+  return (
+    <div className="bg-white p-4 rounded-lg shadow-lg">
+      <h2 className="text-3xl font-bold text-blue-600 mb-4">Latest News</h2>
+      {loading ? (
+        <p className="text-gray-600">Loading news...</p>
+      ) : (
+        news.map((article, index) => {
+          const isExpanded = expandedIndexes.includes(index);
+
+          return (
+            <div key={index} className="bg-gray-100 p-4 rounded-lg mb-4 shadow-md">
+  <h3 className="text-lg font-semibold text-gray-800 mb-2">{article.title}</h3>
+  <ul className="list-disc pl-5 text-gray-700">
+    {article.summary.slice(0, 1).map((point, idx) => {
+      const words = point.split(' ');
+      const isMoreThan30Words = words.length > 30;
+      return (
+        <li key={idx} className="mb-1">
+          {expandedIndexes.includes(index)
+            ? point // Show full content if expanded
+            : words.slice(0, 30).join(' ') + (isMoreThan30Words ? '...' : '')} {/* Show truncated content if not expanded */}
+
+          {/* Conditionally render the button if text is more than 30 words */}
+          {isMoreThan30Words && (
+            <button
+              onClick={() => toggleExpansion(index)}
+              className="inline-block text-blue-600 transition duration-300 hover:underline"
+            >
+              {expandedIndexes.includes(index) ? 'Read less...' : 'Read more...'}
+            </button>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</div>
+
+          );
+        })
+      )}
+    </div>
+  );
+};
+
+
 
 export default Chatbot;
