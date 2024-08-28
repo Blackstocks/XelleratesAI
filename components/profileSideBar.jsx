@@ -834,24 +834,39 @@ const VerticalNavTabs = (props) => {
 
         case 'company_documents':
           const companyUploadedFiles = {};
+
           for (const [dbField, formField] of Object.entries(
             companyDocumentsFiles
           )) {
             if (data[formField] && data[formField][0]) {
-              companyUploadedFiles[formField] = await handleFileUpload(
-                data[formField][0],
-                'documents',
-                companyProfile?.company_name || data.company_name,
-                dbField
-              );
-            }
+              try {
+                // Upload the document file
+                const uploadResult = await handleFileUpload(
+                  data[formField][0],
+                  'documents',
+                  companyProfile?.company_name || data.company_name,
+                  dbField
+                );
 
-            await supabase.rpc('handle_document_upload', {
-              p_startup_id: companyProfile?.id,
-              p_document_value: dbField, // Use the dbField to match with document_name in requests
-            });
+                // Check if the upload was successful
+                if (uploadResult) {
+                  companyUploadedFiles[formField] = uploadResult;
+
+                  // Call the RPC function only if the file is successfully uploaded
+                  await supabase.rpc('handle_document_upload', {
+                    p_startup_id: companyProfile?.id,
+                    p_document_value: dbField, // Use the dbField to match with document_name in requests
+                  });
+                } else {
+                  console.error(`Failed to upload document: ${formField}`);
+                }
+              } catch (error) {
+                console.error(`Error uploading document ${formField}:`, error);
+              }
+            }
           }
 
+          // Update or insert company documents based on the existing record
           const companyDocumentsResponse = companyDocuments?.id
             ? await updateCompanyDocuments(
                 companyProfile.id,
@@ -862,11 +877,14 @@ const VerticalNavTabs = (props) => {
                 companyUploadedFiles
               );
 
+          // Handle errors from the document update/insert operations
           if (companyDocumentsResponse?.error) {
             throw companyDocumentsResponse.error;
           }
 
           updatedData = companyDocumentsResponse;
+
+          // Reload the page to reflect changes
           window.location.reload();
           break;
 
