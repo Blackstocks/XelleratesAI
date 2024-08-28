@@ -47,58 +47,64 @@ const Notification = () => {
         {unreadNotifications.length > 0 ? (
           unreadNotifications.map((item, i) => (
             <Menu.Item key={i}>
-              {({ active }) => (
-                <Link href={`/notifications/${item.id}`} passHref>
-                  <div
-                    className={`${
-                      active
-                        ? 'bg-slate-100 dark:bg-slate-700 dark:bg-opacity-70 text-slate-800'
-                        : 'text-slate-600 dark:text-slate-300'
-                    } block w-full px-4 py-2 text-sm cursor-pointer`}
-                  >
-                    <div className='flex ltr:text-left rtl:text-right'>
-                      <div className='flex-none ltr:mr-3 rtl:ml-3'>
-                        <div className='h-8 w-8 bg-white rounded-full'>
-                          <img
-                            src={item.company_logo || '/default-image.png'}
-                            alt='Notification'
-                            className={`${
-                              active ? ' border-white' : ' border-transparent'
-                            } block w-full h-full object-contain rounded-full border`}
-                          />
-                        </div>
-                      </div>
-                      <div className='flex-1'>
-                        <div
-                          className={`${
-                            active
-                              ? 'text-slate-600 dark:text-slate-300'
-                              : ' text-slate-600 dark:text-slate-300'
-                          } text-sm`}
-                        >
-                          {item.sender_name || item.company_name}
-                        </div>
-                        <div
-                          className={`${
-                            active
-                              ? 'text-slate-500 dark:text-slate-200'
-                              : ' text-slate-600 dark:text-slate-300'
-                          } text-xs leading-4`}
-                        >
-                          {item.notification_message}
-                        </div>
-                        <div className='text-slate-400 dark:text-slate-400 text-xs mt-1'>
-                          {new Date(item.created_at).toLocaleTimeString()}
-                        </div>
-                      </div>
-                      <div className='flex-0'>
-                        <span className='h-[10px] w-[10px] bg-danger-500 border border-white dark:border-slate-400 rounded-full inline-block'></span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              )}
-            </Menu.Item>
+  {({ active }) => (
+    <Link href={`/notifications/${item.id}`} passHref>
+      <div
+        className={`${
+          active
+            ? 'bg-slate-100 dark:bg-slate-700 dark:bg-opacity-70 text-slate-800'
+            : 'text-slate-600 dark:text-slate-300'
+        } block w-full px-4 py-2 text-sm cursor-pointer`}
+        onClick={(e) => {
+          if (e.target.tagName === 'A') {
+            e.preventDefault(); // Prevent default navigation for child link
+            e.stopPropagation(); // Stop propagation to parent link
+          }
+        }}
+      >
+        <div className='flex ltr:text-left rtl:text-right'>
+          <div className='flex-none ltr:mr-3 rtl:ml-3'>
+            <div className='h-8 w-8 bg-white rounded-full'>
+              <img
+                src={item.company_logo || '/default-image.png'}
+                alt='Notification'
+                className={`${
+                  active ? ' border-white' : ' border-transparent'
+                } block w-full h-full object-contain rounded-full border`}
+              />
+            </div>
+          </div>
+          <div className='flex-1'>
+            <div
+              className={`${
+                active
+                  ? 'text-slate-600 dark:text-slate-300'
+                  : ' text-slate-600 dark:text-slate-300'
+              } text-sm`}
+            >
+              {item.sender_name || item.company_name}
+            </div>
+            <div
+              className={`${
+                active
+                  ? 'text-slate-500 dark:text-slate-200'
+                  : ' text-slate-600 dark:text-slate-300'
+              } text-xs leading-4`}
+              dangerouslySetInnerHTML={{ __html: item.notification_message }} // Render sanitized HTML
+            />
+            <div className='text-slate-400 dark:text-slate-400 text-xs mt-1'>
+              {new Date(item.created_at).toLocaleTimeString()}
+            </div>
+          </div>
+          <div className='flex-0'>
+            <span className='h-[10px] w-[10px] bg-danger-500 border border-white dark:border-slate-400 rounded-full inline-block'></span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )}
+</Menu.Item>
+
           ))
         ) : (
           <div className='text-center py-4 text-slate-600 dark:text-slate-300'>
