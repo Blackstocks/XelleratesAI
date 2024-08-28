@@ -121,6 +121,7 @@ const AddTaskModal = ({
     } catch (error) {
       console.error('Error:', error);
     }
+    window.location.reload();
   };
 
   return (
