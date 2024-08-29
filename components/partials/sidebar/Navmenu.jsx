@@ -356,6 +356,14 @@ const Navmenu = ({ menus }) => {
                 <div className='text-box flex-grow'>Revenue</div>
               </Link>
             </li>
+            <li className={`single-sidebar-menu`}>
+              <Link className='menu-link' href='/admin/blogs'>
+                <span className='menu-icon flex-grow-0'>
+                  <Icon icon='heroicons-outline:document' />
+                </span>
+                <div className='text-box flex-grow'>Blogs</div>
+              </Link>
+            </li>
           </div>
         )}
       </ul>

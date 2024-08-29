@@ -1,85 +1,57 @@
-import React from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import InputGroup from '@/components/ui/InputGroup';
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
+import { supabase } from '@/lib/supabaseclient'; // Import Supabase client
 
-const category = [
-  {
-    cta: 'All Posts ',
-  },
-  {
-    cta: 'Private Equity ',
-  },
-  {
-    cta: 'Legal Clinic',
-  },
-  {
-    cta: 'Law Firm Management',
-  },
-  {
-    cta: 'Case Study ',
-  },
-  {
-    cta: 'HR ',
-  },
-  {
-    cta: 'Debt Funding',
-  },
+const categories = [
+  { cta: 'All Posts' },
+  { cta: 'Legal Clinic' },
+  { cta: 'Case Study' },
+  { cta: 'Fundraising' },
+  { cta: 'Startup Evaluation' },
 ];
-const posts = [
-  {
-    img: '/assets/images/videos/Blog 1.mp4',
-    title:
-      'Unlocking Potential: Why Now Is The Ideal Time To Invest In Startups',
-    date: '10/05/2024',
-  },
-  {
-    img: '/assets/images/videos/Blog 2.mp4',
-    title:
-      'The Crucial Role Of Due Diligence In Startup Funding: A Comprehensive Guide',
-    date: '10/03/2024',
-  },
-  {
-    img: '/assets/images/videos/Blog 3.mp4',
-    title:
-      'Empowering Startups: The Role Of Purchase Order (PO) Financing In Fulfilling Orders And Driving Revenue',
-    date: '10/02/2024',
-  },
-];
-const tags = [
-  {
-    title: 'Business',
-    link: '#',
-  },
-  {
-    title: 'Consulting',
-    link: '#',
-  },
-  {
-    title: 'Photographic',
-    link: '#',
-  },
-  {
-    title: 'Investment',
-    link: '#',
-  },
-  {
-    title: 'Camera',
-    link: '#',
-  },
-  {
-    title: 'Assurance',
-    link: '#',
-  },
-  {
-    title: 'Secutity',
-    link: '#',
-  },
-];
+
 const Sidebar = () => {
+  const [latestPosts, setLatestPosts] = useState([]);
+  const [postCounts, setPostCounts] = useState({}); // To store post counts by category
+
+  // Fetch latest blogs and post counts by category
+  useEffect(() => {
+    const fetchLatestBlogs = async () => {
+      try {
+        const { data: blogs, error } = await supabase
+          .from('blogs') // Replace 'blogs' with your actual table name
+          .select('id, title, created_at, categories, thumbnail_url')
+          .order('created_at', { ascending: false })
+          .limit(5); // Fetch latest 5 blogs
+
+        if (error) throw error;
+
+        setLatestPosts(blogs);
+
+        // Calculate post counts by category
+        const counts = {};
+        blogs.forEach((blog) => {
+          blog.categories.forEach((category) => {
+            counts[category] = (counts[category] || 0) + 1; // Increment count for each category
+          });
+        });
+
+        setPostCounts(counts);
+      } catch (error) {
+        console.error('Error fetching blogs:', error.message);
+      }
+    };
+
+    fetchLatestBlogs();
+  }, []);
+
   return (
     <div className='space-y-5 divide-y divide-slate-100 dark:divide-slate-700 -mx-6'>
+      {/* Search Input */}
       <div className='px-6'>
         <InputGroup
           type='text'
@@ -92,36 +64,44 @@ const Sidebar = () => {
           }
         />
       </div>
+
+      {/* Latest Blogs Section */}
       <div className='pt-4 px-6'>
         <h4 className='text-slate-600 dark:text-slate-300 text-xl font-medium mb-4'>
           Latest Blogs Post
         </h4>
         <ul className='list-item space-y-4'>
-          {posts.map((item, i) => (
-            <li key={i}>
+          {latestPosts.map((post) => (
+            <li key={post.id}>
               <div className='flex space-x-4 rtl:space-x-reverse'>
                 <div className='flex-none'>
                   <div className='h-20 w-20'>
-                    {/* <img
-                      src={item.img}
-                      alt=''
-                      className='block w-full h-full'
-                    /> */}
-                    <video
-                      src={item.img}
-                      alt=''
-                      className='w-full h-full object-contain'
-                      controls
-                    ></video>
+                    {/* Render blog video or image */}
+                    {post.thumbnail_url.endsWith('.mp4') ? (
+                      <video
+                        src={post.thumbnail_url}
+                        alt={post.title}
+                        className='w-full h-full object-contain'
+                        controls
+                      ></video>
+                    ) : (
+                      <img
+                        src={post.thumbnail_url}
+                        alt={post.title}
+                        className='w-full h-full object-contain'
+                      />
+                    )}
                   </div>
                 </div>
 
                 <div className='flex-1 flex flex-col'>
                   <h4 className='text-sm text-slate-600 font-regular leading-5 mb-4'>
-                    <Link href='#'>{item.title}</Link>.
+                    <Link href={`/blog/${post.id}`}>{post.title}</Link>
                   </h4>
                   <span className='text-xs text-slate-400'>
-                    <Link href='#'>{item.date}</Link>
+                    <Link href={`/blog/${post.id}`}>
+                      {new Date(post.created_at).toLocaleDateString()}
+                    </Link>
                   </span>
                 </div>
               </div>
@@ -129,12 +109,14 @@ const Sidebar = () => {
           ))}
         </ul>
       </div>
+
+      {/* Categories Section */}
       <div className='pt-4 px-6'>
         <h4 className='text-slate-600 dark:text-slate-300 text-xl font-medium mb-4'>
           Category
         </h4>
         <ul className='list-item space-y-6'>
-          {category.map((item, i) => (
+          {categories.map((item, i) => (
             <li key={i}>
               <Link
                 href='#'
@@ -143,35 +125,24 @@ const Sidebar = () => {
                 <span className='text-sm'>
                   <Icon icon='heroicons:chevron-right-solid' />
                 </span>
-                <span>{item.cta}</span>
+                <span>
+                  {item.cta} ({postCounts[item.cta] || 0}){' '}
+                  {/* Render category count */}
+                </span>
               </Link>
             </li>
           ))}
         </ul>
       </div>
-      {/* <div className='pt-4 px-6'>
-        <h4 className='text-slate-600 dark:text-slate-300 text-xl font-medium mb-4'>
-          Popular tags
-        </h4>
-        <ul className='flex flex-wrap'>
-          {tags.map((item, i) => (
-            <li key={i} className='mr-2 mb-2'>
-              <Link
-                href={item.link}
-                className='text-xs font-normal text-slate-600 bg-slate-100 dark:bg-slate-600 dark:text-slate-300 py-1 px-3 rounded-full hover:bg-slate-950 hover:text-white transition duration-150'
-              >
-                <span>{item.title}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div> */}
+
+      {/* Subscription Section */}
       <div className='mx-6 bg-slate-950 dark:bg-slate-950 text-white rounded-xl p-6 space-y-4'>
         <h4 className='text-xl font-medium text-white'>
           Subscribe to our blog
         </h4>
         <div className='text-sm'>
-        Global platform for startups to be investment ready through our AI model
+          Global platform for startups to be investment ready through our AI
+          model
         </div>
         <form action='#' className='space-y-4'>
           <input
