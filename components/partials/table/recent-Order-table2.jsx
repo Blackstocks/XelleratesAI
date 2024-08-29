@@ -147,16 +147,15 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
       return;
     }
 
-    console.log("inv id: ", investorId);
-    console.log("startup id: ", startupId);
-
     try {
-      const { data, error } = await supabase
-        .from('investor_startup_assignments')
-        .select('status, startup_id')
-        .eq('investor_id', investorId); // Removed .single() because it returns a list
+      // Fetch from different tables based on userType
+      console.log("Inv ID:", investorId);
+      console.log("Startup ID:", startupId);
 
-      console.log('status data: ', data);
+      const { data, error } = await supabase
+        .from(userType === 'investor' ? 'investor_startup_assignments' : 'assigned_dealflow') // Use 'assigned_dealflow' for startups
+        .select('status, startup_id')
+        .eq(userType === 'investor' ? 'investor_id' : 'startup_id', userType === 'investor' ? investorId : startupId);
 
       if (error) {
         console.error('Error fetching status data:', error);
@@ -164,15 +163,28 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
       } else {
         // Find the entry where startup_id matches the provided startupId
         const matchingEntry = data.find((entry) => entry.startup_id === startupId);
-        console.log("matching entry: ", matchingEntry)
 
+        // Define a mapping for status values
+        const statusMapping = {
+          moving_forward: 'Moving Forward',
+          evaluated: 'Evaluated',
+          meeting_done: 'Meeting Done',
+          curated_deal: 'Curated Deal Flow',
+          NULL: 'Curated Deal Flow' // Handle NULL or undefined cases
+        };
+
+        // Update the logic to map status values correctly
         if (matchingEntry) {
-          setStatusMap((prev) => ({ ...prev, [startupId]: matchingEntry.status || 'N/A' })); // Store status for specific entry
+          setStatusMap((prev) => ({
+            ...prev,
+            [startupId]: statusMapping[matchingEntry.status] || 'Curated Deal Flow'  // Use the mapping for the status
+          }));
         } else {
-          setStatusMap((prev) => ({ ...prev, [startupId]: 'Not Found' })); // Handle case where no matching entry is found
+          setStatusMap((prev) => ({
+            ...prev,
+            [startupId]: 'N/A'  // Handle case where no matching entry is found
+          }));
         }
-        // Logging after state update using useEffect
-        console.log('Updated status map: ', statusMap);
       }
     } catch (err) {
       console.error('Unexpected error fetching status:', err);
@@ -183,10 +195,8 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
   // Fetch status data for each row when the component mounts or when data changes
   useEffect(() => {
     if (meetings) {
-      console.log("meetings: ", meetings);
       meetings.forEach((meeting) => {
-        // Corrected to use meeting's specific investor and startup IDs
-        fetchStatusForEntry(meeting.receiver_id, meeting.sender_id); 
+        fetchStatusForEntry(meeting.receiver_id, meeting.sender_id);
       });
     }
   }, [meetings]);
