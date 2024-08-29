@@ -13,6 +13,7 @@ import Icon from '@/components/ui/Icon';
 import useUserDetails from '@/hooks/useUserDetails';
 import Loading from '@/app/loading';
 import FundraisingDashboard from '@/components/FundraisingDashboard';
+import Link from 'next/link';
 
 const AdminDashboard = ({ userType }) => {
   const [users, setUsers] = useState([]);
@@ -147,20 +148,84 @@ const AdminDashboard = ({ userType }) => {
   const columns = useMemo(
     () => [
       {
-        Header: 'ID',
-        accessor: 'id',
-      },
-      {
         Header: 'Name',
         accessor: 'name',
       },
       {
-        Header: 'Linkedln',
+        Header: 'LinkedIn',
         accessor: 'linkedin_profile',
+        Cell: ({ value }) => {
+          const [showMore, setShowMore] = useState(false);
+          const maxLength = 20; // Maximum number of characters to show
+
+          return (
+            <div
+              style={{
+                maxWidth: '150px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {showMore ? (
+                <Link
+                  href={value}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  style={{ color: 'blue' }}
+                >
+                  {/* Full text is clickable */}
+                  {value}
+                </Link>
+              ) : (
+                <>
+                  {/* Truncated text with "Show More" link */}
+                  <Link
+                    href={value}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    style={{ color: 'blue' }}
+                  >
+                    {value.substring(0, maxLength)}...
+                  </Link>
+                  <button
+                    onClick={() => setShowMore(true)}
+                    style={{
+                      color: 'blue',
+                      cursor: 'pointer',
+                      marginLeft: '5px',
+                    }}
+                  >
+                    Show More
+                  </button>
+                </>
+              )}
+              {/* Show Less button */}
+              {showMore && (
+                <button
+                  onClick={() => setShowMore(false)}
+                  style={{
+                    color: 'blue',
+                    cursor: 'pointer',
+                    marginLeft: '5px',
+                  }}
+                >
+                  Show Less
+                </button>
+              )}
+            </div>
+          );
+        },
       },
       {
         Header: 'Email',
         accessor: 'email',
+        Cell: ({ value }) => <Link href={`mailto:${value}`}>{value}</Link>,
+      },
+      {
+        Header: 'Phone',
+        accessor: 'mobile',
+        Cell: ({ value }) => <Link href={`tel:${value}`}>{value}</Link>,
       },
       {
         Header: 'Role',

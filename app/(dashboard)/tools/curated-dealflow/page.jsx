@@ -633,6 +633,9 @@ const CuratedDealflow = () => {
                             }}
                             className='mt-1 block w-full mr-10 pl-4 pr-2 py-2.5 text-base bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 hover:border-indigo-400 transition duration-150 ease-in-out sm:text-sm'
                           >
+                            <option value='curated_deal' className='py-2 px-3'>
+                              Curated Deal
+                            </option>
                             <option value='evaluated' className='py-2 px-3'>
                               Evaluated
                             </option>

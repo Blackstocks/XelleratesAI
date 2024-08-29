@@ -13,7 +13,11 @@ const useConversationCounts = (userId) => {
       try {
         setLoading(true);
         // Define open and closed statuses
-        const openStatuses = ['moving_forward', 'evaluated', 'meeting_done'];
+        const openStatuses = [
+          'moving_forward',
+          'evaluated',
+          'meeting_done, curated_deal',
+        ];
         const closedStatuses = ['rejected', 'investment'];
 
         // Fetch data from Supabase based on companyProfileId
