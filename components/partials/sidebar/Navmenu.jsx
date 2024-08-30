@@ -380,6 +380,50 @@ const Navmenu = ({ menus }) => {
                 <div className='text-box flex-grow'>Revenue</div>
               </Link>
             </li>
+            {/* <li className={`single-sidebar-menu`}>
+              <Link className='menu-link' href='/admin/blogs'>
+                <span className='menu-icon flex-grow-0'>
+                  <Icon icon='heroicons-outline:document' />
+                </span>
+                <div className='text-box flex-grow'>Blogs</div>
+              </Link>
+            </li> */}
+
+            <li className={`single-sidebar-menu`}>
+              <div className='menu-link' onClick={() => toggleSubmenu('Blogs')}>
+                <span className='menu-icon flex-grow-0'>
+                  <BriefcaseIcon className='h-5 w-5' />
+                </span>
+                <div className='text-box flex-grow'>Blogs</div>
+                <div
+                  className={`menu-arrow transform transition-all duration-300 ${
+                    activeSubmenu === 'Blogs' ? ' rotate-90' : ''
+                  }`}
+                >
+                  <Icon icon='heroicons-outline:chevron-right' />
+                </div>
+              </div>
+              <Collapse isOpened={activeSubmenu === 'Blogs'}>
+                <ul className='submenu'>
+                  <li>
+                    <Link
+                      className='submenu-link'
+                      href='/admin/blogs/create-blog'
+                    >
+                      <span className='dot'>&#8226;</span> Create Blog
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      className='submenu-link'
+                      href='/admin/blogs/view-blogs'
+                    >
+                      <span className='dot'>&#8226;</span> View Blogs
+                    </Link>
+                  </li>
+                </ul>
+              </Collapse>
+            </li>
           </div>
         )}
       </ul>

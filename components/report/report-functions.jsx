@@ -258,7 +258,7 @@ const generateReport = async (
         let financialProjections = {};
     try {
     if (financialProjectionsLink) {
-        financialProjections = await generateFinancialResponse(financialProjectionsLink);
+         financialProjections = await generateFinancialResponse(financialProjectionsLink);
     }
     } catch (error) {
     console.error('Error generating financial projections:', error.message);
@@ -268,7 +268,7 @@ const generateReport = async (
     let technologyRoadmap = {};
     try {
     if (technologyRoadmapLink) {
-        technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
+         technologyRoadmap = await generateTechnologyRoadmap(technologyRoadmapLink);
     }
     } catch (error) {
     console.error('Error generating technology roadmap:', error.message);
@@ -366,10 +366,46 @@ const generateReport = async (
                         <p class="text-xl font-medium mt-2">Stage: ${currentStage}</p>
                     </div>
                 </div>
-                <div class="text-center bg-blue-800 p-6 rounded-lg shadow-md">
-                    <p class="text-5xl font-extrabold">${InvestmentReadinessScore}</p>
-                    <p class="text-lg font-medium mt-1">Investment <br> Readiness Score</p>
-                </div>
+
+
+
+<div class="text-center w-3/7 py-5 px-8 rounded-xl shadow-xl bg-blue-800 relative">
+  <!-- Title Section -->
+  <h2 class="text-xl font-bold text-white mb-3">Investment Readiness Score</h2>
+
+  <!-- Gradient Bar Container -->
+  <div class="relative w-full h-5 bg-gray-300 rounded-full overflow-hidden">
+    <!-- Gradient Bar -->
+    <div class="absolute inset-0 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full border border-blue-400"></div>
+  </div>
+
+  <!-- Indicator and Score -->
+  <div class="relative flex justify-center items-center">
+    <!-- Triangle Indicator -->
+    <div
+      class="absolute w-0 h-0 mt-2 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-blue-100 opacity-90"
+      style="left: calc(${InvestmentReadinessScore}%);"></div>
+    <!-- Score Display -->
+    <div
+      class="absolute bg-blue-100 text-blue-800 text-sm font-bold px-2 py-0.5 rounded-full shadow-md border border-gray-400 opacity-90"
+      style="left: calc(${InvestmentReadinessScore}% - 14px); top: 10px;">
+      ${InvestmentReadinessScore}
+    </div>
+  </div>
+
+  <!-- Readiness Labels with Icons -->
+  <div class="flex justify-between mt-6 text-white font-medium items-center">
+    <div class="flex items-center">
+      <span class="material-icons mr-1 -ml-6 text-red-500 opacity-85">Not Ready</span>
+    </div>
+    <div class="flex items-center">
+      <span class="material-icons ml-1 -mr-6 text-green-500 opacity-85">Ready</span>
+    </div>
+  </div>
+</div>
+
+
+                
             </div>
         </div>
 
@@ -713,7 +749,24 @@ const generateReport = async (
                 </div>
 
         <!-- Footer Section -->
-        <div class="mt-16 text-sm text-gray-600 text-center border-t pt-8">
+
+        <!-- Divider Line -->
+<div class="w-full h-0.5 bg-gray-200 opacity-75 my-4"></div>
+
+        <!-- Dynamic Suggestions Section -->
+<div class="w-full bg-gray-100 p-4 rounded-lg shadow-sm mt-4">
+<div class="mx-auto pl-60 text-left text-xs text-gray-700">
+    <div class="text-left text-xs text-gray-700 mt-4 bg-gray-100 rounded-lg shadow-sm">
+    <p class="text-sm font-semibold text-gray-800 mb-2">To improve your Investment Readiness Score, consider the following suggestions:</p>
+    <ul class="list-disc space-y-1 pl-5">
+        <!-- Dynamic Suggestions will be inserted here -->
+    </ul>
+    </div>
+</div>
+</div>
+
+
+        <div class="mt-4 text-sm text-gray-600 text-center border-t pt-8">
             <p>Date of Report Generation: ${new Date().toLocaleDateString()}</p>
             <p>Copyright © 2024 by Xellerates AI. All rights reserved.</p>
         </div>
@@ -730,6 +783,43 @@ const generateReport = async (
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script>
+
+  function generateSuggestions() {
+    var suggestions = [];
+
+
+    // Check individual score components and provide suggestions accordingly
+    if (${tractionScore} < 30) {
+      suggestions.push("Improve traction by increasing customer base or engagement levels.");
+    }
+    if (${mediaPresenceScore} < 5) {
+      suggestions.push("Enhance media presence by getting featured in relevant industry news or publications.");
+    }
+    if (${fundingScore} < 7) {
+      suggestions.push("Consider raising funds or improving the current funding situation to attract investors.");
+    }
+    if (${incorporationScore} < 8) {
+      suggestions.push("Upload ${companyName}'s Incorporation Certificate.");
+    }
+    if (${foundersEquityScore} < 6) {
+      suggestions.push("Reassess founder equity allocation to ensure it aligns with industry standards.");
+    }
+
+    var suggestionList = document.querySelector(".list-disc");
+    suggestionList.innerHTML = ""; // Clear existing suggestions
+
+    suggestions.forEach(function (suggestion) {
+      var li = document.createElement("li");
+      li.className = "text-xs text-gray-700";
+      li.textContent = suggestion;
+      suggestionList.appendChild(li);
+    });
+  }
+
+  generateSuggestions();
+</script>
+
     <script>
         const financialProjections = ${JSON.stringify(financialProjections)};
         console.log("Financial Projections Data:", financialProjections);

@@ -23,17 +23,17 @@ function convertTextualDateToDate(text) {
         "EIGHTEENTH": 18,
         "NINETEENTH": 19,
         "TWENTIETH": 20,
-        "TWENTY-FIRST": 21,
-        "TWENTY-SECOND": 22,
-        "TWENTY-THIRD": 23,
-        "TWENTY-FOURTH": 24,
-        "TWENTY-FIFTH": 25,
-        "TWENTY-SIXTH": 26,
-        "TWENTY-SEVENTH": 27,
-        "TWENTY-EIGHTH": 28,
-        "TWENTY-NINTH": 29,
+        "TWENTY-FIRST": 21, "TWENTY FIRST": 21,
+        "TWENTY-SECOND": 22, "TWENTY SECOND": 22,
+        "TWENTY-THIRD": 23, "TWENTY THIRD": 23,
+        "TWENTY-FOURTH": 24, "TWENTY FOURTH": 24,
+        "TWENTY-FIFTH": 25, "TWENTY FIFTH": 25,
+        "TWENTY-SIXTH": 26, "TWENTY SIXTH": 26,
+        "TWENTY-SEVENTH": 27, "TWENTY SEVENTH": 27,
+        "TWENTY-EIGHTH": 28, "TWENTY EIGHTH": 28,
+        "TWENTY-NINTH": 29, "TWENTY NINTH": 29,
         "THIRTIETH": 30,
-        "THIRTY-FIRST": 31
+        "THIRTY-FIRST": 31, "THIRTY FIRST": 31
     };
 
     const monthMap = {
@@ -51,61 +51,70 @@ function convertTextualDateToDate(text) {
         "DECEMBER": 11
     };
 
-    const dayPattern = new RegExp(Object.keys(dayMap).join("|"), "i");
-    const monthPattern = new RegExp(Object.keys(monthMap).join("|"), "i");
-    const yearPattern = /(TWO THOUSAND(?: AND)?(?: \w+)?(?: \w+)?)/i;
+    // Adjusted regex patterns to ensure full word matching and variations
+    const dayPattern = new RegExp("\\b(" + Object.keys(dayMap).join("|") + ")\\b", "i");
+    const monthPattern = new RegExp("\\b(" + Object.keys(monthMap).join("|") + ")\\b", "i");
+    const yearPattern = /\b(TWO THOUSAND(?: AND)?(?: \w+)?(?: \w+)?|TWENTY[- ]?\w+|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|TEN|ELEVEN|TWELVE|THIRTEEN|FOURTEEN|FIFTEEN|SIXTEEN|SEVENTEEN|EIGHTEEN|NINETEEN|TWENTY[- ]ONE|TWENTY[- ]TWO|TWENTY[- ]THREE|TWENTY[- ]FOUR|TWENTY[- ]FIVE|TWENTY[- ]SIX|TWENTY[- ]SEVEN|TWENTY[- ]EIGHT|TWENTY[- ]NINE|TWENTY[- ]TEN|TWENTY[- ]ELEVEN|TWENTY[- ]TWELVE|TWENTY[- ]THIRTEEN|TWENTY[- ]FOURTEEN|TWENTY[- ]FIFTEEN|TWENTY[- ]SIXTEEN|TWENTY[- ]SEVENTEEN|TWENTY[- ]EIGHTEEN|TWENTY[- ]NINETEEN)\b/i;
 
     const dayMatch = text.match(dayPattern);
     const monthMatch = text.match(monthPattern);
     const yearMatch = text.match(yearPattern);
-
-    // console.log("Day match:", dayMatch);
-   //  console.log("Month match:", monthMatch);
-    // console.log("Year match:", yearMatch);
 
     if (dayMatch && monthMatch && yearMatch) {
         const day = dayMap[dayMatch[0].toUpperCase()];
         const month = monthMap[monthMatch[0].toUpperCase()];
 
         const yearText = yearMatch[0].toUpperCase();
-        // console.log("Year text extracted:", yearText);
-        let year = 0;
+        let year = 2000;  // Initialize the year variable
 
+        console.log("Year text extracted:", yearText);
+
+        // Handle various year formats
         if (yearText.startsWith("TWO THOUSAND")) {
-            year = 2000;
-
             const yearParts = yearText.split(" ");
-        // console.log("Year parts:", yearParts);
-            if (yearParts.includes("TWENTY")) {
+            console.log("Year parts:", yearParts);
+
+            if (yearParts.includes("TWENTY") || yearParts.includes("TWENTY-ONE") || yearParts.includes("TWENTY ONE")) {
                 year += 20;
-
-        const lastPart = yearParts[yearParts.length - 1];
-
-        if (lastPart === "ONE") year += 1;
-        else if (lastPart === "TWO") year += 2;
-        else if (lastPart === "THREE") year += 3;
-        else if (lastPart === "FOUR") year += 4;
-        else if (lastPart === "FIVE") year += 5;
-        else if (lastPart === "SIX") year += 6;
-        else if (lastPart === "SEVEN") year += 7;
-        else if (lastPart === "EIGHT") year += 8;
-        else if (lastPart === "NINE") year += 9;
-        else if (lastPart === "TEN") year += 10;
-        else if (lastPart === "ELEVEN") year += 11;
-        else if (lastPart === "TWELVE") year += 12;
-        else if (lastPart === "THIRTEEN") year += 13;
-        else if (lastPart === "FOURTEEN") year += 14;
-        else if (lastPart === "FIFTEEN") year += 15;
-        else if (lastPart === "SIXTEEN") year += 16;
-        else if (lastPart === "SEVENTEEN") year += 17;
-        else if (lastPart === "EIGHTEEN") year += 18;
-        else if (lastPart === "NINETEEN") year += 19;
-        else if (lastPart === "TWENTY") year += 20;
-        else if (lastPart === "TWENTY-ONE") year += 21;
-        else if (lastPart === "TWENTY-TWO") year += 22;
-        else if (lastPart === "TWENTY-THREE") year += 23;
-        else if (lastPart === "TWENTY-FOUR") year += 24;
             }
+
+            const lastPart = yearParts[yearParts.length - 1];
+            console.log("Last part of year:", lastPart);
+
+            const numberMapping = {
+                "ONE": 1,
+                "TWO": 2,
+                "THREE": 3,
+                "FOUR": 4,
+                "FIVE": 5,
+                "SIX": 6,
+                "SEVEN": 7,
+                "EIGHT": 8,
+                "NINE": 9,
+                "TEN": 10,
+                "ELEVEN": 11,
+                "TWELVE": 12,
+                "THIRTEEN": 13,
+                "FOURTEEN": 14,
+                "FIFTEEN": 15,
+                "SIXTEEN": 16,
+                "SEVENTEEN": 17,
+                "EIGHTEEN": 18,
+                "NINETEEN": 19,
+                "TWENTY": 20,
+                "TWENTY-ONE": 21,
+                "TWENTY-TWO": 22,
+                "TWENTY-THREE": 23,
+                "TWENTY-FOUR": 24
+            };
+
+            if (lastPart in numberMapping) {
+                year += numberMapping[lastPart];
+            }
+        } else if (yearText.startsWith("TWENTY") || yearText.includes("-")) {
+            year = 2000 + parseInt(yearText.replace("TWENTY", "").replace("-", "").trim(), 10);
+        } else if (yearText.match(/\b(ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE)\b/i)) {
+            year = 2000 + numberMapping[yearText.toUpperCase()];
         }
 
         const formattedDate = `${day.toString().padStart(2, '0')}-${(month + 1).toString().padStart(2, '0')}-${year}`;

@@ -21,8 +21,8 @@ Sources to consider:
 
 Important Note:
 - Ensure that the competitors are relevant similar to the the business description, USP/MOAT and Target Audience that is provided above. Do not create any hypothetical competitors. 
-- If you do not find any relavent competitors just return NA.
 - In Stage you have to find the Investment Round Name (like Series A, B, Pre-seed, Public, etc.)
+- If you do not find any relavent competitors just return NA.
 `;
 
     const options = {
@@ -35,10 +35,13 @@ Important Note:
       },
       data: {
         model: 'llama-3.1-sonar-large-128k-online',
+        stream: false,
+        temperature: 0.0,
         messages: [
           {
             role: 'system',
-            content: 'Be precise and concise. Search the web thoroughly and then answer.',
+            content: `Be precise and concise. Search the web thoroughly and then give information about the relevant competitor of ${companyName}. 
+            Your priority is to find the competitors of ${companyName} and then go to each competitors page on traxcn.com and craft.co (the link of competitor's traction page and craft.co page can be found from google searching competitor_name traxcn or craft.co), and then see their valuation and total funding received by them.`,
           },
           {
             role: 'user',

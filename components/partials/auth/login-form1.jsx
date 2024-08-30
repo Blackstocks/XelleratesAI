@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Textinput from '@/components/ui/Textinput';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -10,8 +11,9 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabaseclient';
-import PasswordInput from "@/components/partials/passwordInput";
+import PasswordInput from '@/components/partials/passwordInput';
 
+// Validation schema
 const schema = yup
   .object({
     email: yup.string().email('Invalid email').required('Email is Required'),
@@ -21,6 +23,8 @@ const schema = yup
 
 const LoginForm1 = () => {
   const [checked, setChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const {
     register,
     formState: { errors },
@@ -33,44 +37,39 @@ const LoginForm1 = () => {
   const router = useRouter();
   const { login } = useAuth();
 
+  useEffect(() => {
+    const checkUserSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) router.push('/profile');
+    };
+
+    checkUserSession();
+  }, [router]);
+
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const { user, error: loginError } = await login(
         data.email,
         data.password
       );
-      if (loginError) {
-        throw loginError;
-      }
+      if (loginError || !user || !user.id)
+        throw new Error(loginError?.message || 'Invalid credentials');
 
-      if (!user || !user.id) {
-        throw new Error('Invalid user object returned from login function');
-      }
-
-      const userId = user.id;
-
-      // Fetch profile details
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', user.id)
         .single();
 
-      if (profileError) {
-        throw profileError;
-      }
+      if (profileError) throw profileError;
 
-      // Check if the user is approved
       if (profile.status !== 'approved') {
         toast.error('Your account is not approved yet.', {
           position: 'top-right',
           autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: 'light',
         });
         return;
       }
@@ -78,59 +77,18 @@ const LoginForm1 = () => {
       toast.success('Login successful!', {
         position: 'top-right',
         autoClose: 500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'light',
       });
 
-      let formFilled = false;
-
-      // Check if the form has already been filled
-      if (profile.user_type === 'investor') {
-        const { data: investorDetails } = await supabase
-          .from('investor_signup')
-          .select('*')
-          .eq('profile_id', userId)
-          .single();
-
-        if (investorDetails) {
-          formFilled = true;
-        }
-      } else if (profile.user_type === 'startup') {
-        const { data: startupDetails } = await supabase
-          .from('company_profile')
-          .select('*')
-          .eq('profile_id', userId)
-          .single();
-
-        if (startupDetails) {
-          formFilled = true;
-        }
-      }
-
-      // Redirect based on whether the form has been filled or not
-
-      router.push('/profile');
+      const isFormFilled =
+        profile.user_type === 'investor'
+          ? !!profile.investor_details
+          : !!profile.startup_details;
+      router.push(isFormFilled ? '/dashboard' : '/profile');
     } catch (error) {
-      console.error('Login submission error:', error); // Logging error
-      toast.error(
-        error.message === 'Your account is not approved yet.'
-          ? error.message
-          : 'Invalid credentials',
-        {
-          position: 'top-right',
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: 'light',
-        }
-      );
+      console.error('Login submission error:', error);
+      toast.error(error.message, { position: 'top-right', autoClose: 1500 });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -144,18 +102,9 @@ const LoginForm1 = () => {
         register={register}
         error={errors?.email}
       />
-      {/* <Textinput
-        name='password'
-        label='Password'
-        type='password'
-        placeholder='Type your password'
-        register={register}
-        error={errors.password}
-      /> */}
-
       <PasswordInput
-        label="Password"
-        name="password"
+        label='Password'
+        name='password'
         register={register}
         placeholder='Type your password'
         error={errors.password}
@@ -173,7 +122,12 @@ const LoginForm1 = () => {
           Forgot Password?
         </Link>
       </div>
-      <button className='btn btn-dark block w-full text-center'>Sign in</button>
+      <button
+        className='btn btn-dark block w-full text-center'
+        disabled={loading}
+      >
+        {loading ? 'Signing in...' : 'Sign in'}
+      </button>
     </form>
   );
 };

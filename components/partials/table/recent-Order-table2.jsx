@@ -147,42 +147,106 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
       return;
     }
 
+    console.log("User ID:", userId);
+    console.log("Inv ID:", investorId);
+    console.log("Startup ID:", startupId);
+  
     try {
-      // Fetch from different tables based on userType
-      console.log("Inv ID:", investorId);
-      console.log("Startup ID:", startupId);
+      let statusData = [];
+      let error = null;
+  
+      if (userType === 'investor') {
+        // Investor flow: Match both startupId and investorId with the investor_startup_assignments table
+        const { data, error: investorError } = await supabase
+          .from('investor_startup_assignments')
+          .select('status, startup_id')
+          .eq('investor_id', investorId)
+          .eq('startup_id', startupId);  // Match both investor and startup IDs
+  
+        statusData = data;
+        console.log("New startup status data:", statusData);
+        error = investorError;
+        
+      } else {
+        // Startup flow: Fetch new IDs and then fetch status
+        const { data: startupData, error: startupError } = await supabase
+          .from('connected_startup_equity')
+          .select('id')
+          .eq('user_id', userId)
+          .single();
 
-      const { data, error } = await supabase
-        .from(userType === 'investor' ? 'investor_startup_assignments' : 'assigned_dealflow') // Use 'assigned_dealflow' for startups
-        .select('status, startup_id')
-        .eq(userType === 'investor' ? 'investor_id' : 'startup_id', userType === 'investor' ? investorId : startupId);
-
+          console.log("New startup ID:", startupData.id);
+  
+        if (startupError || !startupData) {
+          console.error('Error fetching connected startup ID:', startupError);
+          setErrorMap((prev) => ({ ...prev, [startupId]: startupError?.message || 'No connected startup found' }));
+          return;
+        }
+  
+        const { data: investorData, error: investorError } = await supabase
+          .from('investor_signup')
+          .select('id')
+          .eq('profile_id', investorId)
+          .single();
+        
+          console.log("New investor ID:", investorData.id);
+        if (investorError || !investorData) {
+          console.error('Error fetching connected investor ID:', investorError);
+          setErrorMap((prev) => ({ ...prev, [startupId]: investorError?.message || 'No connected investor found' }));
+          return;
+        }
+  
+        const newStartupId = startupData.id;
+        const newInvestorId = investorData.id;
+  
+        const { data: dealflowData, error: dealflowError } = await supabase
+          .from('assigned_dealflow')
+          .select('status, startup_id')
+          .eq('startup_id', newStartupId)
+          .eq('investor_id', newInvestorId);
+  
+        statusData = dealflowData[0];
+        error = dealflowError;
+        console.log("New startup status data:", statusData);
+      }
+  
       if (error) {
         console.error('Error fetching status data:', error);
         setErrorMap((prev) => ({ ...prev, [startupId]: error.message })); // Store error for specific entry
       } else {
         // Find the entry where startup_id matches the provided startupId
-        const matchingEntry = data.find((entry) => entry.startup_id === startupId);
-
+        const matchingEntry = statusData;
+  
         // Define a mapping for status values
         const statusMapping = {
           moving_forward: 'Moving Forward',
           evaluated: 'Evaluated',
           meeting_done: 'Meeting Done',
-          curated_deal: 'Curated Deal Flow',
-          NULL: 'Curated Deal Flow' // Handle NULL or undefined cases
+          curated_deal: 'Curated Deal',
+          NULL: 'Curated Deal',
         };
-
+  
         // Update the logic to map status values correctly
         if (matchingEntry) {
-          setStatusMap((prev) => ({
-            ...prev,
-            [startupId]: statusMapping[matchingEntry.status] || 'Curated Deal Flow'  // Use the mapping for the status
-          }));
+          if (userType === 'investor'){
+            console.log("matching entry status", matchingEntry.status);
+            setStatusMap((prev) => ({
+              ...prev,
+              [startupId]: statusMapping[matchingEntry.status] || 'Curated Deal'  // Use the mapping for the status
+            }));}
+
+            else{
+              {setStatusMap((prev) => ({
+                ...prev,
+                [startupId]: matchingEntry.status || 'Curated Deal'  // Use the mapping for the status
+              }));}
+            }
+
+          
         } else {
           setStatusMap((prev) => ({
             ...prev,
-            [startupId]: 'N/A'  // Handle case where no matching entry is found
+            [startupId]: 'Not Found'  // Handle case where no matching entry is found
           }));
         }
       }
@@ -191,6 +255,7 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
       setErrorMap((prev) => ({ ...prev, [startupId]: 'Error fetching status' }));
     }
   };
+  
 
   // Fetch status data for each row when the component mounts or when data changes
   useEffect(() => {
