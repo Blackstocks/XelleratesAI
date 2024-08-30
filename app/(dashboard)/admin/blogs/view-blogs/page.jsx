@@ -16,7 +16,7 @@ const BlogList = () => {
     setLoading(true); // Start loading
     const { data, error } = await supabase
       .from('blogs') // Replace with your actual table name
-      .select('id, title, created_at, updated_at') // Select relevant columns
+      .select('id, title,likes,shares, created_at, updated_at') // Select relevant columns
       .order('created_at', { ascending: false }); // Ordering by latest
 
     if (error) {
@@ -66,6 +66,8 @@ const BlogList = () => {
                   <tr>
                     <th className='table-th'>SI.No</th>
                     <th className='table-th'>Title</th>
+                    <th className='table-th'>Likes</th>
+                    <th className='table-th'>Shares</th>
                     <th className='table-th'>Date</th>
                     <th className='table-th'>Actions</th>
                   </tr>
@@ -75,6 +77,8 @@ const BlogList = () => {
                     <tr key={blog.id}>
                       <td className='table-td'>{index + 1}</td>
                       <td className='table-td'>{blog.title}</td>
+                      <td className='table-td'>{blog.likes}</td>
+                      <td className='table-td'>{blog.shares}</td>
                       <td className='table-td'>
                         {new Date(
                           blog.updated_at || blog.created_at

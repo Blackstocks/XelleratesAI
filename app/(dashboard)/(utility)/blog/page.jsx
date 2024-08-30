@@ -1,22 +1,109 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
 import Link from 'next/link';
 import Sidebar from '@/components/partials/blog/Sidebar';
-import useFetchBlogs from '@/hooks/useFetchBlogs'; // Import the custom hook
+import useFetchBlogs from '@/hooks/useFetchBlogs';
 import Loading from '@/app/loading';
+import { supabase } from '@/lib/supabaseclient';
+import useUserDetails from '@/hooks/useUserDetails';
 
 const BlogPage = () => {
-  const { blogs, loading, error } = useFetchBlogs(); // Use the hook to get blogs
+  const { blogs, loading, error } = useFetchBlogs();
+  const [blogsState, setBlogsState] = useState([]);
+  const [likedBlogs, setLikedBlogs] = useState({}); // To track liked blogs
+  const [likeLoading, setLikeLoading] = useState({}); // To track like loading state
+  const { user, loading: userLoading } = useUserDetails();
 
-  if (loading) {
-    return (
-      <p>
-        <Loading />
-      </p>
-    );
+  useEffect(() => {
+    const fetchLikes = async () => {
+      if (!user || userLoading) return;
+
+      // Fetch all blogs liked by this user
+      const { data: likedBlogsData, error } = await supabase
+        .from('blog_likes')
+        .select('blog_id')
+        .eq('user_id', user.id);
+
+      if (likedBlogsData) {
+        const likedBlogIds = likedBlogsData.reduce((acc, curr) => {
+          acc[curr.blog_id] = true;
+          return acc;
+        }, {});
+        setLikedBlogs(likedBlogIds);
+      }
+    };
+
+    if (blogs.length && user) {
+      setBlogsState(blogs);
+      fetchLikes();
+    }
+  }, [blogs, user, userLoading]);
+
+  const handleLike = async (blogId) => {
+    if (!user || likeLoading[blogId]) return; // Ensure user is available and not loading
+
+    setLikeLoading((prev) => ({ ...prev, [blogId]: true }));
+
+    try {
+      if (likedBlogs[blogId]) {
+        // Unlike the blog
+        await supabase
+          .from('blog_likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('blog_id', blogId);
+
+        await supabase
+          .from('blogs')
+          .update({
+            likes: blogsState.find((blog) => blog.id === blogId).likes - 1,
+          })
+          .eq('id', blogId);
+
+        setLikedBlogs((prev) => {
+          const newLikedBlogs = { ...prev };
+          delete newLikedBlogs[blogId];
+          return newLikedBlogs;
+        });
+
+        setBlogsState((prevState) =>
+          prevState.map((blog) =>
+            blog.id === blogId ? { ...blog, likes: blog.likes - 1 } : blog
+          )
+        );
+      } else {
+        // Like the blog
+        await supabase
+          .from('blog_likes')
+          .insert([{ user_id: user.id, blog_id: blogId }]);
+
+        await supabase
+          .from('blogs')
+          .update({
+            likes: blogsState.find((blog) => blog.id === blogId).likes + 1,
+          })
+          .eq('id', blogId);
+
+        setLikedBlogs((prev) => ({ ...prev, [blogId]: true }));
+
+        setBlogsState((prevState) =>
+          prevState.map((blog) =>
+            blog.id === blogId ? { ...blog, likes: blog.likes + 1 } : blog
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error updating likes:', error);
+    } finally {
+      setLikeLoading((prev) => ({ ...prev, [blogId]: false }));
+    }
+  };
+
+  if (loading || userLoading) {
+    return <Loading />;
   }
 
   if (error) {
@@ -37,7 +124,7 @@ const BlogPage = () => {
       {/* Main content area for blog posts */}
       <div className='flex-1'>
         <div className='grid xl:grid-cols-2 grid-cols-1 gap-5'>
-          {blogs.map((blog, index) => (
+          {blogsState.map((blog, index) => (
             <div
               key={blog.id}
               className={index === 0 ? 'xl:col-span-2 col-span-1' : ''}
@@ -76,15 +163,26 @@ const BlogPage = () => {
                       </span>
                     </Link>
                     <div className='flex space-x-4 rtl:space-x-reverse'>
-                      <Link href='#'>
+                      <button
+                        onClick={() => handleLike(blog.id)}
+                        disabled={likeLoading[blog.id]}
+                      >
                         <span className='inline-flex leading-5 text-slate-500 dark:text-slate-400 text-sm font-normal'>
                           <Icon
-                            icon='heroicons-outline:chat'
-                            className='text-slate-400 dark:text-slate-400 ltr:mr-2 rtl:ml-2 text-lg'
+                            icon={
+                              likedBlogs[blog.id]
+                                ? 'heroicons-solid:heart'
+                                : 'heroicons-outline:heart'
+                            }
+                            className={`${
+                              likedBlogs[blog.id]
+                                ? 'text-red-500'
+                                : 'text-slate-400'
+                            } ltr:mr-2 rtl:ml-2 text-lg`}
                           />
                           {blog.likes}
                         </span>
-                      </Link>
+                      </button>
                       <Link href='#'>
                         <span className='inline-flex leading-5 text-slate-500 dark:text-slate-400 text-sm font-normal'>
                           <Icon
@@ -103,7 +201,6 @@ const BlogPage = () => {
                   </h6>
                   {index === 0 && (
                     <div className='card-text dark:text-slate-300 mt-4 space-y-4'>
-                      {/* Render HTML Content safely */}
                       <div
                         dangerouslySetInnerHTML={{
                           __html: blog.content.slice(0, 500),
@@ -119,7 +216,6 @@ const BlogPage = () => {
 
                   {index !== 0 && (
                     <div className='text-sm card-text dark:text-slate-300 mt-4'>
-                      {/* Render Shortened HTML Content safely */}
                       <div
                         dangerouslySetInnerHTML={{
                           __html: blog.content.slice(0, 200),
