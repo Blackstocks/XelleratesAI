@@ -6,12 +6,17 @@ import Icon from '@/components/ui/Icon';
 import Link from 'next/link';
 import Sidebar from '@/components/partials/blog/Sidebar';
 import useFetchBlogs from '@/hooks/useFetchBlogs'; // Import the custom hook
+import Loading from '@/app/loading';
 
 const BlogPage = () => {
   const { blogs, loading, error } = useFetchBlogs(); // Use the hook to get blogs
 
   if (loading) {
-    return <p>Loading blogs...</p>;
+    return (
+      <p>
+        <Loading />
+      </p>
+    );
   }
 
   if (error) {

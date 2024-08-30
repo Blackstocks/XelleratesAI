@@ -15,6 +15,13 @@ import Loading from '@/app/loading';
 import FundraisingDashboard from '@/components/FundraisingDashboard';
 import Link from 'next/link';
 
+// Reusable Action Button Component
+const ActionButton = ({ label, onClick, disabled, className }) => (
+  <button className={className} onClick={onClick} disabled={disabled}>
+    {label}
+  </button>
+);
+
 const AdminDashboard = ({ userType }) => {
   const [users, setUsers] = useState([]);
   const usersRef = useRef(users);
@@ -43,47 +50,33 @@ const AdminDashboard = ({ userType }) => {
       .channel('public:profiles')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'profiles' },
+        { schema: 'public', table: 'profiles' },
         (payload) => {
-          if (payload.new.user_type === userType) {
+          if (
+            payload.eventType === 'INSERT' ||
+            payload.eventType === 'UPDATE'
+          ) {
+            if (payload.new.user_type === userType) {
+              setUsers((prevUsers) => {
+                const updatedUsers = prevUsers
+                  .map((user) =>
+                    user.id === payload.new.id ? payload.new : user
+                  )
+                  .sort((a, b) => b.status.localeCompare(a.status));
+                usersRef.current = updatedUsers;
+                return updatedUsers;
+              });
+            }
+          }
+          if (payload.eventType === 'DELETE') {
             setUsers((prevUsers) => {
-              const newUsers = [...prevUsers, payload.new].sort((a, b) =>
-                b.status.localeCompare(a.status)
+              const filteredUsers = prevUsers.filter(
+                (user) => user.id !== payload.old.id
               );
-              usersRef.current = newUsers;
-              return newUsers;
+              usersRef.current = filteredUsers;
+              return filteredUsers;
             });
           }
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'profiles' },
-        (payload) => {
-          if (payload.new.user_type === userType) {
-            setUsers((prevUsers) => {
-              const updatedUsers = prevUsers
-                .map((user) =>
-                  user.id === payload.new.id ? payload.new : user
-                )
-                .sort((a, b) => b.status.localeCompare(a.status));
-              usersRef.current = updatedUsers;
-              return updatedUsers;
-            });
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'profiles' },
-        (payload) => {
-          setUsers((prevUsers) => {
-            const filteredUsers = prevUsers.filter(
-              (user) => user.id !== payload.old.id
-            );
-            usersRef.current = filteredUsers;
-            return filteredUsers;
-          });
         }
       )
       .subscribe();
@@ -93,7 +86,7 @@ const AdminDashboard = ({ userType }) => {
     };
   }, [userType]);
 
-  const approveUser = async (userId, userEmail, userName) => {
+  const handleUserApproval = async (userId, userEmail, userName) => {
     const { error } = await supabase
       .from('profiles')
       .update({ status: 'approved' })
@@ -104,44 +97,34 @@ const AdminDashboard = ({ userType }) => {
       toast.error('Error approving user');
     } else {
       toast.success('User approved successfully');
-      const updatedUsers = usersRef.current
-        .map((user) =>
-          user.id === userId ? { ...user, status: 'approved' } : user
-        )
-        .sort((a, b) => b.status.localeCompare(a.status));
-      setUsers(updatedUsers);
-      usersRef.current = updatedUsers;
-
-      try {
-        const response = await fetch('/api/send-approval-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ to: userEmail, name: userName }),
-        });
-
-        if (response.ok) {
-          console.log('Approval email sent successfully');
-        } else {
-          const errorData = await response.json();
-          console.error('Failed to send approval email:', errorData.error);
-        }
-      } catch (error) {
-        console.error('Failed to send approval email:', error);
-      }
+      updateUserStatus(userId, 'approved');
+      sendApprovalEmail(userEmail, userName);
     }
   };
 
-  const disapproveUser = async (userId) => {
-    const { error } = await supabase.from('profiles').delete().eq('id', userId);
+  const updateUserStatus = (userId, status) => {
+    const updatedUsers = usersRef.current
+      .map((user) => (user.id === userId ? { ...user, status } : user))
+      .sort((a, b) => b.status.localeCompare(a.status));
+    setUsers(updatedUsers);
+    usersRef.current = updatedUsers;
+  };
 
-    if (error) {
-      console.error(error);
-      toast.error('Error disapproving user');
-    } else {
-      toast.success('User disapproved successfully');
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+  const sendApprovalEmail = async (userEmail, userName) => {
+    try {
+      const response = await fetch('/api/send-approval-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: userEmail, name: userName }),
+      });
+
+      if (response.ok) {
+        console.log('Approval email sent successfully');
+      } else {
+        console.error('Failed to send approval email:', await response.json());
+      }
+    } catch (error) {
+      console.error('Failed to send approval email:', error);
     }
   };
 
@@ -154,68 +137,16 @@ const AdminDashboard = ({ userType }) => {
       {
         Header: 'LinkedIn',
         accessor: 'linkedin_profile',
-        Cell: ({ value }) => {
-          const [showMore, setShowMore] = useState(false);
-          const maxLength = 20; // Maximum number of characters to show
-
-          return (
-            <div
-              style={{
-                maxWidth: '150px',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {showMore ? (
-                <Link
-                  href={value}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  style={{ color: 'blue' }}
-                >
-                  {/* Full text is clickable */}
-                  {value}
-                </Link>
-              ) : (
-                <>
-                  {/* Truncated text with "Show More" link */}
-                  <Link
-                    href={value}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    style={{ color: 'blue' }}
-                  >
-                    {value.substring(0, maxLength)}...
-                  </Link>
-                  <button
-                    onClick={() => setShowMore(true)}
-                    style={{
-                      color: 'blue',
-                      cursor: 'pointer',
-                      marginLeft: '5px',
-                    }}
-                  >
-                    Show More
-                  </button>
-                </>
-              )}
-              {/* Show Less button */}
-              {showMore && (
-                <button
-                  onClick={() => setShowMore(false)}
-                  style={{
-                    color: 'blue',
-                    cursor: 'pointer',
-                    marginLeft: '5px',
-                  }}
-                >
-                  Show Less
-                </button>
-              )}
-            </div>
-          );
-        },
+        Cell: ({ value }) => (
+          <Link
+            href={value}
+            target='_blank'
+            rel='noopener noreferrer'
+            style={{ color: 'blue' }}
+          >
+            {value.length > 20 ? `${value.substring(0, 20)}...` : value}
+          </Link>
+        ),
       },
       {
         Header: 'Email',
@@ -245,32 +176,23 @@ const AdminDashboard = ({ userType }) => {
       {
         Header: 'Actions',
         Cell: ({ row }) => (
-          <>
-            {row.original.status !== 'approved' ? (
-              <button
-                className='btn btn-primary'
-                onClick={() =>
-                  approveUser(
-                    row.original.id,
-                    row.original.email,
-                    row.original.name
-                  )
-                }
-              >
-                Approve
-              </button>
-            ) : (
-              <button className='btn btn-secondary' disabled>
-                Approved
-              </button>
-            )}
-            {/* <button
-              className='btn btn-danger ml-2'
-              onClick={() => disapproveUser(row.original.id)}
-            >
-              Disapprove
-            </button> */}
-          </>
+          <ActionButton
+            label={row.original.status !== 'approved' ? 'Approve' : 'Approved'}
+            onClick={() =>
+              row.original.status !== 'approved' &&
+              handleUserApproval(
+                row.original.id,
+                row.original.email,
+                row.original.name
+              )
+            }
+            disabled={row.original.status === 'approved'}
+            className={
+              row.original.status === 'approved'
+                ? 'btn btn-secondary'
+                : 'btn btn-primary'
+            }
+          />
         ),
       },
     ],
@@ -306,6 +228,7 @@ const AdminDashboard = ({ userType }) => {
   } = tableInstance;
 
   const { globalFilter, pageIndex, pageSize } = state;
+
   if (loading) {
     return <Loading />;
   }
@@ -320,12 +243,10 @@ const AdminDashboard = ({ userType }) => {
             <Card>
               <div className='md:flex justify-between items-center mb-6'>
                 <h4 className='card-title'>Admin Dashboard</h4>
-                <div>
-                  <GlobalFilter
-                    filter={globalFilter}
-                    setFilter={setGlobalFilter}
-                  />
-                </div>
+                <GlobalFilter
+                  filter={globalFilter}
+                  setFilter={setGlobalFilter}
+                />
               </div>
               <div className='overflow-x-auto -mx-6'>
                 <div className='inline-block min-w-full align-middle'>
@@ -335,39 +256,31 @@ const AdminDashboard = ({ userType }) => {
                       {...getTableProps()}
                     >
                       <thead className='bg-slate-200 dark:bg-slate-700'>
-                        {headerGroups.map((headerGroup) => {
-                          const { key, ...headerGroupProps } =
-                            headerGroup.getHeaderGroupProps();
-                          return (
-                            <tr
-                              key={headerGroupProps.key}
-                              {...headerGroupProps}
-                            >
-                              {headerGroup.headers.map((column) => {
-                                const { key, ...columnProps } =
-                                  column.getHeaderProps(
-                                    column.getSortByToggleProps()
-                                  );
-                                return (
-                                  <th
-                                    key={columnProps.key}
-                                    {...columnProps}
-                                    className='table-th'
-                                  >
-                                    {column.render('Header')}
-                                    <span>
-                                      {column.isSorted
-                                        ? column.isSortedDesc
-                                          ? ' 🔽'
-                                          : ' 🔼'
-                                        : ''}
-                                    </span>
-                                  </th>
-                                );
-                              })}
-                            </tr>
-                          );
-                        })}
+                        {headerGroups.map((headerGroup) => (
+                          <tr
+                            key={headerGroup.id}
+                            {...headerGroup.getHeaderGroupProps()}
+                          >
+                            {headerGroup.headers.map((column) => (
+                              <th
+                                key={column.id}
+                                {...column.getHeaderProps(
+                                  column.getSortByToggleProps()
+                                )}
+                                className='table-th'
+                              >
+                                {column.render('Header')}
+                                <span>
+                                  {column.isSorted
+                                    ? column.isSortedDesc
+                                      ? ' 🔽'
+                                      : ' 🔼'
+                                    : ''}
+                                </span>
+                              </th>
+                            ))}
+                          </tr>
+                        ))}
                       </thead>
                       <tbody
                         className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'
@@ -375,22 +288,17 @@ const AdminDashboard = ({ userType }) => {
                       >
                         {page.map((row) => {
                           prepareRow(row);
-                          const { key, ...rowProps } = row.getRowProps();
                           return (
-                            <tr key={rowProps.key} {...rowProps}>
-                              {row.cells.map((cell) => {
-                                const { key, ...cellProps } =
-                                  cell.getCellProps();
-                                return (
-                                  <td
-                                    key={cellProps.key}
-                                    {...cellProps}
-                                    className='table-td'
-                                  >
-                                    {cell.render('Cell')}
-                                  </td>
-                                );
-                              })}
+                            <tr key={row.id} {...row.getRowProps()}>
+                              {row.cells.map((cell) => (
+                                <td
+                                  key={cell.id}
+                                  {...cell.getCellProps()}
+                                  className='table-td'
+                                >
+                                  {cell.render('Cell')}
+                                </td>
+                              ))}
                             </tr>
                           );
                         })}
@@ -413,10 +321,7 @@ const AdminDashboard = ({ userType }) => {
                     ))}
                   </select>
                   <span className='text-sm font-medium text-slate-600 dark:text-slate-300'>
-                    Page{' '}
-                    <span>
-                      {pageIndex + 1} of {pageOptions.length}
-                    </span>
+                    Page {pageIndex + 1} of {pageOptions.length}
                   </span>
                 </div>
                 <ul className='flex items-center space-x-3 rtl:space-x-reverse flex-wrap'>
