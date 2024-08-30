@@ -53,7 +53,7 @@ const Customer = ({ investorId }) => {
                 </span>
               </div>
 
-              <div className="grid grid-rows-3 flex flex-col items-center justify-center">
+              <div className="grid-rows-3 flex flex-col items-center justify-center">
                 <h4 className='row-span-2 text-sm text-slate-600 font-semibold mb-2'>
                   {item.company_name || 'Unnamed Company'}
                 </h4>
