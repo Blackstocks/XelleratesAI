@@ -8,6 +8,7 @@ import generateTechnologyRoadmap from '@/components/report/technology-roadmap'
 import generateCompetitorAnalysis from '@/components/report/competitor-analysis';
 import getCollegeType from '@/components/report/college-analysis';
 import findIncorporationDate from '@/components/report/incorporation-date';
+import scoreSuggestions from '@/components/report/score-suggestions';
 // import unirest from 'unirest';
 
 // Function to fetch financial data
@@ -205,6 +206,8 @@ const generateReport = async (
   const CAC = businessDetails?.customer_AcquisitionCost || 0;
   const LTV = businessDetails?.customer_Lifetime_Value || 0;
 
+  const tractionDetails = {"currentTraction": currentTraction, "newCustomers": newCustomers, "CustomerAcquisitionCost": CAC, "CustomerLifetimeValue": LTV}
+
   const normalizedTraction = Math.min((currentTraction / 1000000) * 100, 100);
   const normalizedNewCustomers = Math.min((newCustomers / 5000) * 100, 100);
   const normalizedCAC = Math.min((1000 / CAC) * 100, 100); 
@@ -297,6 +300,16 @@ const generateReport = async (
     roadmapArray = []; // Initialize to an empty array in case of error
     }
 
+    let scoreSuggestionsData={};
+    try {
+        scoreSuggestionsData = await scoreSuggestions(shortDescription, targetAudience, uspMoat, roadmapArray, tractionDetails);
+    } catch(error){
+        scoreSuggestionsData = {};
+    }
+    
+    const scoreSuggestionsDataList = JSON.parse(scoreSuggestionsData)?.suggestions;
+    console.log("SuggestionsList: ", scoreSuggestionsDataList);
+    console.log("Suggestions: ", scoreSuggestionsData);
 
     //console.log('Technology Roadmap: ', technologyRoadmap); 
 
@@ -369,9 +382,9 @@ const generateReport = async (
 
 
 
-<div class="text-center w-3/7 py-5 px-8 rounded-xl shadow-xl bg-blue-800 relative">
+<div class="text-center w-3/7 py-5 px-8 rounded-xl shadow-xl bg-gray-100 relative">
   <!-- Title Section -->
-  <h2 class="text-xl font-bold text-white mb-3">Investment Readiness Score</h2>
+  <h2 class="text-xl font-bold text-blue-800 mb-3">Investment Readiness Score</h2>
 
   <!-- Gradient Bar Container -->
   <div class="relative w-full h-5 bg-gray-300 rounded-full overflow-hidden">
@@ -383,11 +396,11 @@ const generateReport = async (
   <div class="relative flex justify-center items-center">
     <!-- Triangle Indicator -->
     <div
-      class="absolute w-0 h-0 mt-2 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-blue-100 opacity-90"
+      class="absolute w-0 h-0 mt-2 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-blue-800 opacity-90"
       style="left: calc(${InvestmentReadinessScore}%);"></div>
     <!-- Score Display -->
     <div
-      class="absolute bg-blue-100 text-blue-800 text-sm font-bold px-2 py-0.5 rounded-full shadow-md border border-gray-400 opacity-90"
+      class="absolute bg-blue-800 text-gray-100 text-sm font-bold px-2 py-0.5 rounded-full shadow-md border border-blue-100 opacity-90"
       style="left: calc(${InvestmentReadinessScore}% - 14px); top: 10px;">
       ${InvestmentReadinessScore}
     </div>
@@ -753,17 +766,30 @@ const generateReport = async (
         <!-- Divider Line -->
 <div class="w-full h-0.5 bg-gray-200 opacity-75 my-4"></div>
 
-        <!-- Dynamic Suggestions Section -->
-<div class="w-full bg-gray-100 p-4 rounded-lg shadow-sm mt-4">
-<div class="mx-auto pl-60 text-left text-xs text-gray-700">
-    <div class="text-left text-xs text-gray-700 mt-4 bg-gray-100 rounded-lg shadow-sm">
-    <p class="text-sm font-semibold text-gray-800 mb-2">To improve your Investment Readiness Score, consider the following suggestions:</p>
-    <ul class="list-disc space-y-1 pl-5">
-        <!-- Dynamic Suggestions will be inserted here -->
-    </ul>
+<!-- Dynamic Suggestions Section -->
+<div class="w-full p-4 rounded-lg mt-4">
+  <div class="max-w-2xl mx-auto text-left text-xs text-gray-700">
+    <div class="bg-gray-100 border-l-4 border-blue-800 p-4 rounded-lg shadow-md">
+      <div class="flex items-center mb-2">
+        <svg class="w-6 h-6 text-blue-800 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M18 10c0 4.418-3.582 8-8 8s-8-3.582-8-8 3.582-8 8-8 8 3.582 8 8zm-8-3a1 1 0 00-.707.293l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414l-3-3A1 1 0 0010 7z" clip-rule="evenodd"></path>
+        </svg>
+        <p class="text-sm font-semibold text-gray-800">To improve your Investment Readiness Score, consider the following suggestions:</p>
+      </div>
+      <!-- Suggestions List -->
+      <ul class="list-disc space-y-2 pl-6">
+        <!-- Map through suggestions in HTML -->
+        ${scoreSuggestionsDataList.length > 0
+          ? scoreSuggestionsDataList.map(
+              (suggestion) =>
+                `<li class="text-sm text-gray-700 leading-6">${suggestion}</li>`
+            ).join('') : `<li class="text-sm text-gray-700">No suggestions available at this time.</li>`}
+      </ul>
     </div>
+  </div>
 </div>
-</div>
+
+
 
 
         <div class="mt-4 text-sm text-gray-600 text-center border-t pt-8">
@@ -790,15 +816,15 @@ const generateReport = async (
 
 
     // Check individual score components and provide suggestions accordingly
-    if (${tractionScore} < 30) {
-      suggestions.push("Improve traction by increasing customer base or engagement levels.");
-    }
+    // if (${tractionScore} < 30) {
+    //   suggestions.push("Improve traction by increasing customer base or engagement levels.");
+    // }
     if (${mediaPresenceScore} < 5) {
       suggestions.push("Enhance media presence by getting featured in relevant industry news or publications.");
     }
-    if (${fundingScore} < 7) {
-      suggestions.push("Consider raising funds or improving the current funding situation to attract investors.");
-    }
+    // if (${fundingScore} < 7) {
+    //   suggestions.push("Consider raising funds or improving the current funding situation to attract investors.");
+    // }
     if (${incorporationScore} < 8) {
       suggestions.push("Upload ${companyName}'s Incorporation Certificate.");
     }
@@ -807,11 +833,10 @@ const generateReport = async (
     }
 
     var suggestionList = document.querySelector(".list-disc");
-    suggestionList.innerHTML = ""; // Clear existing suggestions
 
     suggestions.forEach(function (suggestion) {
       var li = document.createElement("li");
-      li.className = "text-xs text-gray-700";
+      li.className = "text-sm text-gray-700 leading-6";
       li.textContent = suggestion;
       suggestionList.appendChild(li);
     });
