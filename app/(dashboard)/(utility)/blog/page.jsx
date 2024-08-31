@@ -21,6 +21,7 @@ const BlogPage = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false); // State for modal visibility
   const [shareUrl, setShareUrl] = useState(''); // State to hold the blog URL to be shared
   const [selectedBlogId, setSelectedBlogId] = useState(null); // State to hold the selected blog ID
+  const [shareMessage, setShareMessage] = useState(''); // State to hold the custom share message
 
   useEffect(() => {
     const fetchLikes = async () => {
@@ -107,8 +108,11 @@ const BlogPage = () => {
   const handleShare = (blogId) => {
     const blogToShare = blogsState.find((blog) => blog.id === blogId);
     if (blogToShare) {
-      setShareUrl(`https://yourwebsite.com/blog/${blogToShare.id}`); // Set the share URL
+      setShareUrl(`https://www.portal-xellerates.com/blog/${blogToShare.id}`); // Set the share URL
       setSelectedBlogId(blogId); // Set the selected blog ID
+      setShareMessage(
+        `Check out this insightful post on "${blogToShare.title}"! A must-read for anyone interested in ${blogToShare.category}.`
+      ); // Set a professional share message
       setIsShareModalOpen(true); // Open the share modal
     }
   };
@@ -261,6 +265,7 @@ const BlogPage = () => {
         blogUrl={shareUrl}
         blogId={selectedBlogId}
         incrementShareCount={incrementShareCount}
+        shareMessage={shareMessage} // Pass the custom share message to the modal
       />
     </div>
   );

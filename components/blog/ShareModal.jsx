@@ -15,10 +15,23 @@ const ShareModal = ({
 
   const handleShareClick = async (platform) => {
     try {
+      // Fetch the current share count from the database
+      const { data: currentData, error: fetchError } = await supabase
+        .from('blogs')
+        .select('shares')
+        .eq('id', blogId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching current share count:', fetchError);
+        return;
+      }
+
       // Update the share count in the database
+      const newShareCount = currentData.shares + 1;
       await supabase
         .from('blogs')
-        .update({ shares: incrementShareCount + 1 })
+        .update({ shares: newShareCount })
         .eq('id', blogId);
 
       // Open the sharing URL
@@ -75,18 +88,21 @@ const ShareModal = ({
           <button
             onClick={() => handleShareClick('facebook')}
             className='bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 transition-all duration-300 shadow-lg transform hover:scale-105'
+            aria-label='Share on Facebook'
           >
             <FaFacebook className='text-2xl' />
           </button>
           <button
             onClick={() => handleShareClick('twitter')}
             className='bg-blue-400 hover:bg-blue-500 text-white rounded-full p-3 transition-all duration-300 shadow-lg transform hover:scale-105'
+            aria-label='Share on Twitter'
           >
             <FaTwitter className='text-2xl' />
           </button>
           <button
             onClick={() => handleShareClick('linkedin')}
             className='bg-blue-700 hover:bg-blue-800 text-white rounded-full p-3 transition-all duration-300 shadow-lg transform hover:scale-105'
+            aria-label='Share on LinkedIn'
           >
             <FaLinkedin className='text-2xl' />
           </button>

@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -12,6 +13,7 @@ import useFetchBlogDetails from '@/hooks/useFetchBlogDetails';
 import Loading from '@/app/loading';
 import { supabase } from '@/lib/supabaseclient';
 import useUserDetails from '@/hooks/useUserDetails';
+import ShareModal from '@/components/blog/ShareModal'; // Import the ShareModal
 
 const BlogDetailsPage = () => {
   const { id } = useParams(); // Extract id (blogId) from URL using useParams
@@ -19,7 +21,11 @@ const BlogDetailsPage = () => {
   const { user, loading: userLoading } = useUserDetails(); // Get the current user details
   const [liked, setLiked] = useState(false); // To track if the user has liked the blog
   const [likesCount, setLikesCount] = useState(0); // To track the likes count
+  const [sharesCount, setSharesCount] = useState(0); // To track the shares count
   const [likeLoading, setLikeLoading] = useState(false); // Loading state for like button
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false); // State for modal visibility
+  const [shareUrl, setShareUrl] = useState(''); // State to hold the blog URL to be shared
+  const [shareMessage, setShareMessage] = useState(''); // State to hold the custom share message
 
   console.log('id', id);
   const blogId = Array.isArray(id) ? id[0] : id;
@@ -28,6 +34,7 @@ const BlogDetailsPage = () => {
   useEffect(() => {
     if (blog) {
       setLikesCount(blog.likes || 0); // Initialize likes count from fetched blog details
+      setSharesCount(blog.shares || 0); // Initialize shares count from fetched blog details
     }
   }, [blog]);
 
@@ -101,6 +108,31 @@ const BlogDetailsPage = () => {
       console.error('Error updating like:', error); // Log error for debugging
     } finally {
       setLikeLoading(false); // Reset like loading state
+    }
+  };
+
+  const handleShare = () => {
+    if (blog) {
+      setShareUrl(`https://www.portal-xellerates.com/blog/${blog.id}`); // Set the share URL
+      setShareMessage(
+        `Explore this insightful article titled "${blog.title}"! A great read for those interested in ${blog.category}.`
+      ); // Set a professional share message
+      setIsShareModalOpen(true); // Open the share modal
+    }
+  };
+
+  const incrementShareCount = async () => {
+    try {
+      // Update share count in the database
+      await supabase
+        .from('blogs')
+        .update({ shares: sharesCount + 1 })
+        .eq('id', blogId);
+
+      // Increment share count in state
+      setSharesCount((prev) => prev + 1);
+    } catch (error) {
+      console.error('Error updating share count:', error);
     }
   };
 
@@ -191,13 +223,15 @@ const BlogDetailsPage = () => {
                       {likesCount}
                     </span>
                   </button>
-                  <span className='inline-flex leading-5 text-slate-500 dark:text-slate-500 text-sm font-normal'>
-                    <Icon
-                      icon='heroicons-outline:share'
-                      className='text-slate-400 dark:text-slate-500 ltr:mr-2 rtl:ml-2 text-lg'
-                    />
-                    {blog.shares || 0}
-                  </span>
+                  <button onClick={handleShare}>
+                    <span className='inline-flex leading-5 text-slate-500 dark:text-slate-500 text-sm font-normal'>
+                      <Icon
+                        icon='heroicons-outline:share'
+                        className='text-slate-400 dark:text-slate-500 ltr:mr-2 rtl:ml-2 text-lg'
+                      />
+                      {sharesCount}
+                    </span>
+                  </button>
                 </div>
               </div>
 
@@ -326,6 +360,16 @@ const BlogDetailsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        blogUrl={shareUrl}
+        blogId={blogId}
+        incrementShareCount={incrementShareCount}
+        shareMessage={shareMessage} // Pass the custom share message to the modal
+      />
     </div>
   );
 };
