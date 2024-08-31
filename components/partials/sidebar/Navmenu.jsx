@@ -341,14 +341,6 @@ const Navmenu = ({ menus }) => {
               </Link>
             </li>
             <li className={`single-sidebar-menu`}>
-              <Link className='menu-link' href='/admin/blogs'>
-                <span className='menu-icon flex-grow-0'>
-                  <Icon icon='heroicons-outline:document' />
-                </span>
-                <div className='text-box flex-grow'>Blogs</div>
-              </Link>
-            </li>
-            <li className={`single-sidebar-menu`}>
               <Link className='menu-link' href='/admin/scheduledMeetings'>
                 <span className='menu-icon flex-grow-0'>
                   <Icon icon='heroicons-outline:computer-desktop' />
@@ -356,14 +348,14 @@ const Navmenu = ({ menus }) => {
                 <div className='text-box flex-grow'>Scheduled Meetings</div>
               </Link>
             </li>
-            <li className={`single-sidebar-menu`}>
+            {/* <li className={`single-sidebar-menu`}>
               <Link className='menu-link' href='/admin/investor-wallet'>
                 <span className='menu-icon flex-grow-0'>
                 <CurrencyDollarIcon className='h-5 w-5' />
                 </span>
                 <div className='text-box flex-grow'>Investor Wallet</div>
               </Link>
-            </li>
+            </li> */}
             <li className={`single-sidebar-menu`}>
               <Link className='menu-link' href='/admin/startup-wallet'>
                 <span className='menu-icon flex-grow-0'>
