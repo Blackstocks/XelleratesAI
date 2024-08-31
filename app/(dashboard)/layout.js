@@ -31,8 +31,11 @@ import useUserDetails from '@/hooks/useUserDetails';
 import Modal from '@/components/ui/Modal';
 
 export default function RootLayout({ children }) {
-  const { companyProfile, loading: usercompleteLoading } =
-    useCompleteUserDetails();
+  const {
+    companyProfile,
+    founderInformation,
+    loading: usercompleteLoading,
+  } = useCompleteUserDetails();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
@@ -72,14 +75,17 @@ export default function RootLayout({ children }) {
 
   useEffect(() => {
     if (location !== '/profile' && !usercompleteLoading) {
-      // Add condition to check pathname
-      if (user?.user_type === 'startup' && companyProfile !== undefined) {
-        if (!companyProfile) {
+      if (
+        user?.user_type === 'startup' &&
+        companyProfile !== undefined &&
+        founderInformation !== undefined
+      ) {
+        if (!companyProfile || !founderInformation) {
           setIsModalOpen(true);
         }
       }
     }
-  }, [user, companyProfile, usercompleteLoading, location]);
+  }, [user, companyProfile, founderInformation, usercompleteLoading, location]);
 
   if (loading) {
     return <Loading />;
@@ -166,7 +172,18 @@ export default function RootLayout({ children }) {
         className='max-w-lg'
         themeClass='bg-[#0F172A] dark:bg-slate-900 dark:border-b dark:border-slate-700'
       >
-        <p>Please complete your Starup profile to avail these features.</p>
+        <p>
+          {!companyProfile &&
+            !founderInformation &&
+            'Please complete your Startup Profile and Founder Profile to avail these features.'}
+          {!companyProfile &&
+            founderInformation &&
+            'Please complete your Startup Profile to avail these features.'}
+          {companyProfile &&
+            !founderInformation &&
+            'Please complete your Founder Profile to avail these features.'}
+        </p>
+
         <div className='mt-4 flex gap-4'>
           {/* Proceed Button */}
           <button
