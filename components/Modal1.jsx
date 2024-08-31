@@ -1,10 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const Modal = ({ isOpen, onClose, children }) => {
+  // Close modal on 'Escape' key press
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
+    <div
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'
+      role='dialog'
+      aria-modal='true'
+    >
       <div className='bg-white rounded-lg overflow-hidden shadow-xl max-w-md w-full relative'>
         <button
           onClick={onClose}
