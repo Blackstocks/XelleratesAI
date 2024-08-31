@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -9,19 +10,22 @@ import useFetchBlogs from '@/hooks/useFetchBlogs';
 import Loading from '@/app/loading';
 import { supabase } from '@/lib/supabaseclient';
 import useUserDetails from '@/hooks/useUserDetails';
+import ShareModal from '@/components/blog/ShareModal'; // Import the ShareModal
 
 const BlogPage = () => {
   const { blogs, loading, error } = useFetchBlogs();
   const [blogsState, setBlogsState] = useState([]);
-  const [likedBlogs, setLikedBlogs] = useState({}); // To track liked blogs
-  const [likeLoading, setLikeLoading] = useState({}); // To track like loading state
+  const [likedBlogs, setLikedBlogs] = useState({});
+  const [likeLoading, setLikeLoading] = useState({});
   const { user, loading: userLoading } = useUserDetails();
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false); // State for modal visibility
+  const [shareUrl, setShareUrl] = useState(''); // State to hold the blog URL to be shared
+  const [selectedBlogId, setSelectedBlogId] = useState(null); // State to hold the selected blog ID
 
   useEffect(() => {
     const fetchLikes = async () => {
       if (!user || userLoading) return;
 
-      // Fetch all blogs liked by this user
       const { data: likedBlogsData, error } = await supabase
         .from('blog_likes')
         .select('blog_id')
@@ -43,13 +47,12 @@ const BlogPage = () => {
   }, [blogs, user, userLoading]);
 
   const handleLike = async (blogId) => {
-    if (!user || likeLoading[blogId]) return; // Ensure user is available and not loading
+    if (!user || likeLoading[blogId]) return;
 
     setLikeLoading((prev) => ({ ...prev, [blogId]: true }));
 
     try {
       if (likedBlogs[blogId]) {
-        // Unlike the blog
         await supabase
           .from('blog_likes')
           .delete()
@@ -75,7 +78,6 @@ const BlogPage = () => {
           )
         );
       } else {
-        // Like the blog
         await supabase
           .from('blog_likes')
           .insert([{ user_id: user.id, blog_id: blogId }]);
@@ -100,6 +102,23 @@ const BlogPage = () => {
     } finally {
       setLikeLoading((prev) => ({ ...prev, [blogId]: false }));
     }
+  };
+
+  const handleShare = (blogId) => {
+    const blogToShare = blogsState.find((blog) => blog.id === blogId);
+    if (blogToShare) {
+      setShareUrl(`https://yourwebsite.com/blog/${blogToShare.id}`); // Set the share URL
+      setSelectedBlogId(blogId); // Set the selected blog ID
+      setIsShareModalOpen(true); // Open the share modal
+    }
+  };
+
+  const incrementShareCount = async (blogId) => {
+    setBlogsState((prevState) =>
+      prevState.map((blog) =>
+        blog.id === blogId ? { ...blog, shares: blog.shares + 1 } : blog
+      )
+    );
   };
 
   if (loading || userLoading) {
@@ -183,7 +202,7 @@ const BlogPage = () => {
                           {blog.likes}
                         </span>
                       </button>
-                      <Link href='#'>
+                      <button onClick={() => handleShare(blog.id)}>
                         <span className='inline-flex leading-5 text-slate-500 dark:text-slate-400 text-sm font-normal'>
                           <Icon
                             icon='heroicons-outline:share'
@@ -191,7 +210,7 @@ const BlogPage = () => {
                           />
                           {blog.shares}
                         </span>
-                      </Link>
+                      </button>
                     </div>
                   </div>
 
@@ -234,6 +253,15 @@ const BlogPage = () => {
           ))}
         </div>
       </div>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        blogUrl={shareUrl}
+        blogId={selectedBlogId}
+        incrementShareCount={incrementShareCount}
+      />
     </div>
   );
 };
