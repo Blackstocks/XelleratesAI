@@ -159,165 +159,163 @@ const WalletModal = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-2xl transition-transform transform-gpu duration-500 ease-in-out">
-        <h2 className="text-3xl font-semibold mb-6 text-gray-800 flex items-center">
-          <span className="mr-2">
-            <svg
-              className="w-8 h-8 text-blue-500"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M3 7l6 6-6 6M21 7l-6 6 6 6"
-              />
-            </svg>
-          </span>
-          Wallet Details for {user ? user.name : "Unknown User"}
-        </h2>
+  <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-2xl max-h-[70vh] overflow-y-auto transition-transform transform-gpu duration-500 ease-in-out">
+    <h2 className="text-3xl font-semibold mb-6 text-gray-800 flex items-center">
+      <span className="mr-2">
+        <svg
+          className="w-8 h-8 text-blue-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M3 7l6 6-6 6M21 7l-6 6 6 6"
+          />
+        </svg>
+      </span>
+      Wallet Details for {user ? user.name : "Unknown User"}
+    </h2>
 
-        {/* Current Balance and Referral Earnings */}
-        <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-lg shadow-inner mb-6">
-          <table className="w-full text-sm text-gray-700">
-            <thead>
-              <tr className="text-gray-500 uppercase tracking-wide text-xs">
-                <th className="py-3 px-5 text-left">Current Balance</th>
-                <th className="py-3 px-5 text-left">Referral Earnings</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="text-gray-800 font-semibold">
-                <td className="py-3 px-5">{balance}</td>
-                <td className="py-3 px-5">{referralEarnings}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    {/* Current Balance and Referral Earnings */}
+    <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-lg shadow-inner mb-6">
+      <table className="w-full text-sm text-gray-700">
+        <thead>
+          <tr className="text-gray-500 uppercase tracking-wide text-xs">
+            <th className="py-3 px-5 text-left">Current Balance</th>
+            <th className="py-3 px-5 text-left">Referral Earnings</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="text-gray-800 font-semibold">
+            <td className="py-3 px-5">{balance}</td>
+            <td className="py-3 px-5">{referralEarnings}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-        {/* Existing Wallet Details */}
-        <div className="overflow-hidden rounded-lg shadow-lg mb-6 border border-gray-200">
-          <table className="w-full text-sm text-gray-700">
-            <thead>
-              <tr className="bg-gradient-to-r from-purple-200 to-blue-200 text-gray-800 uppercase tracking-wide text-xs">
-                <th className="py-3 px-5 text-left">Product</th>
-                <th className="py-3 px-5 text-left">Type</th>
-                <th className="py-3 px-5 text-left">Transaction ID</th>
-                <th className="py-3 px-5 text-left">Date of Payment</th>
-                <th className="py-3 px-5 text-left">Mode of Payment</th>
-              </tr>
-            </thead>
-            <tbody>
-              {walletDetails.length > 0 ? (
-                walletDetails.map((detail, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-100 transition duration-300 ease-in-out text-gray-700"
-                  >
-                    <td className="py-3 px-5">{detail.product}</td>
-                    <td className="py-3 px-5">{detail.type}</td>
-                    <td className="py-3 px-5">{detail.transactionId}</td>
-                    <td className="py-3 px-5">{detail.dateOfPayment}</td>
-                    <td className="py-3 px-5">{detail.modeOfPayment}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="py-3 px-5 text-center text-gray-500 italic"
-                  >
-                    No payment details available.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Buttons to Add New Payment and Add Credits */}
-        <div className="flex justify-end mb-6 space-x-3">
-          <button
-            onClick={() => {
-              setShowNewPaymentForm(true);
-              setShowAddCreditForm(false);
-            }}
-            className="px-5 py-3 flex items-center bg-gradient-to-r from-green-400 to-green-500 text-white rounded-full shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-200 ease-in-out"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Add New Payment
-          </button>
-          <button
-            onClick={() => {
-              setShowAddCreditForm(true);
-              setShowNewPaymentForm(false);
-            }}
-            className="px-5 py-3 flex items-center bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-full shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-200 ease-in-out"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M20 12H4m16 0l-4 4m4-4l-4-4"
-              />
-            </svg>
-            Add Credits
-          </button>
-        </div>
-
-        {/* New Payment Form */}
-        {showNewPaymentForm && (
-          <form
-            onSubmit={handleSubmitPayment}
-            className="p-6 bg-gray-50 rounded-lg shadow-md mt-6"
-          >
-            <label className="block mb-4">
-              <span className="block text-sm font-medium text-gray-700 mb-2">
-                Product
-              </span>
-              <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={newPayment.product}
-                onChange={handleProductChange}
+    {/* Existing Wallet Details */}
+    <div className="overflow-hidden rounded-lg shadow-lg mb-6 border border-gray-200">
+      <table className="w-full text-sm text-gray-700">
+        <thead>
+          <tr className="bg-gradient-to-r from-purple-200 to-blue-200 text-gray-800 uppercase tracking-wide text-xs">
+            <th className="py-3 px-5 text-left">Product</th>
+            <th className="py-3 px-5 text-left">Type</th>
+            <th className="py-3 px-5 text-left">Transaction ID</th>
+            <th className="py-3 px-5 text-left">Date of Payment</th>
+            <th className="py-3 px-5 text-left">Mode of Payment</th>
+          </tr>
+        </thead>
+        <tbody>
+          {walletDetails.length > 0 ? (
+            walletDetails.map((detail, index) => (
+              <tr
+                key={index}
+                className="hover:bg-gray-100 transition duration-300 ease-in-out text-gray-700"
               >
-                <option value="">Select a product</option>
-                {products.map((product, index) => (
-                  <option key={index} value={product}>
-                    {product}
-                  </option>
-                ))}
-              </select>
-            </label>
+                <td className="py-3 px-5">{detail.product}</td>
+                <td className="py-3 px-5">{detail.type}</td>
+                <td className="py-3 px-5">{detail.transactionId}</td>
+                <td className="py-3 px-5">{detail.dateOfPayment}</td>
+                <td className="py-3 px-5">{detail.modeOfPayment}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan="5"
+                className="py-3 px-5 text-center text-gray-500 italic"
+              >
+                No payment details available.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
 
-            <label className="block mb-4">
-              <span className="block text-sm font-medium text-gray-700 mb-2">
-                Type
-              </span>
+    {/* Buttons to Add New Payment and Add Credits */}
+    <div className="flex justify-end mb-6 space-x-3">
+      <button
+        onClick={() => {
+          setShowNewPaymentForm(true);
+          setShowAddCreditForm(false);
+        }}
+        className="px-5 py-3 flex items-center bg-gradient-to-r from-green-400 to-green-500 text-white rounded-full shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-200 ease-in-out"
+      >
+        <svg
+          className="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Add New Payment
+      </button>
+      <button
+        onClick={() => {
+          setShowAddCreditForm(true);
+          setShowNewPaymentForm(false);
+        }}
+        className="px-5 py-3 flex items-center bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-full shadow hover:shadow-lg transform hover:scale-105 transition-transform duration-200 ease-in-out"
+      >
+        <svg
+          className="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M20 12H4m16 0l-4 4m4-4l-4-4"
+          />
+        </svg>
+        Add Credits
+      </button>
+    </div>
+
+    {/* New Payment Form */}
+    {showNewPaymentForm && (
+      <form
+        onSubmit={handleSubmitPayment}
+        className="p-6 bg-gray-50 rounded-lg shadow-md mt-6"
+      >
+        {/* Form content */}
+        <label className="block mb-4">
+          <span className="block text-sm font-medium text-gray-700 mb-2">
+            Product
+          </span>
+          <select
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={newPayment.product}
+            onChange={handleProductChange}
+          >
+            <option value="">Select a product</option>
+            {products.map((product, index) => (
+              <option key={index} value={product}>
+                {product}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block mb-2">
+              Type
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full p-2 border border-gray-300 rounded"
                 value={newPayment.type}
                 onChange={handleTypeChange}
               >
@@ -327,36 +325,22 @@ const WalletModal = ({
               </select>
             </label>
 
-            <label className="block mb-4">
-              <span className="block text-sm font-medium text-gray-700 mb-2">
-                Date of Payment
-              </span>
+            <label className="block mb-2">
+              Date of Payment
               <input
                 type="date"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full p-2 border border-gray-300 rounded"
                 value={newPayment.dateOfPayment}
-                onChange={(e) =>
-                  setNewPayment({
-                    ...newPayment,
-                    dateOfPayment: e.target.value,
-                  })
-                }
+                onChange={(e) => setNewPayment({ ...newPayment, dateOfPayment: e.target.value })}
               />
             </label>
 
-            <label className="block mb-4">
-              <span className="block text-sm font-medium text-gray-700 mb-2">
-                Mode of Payment
-              </span>
+            <label className="block mb-2">
+              Mode of Payment
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full p-2 border border-gray-300 rounded"
                 value={newPayment.modeOfPayment}
-                onChange={(e) =>
-                  setNewPayment({
-                    ...newPayment,
-                    modeOfPayment: e.target.value,
-                  })
-                }
+                onChange={(e) => setNewPayment({ ...newPayment, modeOfPayment: e.target.value })}
               >
                 <option value="">Select payment method</option>
                 <option value="UPI">UPI</option>
@@ -366,63 +350,82 @@ const WalletModal = ({
                 <option value="Card">Card</option>
               </select>
             </label>
-
-            <div className="flex justify-end mt-6">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-5 py-3 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transform hover:scale-105 transition-transform duration-200 ease-in-out mr-3"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-3 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 ease-in-out"
-                disabled={!newPayment.product || !newPayment.type}
-              >
-                Save
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* Add Credits Form */}
-        {showAddCreditForm && (
-          <form
-            onSubmit={handleSubmitCredit}
-            className="p-6 bg-gray-50 rounded-lg shadow-md mt-6"
+        <div className="flex justify-end mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-3 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transform hover:scale-105 transition-transform duration-200 ease-in-out mr-3"
           >
-            <label className="block mb-4">
-              <span className="block text-sm font-medium text-gray-700 mb-2">
-                Add Credit Amount
-              </span>
-              <input
-                type="number"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={addCredit}
-                onChange={(e) => setAddCredit(e.target.value)}
-              />
-            </label>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-5 py-3 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 ease-in-out"
+            disabled={!newPayment.product || !newPayment.type}
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    )}
 
-            <div className="flex justify-end mt-6">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-5 py-3 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transform hover:scale-105 transition-transform duration-200 ease-in-out mr-3"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-3 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 ease-in-out"
-              >
-                Add Credit
-              </button>
-            </div>
-          </form>
-        )}
+    {/* Add Credits Form */}
+    {showAddCreditForm && (
+      <form
+        onSubmit={handleSubmitCredit}
+        className="p-6 bg-gray-50 rounded-lg shadow-md mt-6"
+      >
+        {/* Form content */}
+        <label className="block mb-4">
+          <span className="block text-sm font-medium text-gray-700 mb-2">
+            Add Credit Amount
+          </span>
+          <input
+            type="number"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={addCredit}
+            onChange={(e) => setAddCredit(e.target.value)}
+          />
+        </label>
+        <div className="flex justify-end mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-3 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transform hover:scale-105 transition-transform duration-200 ease-in-out mr-3"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-5 py-3 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 ease-in-out"
+          >
+            Add Credit
+          </button>
+        </div>
+      </form>
+    )}
+
+    {/* Save and Close Buttons (Always Visible) */}
+    {!showNewPaymentForm && !showAddCreditForm && (
+      <div className="flex justify-end mt-6">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-5 py-3 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transform hover:scale-105 transition-transform duration-200 ease-in-out mr-3"
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          className="px-5 py-3 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transform hover:scale-105 transition-transform duration-200 ease-in-out"
+        >
+          Save
+        </button>
       </div>
-    </div>
+    )}
+  </div>
+</div>
+
   );
 };
 
