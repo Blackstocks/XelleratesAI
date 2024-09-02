@@ -5,8 +5,8 @@ import ComingSoonModal from '@/components/ComingSoonModal';
 import GetStartupInsightsModal from '@/components/GetStartupInsights'; // Adjust import as needed
 import generateReport from '@/components/report/report-functions';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-// import * as fs from 'fs';
-// import * as pdf from 'html-pdf-node';
+import { supabase } from '@/lib/supabaseclient';
+
 
 const HomeBredCurbs = ({ title, companyName, userType }) => {
   const [greeting, setGreeting] = useState('Good evening');
@@ -46,6 +46,160 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     };
   }, []);
 
+
+
+
+  const handleGenerateInvestmentReadinessReport = async () => {
+
+    try {
+      // Fetch current wallet credits
+      const { data: walletCredits, error: creditError } = await supabase
+        .from('wallet_credits')
+        .select('*')
+        .eq('startup_id', profile.id)
+        .single();
+
+      if (creditError) {
+        console.error('Error fetching credits:', creditError);
+        toast.error('Failed to fetch wallet credits.');
+        return;
+      }
+
+      let currentCredits = walletCredits?.credit_balance || 0;
+
+      // Check if there are enough credits to generate the report
+      if (currentCredits >= 10) {
+        // Deduct 10 credits for generating the report
+        const { error: updateError } = await supabase
+          .from('wallet_credits')
+          .update({ credit_balance: currentCredits - 10 })
+          .eq('startup_id', profile.id);
+
+        if (updateError) {
+          console.error('Error deducting credits:', updateError);
+          toast.error('Failed to deduct credits.');
+          return;
+        }
+
+        toast.success('10 credits have been deducted for generating the investment readiness report.');
+
+        // Generate the investment readiness report
+        toastIdRef.current = toast.loading('Generating report, please wait...');
+
+        const firstUpdate = setTimeout(() => {
+          toast.update(toastIdRef.current, {
+            render: 'Taking longer than usual...',
+            type: toast.TYPE.INFO,
+            isLoading: true,
+            autoClose: false,
+          });
+        }, 15000);
+
+        const secondUpdate = setTimeout(() => {
+          toast.update(toastIdRef.current, {
+            render: 'Almost there...',
+            type: toast.TYPE.INFO,
+            isLoading: true,
+            autoClose: false,
+          });
+        }, 30000);
+
+        const clearToastUpdates = () => {
+          clearTimeout(firstUpdate);
+          clearTimeout(secondUpdate);
+        };
+
+        const shortDescription = companyProfile?.short_description || 'Default description';
+        const industrySector = companyProfile?.industry_sector || 'Default sector';
+        const currentStage = companyProfile?.current_stage || 'Not Available';
+        const previousFunding = fundingInformation?.previous_funding || [];
+
+        try {
+          const result = await generateReport(
+            companyProfile,
+            fundingInformation,
+            founderInformation,
+            businessDetails,
+            companyDocuments,
+            ctoInfo,
+            profile,
+            shortDescription,
+            industrySector,
+            companyName,
+            currentStage,
+            previousFunding
+          );
+
+          if (result.status === 'docs') {
+            toast.update(toastIdRef.current, {
+              render: (
+                <div>
+                  Cannot generate report: Missing documents or incorrect format:
+                  <br />
+                  {result.message}
+                </div>
+              ),
+              type: 'warning',
+              isLoading: false,
+              autoClose: 5000,
+            });
+            clearToastUpdates();
+          } else {
+            toast.update(toastIdRef.current, {
+              render: 'Report generated successfully!',
+              type: 'success',
+              isLoading: false,
+              autoClose: 5000,
+            });
+            clearToastUpdates();
+            toastIdRef.current = null;
+
+            try {
+              const newWindow = window.open('', '_blank');
+
+              if (newWindow) {
+                newWindow.document.write(result.html);
+                newWindow.document.close();
+              } else {
+                throw new Error(
+                  'Popup blocked. Please allow popups for this site.'
+                );
+              }
+            } catch (error) {
+              toast.update(toastIdRef.current, {
+                render: `Cannot generate Report! ${error.message || error}`,
+                type: 'error',
+                isLoading: false,
+                autoClose: 5000,
+              });
+              clearToastUpdates();
+              toastIdRef.current = null;
+            }
+          }
+        } catch (error) {
+          toast.update(toastIdRef.current, {
+            render: `Cannot generate Report! Error: ${error.message || error}`,
+            type: 'error',
+            isLoading: false,
+            autoClose: 5000,
+          });
+          clearToastUpdates();
+          toastIdRef.current = null;
+        }
+
+      } else {
+        toast.error('Not enough credits to generate the investment readiness report.');
+      }
+    } catch (error) {
+      console.error('Error in handleGenerateInvestmentReadinessReport:', error.message);
+      toast.error('An unexpected error occurred while generating the report.');
+    }
+  };
+
+  
+
+
+
   const handleImageClick = async (type) => {
     if (toastIdRef.current) {
       // If a toast is already displayed, prevent further action
@@ -65,119 +219,117 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
     }
 
     if (type === 'investment') {
-      // if (loading) {
-      //   toast.info("Loading data, please wait...");
-      //   return;
+      
+      handleGenerateInvestmentReadinessReport();
+
+      // toastIdRef.current = toast.loading('Generating report, please wait...');
+
+      // const firstUpdate = setTimeout(() => {
+      //   toast.update(toastIdRef.current, {
+      //     render: 'Taking longer than usual...',
+      //     type: toast.TYPE.INFO,
+      //     isLoading: true,
+      //     autoClose: false,
+      //   });
+      // }, 15000);
+
+      // // Second update after 10 seconds
+      // const secondUpdate = setTimeout(() => {
+      //   toast.update(toastIdRef.current, {
+      //     render: 'Almost there...',
+      //     type: toast.TYPE.INFO,
+      //     isLoading: true,
+      //     autoClose: false,
+      //   });
+      // }, 30000);
+
+      // // Ensure to clear the timeouts if the process completes early or fails
+      // const clearToastUpdates = () => {
+      //   clearTimeout(firstUpdate);
+      //   clearTimeout(secondUpdate);
+      // };
+
+      // const shortDescription =
+      //   companyProfile?.short_description || 'Default description';
+      // const industrySector =
+      //   companyProfile?.industry_sector || 'Default sector';
+      // const currentStage = companyProfile?.current_stage || 'Not Available';
+      // const previousFunding = fundingInformation?.previous_funding || [];
+
+      // try {
+      //   const result = await generateReport(
+      //     companyProfile,
+      //     fundingInformation,
+      //     founderInformation,
+      //     businessDetails,
+      //     companyDocuments,
+      //     ctoInfo,
+      //     profile,
+      //     shortDescription,
+      //     industrySector,
+      //     companyName,
+      //     currentStage,
+      //     previousFunding
+      //   );
+      //   //generatePDF(reportHtml);
+
+      //   if (result.status === 'docs') {
+      //     toast.update(toastIdRef.current, {
+      //       render: (
+      //         <div>
+      //           Cannot generate report: Missing documents or incorrect format:
+      //           <br />
+      //           {result.message}
+      //         </div>
+      //       ),
+      //       type: 'warning',
+      //       isLoading: false,
+      //       autoClose: 5000,
+      //     });
+      //     clearToastUpdates();
+      //   } else {
+      //     toast.update(toastIdRef.current, {
+      //       render: 'Report generated successfully!',
+      //       type: 'success',
+      //       isLoading: false,
+      //       autoClose: 5000,
+      //     });
+      //     clearToastUpdates();
+      //     toastIdRef.current = null;
+
+      //     try {
+      //       const newWindow = window.open('', '_blank');
+
+      //       if (newWindow) {
+      //         newWindow.document.write(result.html);
+      //         newWindow.document.close();
+      //       } else {
+      //         throw new Error(
+      //           'Popup blocked. Please allow popups for this site.'
+      //         );
+      //       }
+      //     } catch (error) {
+      //       toast.update(toastIdRef.current, {
+      //         render: `Cannot generate Report! ${error.message || error}`,
+      //         type: 'error',
+      //         isLoading: false,
+      //         autoClose: 5000,
+      //       });
+      //       clearToastUpdates();
+      //       toastIdRef.current = null;
+      //     }
+      //   }
+      // } catch (error) {
+      //   toast.update(toastIdRef.current, {
+      //     render: `Cannot generate Report! Error: ${error.message || error}`,
+      //     type: 'error',
+      //     isLoading: false,
+      //     autoClose: 5000,
+      //   });
+      //   clearToastUpdates();
+      //   toastIdRef.current = null;
+      //   // console.error('Error Generating Report', error.message);
       // }
-
-      toastIdRef.current = toast.loading('Generating report, please wait...');
-
-      const firstUpdate = setTimeout(() => {
-        toast.update(toastIdRef.current, {
-          render: 'Taking longer than usual...',
-          type: toast.TYPE.INFO,
-          isLoading: true,
-          autoClose: false,
-        });
-      }, 15000);
-
-      // Second update after 10 seconds
-      const secondUpdate = setTimeout(() => {
-        toast.update(toastIdRef.current, {
-          render: 'Almost there...',
-          type: toast.TYPE.INFO,
-          isLoading: true,
-          autoClose: false,
-        });
-      }, 30000);
-
-      // Ensure to clear the timeouts if the process completes early or fails
-      const clearToastUpdates = () => {
-        clearTimeout(firstUpdate);
-        clearTimeout(secondUpdate);
-      };
-
-      const shortDescription =
-        companyProfile?.short_description || 'Default description';
-      const industrySector =
-        companyProfile?.industry_sector || 'Default sector';
-      const currentStage = companyProfile?.current_stage || 'Not Available';
-      const previousFunding = fundingInformation?.previous_funding || [];
-
-      try {
-        const result = await generateReport(
-          companyProfile,
-          fundingInformation,
-          founderInformation,
-          businessDetails,
-          companyDocuments,
-          ctoInfo,
-          profile,
-          shortDescription,
-          industrySector,
-          companyName,
-          currentStage,
-          previousFunding
-        );
-        //generatePDF(reportHtml);
-
-        if (result.status === 'docs') {
-          toast.update(toastIdRef.current, {
-            render: (
-              <div>
-                Cannot generate report: Missing documents or incorrect format:
-                <br />
-                {result.message}
-              </div>
-            ),
-            type: 'warning',
-            isLoading: false,
-            autoClose: 5000,
-          });
-          clearToastUpdates();
-        } else {
-          toast.update(toastIdRef.current, {
-            render: 'Report generated successfully!',
-            type: 'success',
-            isLoading: false,
-            autoClose: 5000,
-          });
-          clearToastUpdates();
-          toastIdRef.current = null;
-
-          try {
-            const newWindow = window.open('', '_blank');
-
-            if (newWindow) {
-              newWindow.document.write(result.html);
-              newWindow.document.close();
-            } else {
-              throw new Error(
-                'Popup blocked. Please allow popups for this site.'
-              );
-            }
-          } catch (error) {
-            toast.update(toastIdRef.current, {
-              render: `Cannot generate Report! ${error.message || error}`,
-              type: 'error',
-              isLoading: false,
-              autoClose: 5000,
-            });
-            clearToastUpdates();
-            toastIdRef.current = null;
-          }
-        }
-      } catch (error) {
-        toast.update(toastIdRef.current, {
-          render: `Cannot generate Report! Error: ${error.message || error}`,
-          type: 'error',
-          isLoading: false,
-          autoClose: 5000,
-        });
-        clearToastUpdates();
-        toastIdRef.current = null;
-        // console.error('Error Generating Report', error.message);
-      }
     } else {
       setModalType(type);
       setIsModalOpen(true);

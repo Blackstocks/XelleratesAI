@@ -310,15 +310,15 @@ const WalletModal = ({ isOpen, onClose, user }) => {
             <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-lg shadow-inner mb-6">
               <table className="w-full text-sm text-gray-700">
                 <thead>
-                  <tr className="text-gray-500 uppercase tracking-wide text-xs">
-                    <th className="py-3 px-5 text-left">Current Credit</th>
-                    <th className="py-3 px-5 text-left">Referral Earnings</th>
+                  <tr className="text-gray-500 uppercase tracking-wide text-sm">
+                    <th className="py-3 px-5 text-center">Current Credit</th>
+                    <th className="py-3 px-5 text-center">Referral Earnings</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="text-gray-800 font-semibold">
-                    <td className="py-3 px-5">{creditBalance}</td>
-                    <td className="py-3 px-5">{referralEarnings}</td>
+                  <tr className="text-gray-800 font-semibold text-xl">
+                    <td className="py-3 pt-0 px-5 text-center">{creditBalance}</td>
+                    <td className="py-3 pt-0 px-5 text-center">{referralEarnings}</td>
                   </tr>
                 </tbody>
               </table>
@@ -343,8 +343,11 @@ const WalletModal = ({ isOpen, onClose, user }) => {
                     walletDetails.map((detail, index) => (
                       <tr
                         key={index}
-                        className="hover:bg-gray-100 transition duration-300 ease-in-out text-gray-700"
+                        className={`${
+                          index % 2 === 0 ? 'bg-gray-100' : ''
+                        } transition duration-300 ease-in-out text-gray-700`}
                       >
+
                         <td className="py-3 px-5">{detail.product}</td>
                         <td className="py-3 px-5">{detail.type}</td>
                         <td className="py-3 px-5">{detail.plan || 'N/A'}</td>

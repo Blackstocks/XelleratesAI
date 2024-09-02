@@ -212,25 +212,54 @@ const Dashboard = () => {
   const toastIdRef = useRef(null);
 
   useEffect(() => {
-    const fetchCompanyName = async () => {
+    const fetchCompanyNameAndCardStatus = async () => {
       if (user) {
-        const { data, error } = await supabase
+        const { data: companyData, error: companyError } = await supabase
           .from('profiles')
           .select('company_name')
           .eq('id', user.id)
           .single();
-
-        if (error) {
-          console.error('Error fetching company name:', error);
+  
+        if (companyError) {
+          console.error('Error fetching company name:', companyError);
         } else {
-          setCompanyName(data.company_name);
+          setCompanyName(companyData.company_name);
+        }
+  
+        // Fetch the unlocked status for all cards in a single entry
+
+        console.log( "Card Unlock Data: ", user.id);
+
+
+        const { data: unlockData, error: unlockError } = await supabase
+          .from('card_unlocks')
+          .select('*')
+          .eq('startup_id', user.id)
+          .single();
+        
+          
+
+        if (unlockError) {
+          console.error('Error fetching card unlock status:', unlockError);
+        } else if (unlockData) {
+          
+          const unlockedStatus = {
+            topConversations: unlockData.top_conversations, 
+            currentNumbers: unlockData.current_numbers,
+            capTable: unlockData.cap_table,
+            topPerformingPortfolios: unlockData.top_performing_portfolios,
+            hotDeals: unlockData.hot_deals,
+          };
+          setUnlockedCards(unlockedStatus);
         }
       }
       setIsDataFetched(true); // Set this to true after fetching is complete
     };
-
-    fetchCompanyName();
+  
+    fetchCompanyNameAndCardStatus();
   }, [user]);
+  
+  
 
   //
   // const { companyDocuments } = useCompleteUserDetails();
@@ -296,6 +325,8 @@ const Dashboard = () => {
     setSelectedQuarter(e.target.value);
   };
 
+
+
   const handleUnlockClick = async (cardName, user) => {
     if (user?.user_type === 'startup') {
       if (!user || completeUserDetailsLoading || !companyProfile) {
@@ -303,11 +334,136 @@ const Dashboard = () => {
         return;
       }
     }
-    if (cardName === 'currentNumbers') {
-      await fetchFinancials();
+  
+    // Map card names to the correct database column names
+    const cardNameMapping = {
+      topConversations: 'top_conversations',
+      currentNumbers: 'current_numbers',
+      capTable: 'cap_table',
+      topPerformingPortfolios: 'top_performing_portfolios',
+      hotDeals: 'hot_deals',
+    };
+  
+    const dbColumnName = cardNameMapping[cardName]; // Use the mapping to get the correct column name
+  
+    if (!dbColumnName) {
+      console.error('Invalid card name:', cardName);
+      toast.error('Invalid card name.');
+      return;
     }
-    setUnlockedCards((prevState) => ({ ...prevState, [cardName]: true }));
+  
+    try {
+      // Fetch current wallet credits
+      const { data: walletCredits, error: creditError } = await supabase
+        .from('wallet_credits')
+        .select('*')
+        .eq('startup_id', user.id)
+        .single();
+  
+      if (creditError) {
+        console.error('Error fetching credits:', creditError);
+        toast.error('Failed to fetch wallet credits.');
+        return;
+      }
+  
+      let currentCredits = walletCredits?.credit_balance || 0;
+  
+      // Fetch unlock status for the startup
+      const { data: unlockData, error: unlockError } = await supabase
+        .from('card_unlocks')
+        .select('*')
+        .eq('startup_id', user.id)
+        .single();
+  
+      if (unlockError && unlockError.code !== 'PGRST116') {
+        console.error('Error fetching card unlock status:', unlockError);
+        toast.error('Failed to fetch card unlock status.');
+        return;
+      }
+  
+      // Initialize unlock data if no entry exists
+      let updatedUnlockData;
+      if (!unlockData) {
+        updatedUnlockData = {
+          startup_id: user.id,
+          top_conversations: false,
+          current_numbers: false,
+          cap_table: false,
+          top_performing_portfolios: false,
+          hot_deals: false,
+        };
+  
+        // Insert a new entry for this startup with default values
+        const { error: insertError } = await supabase
+          .from('card_unlocks')
+          .insert([updatedUnlockData]);
+  
+        if (insertError) {
+          console.error('Error initializing card unlock status:', insertError);
+          toast.error('Failed to initialize card unlock status.');
+          return;
+        }
+      } else {
+        updatedUnlockData = unlockData;
+      }
+  
+      // Check if the card is already unlocked
+      if (updatedUnlockData[dbColumnName]) {
+        toast.info('this feature is already unlocked.');
+        setUnlockedCards((prevState) => ({ ...prevState, [cardName]: true }));
+        return;
+      }
+  
+      // If the card is not unlocked, deduct 1 credit and update the unlock status
+      if (currentCredits >= 1) {
+        const { error: updateError } = await supabase
+          .from('wallet_credits')
+          .update({ credit_balance: currentCredits - 1 })
+          .eq('startup_id', user.id);
+  
+        if (updateError) {
+          console.error('Error deducting credits:', updateError);
+          toast.error('Failed to deduct credits.');
+          return;
+        }
+  
+        // Update the unlock status for the card in the database
+        updatedUnlockData[dbColumnName] = true;
+        updatedUnlockData.created_at = new Date();
+  
+        const { error: updateError1 } = await supabase
+  .from('card_unlocks')
+  .update(updatedUnlockData)
+  .eq('startup_id', user.id);
+
+if (updateError1) {
+  console.error('Error updating unlock status:', updateError1);
+  toast.error('Failed to update unlock status.');
+  return;
+}
+  
+        toast.success('1 credit has been deducted to unlock this feature.');
+      } else {
+        toast.error('Not enough credits to unlock this feature.');
+        return;
+      }
+  
+      if (cardName === 'currentNumbers') {
+        await fetchFinancials();
+      }
+  
+      setUnlockedCards((prevState) => ({ ...prevState, [cardName]: true }));
+    } catch (error) {
+      console.error('Error in handleUnlockClick:', error.message);
+      toast.error('An unexpected error occurred while unlocking the card.');
+    }
   };
+  
+
+  
+  
+
+
 
   const monthNames = {
     '01': 'January',
