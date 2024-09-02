@@ -1,53 +1,19 @@
-'use client';
-import React, { useState, useEffect } from 'react';
+"use client";
+
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Card from '@/components/ui/Card';
-import Textinput from '@/components/ui/Textinput';
 import GroupChart6 from '@/components/partials/widget/chart/group-chart6';
-import Link from 'next/link';
-import SimpleBar from 'simplebar-react';
-import HistoryChart from '@/components/partials/widget/chart/history-chart';
-import AccountReceivable from '@/components/partials/widget/chart/account-receivable';
-import AccountPayable from '@/components/partials/widget/chart/account-payable';
 import { supabase } from '@/lib/supabaseclient';
 import useUserDetails from '@/hooks/useUserDetails';
 import Loading from '@/app/loading';
 
-const CardSlider3 = dynamic(
-  () => import('@/components/partials/widget/CardSlider3'),
-  {
-    ssr: false,
-  }
-);
+const CardSlider3 = dynamic(() => import('@/components/partials/widget/CardSlider3'), {
+  ssr: false,
+});
 import TransactionsTable2 from '@/components/partials/table/transactionwallet';
-import SelectMonth from '@/components/partials/SelectMonth';
-
-const users = [
-  {
-    name: 'Ab',
-  },
-  {
-    name: 'Bc',
-  },
-  {
-    name: 'Cd',
-  },
-  {
-    name: 'Df',
-  },
-  {
-    name: 'Ab',
-  },
-  {
-    name: 'Sd',
-  },
-  {
-    name: 'Sg',
-  },
-];
 
 const Wallet = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [greeting, setGreeting] = useState('Good evening');
   const [companyName, setCompanyName] = useState('');
   const { user, loading } = useUserDetails();
@@ -111,20 +77,20 @@ const Wallet = () => {
               </p>
             </div>
           </div>
-          <GroupChart6 />
+          <GroupChart6 profileId={user.id} />
         </div>
       </Card>
       <div className='grid grid-cols-12 gap-5'>
         <div className='lg:col-span-4 col-span-12 space-y-5'>
           <Card title='Saved Payment Method'>
             <div className='max-w-[90%] mx-auto mt-2'>
-              <CardSlider3 />
+              <CardSlider3 profileId={user.id} />
             </div>
           </Card>
         </div>
         <div className='lg:col-span-8 col-span-12'>
           <div className='space-y-5 bank-table'>
-            <TransactionsTable2 />
+            <TransactionsTable2 profileId={user.id} />
           </div>
         </div>
       </div>
@@ -133,5 +99,3 @@ const Wallet = () => {
 };
 
 export default Wallet;
-
-

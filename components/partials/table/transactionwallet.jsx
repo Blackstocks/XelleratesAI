@@ -1,11 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { advancedTable } from '@/constant/table-data';
+import { useState, useMemo, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseclient';
 import Card from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
-import Dropdown from '@/components/ui/Dropdown';
-import { Menu } from '@headlessui/react';
 import {
   useTable,
   useRowSelect,
@@ -18,47 +16,37 @@ import GlobalFilter from '@/components/partials/table/GlobalFilter';
 const COLUMNS = [
   {
     Header: 'Tools',
-    accessor: 'customer',
-    Cell: (row) => {
+    accessor: 'product',
+    Cell: ({ cell: { value } }) => {
       return (
-        <span className='inline-flex items-center'>
-          <span className='w-7 h-7 rounded-full ltr:mr-3 rtl:ml-3 flex-none bg-slate-600'>
-            <img
-              src={row?.cell?.value.image}
-              alt=''
-              className='object-contain w-full h-full rounded-full'
-            />
-          </span>
-          <span className='text-sm text-slate-600 dark:text-slate-300 capitalize font-medium'>
-            {row?.cell?.value.name}
-          </span>
+        <span className='text-sm text-slate-600 dark:text-slate-300 capitalize font-medium'>
+          {value || 'N/A'}
         </span>
       );
     },
   },
   {
     Header: 'Cost',
-    accessor: 'date',
-    Cell: (row) => {
+    accessor: 'price',
+    Cell: ({ cell: { value } }) => {
       return (
         <span className='text-slate-500 dark:text-slate-400'>
-          {row?.cell?.value}
-          <span className='inline-block ml-1'>11:35</span>
+          {value ? `$${value}` : 'N/A'}
         </span>
       );
     },
   },
   {
     Header: 'Payment Method',
-    accessor: 'quantity',
-    Cell: (row) => {
+    accessor: 'mode_of_payment',
+    Cell: ({ row }) => {
       return (
         <span className='text-slate-500 dark:text-slate-400'>
           <span className='block text-slate-600 dark:text-slate-300'>
-            Transfer
+            {row?.original?.mode_of_payment || 'N/A'}
           </span>
           <span className='block text-slate-500 text-xs'>
-            Trans ID: 8HG654Pk32
+            Trans ID: {row?.original?.transaction_id || 'N/A'}
           </span>
         </span>
       );
@@ -66,58 +54,57 @@ const COLUMNS = [
   },
   {
     Header: 'Recharge',
-    accessor: 'status',
-    Cell: (row) => {
-      return (
-        <span className='block w-full'>
-          <span
-            className={`${
-              row?.cell?.value === 'paid' ? 'text-success-500 ' : ''
-            } 
-            ${row?.cell?.value === 'due' ? 'text-warning-500 ' : ''}
-            ${row?.cell?.value === 'cancled' ? 'text-danger-500' : ''}
-             `}
-          >
-            {row?.cell?.value === 'due' && <span>+$ 1,200.00</span>}
-            {row?.cell?.value === 'paid' && <span>+$ 200.00</span>}
-            {row?.cell?.value === 'cancled' && <span>+$ 1400.00</span>}
-          </span>
-        </span>
-      );
+    accessor: 'date_of_payment',
+    Cell: ({ cell: { value } }) => {
+      const date = value ? new Date(value).toLocaleDateString() : 'N/A';
+      return <span className='text-slate-500 dark:text-slate-400'>{date}</span>;
     },
   },
 ];
 
-const actions = [
-  {
-    name: 'view',
-    icon: 'heroicons-outline:eye',
-  },
-  {
-    name: 'Review',
-    icon: 'heroicons:pencil-square',
-  },
-  {
-    name: 'Comment',
-    icon: 'heroicons-outline:pencil-square',
-  },
-];
+const TransactionsTable2 = ({ profileId }) => {
+  const [walletPayments, setWalletPayments] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-const TransactionsTable2 = () => {
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  useEffect(() => {
+    const fetchWalletPayments = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('wallet_payments')
+          .select('*')
+          .eq('startup_id', profileId); // Fetch data for the specific profile
+
+        if (error) {
+          console.error('Error fetching wallet payments:', error.message);
+        } else {
+          setWalletPayments(data || []);
+        }
+      } catch (error) {
+        console.error('Unexpected error fetching wallet payments:', error.message);
+      }
+    };
+
+    if (profileId) {
+      fetchWalletPayments();
+    }
+  }, [profileId]);
+
+  const filteredData = useMemo(() => {
+    if (!searchQuery) return walletPayments;
+    return walletPayments.filter((item) =>
+      item.product.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [walletPayments, searchQuery]);
 
   const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => {
-    if (selectedFilter === 'all') return advancedTable;
-    return advancedTable.filter((item) => item.category === selectedFilter);
-  }, [selectedFilter]);
+  const data = useMemo(() => filteredData, [filteredData]);
 
   const tableInstance = useTable(
     {
       columns,
       data,
       initialState: {
-        pageSize: 4,
+        pageSize: 4, // Set page size to 4 entries per page
       },
     },
     useGlobalFilter,
@@ -125,6 +112,7 @@ const TransactionsTable2 = () => {
     usePagination,
     useRowSelect
   );
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -139,7 +127,6 @@ const TransactionsTable2 = () => {
     gotoPage,
     pageCount,
     setPageSize,
-    setGlobalFilter,
     prepareRow,
   } = tableInstance;
 
@@ -151,34 +138,13 @@ const TransactionsTable2 = () => {
         <div className='md:flex justify-between items-center mb-6'>
           <h4 className='card-title'>Tools and Cost</h4>
           <div className='flex items-center space-x-4'>
-            <Dropdown
-              classMenuItems='right-0 w-[140px] top-[110%]'
-              label={
-                <span className='text-xl text-center block w-full'>
-                  <Icon icon='heroicons-outline:filter' />
-                </span>
-              }
-            >
-              <div className='divide-y divide-slate-100 dark:divide-slate-800'>
-                {['all', 'documents', 'financial', 'approval'].map((filter) => (
-                  <Menu.Item key={filter}>
-                    <div
-                      onClick={() => setSelectedFilter(filter)}
-                      className={`hover:bg-slate-950 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center rtl:space-x-reverse ${
-                        selectedFilter === filter
-                          ? 'bg-slate-200 dark:bg-slate-700'
-                          : ''
-                      }`}
-                    >
-                      <span>
-                        {filter.charAt(0).toUpperCase() + filter.slice(1)}
-                      </span>
-                    </div>
-                  </Menu.Item>
-                ))}
-              </div>
-            </Dropdown>
-            <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+            <input
+              type='text'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder='Search...'
+              className='p-2 border border-gray-300 rounded'
+            />
           </div>
         </div>
         <div className='overflow-x-auto -mx-6'>
@@ -190,13 +156,11 @@ const TransactionsTable2 = () => {
               >
                 <thead className='border-t border-slate-100 dark:border-slate-800'>
                   {headerGroups.map((headerGroup) => {
-                    const { key, ...restHeaderGroupProps } =
-                      headerGroup.getHeaderGroupProps();
+                    const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
                     return (
                       <tr key={key} {...restHeaderGroupProps}>
                         {headerGroup.headers.map((column) => {
-                          const { key, ...restColumn } =
-                            column.getHeaderProps();
+                          const { key, ...restColumn } = column.getHeaderProps();
                           return (
                             <th
                               key={key}
@@ -223,26 +187,37 @@ const TransactionsTable2 = () => {
                   className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'
                   {...getTableBodyProps()}
                 >
-                  {page.map((row) => {
-                    prepareRow(row);
-                    const { key, ...restRowProps } = row.getRowProps();
-                    return (
-                      <tr key={key} {...restRowProps}>
-                        {row.cells.map((cell) => {
-                          const { key, ...restCellProps } = cell.getCellProps();
-                          return (
-                            <td
-                              key={key}
-                              {...restCellProps}
-                              className='table-td py-2'
-                            >
-                              {cell.render('Cell')}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
+                  {filteredData.length > 0 ? (
+                    page.map((row) => {
+                      prepareRow(row);
+                      const { key, ...restRowProps } = row.getRowProps();
+                      return (
+                        <tr key={key} {...restRowProps}>
+                          {row.cells.map((cell) => {
+                            const { key, ...restCellProps } = cell.getCellProps();
+                            return (
+                              <td
+                                key={key}
+                                {...restCellProps}
+                                className='table-td py-2'
+                              >
+                                {cell.render('Cell')}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={COLUMNS.length}
+                        className='py-3 px-5 text-center text-gray-500 italic'
+                      >
+                        No payment details available for this profile.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

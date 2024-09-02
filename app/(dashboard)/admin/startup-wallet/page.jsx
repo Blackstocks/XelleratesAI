@@ -15,6 +15,20 @@ const StartupWallet = () => {
   const [selectedStartup, setSelectedStartup] = useState(null);
   const [walletDetails, setWalletDetails] = useState([]);
   const [walletCredit, setWalletCredit] = useState({});
+  const [loading, setLoading] = useState(false); // State for loading animation
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [filteredStartups, setFilteredStartups] = useState(startups); // State for filtered startups
+
+  useEffect(() => {
+    // Filter startups based on search query
+    setFilteredStartups(
+      startups.filter((startup) =>
+        startup.company_profile?.company_name
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      )
+    );
+  }, [searchQuery, startups]);
 
   const handleOpenModal = (startup) => {
     setSelectedStartup(startup);
@@ -28,55 +42,57 @@ const StartupWallet = () => {
   };
 
   const fetchWalletData = async (startupId) => {
-    // Check if startupId is valid and correctly formatted
+    setLoading(true); // Start loading
     if (!startupId || !/^[0-9a-fA-F-]{36}$/.test(startupId)) {
-      console.error('Invalid startup_id format:', startupId);
-      toast.error('Invalid startup ID format.');
-      return; // Exit if the startup_id is not valid
+      console.error("Invalid startup_id format:", startupId);
+      toast.error("Invalid startup ID format.");
+      setLoading(false); // End loading
+      return;
     }
-  
+
     try {
       // Fetch wallet payment data
       const { data: walletData, error } = await supabase
-        .from('wallet_payments')
-        .select('*')
-        .eq('startup_id', startupId);
-  
+        .from("wallet_payments")
+        .select("*")
+        .eq("startup_id", startupId);
+
       if (error) {
-        console.error('Error fetching wallet data:', error.message);
-        toast.error('Error fetching wallet data.');
+        console.error("Error fetching wallet data:", error.message);
+        toast.error("Error fetching wallet data.");
       } else {
-        console.log('Fetched wallet data:', walletData); // Debugging: log fetched wallet data
         setWalletDetails(walletData);
       }
-  
+
       // Fetch wallet credit data, handle empty result gracefully
-      const { data: walletCreditData, error: walletCreditError } = await supabase
-        .from('wallet_credits')
-        .select('*')
-        .eq('startup_id', startupId)
-        .maybeSingle(); // Use maybeSingle() to handle cases where no row is found
-  
+      const { data: walletCreditData, error: walletCreditError } =
+        await supabase
+          .from("wallet_credits")
+          .select("*")
+          .eq("startup_id", startupId)
+          .maybeSingle();
+
       if (walletCreditError) {
-        console.error('Error fetching wallet credit data:', walletCreditError.message);
-        toast.error('Error fetching wallet credit data.');
+        console.error(
+          "Error fetching wallet credit data:",
+          walletCreditError.message
+        );
+        toast.error("Error fetching wallet credit data.");
       } else if (!walletCreditData) {
-        console.log('No wallet credit data found for this user. Initializing with default values.');
         setWalletCredit({ credit_balance: 0, referral_balance: 0 }); // Initialize with default values
       } else {
-        console.log('Fetched wallet credit data:', walletCreditData); // Debugging: log fetched wallet credit data
         setWalletCredit(walletCreditData);
       }
     } catch (error) {
-      console.error('Unexpected error fetching wallet data:', error.message);
-      toast.error('Unexpected error fetching wallet data.');
+      console.error("Unexpected error fetching wallet data:", error.message);
+      toast.error("Unexpected error fetching wallet data.");
+    } finally {
+      setLoading(false); // End loading
     }
   };
-  
 
   const handleUpdateStartup = async (walletDetails) => {
     const { balance, cashback, referral, payment_method } = walletDetails;
-    // Update the wallet details in the database
     const { error } = await supabase.from("wallets").upsert({
       startup_id: selectedStartup.id,
       balance,
@@ -95,6 +111,14 @@ const StartupWallet = () => {
     }
   };
 
+  const isExpiringSoon = (date) => {
+    const today = new Date();
+    const paymentDate = new Date(date);
+    const timeDiff = paymentDate.getTime() - today.getTime();
+    const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysRemaining <= 7; // Highlight if payment is due in 7 days or less
+  };
+
   if (userLoading || startupsLoading) {
     return <Loading />;
   }
@@ -105,8 +129,18 @@ const StartupWallet = () => {
         <title>Startup Wallet</title>
       </Head>
       <main className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-4 text-center">Startup Wallet</h1>
-        {startups.length > 0 ? (
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-3xl font-bold text-center">Startup Wallet</h1>
+          {/* Search Box */}
+          <input
+            type="text"
+            placeholder="Search startups..."
+            className="p-2 border border-gray-300 rounded-md"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        {filteredStartups.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-300">
               <thead>
@@ -132,7 +166,7 @@ const StartupWallet = () => {
                 </tr>
               </thead>
               <tbody>
-                {startups.map((startup, index) => {
+                {filteredStartups.map((startup, index) => {
                   const companyProfile = startup.company_profile;
                   const company_logos = startup?.company_logo;
                   const founderInfo = companyProfile?.founder_information;
@@ -210,7 +244,7 @@ const StartupWallet = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleUpdateStartup}
-        user={selectedStartup} // Pass the selected startup object
+        user={selectedStartup}
         walletDetails={walletDetails}
         walletCredit={walletCredit}
       />
