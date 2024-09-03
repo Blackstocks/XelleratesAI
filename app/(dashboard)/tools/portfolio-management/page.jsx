@@ -2,44 +2,30 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Card from '@/components/ui/Card';
-import GroupChart5 from '@/components/partials/widget/chart/group-chart5';
-import PortfolioTable from '@/components/partials/table/portfolioTable';
-import HomeBredCurbs from '@/components/partials/HomeBredCurbs';
-import Icon from '@/components/ui/Icon';
-import RecentOrderTable from '@/components/partials/table/recentOrder-table';
 import ProfitChart from '@/components/partials/widget/chart/profit-chart';
-import OrderChart from '@/components/partials/widget/chart/order-chart';
-import EarningChart from '@/components/partials/widget/chart/earning-chart';
-import CompanyTable from '@/components/partials/table/company-table';
 import useUserDetails from '@/hooks/useUserDetails';
-import GlobalFilter from '@/components/partials/table/GlobalFilter';
-import HistoryChart from '@/components/partials/widget/chart/history-chart';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-import { DocumentProvider } from '@/context/DocumentContext';
 import Loading from '@/app/loading';
-import CompetitorsCard from '@/components/partials/widget/competitorsCard';
-
-const CardSlider = dynamic(
-  () => import('@/components/partials/widget/CardSlider_portfolio'),
-  {
-    ssr: false,
-  }
-);
-const CardSlider2 = dynamic(
-  () => import('@/components/partials/widget/CardSlider2'),
-  {
-    ssr: false,
-  }
-);
+import CaptableCard from '@/components/CapTable';
+import FairMarketValueCard from '@/components/FairMarketValueCard';
+import ImageBlock2 from '@/components/partials/widget/block/image-block-2';
+import GroupChart2 from '@/components/partials/widget/chart/group-chart-2';
+import MixedChart from '@/components/partials/chart/appex-chart/Mixed';
+import ActivityCard from '@/components/ActivityCard';
 
 const BankingPage = () => {
-  const { profile, investorSignup } = useCompleteUserDetails();
+  const { profile } = useCompleteUserDetails();
   const { user, loading: userLoading } = useUserDetails();
-
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [globalFilter, setGlobalFilter] = useState('');
-  const [selectedCard, setSelectedCard] = useState('portfolio');
   const [isLoading, setIsLoading] = useState(true);
+
+  // Sample activities data
+  const activities = [
+    { time: '12 Hrs', user: 'John Doe', description: 'Updated the product description for Widget X.' },
+    { time: '4:32pm', user: 'Jane Smith', description: 'Added a new user with username janesmith89.' },
+    { time: '11:45am', user: 'Michael Brown', description: 'Changed the status of order #12345 to Shipped.' },
+    { time: '9:27am', user: 'David Wilson', description: 'Added John Smith to academy group this day.' },
+    { time: '8:56pm', user: 'Robert Jackson', description: 'Added a comment to the task Update website layout.' },
+  ];
 
   useEffect(() => {
     if (!userLoading && profile) {
@@ -47,148 +33,49 @@ const BankingPage = () => {
     }
   }, [userLoading, profile]);
 
-  const handleSearch = (value) => {
-    setGlobalFilter(value);
-  };
-
-  const handleSelectChange = (event) => {
-    setSelectedCard(event.target.value);
-  };
-
   if (isLoading) {
     return <Loading />;
   }
 
   return (
-    <DocumentProvider>
-      <div className='space-y-5'>
-        <Card>
-          <div className='grid xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-5 place-content-center'>
-            <div className='flex space-x-4 h-full items-center rtl:space-x-reverse'>
-              <div className='flex-none'>
-                <div className='h-20 w-20 rounded-full relative overflow-hidden'>
-                  {investorSignup?.profile_photo ? (
-                    <img
-                      src={investorSignup.profile_photo}
-                      alt='Profile Photo'
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: '50%',
-                      }}
-                    />
-                  ) : (
-                    <img
-                      src='assets/images/all-img/istockphoto-907865186-612x612.jpg'
-                      alt=''
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: '50%',
-                      }}
-                    />
-                  )}
-                </div>
-              </div>
-
-              <div className='flex-1'>
-                <h4 className='text-xl font-medium mb-2'>
-                  <span className='block font-light'>Good evening,</span>
-                  <span className='block'>{investorSignup?.name}</span>
-                </h4>
-                <p className='text-sm dark:text-slate-300'>
-                  Welcome to Xellerates AI
-                </p>
-              </div>
-            </div>
-            <GroupChart5 />
-          </div>
-        </Card>
-        <div className='grid grid-cols-12 gap-5'>
-          <div className='lg:col-span-4 col-span-12 space-y-5'>
-            <Card title=''>
-              <div className='flex justify-between items-center mb-2'>
-                <h4 className='card-title'>
-                  {selectedCard === 'portfolio'
-                    ? 'My Portfolios'
-                    : 'Track Potential Startups'}
-                </h4>
-                <select
-                  onChange={handleSelectChange}
-                  className='form-select block w-1/3 mt-1 text-sm border-gray-300 rounded-md'
-                >
-                  <option value='portfolio'>My Portfolios</option>
-                  <option value='track'>Track Potential Startups</option>
-                </select>
-              </div>
-              <div className='max-w-[90%] mx-auto mt-2'>
-                {selectedCard === 'portfolio' ? (
-                  <CardSlider />
-                ) : (
-                  <CardSlider2 />
-                )}
-              </div>
-            </Card>
-            <Card>
-              <div className='flex justify-between mb-6'>
-                <h4 className='card-title'>Activities</h4>
-                <select
-                  onChange={handleSelectChange}
-                  className='form-select block w-1/3 mt-1 text-sm border-gray-300 rounded-md'
-                >
-                  <option value='My Portfolios'>My Portfolios</option>
-                  <option value='Track Potential Startups'>
-                    Track Potential Startups
-                  </option>
-                </select>
-              </div>
-            </Card>
-          </div>
-          <div className='lg:col-span-8 col-span-12'>
-            <div className='space-y-5 bank-table'>
-              <PortfolioTable />
-              <Card title='Progress'>
-                <div className='legend-ring4'>
-                  <HistoryChart />
-                </div>
-              </Card>
-            </div>
-          </div>
+    <main className="p-6">
+      <div className="grid grid-cols-12 gap-5 mb-5">
+        <div className="2xl:col-span-3 lg:col-span-4 col-span-12">
+          <ImageBlock2 />
         </div>
-        <div>
-          <CompetitorsCard />
-        </div>
-        <div className='grid lg:grid-cols-2 grid-cols-1 gap-5'>
-          <Card title='Cap Table' noborder>
-            <RecentOrderTable />
-          </Card>
-          <Card title='Financial Snapshot'>
-            <div className='grid md:grid-cols-2 grid-cols-1 gap-5'>
-              <OrderChart />
-              <ProfitChart />
-              <div className='md:col-span-2'>
-                <EarningChart />
-              </div>
-            </div>
-          </Card>
-        </div>
-        <div className='lg:col-span-8 col-span-12'>
-          <Card noborder>
-            <div className='flex justify-between items-center mb-4'>
-              <h4 className='text-xl font-medium text-slate-900 dark:text-white'>
-                All Companies
-              </h4>
-              <div className='w-64'>
-                <GlobalFilter filter={globalFilter} setFilter={handleSearch} />
-              </div>
-            </div>
-            <CompanyTable />
-          </Card>
+        <div className="2xl:col-span-9 lg:col-span-8 col-span-12">
+          <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
+            <GroupChart2 />
+          </div>
         </div>
       </div>
-    </DocumentProvider>
+      <div className="grid grid-cols-12 gap-6">
+        {/* Captable Card */}
+        <div className="col-span-12 md:col-span-3">
+          <CaptableCard />
+        </div>
+
+        {/* Financials Card */}
+        <div className="col-span-12 md:col-span-6">
+          <Card title="Financials">
+            <MixedChart />
+          </Card>
+        </div>
+
+        {/* Fair Market Value Card */}
+        <div className="col-span-12 md:col-span-3">
+          <FairMarketValueCard />
+        </div>
+        
+        {/* Activity Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 col-span-12">
+          <ActivityCard title="Company and Founder's Information" imageSrc="\assets\images\all-img\founder.png" activities={activities} />
+          <ActivityCard title="Series wise Documents" imageSrc="/images/documents.png" activities={activities} />
+          <ActivityCard title="Approvals" imageSrc="/images/approvals.png" activities={activities} />
+          <ActivityCard title="Financials" imageSrc="\assets\images\all-img\financials.png" activities={activities} />
+        </div>
+      </div>
+    </main>
   );
 };
 
