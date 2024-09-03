@@ -307,7 +307,7 @@ const WalletModal = ({ isOpen, onClose, user }) => {
         ) : (
           <>
             {/* Current Credit and Referral Earnings */}
-            <div className="bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-lg shadow-inner mb-6">
+            <div className="bg-gray-200 p-4 rounded-lg shadow-inner mb-6">
               <table className="w-full text-sm text-gray-700">
                 <thead>
                   <tr className="text-gray-500 uppercase tracking-wide text-sm">
@@ -328,7 +328,7 @@ const WalletModal = ({ isOpen, onClose, user }) => {
             <div className="overflow-hidden rounded-lg shadow-lg mb-6 border border-gray-200">
               <table className="w-full text-sm text-gray-700">
                 <thead>
-                  <tr className="bg-gradient-to-r from-purple-200 to-blue-200 text-gray-800 uppercase tracking-wide text-xs">
+                  <tr className="bg-gray-200 text-gray-800 uppercase tracking-wide text-xs">
                     <th className="py-3 px-5 text-left">Product</th>
                     <th className="py-3 px-5 text-left">Type</th>
                     <th className="py-3 px-5 text-left">Plan</th>
@@ -399,7 +399,7 @@ const WalletModal = ({ isOpen, onClose, user }) => {
         {showNewPaymentForm && (
           <form
             onSubmit={handleSubmitPayment}
-            className="p-6 bg-gray-50 rounded-lg shadow-md mt-6"
+            className="p-6 bg-gray-100 rounded-lg shadow-md mt-6"
           >
             <label className="block mb-4">
               Product

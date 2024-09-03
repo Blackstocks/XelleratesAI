@@ -191,7 +191,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
         toast.error('Not enough credits to generate the investment readiness report.');
       }
     } catch (error) {
-      console.error('Error in handleGenerateInvestmentReadinessReport:', error.message);
+      console.error('Error in Report:', error.message);
       toast.error('An unexpected error occurred while generating the report.');
     }
   };

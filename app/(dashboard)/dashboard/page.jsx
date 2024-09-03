@@ -197,8 +197,7 @@ const Dashboard = () => {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTableViewChecked, setIsTableViewChecked] = useState(false);
-  //
-  const [financials, setFinancials] = useState([]);
+  const [financialData, setFinancialData] = useState({});
   const [loadingFinancials, setLoadingFinancials] = useState(false);
   const {
     companyProfile,
@@ -206,90 +205,94 @@ const Dashboard = () => {
     loading: completeUserDetailsLoading,
   } = useCompleteUserDetails();
   const [isDataFetched, setIsDataFetched] = useState(false);
-
-  // console.log('COMPANY PROFILE: ', companyProfile);
-  // console.log('COMPANY DOCS: ', companyDocuments);
+  const [selectedQuarter, setSelectedQuarter] = useState('Q1');
   const toastIdRef = useRef(null);
 
   useEffect(() => {
-    const fetchCompanyNameAndCardStatus = async () => {
-      if (user) {
+    const fetchData = async () => {
+      try {
+        if (!user) return; // Exit if user is not available
+
+        // Retrieve unlocked cards from local storage if available
+        const savedUnlockedCards = localStorage.getItem('unlockedCards');
+        if (savedUnlockedCards) {
+          const parsedUnlockedCards = JSON.parse(savedUnlockedCards);
+          setUnlockedCards(parsedUnlockedCards);
+
+          // Fetch financial data if 'currentNumbers' card is unlocked
+          if (parsedUnlockedCards.currentNumbers && companyProfile) {
+            await fetchFinancials(); // Fetch financial data if needed
+          }
+        } else {
+          // If no local storage data, fetch the card unlock status from the database
+          const { data: unlockData, error: unlockError } = await supabase
+            .from('card_unlocks')
+            .select('*')
+            .eq('startup_id', user.id)
+            .single();
+
+          if (unlockError) {
+            console.error('Error fetching card unlock status:', unlockError);
+          } else if (unlockData) {
+            const unlockedStatus = {
+              topConversations: unlockData.top_conversations, 
+              currentNumbers: unlockData.current_numbers,
+              capTable: unlockData.cap_table,
+              topPerformingPortfolios: unlockData.top_performing_portfolios,
+              hotDeals: unlockData.hot_deals,
+            };
+            setUnlockedCards(unlockedStatus);
+            // Save to local storage
+            localStorage.setItem('unlockedCards', JSON.stringify(unlockedStatus));
+
+            // Fetch financial data if 'currentNumbers' card is unlocked
+            if (unlockedStatus.currentNumbers && companyProfile) {
+              await fetchFinancials();
+            }
+          }
+        }
+
+        // Fetch company name
         const { data: companyData, error: companyError } = await supabase
           .from('profiles')
           .select('company_name')
           .eq('id', user.id)
           .single();
-  
+
         if (companyError) {
           console.error('Error fetching company name:', companyError);
         } else {
           setCompanyName(companyData.company_name);
         }
-  
-        // Fetch the unlocked status for all cards in a single entry
 
-        console.log( "Card Unlock Data: ", user.id);
-
-
-        const { data: unlockData, error: unlockError } = await supabase
-          .from('card_unlocks')
-          .select('*')
-          .eq('startup_id', user.id)
-          .single();
-        
-          
-
-        if (unlockError) {
-          console.error('Error fetching card unlock status:', unlockError);
-        } else if (unlockData) {
-          
-          const unlockedStatus = {
-            topConversations: unlockData.top_conversations, 
-            currentNumbers: unlockData.current_numbers,
-            capTable: unlockData.cap_table,
-            topPerformingPortfolios: unlockData.top_performing_portfolios,
-            hotDeals: unlockData.hot_deals,
-          };
-          setUnlockedCards(unlockedStatus);
-        }
+        setIsDataFetched(true); // Indicate that data fetching is complete
+      } catch (error) {
+        console.error('An unexpected error occurred:', error.message);
+        toast.error('An unexpected error occurred while fetching data.');
       }
-      setIsDataFetched(true); // Set this to true after fetching is complete
     };
-  
-    fetchCompanyNameAndCardStatus();
-  }, [user]);
-  
-  
 
-  //
-  // const { companyDocuments } = useCompleteUserDetails();
-
-  const [selectedQuarter, setSelectedQuarter] = useState('Q1');
-  const [financialData, setFinancialData] = useState({});
+    fetchData();
+  }, [user, companyProfile]);
 
   const fetchFinancials = async () => {
+    if (!companyProfile) {
+      console.warn('Company profile is not available yet.');
+      return;
+    }
+
     try {
       setLoadingFinancials(true);
-      toastIdRef.current = toast.loading('Loading financial data...');
-
-      // Ensure companyProfile is loaded before proceeding
-      if (!companyProfile) {
-        throw new Error('Company profile is not available');
+      if (!toast.isActive(toastIdRef.current)) {
+        toastIdRef.current = toast.loading('Loading financial data...');
       }
 
       const company_id = companyProfile?.id;
       if (!companyDocuments?.mis) {
         toast.warn('Please upload MIS Report to see Financial Data');
       } else if (!companyDocuments.mis.endsWith('.xlsx')) {
-        toast.warn(
-          'Please upload MIS Report in correct format to see Financial Data'
-        );
+        toast.warn('Please upload MIS Report in correct format to see Financial Data');
       } else {
-        if (!company_id) {
-          throw new Error('Company ID is not available');
-        }
-
-        // API request to extract financial data
         const response = await fetch('/api/apiDataExtraction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -299,13 +302,7 @@ const Dashboard = () => {
         if (!response.ok) {
           const errorData = await response.json();
           console.error('Error:', errorData.error);
-
-          if (errorData.error === 'MIS file not found') {
-            toast.error('Please upload MIS Report to see Financial Data.');
-          } else {
-            toast.error(errorData.error || 'Failed to load financial data');
-          }
-
+          toast.error(errorData.error || 'Failed to load financial data');
           return;
         }
 
@@ -317,9 +314,11 @@ const Dashboard = () => {
       toast.error('An unexpected error occurred');
     } finally {
       setLoadingFinancials(false);
-      toast.dismiss(toastIdRef.current);
+      if (toastIdRef.current) toast.dismiss(toastIdRef.current);
     }
   };
+
+
 
   const handleQuarterChange = (e) => {
     setSelectedQuarter(e.target.value);
@@ -354,6 +353,12 @@ const Dashboard = () => {
   
     try {
       // Fetch current wallet credits
+
+      const updatedUnlockStatus = { ...unlockedCards, [cardName]: true };
+      setUnlockedCards(updatedUnlockStatus);
+      localStorage.setItem('unlockedCards', JSON.stringify(updatedUnlockStatus));
+
+
       const { data: walletCredits, error: creditError } = await supabase
         .from('wallet_credits')
         .select('*')
