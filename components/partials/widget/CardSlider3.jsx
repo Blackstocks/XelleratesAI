@@ -74,14 +74,17 @@ const CardSlider3 = ({ profileId }) => {
             <div
               className={`${item.bg} h-[200px] bg-gradient-to-r relative rounded-md z-[1] p-4 text-white`}
             >
-              <div className='mt-[18px] font-semibold text-lg mb-[17px]'>
+              <div className='mt-[18px] font-semibold text-2xl mb-[17px] text-center'>
                 {item.cardNo}
               </div>
-              <div className='text-xs text-opacity-75 mb-[2px]'>
+              <div className='text-lg text-opacity-75 mb-[2px] text-center'>
                 Investment Amount
               </div>
-              <div className='text-2xl font-semibold'>
+              <div className='text-2xl font-semibold text-center'>
                 ${item.investmentAmount}
+              </div>
+              <div className='text-sm text-center absolute bottom-3 left-1/2 transform -translate-x-1/2'>
+                Swipe for more
               </div>
             </div>
           </SwiperSlide>

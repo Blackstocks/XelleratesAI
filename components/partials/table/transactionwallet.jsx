@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 import Card from '@/components/ui/Card';
-import Icon from '@/components/ui/Icon';
 import {
   useTable,
   useRowSelect,
@@ -11,53 +10,46 @@ import {
   useGlobalFilter,
   usePagination,
 } from 'react-table';
-import GlobalFilter from '@/components/partials/table/GlobalFilter';
 
 const COLUMNS = [
   {
     Header: 'Tools',
     accessor: 'product',
-    Cell: ({ cell: { value } }) => {
-      return (
-        <span className='text-sm text-slate-600 dark:text-slate-300 capitalize font-medium'>
-          {value || 'N/A'}
-        </span>
-      );
-    },
+    Cell: ({ cell: { value } }) => (
+      <span className='text-sm font-medium text-gray-800 dark:text-gray-100'>
+        {value || 'N/A'}
+      </span>
+    ),
   },
   {
     Header: 'Cost',
     accessor: 'price',
-    Cell: ({ cell: { value } }) => {
-      return (
-        <span className='text-slate-500 dark:text-slate-400'>
-          {value ? `$${value}` : 'N/A'}
-        </span>
-      );
-    },
+    Cell: ({ cell: { value } }) => (
+      <span className='text-sm text-gray-600 dark:text-gray-400'>
+        {value ? `$${value}` : 'N/A'}
+      </span>
+    ),
   },
   {
     Header: 'Payment Method',
     accessor: 'mode_of_payment',
-    Cell: ({ row }) => {
-      return (
-        <span className='text-slate-500 dark:text-slate-400'>
-          <span className='block text-slate-600 dark:text-slate-300'>
-            {row?.original?.mode_of_payment || 'N/A'}
-          </span>
-          <span className='block text-slate-500 text-xs'>
-            Trans ID: {row?.original?.transaction_id || 'N/A'}
-          </span>
+    Cell: ({ row }) => (
+      <span className='text-sm text-gray-600 dark:text-gray-400'>
+        <span className='block font-medium text-gray-800 dark:text-gray-100'>
+          {row?.original?.mode_of_payment || 'N/A'}
         </span>
-      );
-    },
+        <span className='block text-xs text-gray-500 dark:text-gray-400'>
+          Trans ID: {row?.original?.transaction_id || 'N/A'}
+        </span>
+      </span>
+    ),
   },
   {
     Header: 'Recharge',
     accessor: 'date_of_payment',
     Cell: ({ cell: { value } }) => {
       const date = value ? new Date(value).toLocaleDateString() : 'N/A';
-      return <span className='text-slate-500 dark:text-slate-400'>{date}</span>;
+      return <span className='text-sm text-gray-600 dark:text-gray-400'>{date}</span>;
     },
   },
 ];
@@ -72,7 +64,7 @@ const TransactionsTable2 = ({ profileId }) => {
         const { data, error } = await supabase
           .from('wallet_payments')
           .select('*')
-          .eq('startup_id', profileId); // Fetch data for the specific profile
+          .eq('startup_id', profileId);
 
         if (error) {
           console.error('Error fetching wallet payments:', error.message);
@@ -103,9 +95,7 @@ const TransactionsTable2 = ({ profileId }) => {
     {
       columns,
       data,
-      initialState: {
-        pageSize: 4, // Set page size to 4 entries per page
-      },
+      initialState: { pageSize: 5 },
     },
     useGlobalFilter,
     useSortBy,
@@ -126,142 +116,116 @@ const TransactionsTable2 = ({ profileId }) => {
     state,
     gotoPage,
     pageCount,
-    setPageSize,
     prepareRow,
   } = tableInstance;
 
-  const { globalFilter, pageIndex, pageSize } = state;
+  const { globalFilter, pageIndex } = state;
 
   return (
-    <>
-      <Card noborder>
-        <div className='md:flex justify-between items-center mb-6'>
-          <h4 className='card-title'>Tools and Cost</h4>
-          <div className='flex items-center space-x-4'>
-            <input
-              type='text'
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder='Search...'
-              className='p-2 border border-gray-300 rounded'
-            />
-          </div>
-        </div>
-        <div className='overflow-x-auto -mx-6'>
-          <div className='inline-block min-w-full align-middle'>
-            <div className='overflow-hidden'>
-              <table
-                className='min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700'
-                {...getTableProps()}
-              >
-                <thead className='border-t border-slate-100 dark:border-slate-800'>
-                  {headerGroups.map((headerGroup) => {
-                    const { key, ...restHeaderGroupProps } = headerGroup.getHeaderGroupProps();
-                    return (
-                      <tr key={key} {...restHeaderGroupProps}>
-                        {headerGroup.headers.map((column) => {
-                          const { key, ...restColumn } = column.getHeaderProps();
-                          return (
-                            <th
-                              key={key}
-                              {...restColumn}
-                              scope='col'
-                              className='table-th'
-                            >
-                              {column.render('Header')}
-                              <span>
-                                {column.isSorted
-                                  ? column.isSortedDesc
-                                    ? ' 🔽'
-                                    : ' 🔼'
-                                  : ''}
-                              </span>
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </thead>
-                <tbody
-                  className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-700'
-                  {...getTableBodyProps()}
+    <Card className='bg-gray-50 dark:bg-slate-800 shadow-md rounded-lg'>
+      <div className='flex justify-between items-center mb-4'>
+        <h4 className='text-lg font-semibold text-gray-800 dark:text-white'>Tools and Cost</h4>
+        <input
+          type='text'
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder='Search...'
+          className='p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+        />
+      </div>
+      <div className='overflow-x-auto'>
+        <table
+          className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'
+          {...getTableProps()}
+        >
+          <thead className='bg-gray-200 dark:bg-slate-700'>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider dark:text-gray-300`}
+                  >
+                    {column.render('Header')}
+                    <span>
+                      {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                    </span>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody
+            className={'bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-gray-700'}
+            {...getTableBodyProps()}
+          >
+            {page.map((row) => {
+              prepareRow(row);
+              return (
+                <tr
+                  {...row.getRowProps()}
+                  className='hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors duration-200'
                 >
-                  {filteredData.length > 0 ? (
-                    page.map((row) => {
-                      prepareRow(row);
-                      const { key, ...restRowProps } = row.getRowProps();
-                      return (
-                        <tr key={key} {...restRowProps}>
-                          {row.cells.map((cell) => {
-                            const { key, ...restCellProps } = cell.getCellProps();
-                            return (
-                              <td
-                                key={key}
-                                {...restCellProps}
-                                className='table-td py-2'
-                              >
-                                {cell.render('Cell')}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan={COLUMNS.length}
-                        className='py-3 px-5 text-center text-gray-500 italic'
-                      >
-                        No payment details available for this profile.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                  {row.cells.map((cell) => (
+                    <td
+                      {...cell.getCellProps()}
+                      className='px-4 py-3 text-sm text-gray-800 dark:text-gray-300'
+                    >
+                      {cell.render('Cell')}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+            {page.length === 0 && (
+              <tr>
+                <td
+                  colSpan={COLUMNS.length}
+                  className='py-4 text-center text-gray-500 italic'
+                >
+                  No payment details available for this profile.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className='py-4 flex items-center justify-between'>
+        <span className='text-sm text-gray-600 dark:text-gray-300'>
+          Page {pageIndex + 1} of {pageOptions.length}
+        </span>
+        <div className='flex space-x-2'>
+          <button
+            onClick={() => gotoPage(0)}
+            disabled={!canPreviousPage}
+            className='px-3 py-1 border border-gray-300 rounded-md text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'
+          >
+            {'<<'}
+          </button>
+          <button
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+            className='px-3 py-1 border border-gray-300 rounded-md text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'
+          >
+            {'<'}
+          </button>
+          <button
+            onClick={() => nextPage()}
+            disabled={!canNextPage}
+            className='px-3 py-1 border border-gray-300 rounded-md text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'
+          >
+            {'>'}
+          </button>
+          <button
+            onClick={() => gotoPage(pageCount - 1)}
+            disabled={!canNextPage}
+            className='px-3 py-1 border border-gray-300 rounded-md text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'
+          >
+            {'>>'}
+          </button>
         </div>
-        <div className='py-3 flex items-center justify-between'>
-          <div className='flex-1 flex items-center justify-between'>
-            <span className='text-sm text-slate-700 dark:text-slate-200'>
-              Page {pageIndex + 1} of {pageOptions.length}
-            </span>
-            <div className='flex items-center space-x-2'>
-              <button
-                onClick={() => gotoPage(0)}
-                disabled={!canPreviousPage}
-                className='btn btn-light'
-              >
-                {'<<'}
-              </button>
-              <button
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-                className='btn btn-light'
-              >
-                {'<'}
-              </button>
-              <button
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-                className='btn btn-light'
-              >
-                {'>'}
-              </button>
-              <button
-                onClick={() => gotoPage(pageCount - 1)}
-                disabled={!canNextPage}
-                className='btn btn-light'
-              >
-                {'>>'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </>
+      </div>
+    </Card>
   );
 };
 

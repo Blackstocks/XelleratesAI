@@ -7,6 +7,7 @@ import GroupChart6 from '@/components/partials/widget/chart/group-chart6';
 import { supabase } from '@/lib/supabaseclient';
 import useUserDetails from '@/hooks/useUserDetails';
 import Loading from '@/app/loading';
+import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 
 const CardSlider3 = dynamic(() => import('@/components/partials/widget/CardSlider3'), {
   ssr: false,
@@ -14,9 +15,10 @@ const CardSlider3 = dynamic(() => import('@/components/partials/widget/CardSlide
 import TransactionsTable2 from '@/components/partials/table/transactionwallet';
 
 const Wallet = () => {
-  const [greeting, setGreeting] = useState('Good evening');
+  const [greeting, setGreeting] = useState('Good Evening');
   const [companyName, setCompanyName] = useState('');
   const { user, loading } = useUserDetails();
+  const { profile } = useCompleteUserDetails();
 
   useEffect(() => {
     const currentHour = new Date().getHours();
@@ -24,8 +26,6 @@ const Wallet = () => {
       setGreeting('Good Morning');
     } else if (currentHour < 18) {
       setGreeting('Good Afternoon');
-    } else {
-      setGreeting('Good Evening');
     }
 
     const fetchCompanyName = async () => {
@@ -52,46 +52,48 @@ const Wallet = () => {
   }
 
   return (
-    <div className='space-y-5'>
-      <Card>
-        <div className='grid xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-5 place-content-center'>
-          <div className='flex space-x-4 h-full items-center rtl:space-x-reverse'>
-            <div className='flex-none'>
-              <div className='h-20 w-20 rounded-full'>
-                <img
-                  src='/assets/images/all-img/main-user.png'
-                  alt=''
-                  className='w-full h-full'
-                />
-              </div>
+    <div className='space-y-6 p-6 bg-gray-100 min-h-screen'>
+      <Card className='bg-white shadow-md rounded-lg p-6'>
+        <div className='flex flex-col md:flex-row justify-between items-center'>
+          <div className='flex items-center mb-4 md:mb-0'>
+            <div className='h-20 w-20 rounded-full overflow-hidden shadow-md'>
+              <img
+                src={profile?.company_logo || '/default-logo.png'}
+                alt='Company Logo'
+                className='w-full h-full object-cover'
+              />
             </div>
-            <div className='flex-1'>
-              <h4 className='text-xl font-medium mb-2'>
-                <span className='block font-light'>{greeting},</span>
-                <span className='block'>
-                  <b>{companyName ? `Mr. ${companyName}` : 'Loading...'}</b>
-                </span>
+            <div className='ml-4'>
+              <h4 className='text-xl font-semibold text-gray-800 mb-1'>
+                {greeting}, <br></br><b>{companyName ? `Mr. ${companyName}` : 'Loading...'}</b>
               </h4>
-              <p className='text-sm dark:text-slate-300'>
-                Welcome to Xellerates AI
+              <p className='text-lg text-gray-500'>
+                Welcome to Xellerates AI!
               </p>
             </div>
           </div>
-          <GroupChart6 profileId={user.id} />
+          <div className='w-full md:w-auto'>
+            <GroupChart6 profileId={user.id} />
+          </div>
         </div>
       </Card>
-      <div className='grid grid-cols-12 gap-5'>
-        <div className='lg:col-span-4 col-span-12 space-y-5'>
-          <Card title='Saved Payment Method'>
-            <div className='max-w-[90%] mx-auto mt-2'>
+
+      <div className='grid grid-cols-1 lg:grid-cols-12 gap-6'>
+        <div className='lg:col-span-4 col-span-12'>
+          <Card className='bg-white shadow-md rounded-lg p-6'>
+            <h5 className='text-xl font-semibold text-gray-800 mb-4'>Saved Payment Method</h5>
+            <div className='max-w-full'>
               <CardSlider3 profileId={user.id} />
             </div>
           </Card>
         </div>
         <div className='lg:col-span-8 col-span-12'>
-          <div className='space-y-5 bank-table'>
-            <TransactionsTable2 profileId={user.id} />
-          </div>
+          <Card className='bg-white shadow-md rounded-lg p-6'>
+            <h5 className='text-xl font-semibold text-gray-800 mb-4'>Transaction History</h5>
+            <div className='space-y-5'>
+              <TransactionsTable2 profileId={user.id} />
+            </div>
+          </Card>
         </div>
       </div>
     </div>
