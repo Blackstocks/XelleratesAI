@@ -332,7 +332,7 @@ const Dashboard = () => {
         toast.error('Please wait, loading data...');
         return;
       }
-    }
+    
   
     // Map card names to the correct database column names
     const cardNameMapping = {
@@ -437,16 +437,16 @@ const Dashboard = () => {
         updatedUnlockData.created_at = new Date();
   
         const { error: updateError1 } = await supabase
-  .from('card_unlocks')
-  .update(updatedUnlockData)
-  .eq('startup_id', user.id);
+          .from('card_unlocks')
+          .update(updatedUnlockData)
+          .eq('startup_id', user.id);
 
-if (updateError1) {
-  console.error('Error updating unlock status:', updateError1);
-  toast.error('Failed to update unlock status.');
-  return;
-}
-  
+        if (updateError1) {
+          console.error('Error updating unlock status:', updateError1);
+          toast.error('Failed to update unlock status.');
+          return;
+        }
+          
         toast.success('1 credit has been deducted to unlock this feature.');
       } else {
         toast.error('Not enough credits to unlock this feature.');
@@ -462,6 +462,7 @@ if (updateError1) {
       console.error('Error in handleUnlockClick:', error.message);
       toast.error('An unexpected error occurred while unlocking the card.');
     }
+  }
   };
   
 

@@ -23,9 +23,11 @@ const Wallet = () => {
   useEffect(() => {
     const currentHour = new Date().getHours();
     if (currentHour < 12) {
-      setGreeting('Good Morning');
-    } else if (currentHour < 18) {
-      setGreeting('Good Afternoon');
+      setGreeting('Good morning');
+    } else if (currentHour < 16) {
+      setGreeting('Good afternoon');
+    } else {
+      setGreeting('Good evening');
     }
 
     const fetchCompanyName = async () => {
@@ -65,7 +67,7 @@ const Wallet = () => {
             </div>
             <div className='ml-4'>
               <h4 className='text-xl font-semibold text-gray-800 mb-1'>
-                {greeting}, <br></br><b>{companyName ? `Mr. ${companyName}` : 'Loading...'}</b>
+                {greeting}, <br></br><b>{profile ? `Mr. ${profile?.name}` : 'Loading...'}</b>
               </h4>
               <p className='text-lg text-gray-500'>
                 Welcome to Xellerates AI!
