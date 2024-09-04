@@ -359,7 +359,7 @@ const Dashboard = () => {
       setUnlockedCards(updatedUnlockStatus);
       localStorage.setItem('unlockedCards', JSON.stringify(updatedUnlockStatus));
 
-
+      
       const { data: walletCredits, error: creditError } = await supabase
         .from('wallet_credits')
         .select('*')
@@ -368,7 +368,7 @@ const Dashboard = () => {
   
       if (creditError) {
         console.error('Error fetching credits:', creditError);
-        toast.error('Failed to fetch wallet credits.');
+        //toast.error('Failed to fetch wallet credits.');
         return;
       }
   
