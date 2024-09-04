@@ -228,7 +228,7 @@ const Dashboard = () => {
           const { data: unlockData, error: unlockError } = await supabase
             .from('card_unlocks')
             .select('*')
-            .eq('startup_id', user.id)
+            .eq('startup_id', user?.id)
             .single();
 
           if (unlockError) {
@@ -256,7 +256,7 @@ const Dashboard = () => {
         const { data: companyData, error: companyError } = await supabase
           .from('profiles')
           .select('company_name')
-          .eq('id', user.id)
+          .eq('id', user?.id)
           .single();
 
         if (companyError) {
@@ -332,6 +332,7 @@ const Dashboard = () => {
         toast.error('Please wait, loading data...');
         return;
       }
+    }
     
   
     // Map card names to the correct database column names
@@ -362,7 +363,7 @@ const Dashboard = () => {
       const { data: walletCredits, error: creditError } = await supabase
         .from('wallet_credits')
         .select('*')
-        .eq('startup_id', user.id)
+        .eq('startup_id', user?.id)
         .single();
   
       if (creditError) {
@@ -377,10 +378,10 @@ const Dashboard = () => {
       const { data: unlockData, error: unlockError } = await supabase
         .from('card_unlocks')
         .select('*')
-        .eq('startup_id', user.id)
+        .eq('startup_id', user?.id)
         .single();
   
-      if (unlockError && unlockError.code !== 'PGRST116') {
+      if (unlockError && unlockError.code !== 'PGRST116' && user?.user_type === 'startup') {
         console.error('Error fetching card unlock status:', unlockError);
         toast.error('Failed to fetch card unlock status.');
         return;
@@ -390,12 +391,12 @@ const Dashboard = () => {
       let updatedUnlockData;
       if (!unlockData) {
         updatedUnlockData = {
-          startup_id: user.id,
+          startup_id: user?.id,
           top_conversations: false,
           current_numbers: false,
           cap_table: false,
-          top_performing_portfolios: false,
-          hot_deals: false,
+          top_performing_portfolios: true,
+          hot_deals: true,
         };
   
         // Insert a new entry for this startup with default values
@@ -424,7 +425,7 @@ const Dashboard = () => {
         const { error: updateError } = await supabase
           .from('wallet_credits')
           .update({ credit_balance: currentCredits - 1 })
-          .eq('startup_id', user.id);
+          .eq('startup_id', user?.id);
   
         if (updateError) {
           console.error('Error deducting credits:', updateError);
@@ -439,7 +440,7 @@ const Dashboard = () => {
         const { error: updateError1 } = await supabase
           .from('card_unlocks')
           .update(updatedUnlockData)
-          .eq('startup_id', user.id);
+          .eq('startup_id', user?.id);
 
         if (updateError1) {
           console.error('Error updating unlock status:', updateError1);
@@ -462,7 +463,6 @@ const Dashboard = () => {
       console.error('Error in handleUnlockClick:', error.message);
       toast.error('An unexpected error occurred while unlocking the card.');
     }
-  }
   };
   
 
