@@ -279,7 +279,7 @@ const shapeLine4 = {
 const statistics = [
   {
     name: shapeLine1,
-    title: "Amount <br> Invested",
+    title: "Amount &nbsp&nbsp&nbsp <br> Invested",
     count: "3,564",
     bg: "bg-[#E5F9FF] dark:bg-slate-900	",
     text: "text-info-500",
@@ -303,7 +303,7 @@ const statistics = [
   },
   {
     name: shapeLine4,
-    title: "Key <br> Insights",
+    title: "Key Insights",
     count: "<br>",
     bg: "bg-[#FFEAEA] dark:bg-[#3B0D0C]", // Light green for light mode, dark slate for dark mode
     text: "text-[#256029]", // Dark green text for better contrast
@@ -317,23 +317,43 @@ const GroupChart2 = () => {
       {statistics.map((item, i) => (
         <div key={i}>
           <Card bodyClass="pt-4 pb-3 px-4 h-full pt-8 pb-4">
-            <div className="flex space-x-3 rtl:space-x-reverse">
-              <div className="flex-none align-center">
-                <div
-                  className={`${item.bg} ${item.text} h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl`}
-                >
-                  <Icon icon={item.icon} />
-                </div>
-              </div>
-              <div className="flex-1">
-                <div className="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium" dangerouslySetInnerHTML={{ __html: item.title }}>
-                  
-                </div>
-                <div className="text-slate-900 dark:text-white text-sm font-semibold" dangerouslySetInnerHTML={{ __html: item.count }}>
-                  
-                </div>
-              </div>
-            </div>
+          <div className="flex space-x-3 rtl:space-x-reverse justify-center">
+  {item.name === shapeLine4 ? (
+    <div className="flex flex-col items-center justify-center">
+      <div
+        className={`${item.bg} ${item.text} h-9 w-9 rounded-full flex items-center justify-center text-2xl mb-2`}
+      >
+        <Icon icon={item.icon} />
+      </div>
+      <div
+        className="text-slate-600 dark:text-slate-300 text-sm font-medium text-center"
+        dangerouslySetInnerHTML={{ __html: item.title }}
+      />
+    </div>
+  ) : (
+    <div className="flex space-x-3 rtl:space-x-reverse justify-center">
+      <div className="flex-none align-center justify-center">
+        <div
+          className={`${item.bg} ${item.text} h-12 w-12 rounded-full flex items-center justify-center text-2xl`}
+        >
+          <Icon icon={item.icon} />
+        </div>
+      </div>
+      <div className="flex-1">
+        <div
+          className="text-slate-600 dark:text-slate-300 text-sm mb-1 font-medium"
+          dangerouslySetInnerHTML={{ __html: item.title }}
+        />
+        <div
+          className="text-slate-900 dark:text-white text-sm font-semibold"
+          dangerouslySetInnerHTML={{ __html: item.count }}
+        />
+      </div>
+    </div>
+  )}
+</div>
+
+
             <div className="ltr:ml-auto rtl:mr-auto max-w-[124px]">
               {/* <Chart
                 options={item.name.options}

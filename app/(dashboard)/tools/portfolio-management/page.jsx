@@ -13,6 +13,7 @@ import GroupChart2 from '@/components/partials/widget/chart/group-chart-2';
 import MixedChart from '@/components/partials/chart/appex-chart/Mixed';
 import ActivityCard from '@/components/ActivityCard';
 import { supabase } from '@/lib/supabaseclient';
+import SeriesModal from '@/components/portfolio-management/seriesDocuments'
 
 const BankingPage = () => {
   const { profile } = useCompleteUserDetails();
@@ -26,10 +27,19 @@ const BankingPage = () => {
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSeriesModalOpen, setIsSeriesModalOpen] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [assignedStartups, setAssignedStartups] = useState([]);
   const [selectedStartup, setSelectedStartup] = useState('');
-  const [companyName, setCompanyName] = useState(''); // Add companyName state
+  const [companyName, setCompanyName] = useState('');
+
+  const handleOpenSeriesModal = () => {
+    setIsSeriesModalOpen(true);
+  };
+
+  const handleCloseSeriesModal = () => {
+    setIsSeriesModalOpen(false);
+  };
   const scrollRef = useRef(null);
 
   const handleAddCard = () => {
@@ -163,14 +173,13 @@ const BankingPage = () => {
           <div className="col-span-12 overflow-x-auto">
             <div className="flex space-x-6 w-max" ref={scrollRef}>
               {cards.map((card, index) => (
-                <div key={index} className="relative">
-                  <ActivityCard title={card.title} imageSrc={card.imageSrc} />
-                  {!selectedStartup && (
-                    <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
-                      <span className="font-semibold">Select your portfolio startup to avail this feature</span>
-                    </div>
-                  )}
-                </div>
+                <div key={index}>
+                  <ActivityCard
+                    title={card.title}
+                    imageSrc={card.imageSrc}
+                    onClick={card.title === "Series wise Documents" ? handleOpenSeriesModal : undefined}
+                  />
+                </div>              
               ))}
               {/* "+" Button to Open Modal */}
               <button
@@ -179,6 +188,7 @@ const BankingPage = () => {
               >
                 +
               </button>
+              <SeriesModal isOpen={isSeriesModalOpen} onClose={handleCloseSeriesModal} />
             </div>
           </div>
         </div>
