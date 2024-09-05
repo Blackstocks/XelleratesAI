@@ -12,6 +12,7 @@ import ImageBlock2 from '@/components/partials/widget/block/image-block-2';
 import GroupChart2 from '@/components/partials/widget/chart/group-chart-2';
 import MixedChart from '@/components/partials/chart/appex-chart/Mixed';
 import ActivityCard from '@/components/ActivityCard';
+import { supabase } from '@/lib/supabaseclient';
 
 const BankingPage = () => {
   const { profile } = useCompleteUserDetails();
@@ -26,10 +27,12 @@ const BankingPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
+  const [assignedStartups, setAssignedStartups] = useState([]);
+  const [selectedStartup, setSelectedStartup] = useState('');
   const scrollRef = useRef(null);
 
   const handleAddCard = () => {
-    const newCard = { title: newCardTitle, imageSrc: '/assets/images/all-img/folder.png' };
+    const newCard = { title: newCardTitle, imageSrc: '/assets/images/all-img/folder' };
     setCards([...cards, newCard]);
     scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
     setNewCardTitle('');
@@ -44,11 +47,38 @@ const BankingPage = () => {
     setIsModalOpen(false);
   };
 
+  const fetchAssignedStartups = async () => {
+    try {
+      console.log('Profile ID:', profile.id);
+
+      const { data, error } = await supabase
+        .from('investor_startup_assignments')
+        .select('startup_id, company_profile(company_name)')
+        .eq('investor_id', profile.id);
+
+      if (error) {
+        console.error('Error fetching assigned startups:', error.message);
+      } else {
+        const startups = data.map((assignment) => assignment.company_profile.company_name);
+        setAssignedStartups(startups || []);
+        console.log('Assigned Startups:', startups);
+      }
+    } catch (err) {
+      console.error('Unexpected Error:', err.message);
+    }
+  };
+
   useEffect(() => {
     if (!userLoading && profile) {
       setIsLoading(false);
+      fetchAssignedStartups();
     }
   }, [userLoading, profile]);
+
+  const handleStartupChange = (event) => {
+    setSelectedStartup(event.target.value);
+    console.log('Selected Startup:', event.target.value);
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -56,6 +86,23 @@ const BankingPage = () => {
 
   return (
     <div className="relative">
+      {/* Top Bar with Dropdown */}
+      <div className="flex justify-between items-center p-4">
+        {/* Placeholder for Top Right Dropdown */}
+        <select
+          className="border border-gray-300 p-2 rounded focus:outline-none focus:border-blue-500"
+          value={selectedStartup}
+          onChange={handleStartupChange}
+        >
+          <option value="">Select Startup</option>
+          {assignedStartups.map((startup, index) => (
+            <option key={index} value={startup}>
+              {startup}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Main content with conditional blur */}
       <main className={`p-6 transition-all duration-300 ${isModalOpen ? 'blur-sm' : ''}`}>
         <div className="grid grid-cols-12 gap-5 mb-5">
