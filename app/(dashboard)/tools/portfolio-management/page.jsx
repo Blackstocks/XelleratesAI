@@ -29,6 +29,7 @@ const BankingPage = () => {
   const [newCardTitle, setNewCardTitle] = useState('');
   const [assignedStartups, setAssignedStartups] = useState([]);
   const [selectedStartup, setSelectedStartup] = useState('');
+  const [companyName, setCompanyName] = useState(''); // Add companyName state
   const scrollRef = useRef(null);
 
   const handleAddCard = () => {
@@ -76,8 +77,10 @@ const BankingPage = () => {
   }, [userLoading, profile]);
 
   const handleStartupChange = (event) => {
-    setSelectedStartup(event.target.value);
-    console.log('Selected Startup:', event.target.value);
+    const selectedValue = event.target.value;
+    setSelectedStartup(selectedValue);
+    setCompanyName(selectedValue); // Update companyName when startup is selected
+    console.log('Selected Startup:', selectedValue);
   };
 
   if (isLoading) {
@@ -105,41 +108,69 @@ const BankingPage = () => {
         </select>
       </div>
 
-      {/* Main content with conditional blur */}
-      <main className={`p-4 transition-all duration-300 ${isModalOpen ? 'blur-sm' : ''}`}>
+      {/* Main content */}
+      <main className="p-4 transition-all duration-300">
         <div className="grid grid-cols-12 gap-5 mb-5 h-full">
           <div className="2xl:col-span-3 lg:col-span-4 col-span-12">
-            <ImageBlock2 />
+            {/* Pass the companyName and selectedStartup as props */}
+            <ImageBlock2 selectedStartup={selectedStartup} companyName={companyName} />
           </div>
-          <div className="2xl:col-span-9 lg:col-span-8 col-span-12">
+          <div className={`2xl:col-span-9 lg:col-span-8 col-span-12 relative ${!selectedStartup ? 'filter grayscale blur-sm' : ''}`}>
             <div className="grid md:grid-cols-4 grid-cols-1 gap-4 h-full">
               <GroupChart2 />
             </div>
+            {!selectedStartup && (
+              <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
+                <span className="font-semibold">Select your portfolio startup to avail this feature</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="grid grid-cols-12 gap-6">
           {/* Captable Card */}
-          <div className="col-span-12 md:col-span-3">
+          <div className={`col-span-12 md:col-span-3 relative ${!selectedStartup ? 'filter grayscale blur-sm' : ''}`}>
             <CaptableCard />
+            {!selectedStartup && (
+              <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
+                <span className="font-semibold">Select your portfolio startup to avail this feature</span>
+              </div>
+            )}
           </div>
 
           {/* Financials Card */}
-          <div className="col-span-12 md:col-span-6">
+          <div className={`col-span-12 md:col-span-6 relative ${!selectedStartup ? 'filter grayscale blur-sm' : ''}`}>
             <Card title="Financials">
               <MixedChart />
             </Card>
+            {!selectedStartup && (
+              <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
+                <span className="font-semibold">Select your portfolio startup to avail this feature</span>
+              </div>
+            )}
           </div>
 
           {/* Fair Market Value Card */}
-          <div className="col-span-12 md:col-span-3">
+          <div className={`col-span-12 md:col-span-3 relative ${!selectedStartup ? 'filter grayscale blur-sm' : ''}`}>
             <FairMarketValueCard />
+            {!selectedStartup && (
+              <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
+                <span className="font-semibold">Select your portfolio startup to avail this feature</span>
+              </div>
+            )}
           </div>
 
           {/* Activity Cards with Scrollable Container */}
           <div className="col-span-12 overflow-x-auto">
             <div className="flex space-x-6 w-max" ref={scrollRef}>
               {cards.map((card, index) => (
-                <ActivityCard key={index} title={card.title} imageSrc={card.imageSrc} />
+                <div key={index} className="relative">
+                  <ActivityCard title={card.title} imageSrc={card.imageSrc} />
+                  {!selectedStartup && (
+                    <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
+                      <span className="font-semibold">Select your portfolio startup to avail this feature</span>
+                    </div>
+                  )}
+                </div>
               ))}
               {/* "+" Button to Open Modal */}
               <button

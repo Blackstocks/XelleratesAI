@@ -2,12 +2,8 @@ import useUserDetails from '@/hooks/useUserDetails';
 import React, { useState, useEffect } from 'react';
 import ComingSoonModal from '@/components/ComingSoonModal';
 
-const ImageBlock2 = () => {
+const ImageBlock2 = ({ selectedStartup, companyName }) => {
   const { user, loading } = useUserDetails();
-  const [value, setValue] = useState({
-    startDate: new Date(),
-    endDate: new Date().setMonth(11),
-  });
   const [greeting, setGreeting] = useState('Good evening');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,19 +24,29 @@ const ImageBlock2 = () => {
 
   return (
     <div
-      className='bg-no-repeat bg-cover bg-center p-5 rounded-[6px] relative'
+      className="bg-no-repeat bg-cover bg-center p-5 rounded-[6px] relative w-full h-full"
       style={{
         backgroundImage: `url(/assets/images/all-img/widget-bg-2.png)`,
       }}
     >
       <div>
-        <h4 className='text-xl font-medium text-white mb-2'>
-          <span className='block font-normal'>{greeting},</span>
-          <span className='block'>{user?.name}</span>
+        <h4 className="text-xl font-medium text-white mb-2">
+          {/* Show Portfolio Management and Company Name when a startup is selected */}
+          {selectedStartup ? (
+            <>
+              <span className="block font-normal">Portfolio Management</span>
+              <span className="block">{companyName}</span>
+            </>
+          ) : (
+            <>
+              {/* Show the original greeting and user name when no startup is selected */}
+              <span className="block font-normal">{greeting},</span>
+              <span className="block">{user?.name}</span>
+              {/* Always show welcome text when no startup is selected */}
+              <p className="text-sm text-white font-normal">Welcome to your portfolio management</p>
+            </>
+          )}
         </h4>
-        <p className='text-sm text-white font-normal'>
-          Welcome to Xellerates AI
-        </p>
       </div>
     </div>
   );
