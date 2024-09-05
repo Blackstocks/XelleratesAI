@@ -3,6 +3,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ComingSoonModal from '@/components/ComingSoonModal';
 import GetStartupInsightsModal from '@/components/GetStartupInsights'; // Adjust import as needed
+import GetStartupInsightsModal1 from '@/components/GetStartupInsights1'; // Adjust import as needed
 import generateReport from '@/components/report/report-functions';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import { supabase } from '@/lib/supabaseclient';
@@ -426,7 +427,7 @@ const HomeBredCurbs = ({ title, companyName, userType }) => {
       </div>
 
       {isModalOpen && modalType === 'insight' && (
-        <GetStartupInsightsModal
+        <GetStartupInsightsModal1
           isOpen={isModalOpen}
           onClose={handleCloseModal}
         />
