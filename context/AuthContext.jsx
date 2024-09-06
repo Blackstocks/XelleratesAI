@@ -1,51 +1,58 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseclient';
+import useSWR from 'swr';
+import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
+const fetcher = async () => {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  return data.user;
+};
+
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const {
+    data: user,
+    mutate,
+    error,
+  } = useSWR('user', fetcher, {
+    revalidateOnFocus: false,
+    shouldRetryOnError: false,
+  });
+
+  const [loading, setLoading] = useState(!user && !error);
 
   useEffect(() => {
-    // Check session and set up the listener only once
-    const checkAndListenForSession = async () => {
-      try {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-        if (error) throw error;
-
-        // Set the user from the session
-        setUser(session?.user || null);
-
-        // Listen to auth state changes and update the user state accordingly
-        const { data: authListener } = supabase.auth.onAuthStateChange(
-          (_event, session) => {
-            setUser(session?.user || null);
-            setLoading(false);
-          }
-        );
-
-        // Cleanup the subscription on unmount
-        return () => {
-          authListener?.subscription?.unsubscribe();
-        };
-      } catch (error) {
-        console.error('Error fetching session:', error);
-        setUser(null);
-      } finally {
-        setLoading(false);
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          Cookies.set('access_token', session.access_token, {
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            sameSite: 'Strict',
+          });
+          Cookies.set('refresh_token', session.refresh_token, {
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            sameSite: 'Strict',
+          });
+          mutate(fetcher, false);
+        } else {
+          Cookies.remove('access_token');
+          Cookies.remove('refresh_token');
+          mutate(undefined, false);
+        }
       }
-    };
+    );
 
-    checkAndListenForSession();
-  }, []);
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [mutate]);
 
   const login = async (email, password) => {
     setLoading(true);
@@ -54,12 +61,49 @@ const AuthProvider = ({ children }) => {
         email,
         password,
       });
-      if (error) throw error;
-      setUser(data.user);
-      return data;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      if (error) return error;
+
+      Cookies.set('access_token', data.session.access_token, {
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        sameSite: 'Strict',
+      });
+      Cookies.set('refresh_token', data.session.refresh_token, {
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        sameSite: 'Strict',
+      });
+
+      // Immediately fetch the user's profile after logging in
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      if (profile.status !== 'approved') {
+        toast.error('Your account is not approved yet.', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+        await supabase.auth.signOut(); // Log out the user immediately
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+        mutate(undefined, false);
+        return { message: 'Your account is not approved yet.' };
+      }
+
+      mutate(fetcher, false); // Immediately update user state
+
+      toast.success('Login successful!', {
+        position: 'top-right',
+        autoClose: 500,
+      });
+    } catch (err) {
+      console.error('Login error:', err);
+      return err;
     } finally {
       setLoading(false);
     }
@@ -70,11 +114,11 @@ const AuthProvider = ({ children }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      setUser(null);
-      router.push('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
+      Cookies.remove('access_token');
+      Cookies.remove('refresh_token');
+      mutate(undefined, false);
+    } catch (err) {
+      console.error('Logout error:', err);
     } finally {
       setLoading(false);
     }

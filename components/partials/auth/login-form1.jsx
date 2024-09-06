@@ -10,10 +10,8 @@ import Checkbox from '@/components/ui/Checkbox';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabaseclient';
 import PasswordInput from '@/components/partials/passwordInput';
 
-// Validation schema
 const schema = yup
   .object({
     email: yup.string().email('Invalid email').required('Email is Required'),
@@ -24,6 +22,14 @@ const schema = yup
 const LoginForm1 = () => {
   const [checked, setChecked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { user, login } = useAuth(); // Get user context immediately
+
+  useEffect(() => {
+    if (user) {
+      router.push('/profile');
+    }
+  }, [user, router]);
 
   const {
     register,
@@ -34,56 +40,17 @@ const LoginForm1 = () => {
     mode: 'all',
   });
 
-  const router = useRouter();
-  const { login } = useAuth();
-
-  useEffect(() => {
-    const checkUserSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) router.push('/profile');
-    };
-
-    checkUserSession();
-  }, [router]);
-
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const { user, error: loginError } = await login(
-        data.email,
-        data.password
-      );
-      if (loginError || !user || !user.id)
-        throw new Error(loginError?.message || 'Invalid credentials');
+      const loginError = await login(data.email, data.password);
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      if (profile.status !== 'approved') {
-        toast.error('Your account is not approved yet.', {
-          position: 'top-right',
-          autoClose: 3000,
-        });
-        return;
+      if (loginError) {
+        throw new Error(loginError.message || 'Invalid credentials');
       }
 
-      toast.success('Login successful!', {
-        position: 'top-right',
-        autoClose: 500,
-      });
-
-      const isFormFilled =
-        profile.user_type === 'investor'
-          ? !!profile.investor_details
-          : !!profile.startup_details;
-      router.push(isFormFilled ? '/dashboard' : '/profile');
+      // No need to check profile status here, handled in login function
+      router.push('/dashboard'); // Redirect to dashboard directly
     } catch (error) {
       console.error('Login submission error:', error);
       toast.error(error.message, { position: 'top-right', autoClose: 1500 });
