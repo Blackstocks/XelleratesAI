@@ -416,6 +416,14 @@ const Navmenu = ({ menus }) => {
                 </ul>
               </Collapse>
             </li>
+            <li className={`single-sidebar-menu`}>
+              <Link className='menu-link' href='/admin/addStartups'>
+                <span className='menu-icon flex-grow-0'>
+                  <CurrencyDollarIcon className='h-5 w-5' />
+                </span>
+                <div className='text-box flex-grow'>Add Startup</div>
+              </Link>
+            </li>
           </div>
         )}
       </ul>
