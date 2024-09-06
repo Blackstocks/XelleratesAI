@@ -125,7 +125,7 @@ const BankingPage = () => {
             {/* Pass the companyName and selectedStartup as props */}
             <ImageBlock2 selectedStartup={selectedStartup} companyName={companyName} />
           </div>
-          <div className={`2xl:col-span-9 lg:col-span-8 col-span-12 relative ${!selectedStartup ? 'filter grayscale blur-sm' : ''}`}>
+          <div className={`2xl:col-span-9 lg:col-span-8 col-span-12 relative ${!selectedStartup ? 'filter grayscale' : ''}`}>
             <div className="grid md:grid-cols-4 grid-cols-1 gap-4 h-full">
               <GroupChart2 />
             </div>
@@ -138,7 +138,7 @@ const BankingPage = () => {
         </div>
         <div className="grid grid-cols-12 gap-6">
           {/* Captable Card */}
-          <div className={`col-span-12 md:col-span-3 relative ${!selectedStartup ? 'filter grayscale blur-sm' : ''}`}>
+          <div className={`col-span-12 md:col-span-3 relative ${!selectedStartup ? 'filter grayscale' : ''}`}>
             <CaptableCard />
             {!selectedStartup && (
               <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
@@ -148,7 +148,7 @@ const BankingPage = () => {
           </div>
 
           {/* Financials Card */}
-          <div className={`col-span-12 md:col-span-6 relative ${!selectedStartup ? 'filter grayscale blur-sm' : ''}`}>
+          <div className={`col-span-12 md:col-span-6 relative ${!selectedStartup ? 'filter grayscale opacity-75' : ''}`}>
             <Card title="Financials">
               <MixedChart />
             </Card>
@@ -160,7 +160,7 @@ const BankingPage = () => {
           </div>
 
           {/* Fair Market Value Card */}
-          <div className={`col-span-12 md:col-span-3 relative ${!selectedStartup ? 'filter grayscale blur-sm' : ''}`}>
+          <div className={`col-span-12 md:col-span-3 relative ${!selectedStartup ? 'filter grayscale' : ''}`}>
             <FairMarketValueCard />
             {!selectedStartup && (
               <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
@@ -170,23 +170,33 @@ const BankingPage = () => {
           </div>
 
           {/* Activity Cards with Scrollable Container */}
-          <div className="col-span-12 overflow-x-auto">
-            <div className="flex space-x-6 w-max" ref={scrollRef}>
+          <div className={`col-span-12 overflow-x-auto ${!selectedStartup ? 'filter grayscale' : ''}`}>
+            <div className="flex space-x-6 w-max relative" ref={scrollRef}>
               {cards.map((card, index) => (
-                <div key={index}>
+                <div key={index} className="relative">
                   <ActivityCard
                     title={card.title}
                     imageSrc={card.imageSrc}
                     onClick={card.title === "Series wise Documents" ? handleOpenSeriesModal : undefined}
                   />
+                  {!selectedStartup && (
+                    <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
+                      <span className="font-semibold">Select your portfolio startup to avail this feature</span>
+                    </div>
+                  )}
                 </div>              
               ))}
               {/* "+" Button to Open Modal */}
               <button
                 onClick={handleOpenModal}
-                className="flex justify-center items-center w-64 h-64 bg-gray-200 text-2xl font-bold text-gray-600 rounded-lg hover:bg-gray-300 transition duration-500 ease-in-out transform hover:scale-105"
+                className="flex justify-center items-center w-64 h-64 bg-gray-200 text-2xl font-bold text-gray-600 rounded-lg hover:bg-gray-300 transition duration-500 ease-in-out transform hover:scale-105 relative"
               >
                 +
+                {!selectedStartup && (
+                  <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
+                    <span className="font-semibold">Select your portfolio startup to avail this feature</span>
+                  </div>
+                )}
               </button>
               <SeriesModal isOpen={isSeriesModalOpen} onClose={handleCloseSeriesModal} />
             </div>

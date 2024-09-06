@@ -28,7 +28,7 @@ const ForgotPass = () => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://www.portal-xellerates.com//update-password',
+        redirectTo: 'https://www.portal-xellerates.com/update-password',
       });
       if (error) {
         throw error;
