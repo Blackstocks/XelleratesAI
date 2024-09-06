@@ -303,7 +303,7 @@ const statistics = [
   },
   {
     name: shapeLine4,
-    title: "Key Insights",
+    title: "Key Rights",
     count: "<br>",
     bg: "bg-[#FFEAEA] dark:bg-[#3B0D0C]", // Light green for light mode, dark slate for dark mode
     text: "text-[#256029]", // Dark green text for better contrast

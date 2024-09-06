@@ -43,7 +43,7 @@ const BankingPage = () => {
   const scrollRef = useRef(null);
 
   const handleAddCard = () => {
-    const newCard = { title: newCardTitle, imageSrc: '/assets/images/all-img/folder' };
+    const newCard = { title: newCardTitle, imageSrc: '/assets/images/all-img/folder.png' };
     setCards([...cards, newCard]);
     scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
     setNewCardTitle('');
