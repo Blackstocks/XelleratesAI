@@ -119,7 +119,7 @@ const RegForm1 = () => {
           linkedin_profile: data.linkedinProfile,
           company_logo: logoUrl,
           role: 'user',
-          status: 'pending',
+          status: 'approved',
         },
       ]);
 

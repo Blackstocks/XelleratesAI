@@ -38,6 +38,8 @@ const Profile = ({ profileData }) => {
     fetchData(); // Fetch data when the component mounts
   }, []);
 
+  console.log(profileData);
+
   if (loadingUserCompleteProfile) {
     return <Loading />;
   }
@@ -61,6 +63,7 @@ const Profile = ({ profileData }) => {
         ctoInfo={profileData.ctoInfo}
         companyDocuments={profileData.companyDocuments}
         fetchData={fetchData} // Fetch data to refresh the profile after updates
+        companyId={profileData?.id}
       />
     </div>
   );
