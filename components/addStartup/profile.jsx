@@ -10,17 +10,20 @@ const Profile = ({ profileData }) => {
   const [profile, setProfile] = useState(null); // State to store the fetched profile
   const [error, setError] = useState(null); // State to handle errors
   
+  const isValidUUID = (id) => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(id);
+  };
   // Function to fetch profile data
+  console.log(isValidUUID(profileData.id));
+
   const fetchData = async () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('name', profileData.name)
-        .eq('company_name', profileData.companyName)
-        .eq('email', profileData.email);
+        .eq('id', profileData.id)
 
-        console.log("got profile: ", data);
 
       if (error) {
         setError(error.message);
@@ -38,7 +41,6 @@ const Profile = ({ profileData }) => {
     fetchData(); // Fetch data when the component mounts
   }, []);
 
-  console.log(profileData);
 
   if (loadingUserCompleteProfile) {
     return <Loading />;
@@ -47,6 +49,7 @@ const Profile = ({ profileData }) => {
   if (error) {
     return <div className="text-red-500">Error: {error}</div>;
   }
+  console.log(profile);
 
   return (
     <div className='space-y-5 profile-page'>

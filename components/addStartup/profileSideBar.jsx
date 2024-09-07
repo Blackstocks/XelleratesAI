@@ -99,6 +99,7 @@ const VerticalNavTabs = (props) => {
     loadingUserCompleteProfile,
     user,
     investorSignup,
+    profile,
     companyProfile,
     businessDetails,
     founderInformation,
@@ -195,9 +196,10 @@ const VerticalNavTabs = (props) => {
     setBusinessDetailsLoc(businessDetails);
     setCompanyDocumentsLoc(companyDocuments);
     setGeneralInformationLoc(user);
-    setCompanyProfileId(companyId)
+    setCompanyProfileId(companyId);
   }, [
     user,
+    profile,
     companyProfile,
     founderInformation,
     fundingInformation,
@@ -206,7 +208,6 @@ const VerticalNavTabs = (props) => {
     companyDocuments,
     companyId
   ]);
-  console.log(companyProfileId);
   // console.log('Founder Information:', founderInformationLoc);
 
   // console.log('companyProfile', companyProfile);
@@ -587,7 +588,7 @@ const VerticalNavTabs = (props) => {
                               label="Email"
                               name="email"
                               defaultValue={
-                                generalInformationLoc?.email || user?.email
+                                generalInformationLoc?.email || profile?.email
                               }
                               register={register}
                             />
@@ -595,7 +596,7 @@ const VerticalNavTabs = (props) => {
                               label="Phone"
                               name="mobile"
                               defaultValue={
-                                generalInformationLoc?.mobile || user?.mobile
+                                generalInformationLoc?.mobile || profile?.mobile
                               }
                               register={register}
                             />
@@ -604,7 +605,7 @@ const VerticalNavTabs = (props) => {
                               name="linkedin_profile"
                               defaultValue={
                                 generalInformationLoc?.linkedin_profile ||
-                                user?.linkedin_profile
+                                profile?.linkedin_profile
                               }
                               register={register}
                             />
@@ -2050,7 +2051,7 @@ const VerticalNavTabs = (props) => {
                                     className="text-base text-slate-600 dark:text-slate-50"
                                   >
                                     {generalInformationLoc?.email ||
-                                      user?.email}
+                                      profile?.email}
                                   </a>
                                 </div>
                               </li>
@@ -2066,11 +2067,11 @@ const VerticalNavTabs = (props) => {
                                   <a
                                     href={`tel:${
                                       generalInformationLoc?.mobile ||
-                                      user?.mobile
+                                      profile?.mobile
                                     }`}
                                     className="text-base text-slate-600 dark:text-slate-50"
                                   >
-                                    {user?.mobile}
+                                    {profile?.mobile}
                                   </a>
                                 </div>
                               </li>
@@ -2085,13 +2086,13 @@ const VerticalNavTabs = (props) => {
                                   <a
                                     href={
                                       generalInformationLoc?.linkedin_profile ||
-                                      user?.linkedin_profile
+                                      profile?.linkedin_profile
                                     }
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-base text-slate-600 dark:text-slate-50"
                                   >
-                                    {user?.linkedin_profile || "Not provided"}
+                                    {profile?.linkedin_profile || "Not provided"}
                                   </a>
                                 </div>
                               </li>

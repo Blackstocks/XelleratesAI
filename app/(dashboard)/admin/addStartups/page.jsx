@@ -1,245 +1,148 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import Textinput from '@/components/ui/Textinput';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { useRouter } from 'next/navigation';
+import Modal3 from '@/components/Modal3'; // Modal component
+import RegForm1 from '@/components/RegForm1'; // Form component
 import { supabase } from '@/lib/supabaseclient';
-import Dropdowntype from '@/components/ui/Dropdown1';
-import InputGroup from '@/components/ui/InputGroup';
-import { handleFileUpload } from '@/lib/actions/insertformdetails';
-import PasswordInput from "@/components/partials/passwordInput";
 import Profile from '@/components/addStartup/profile';
-import { v4 as uuidv4 } from 'uuid'; // Import UUID generation function
 
-const schema = yup
-  .object({
-    name: yup.string().required('Name is Required'),
-    companyName: yup.string().required('Company Name is required'),
-    email: yup.string().email('Invalid email').required('Email is Required'),
-    mobile: yup
-      .string()
-      .required('Mobile number is Required')
-      .matches(/^[0-9]+$/, 'Mobile number must be numeric'),
-    password: yup
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(20, "Password shouldn't be more than 20 characters")
-      .required('Please enter password'),
-    confirmpassword: yup
-      .string()
-      .oneOf([yup.ref('password'), null], 'Passwords must match'),
-    user_type: yup.string().required('User type is required'),
-    linkedinProfile: yup
-      .string()
-      .url('Invalid URL')
-      .required('LinkedIn profile is required'),
-  })
-  .required();
+const AddStartupsPage = () => {
+  const [startups, setStartups] = useState([]); // State to store startup data
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility for adding startup
+  const [showProfileModal, setShowProfileModal] = useState(false); // State to control modal visibility for profile
+  const [selectedProfile, setSelectedProfile] = useState(null); // State to store selected profile for update
 
-const RegForm1 = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userType, setUserType] = useState('Select User Type');
-  const [showProfile, setShowProfile] = useState(false);
-  const [profileData, setProfileData] = useState(null);
-
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-    setValue,
-  } = useForm({
-    resolver: yupResolver(schema),
-    mode: 'all',
-  });
-
-  const onSubmit = async (data) => {
-    console.log(data);
-    setIsSubmitting(true);
-
-    const logoFile =
-      data?.company_logo && data.company_logo.length > 0
-        ? data.company_logo[0]
-        : null;
-
-    if (!logoFile) {
-      toast.error('Please upload a company logo.');
-      setIsSubmitting(false);
-      return;
-    }
-
-    const companyName = data?.companyName || 'not_mentioned';
-    const bucket = 'company-logos';
-
+  // Fetch the startups mapped to investors from the database
+  const fetchMappedStartups = async () => {
     try {
-      const logoUrl = await handleFileUpload(
-        logoFile,
-        bucket,
-        companyName,
-        'logo'
-      );
+      // Fetch from investor_startup_mapping
+      const { data: mappedStartups, error } = await supabase
+        .from('investor_startup_mapping')
+        .select(`
+          id,
+          investor_id,
+          startup_id,
+          status,
+          created_at,
+          investor:profiles!investor_id (id, name, company_logo),
+          startup:profiles!startup_id (id, name, company_logo)
+        `);
 
-      if (!logoUrl) {
-        toast.error('Failed to upload company logo.');
-        setIsSubmitting(false);
+      if (error) {
+        console.error('Error fetching mapped startups:', error.message);
+        toast.error('Error fetching mapped startups.');
         return;
       }
 
-      const { data: existingUsers, error: existingUserError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', data.email);
-
-      if (existingUserError) {
-        toast.error(existingUserError.message);
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (existingUsers.length > 0) {
-        toast.error('User already registered with this email');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Generate a unique UUID for the new user
-      const userId = uuidv4();
-
-      // Directly insert the user into the profiles table with the generated UUID
-      const { data: insertedUser, error: insertError } = await supabase.from('profiles').insert([
-        {
-          id: userId, // Use the generated UUID
-          name: data.name,
-          company_name: data.companyName,
-          email: data.email,
-          mobile: data.mobile,
-          user_type: data.user_type,
-          linkedin_profile: data.linkedinProfile,
-          company_logo: logoUrl,
-          role: 'user',
-          status: 'approved',
-        },
-      ]);
-
-      if (insertError) {
-        toast.error(insertError.message);
-        setIsSubmitting(false);
-      } else {
-        toast.success('Account created successfully!');
-        setProfileData({ ...data, id: userId }); // Store the data to pass to Profile component, including the UUID
-        setShowProfile(true); // Show the Profile component
-        setIsSubmitting(false);
-      }
-
-    } catch (error) {
-      toast.error('An error occurred during file upload.');
-      setIsSubmitting(false);
-    } finally {
-      setIsSubmitting(false);
+      setStartups(mappedStartups); // Store the fetched data in state
+    } catch (err) {
+      console.error('Unexpected error fetching startups:', err);
+      toast.error('An unexpected error occurred while fetching startups.');
     }
   };
 
-  const handleSelectUserType = (value) => {
-    setUserType(value.charAt(0).toUpperCase() + value.slice(1));
-    setValue('user_type', value);
+  // Fetch startups on component mount
+  useEffect(() => {
+    fetchMappedStartups();
+  }, []);
+
+  // Function to open the modal for adding a new startup
+  const handleAddStartup = () => {
+    setShowModal(true); // Show the modal with the form
   };
 
-  if (showProfile && profileData) {
-    return <Profile profileData={profileData} />;
-  }
+  // Function to close the modal
+  const handleCloseModal = () => {
+    setShowModal(false); // Close the modal
+  };
+
+  // Function to handle successful submission from RegForm1
+  const handleSubmitSuccess = () => {
+    setShowModal(false); // Close the modal
+    fetchMappedStartups(); // Refresh the table data after successful submission
+  };
+
+  // Function to handle update button click and open profile component in a modal
+  const handleUpdateStartup = (startup) => {
+    setSelectedProfile(startup); // Set the startup profile to view in Profile component
+    setShowProfileModal(true); // Show the profile modal
+  };
+
+  // Function to close the profile modal
+  const handleCloseProfileModal = () => {
+    setShowProfileModal(false); // Close the profile modal
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
-      <Textinput
-        name='name'
-        label='Name'
-        type='text'
-        placeholder='Enter your name'
-        register={register}
-        error={errors.name}
-      />
-      <Textinput
-        name='companyName'
-        label='Company Name'
-        type='text'
-        placeholder='Enter your company name'
-        register={register}
-        error={errors.companyName}
-      />
-      <Textinput
-        name='email'
-        label='Email'
-        type='email'
-        placeholder='Enter your email'
-        register={register}
-        error={errors.email}
-      />
-      <Textinput
-        name='mobile'
-        label='Mobile'
-        type='text'
-        placeholder='Enter your mobile number'
-        register={register}
-        error={errors.mobile}
-      />
-      <PasswordInput
-        label="Password"
-        name="password"
-        placeholder='Type your password'
-        register={register}
-        error={errors.password}
-      />
-      <PasswordInput
-        label="Confirm Password"
-        name="confirmpassword"
-        placeholder='Type your password'
-        register={register}
-        error={errors.confirmpassword}
-      />
-      <Dropdowntype
-        label={userType}
-        items={[
-          { label: 'Startup', value: 'startup' },
-          { label: 'Investor', value: 'investor' },
-        ]}
-        onSelect={handleSelectUserType}
-        error={errors.user_type}
-      />
-      <Textinput
-        label='LinkedIn Profile'
-        type='url'
-        placeholder='https://www.linkedin.com/in/example'
-        name='linkedinProfile'
-        error={errors.linkedinProfile}
-        register={register}
-      />
-      <div className='mb-6'>
-        <InputGroup
-          label='Upload Company Logo'
-          type='file'
-          name='company_logo'
-          error={errors.company_logo || null}
-          register={register}
-          className='border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm p-2 focus:ring focus:ring-indigo-200 focus:outline-none w-full text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100'
-        />
-        {errors.company_logo && (
-          <p className='text-red-500 text-xs mt-1'>
-            {errors.company_logo.message}
-          </p>
-        )}
+    <div className="p-6">
+      {/* Header with "Add Startup" button */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Startups Mapped to Investor</h2>
+        <button className="btn btn-primary" onClick={handleAddStartup}>
+          Add Startup
+        </button>
       </div>
 
-      <button
-        className='btn btn-dark block w-full text-center'
-        type='submit'
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? 'Submitting...' : 'Create an account'}
-      </button>
-    </form>
+      {/* Display the table or a message if no entries are available */}
+      {startups.length === 0 ? (
+        <p>No entries available (NA)</p>
+      ) : (
+        <table className="min-w-full bg-white border border-gray-200">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b">Investor & Startup</th>
+              <th className="py-2 px-4 border-b">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {startups.map((startup) => (
+              <tr key={startup.id}>
+                {/* Combined Investor and Startup column */}
+                <td className="py-2 px-4 border-b">
+                  <div className="flex items-center space-x-4">
+                    {/* Investor details */}
+                    <div className="flex items-center space-x-2">
+                      <img src={startup.investor.company_logo || '/default-logo.png'} alt="Investor Logo" className="h-8 w-8" />
+                      <span>{startup.investor.name}</span>
+                    </div>
+                    {/* Divider */}
+                    <span className="text-gray-500">|</span>
+                    {/* Startup details */}
+                    <div className="flex items-center space-x-2">
+                      <img src={startup.startup.company_logo || '/default-logo.png'} alt="Startup Logo" className="h-8 w-8" />
+                      <span>{startup.startup.name}</span>
+                    </div>
+                  </div>
+                </td>
+
+                {/* Action column with Update button */}
+                <td className="py-2 px-4 border-b">
+                  <button className="btn btn-secondary" onClick={() => handleUpdateStartup(startup.startup)}>
+                    Update
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* Modal for Adding Startup */}
+      {showModal && (
+        <Modal3 onClose={handleCloseModal}>
+          {/* Pass handleSubmitSuccess correctly as a function */}
+          <RegForm1 onSuccess={handleSubmitSuccess} />
+        </Modal3>
+      )}
+
+      {/* Modal for Viewing/Updating Profile */}
+      {showProfileModal && (
+        <Modal3 onClose={handleCloseProfileModal}>
+          <Profile profileData={selectedProfile} />
+        </Modal3>
+      )}
+    </div>
   );
 };
 
-export default RegForm1;
+export default AddStartupsPage;
