@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import Textinput from '@/components/ui/Textinput';
 import { useForm } from 'react-hook-form';
@@ -23,11 +21,14 @@ const LoginForm1 = () => {
   const [checked, setChecked] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user, login } = useAuth(); // Get user context immediately
+  const { user, login } = useAuth();
 
+  // Effect to handle redirection and approval check
   useEffect(() => {
     if (user) {
-      router.push('/profile');
+      if (user.status === 'approved') {
+        router.push('/dashboard'); // Redirect to the dashboard if the user is approved
+      }
     }
   }, [user, router]);
 
@@ -46,14 +47,24 @@ const LoginForm1 = () => {
       const loginError = await login(data.email, data.password);
 
       if (loginError) {
+        if (!toast.isActive('login-error-toast')) {
+          toast.error(loginError.message || 'Invalid credentials', {
+            position: 'top-right',
+            autoClose: 3000,
+            toastId: 'login-error-toast',
+          });
+        }
         throw new Error(loginError.message || 'Invalid credentials');
       }
-
-      // No need to check profile status here, handled in login function
-      router.push('/dashboard'); // Redirect to dashboard directly
     } catch (error) {
       console.error('Login submission error:', error);
-      toast.error(error.message, { position: 'top-right', autoClose: 1500 });
+      if (!toast.isActive('submission-error-toast')) {
+        toast.error(error.message, {
+          position: 'top-right',
+          autoClose: 1500,
+          toastId: 'submission-error-toast',
+        });
+      }
     } finally {
       setLoading(false);
     }

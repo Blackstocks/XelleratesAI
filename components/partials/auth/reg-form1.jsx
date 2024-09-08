@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import Textinput from '@/components/ui/Textinput';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useRouter } from 'next/navigation';
@@ -9,9 +9,9 @@ import { supabase } from '@/lib/supabaseclient';
 import Dropdowntype from '@/components/ui/Dropdown1';
 import InputGroup from '@/components/ui/InputGroup';
 import { handleFileUpload } from '@/lib/actions/insertformdetails';
-import PasswordInput from "@/components/partials/passwordInput"; // Adjust the path accordingly
+import PasswordInput from '@/components/partials/passwordInput'; // Adjust the path accordingly
 
-
+// Validation schema
 const schema = yup
   .object({
     name: yup.string().required('Name is Required'),
@@ -39,120 +39,113 @@ const schema = yup
 
 const RegForm1 = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userType, setUserType] = useState('Select User Type');
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-    setValue,
-  } = useForm({
-    resolver: yupResolver(schema),
-    mode: 'all',
-  });
-
   const router = useRouter();
 
-  const onSubmit = async (data) => {
-    console.log(data);
-    setIsSubmitting(true);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors, isValid },
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: 'onChange', // Validate on change for faster feedback
+  });
 
-    const logoFile =
-      data?.company_logo && data.company_logo.length > 0
-        ? data.company_logo[0]
-        : null;
+  const userType = useWatch({ control, name: 'user_type' });
 
-    if (!logoFile) {
-      toast.error('Please upload a company logo.');
-      setIsSubmitting(false);
-      return;
-    }
-
-    const companyName = data?.companyName || 'not_mentioned';
-    const bucket = 'company-logos';
-
-    try {
-      const logoUrl = await handleFileUpload(
-        logoFile,
-        bucket,
-        companyName,
-        'logo'
-      );
-
-      if (!logoUrl) {
-        toast.error('Failed to upload company logo.');
+  // Memoized form submission handler
+  const onSubmit = useCallback(
+    async (data) => {
+      setIsSubmitting(true);
+      const logoFile =
+        data?.company_logo && data.company_logo.length > 0
+          ? data.company_logo[0]
+          : null;
+      if (!logoFile) {
+        toast.error('Please upload a company logo.');
         setIsSubmitting(false);
         return;
       }
 
-      const { data: existingUsers, error: existingUserError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', data.email);
+      const companyName = data?.companyName || 'not_mentioned';
+      const bucket = 'company-logos';
 
-      if (existingUserError) {
-        toast.error(existingUserError.message);
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (existingUsers.length > 0) {
-        toast.error('User already registered with this email');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const { data: signUpData, error: signUpError } =
-        await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-        });
-
-      if (signUpError) {
-        toast.error(signUpError.message);
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (signUpData?.user) {
-        const userId = signUpData.user.id;
-
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: {
-            display_name: data.name,
-          },
-        });
-
-        if (updateError) {
-          toast.error(updateError.message);
+      try {
+        const logoUrl = await handleFileUpload(
+          logoFile,
+          bucket,
+          companyName,
+          'logo'
+        );
+        if (!logoUrl) {
+          toast.error('Failed to upload company logo.');
           setIsSubmitting(false);
           return;
         }
 
-        const { error: insertError } = await supabase.from('profiles').insert([
-          {
-            id: userId,
-            name: data.name,
-            company_name: data.companyName,
-            email: data.email,
-            mobile: data.mobile,
-            user_type: data.user_type,
-            linkedin_profile: data.linkedinProfile,
-            company_logo: logoUrl,
-            role: 'user',
-            status: 'pending',
-          },
-        ]);
-
-        if (insertError) {
-          toast.error(insertError.message);
+        const { data: existingUsers, error: existingUserError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', data.email);
+        if (existingUserError) {
+          toast.error(existingUserError.message);
           setIsSubmitting(false);
-        } else {
-          try {
+          return;
+        }
+
+        if (existingUsers.length > 0) {
+          toast.error('User already registered with this email');
+          setIsSubmitting(false);
+          return;
+        }
+
+        const { data: signUpData, error: signUpError } =
+          await supabase.auth.signUp({
+            email: data.email,
+            password: data.password,
+          });
+        if (signUpError) {
+          toast.error(signUpError.message);
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (signUpData?.user) {
+          const userId = signUpData.user.id;
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: { display_name: data.name },
+          });
+          if (updateError) {
+            toast.error(updateError.message);
+            setIsSubmitting(false);
+            return;
+          }
+
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: userId,
+                name: data.name,
+                company_name: data.companyName,
+                email: data.email,
+                mobile: data.mobile,
+                user_type: data.user_type,
+                linkedin_profile: data.linkedinProfile,
+                company_logo: logoUrl,
+                role: 'user',
+                status: 'pending',
+              },
+            ]);
+
+          if (insertError) {
+            toast.error(insertError.message);
+            setIsSubmitting(false);
+          } else {
             const response = await fetch('/api/send-registration-email', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ to: data.email, name: data.name }),
             });
 
@@ -169,24 +162,25 @@ const RegForm1 = () => {
               );
               setIsSubmitting(false);
             }
-          } catch (error) {
-            toast.error('Failed to send registration email.');
-            setIsSubmitting(false);
           }
         }
+      } catch (error) {
+        toast.error('An error occurred during file upload.');
+        setIsSubmitting(false);
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (error) {
-      toast.error('An error occurred during file upload.');
-      setIsSubmitting(false);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    },
+    [router]
+  );
 
-  const handleSelectUserType = (value) => {
-    setUserType(value.charAt(0).toUpperCase() + value.slice(1));
-    setValue('user_type', value);
-  };
+  // Memoized user type handler
+  const handleSelectUserType = useCallback(
+    (value) => {
+      setValue('user_type', value);
+    },
+    [setValue]
+  );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
@@ -222,40 +216,22 @@ const RegForm1 = () => {
         register={register}
         error={errors.mobile}
       />
-      {/* <Textinput
-        name='password'
+      <PasswordInput
         label='Password'
-        type='password'
-        placeholder='Enter your password'
+        name='password'
+        placeholder='Type your password'
         register={register}
         error={errors.password}
       />
-      <Textinput
-        name='confirmpassword'
+      <PasswordInput
         label='Confirm Password'
-        type='password'
-        placeholder='Confirm your password'
+        name='confirmpassword'
+        placeholder='Type your password'
         register={register}
         error={errors.confirmpassword}
-      /> */}
-
-<PasswordInput
-  label="Password"
-  name="password"
-  placeholder='Type your password'
-  register={register}
-  error={errors.password}
-/>
-
-<PasswordInput
-  label="Confirm Password"
-  name="confirmpassword"
-  placeholder='Type your password'
-  register={register}
-  error={errors.confirmpassword}
-/>
+      />
       <Dropdowntype
-        label={userType}
+        label={userType || 'Select User Type'}
         items={[
           { label: 'Startup', value: 'startup' },
           { label: 'Investor', value: 'investor' },
@@ -271,26 +247,18 @@ const RegForm1 = () => {
         error={errors.linkedinProfile}
         register={register}
       />
-      <div className='mb-6'>
-        <InputGroup
-          label='Upload Company Logo'
-          type='file'
-          name='company_logo'
-          error={errors.company_logo || null}
-          register={register}
-          className='border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm p-2 focus:ring focus:ring-indigo-200 focus:outline-none w-full text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100'
-        />
-        {errors.company_logo && (
-          <p className='text-red-500 text-xs mt-1'>
-            {errors.company_logo.message}
-          </p>
-        )}
-      </div>
-
+      <InputGroup
+        label='Upload Company Logo'
+        type='file'
+        name='company_logo'
+        error={errors.company_logo || null}
+        register={register}
+        className='border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm p-2 w-full text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100'
+      />
       <button
         className='btn btn-dark block w-full text-center'
         type='submit'
-        disabled={isSubmitting} // disable button during submission
+        disabled={!isValid || isSubmitting}
       >
         {isSubmitting ? 'Submitting...' : 'Create an account'}
       </button>
