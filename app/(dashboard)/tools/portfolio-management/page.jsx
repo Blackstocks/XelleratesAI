@@ -13,7 +13,15 @@ import GroupChart2 from '@/components/partials/widget/chart/group-chart-2';
 import MixedChart from '@/components/partials/chart/appex-chart/Mixed';
 import ActivityCard from '@/components/ActivityCard';
 import { supabase } from '@/lib/supabaseclient';
-import SeriesModal from '@/components/portfolio-management/seriesDocuments'
+import SeriesModal from '@/components/portfolio-management/seriesDocuments';
+import useStartups from '@/hooks/useStartups';
+import FounderInforModal from '@/components/portfolio-management/founderInformation'
+import DocumentModal from '@/components/portfolio-management/startupStageDocuments'
+import FinancialChart from '@/components/portfolio-management/financialsChart'
+import StartupFinancials from '@/components/portfolio-management/startupFinancials'
+import AddFiles from '@/components/portfolio-management/addFile'
+
+
 
 const BankingPage = () => {
   const { profile } = useCompleteUserDetails();
@@ -30,8 +38,33 @@ const BankingPage = () => {
   const [isSeriesModalOpen, setIsSeriesModalOpen] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [assignedStartups, setAssignedStartups] = useState([]);
-  const [selectedStartup, setSelectedStartup] = useState('');
+  const [selectedStartup, setSelectedStartup] = useState(null);
   const [companyName, setCompanyName] = useState('');
+  const { startups, loading: startupsLoading } = useStartups(user?.id);
+  const [selectedStartupsData, setSelectedStartupData] = useState(null);
+  const [isAddFilesModalOpen, setIsAddFilesModalOpen] = useState(false);
+  
+  
+
+  // State to track the currently active card modal
+  const [activeCardModal, setActiveCardModal] = useState(null);
+
+  const seriesWiseDocuments = [
+    'termsheet',
+    'ddr',
+    'condition_precedent',
+    'closing_docs',
+    'condition_subsequent',
+    'transaction_spa',
+    'transaction_shd',
+    'transaction_ssa',
+    'transaction_mou',
+    'transaction_nda',
+    'transaction_safe_notes'
+  ];
+
+  const approvalsDocuments = ['abm', 'shareholder_meeting', 'board_meeting'];
+  const informationRightsDocuments = ['unaudited_financials', 'audited_financials', 'mis'];
 
   const handleOpenSeriesModal = () => {
     setIsSeriesModalOpen(true);
@@ -40,6 +73,7 @@ const BankingPage = () => {
   const handleCloseSeriesModal = () => {
     setIsSeriesModalOpen(false);
   };
+  
   const scrollRef = useRef(null);
 
   const handleAddCard = () => {
@@ -50,29 +84,42 @@ const BankingPage = () => {
     setIsModalOpen(false);
   };
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
+  const handleOpenModal = (cardTitle) => {
+    setActiveCardModal(cardTitle);
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    setActiveCardModal(null);
   };
 
   const fetchAssignedStartups = async () => {
     try {
       console.log('Profile ID:', profile.id);
-
+  
       const { data, error } = await supabase
         .from('investor_startup_assignments')
-        .select('startup_id, company_profile(company_name)')
+        .select('startup_id, company_profile(company_name, profile_id)')
         .eq('investor_id', profile.id);
-
+  
       if (error) {
         console.error('Error fetching assigned startups:', error.message);
       } else {
-        const startups = data.map((assignment) => assignment.company_profile.company_name);
-        setAssignedStartups(startups || []);
-        console.log('Assigned Startups:', startups);
+        const uniqueStartupsMap = new Map();
+  
+        data.forEach((assignment) => {
+          const { startup_id, company_profile } = assignment;
+          if (!uniqueStartupsMap.has(startup_id)) {
+            uniqueStartupsMap.set(startup_id, {
+              id: startup_id,
+              company_name: company_profile.company_name,
+              profile_id: company_profile.profile_id,
+            });
+          }
+        });
+  
+        const uniqueStartups = Array.from(uniqueStartupsMap.values());
+        setAssignedStartups(uniqueStartups);
+        console.log('Assigned Startups:', uniqueStartups);
       }
     } catch (err) {
       console.error('Unexpected Error:', err.message);
@@ -86,12 +133,66 @@ const BankingPage = () => {
     }
   }, [userLoading, profile]);
 
+  const getSelectedStartupData = (selectedId) => {
+    if (!selectedId) {
+      console.error("Invalid selected ID:", selectedId);
+      return null;
+    }
+  
+    // Ensure startupsData is defined and is an array
+    if (!Array.isArray(startups) || startups.length === 0) {
+      console.error("startupsData is not available or empty:", startups);
+      return null;
+    }
+  
+    // Log the IDs to check for hidden or unexpected characters
+    startups.forEach((startup) => {
+      console.log(`Checking startup ID: '${startup.id}' against selected ID: '${selectedId}'`);
+    });
+  
+    // Perform the find operation
+    const startupData = startups.find((startup) => startup?.id.trim() === selectedId.trim());
+    if (!startupData) {
+      console.error("No matching startup data found for the selected ID:", selectedId);
+    }
+    return startupData;
+  };
+  
   const handleStartupChange = (event) => {
     const selectedValue = event.target.value;
-    setSelectedStartup(selectedValue);
-    setCompanyName(selectedValue); // Update companyName when startup is selected
-    console.log('Selected Startup:', selectedValue);
+    console.log('Selected value:', selectedValue); // Debugging line
+  
+    // Ensure assignedStartups is defined and is an array
+    if (!Array.isArray(assignedStartups) || assignedStartups.length === 0) {
+      console.error("Assigned startups are not available or empty:", assignedStartups);
+      return;
+    }
+  
+    const selectedStartup = assignedStartups.find((startup) => startup.id === selectedValue);
+  
+    // Check if selectedStartup is found
+    if (selectedStartup) {
+      setSelectedStartup(selectedStartup);
+      setCompanyName(selectedStartup.company_name || '');
+      console.log('Selected Startup:', selectedStartup.id);
+  
+      // Check if selectedStartup.id is defined before calling getSelectedStartupData
+      if (selectedStartup.id) {
+        const selectedsSartupData = getSelectedStartupData(selectedStartup.id);
+  
+        if (selectedsSartupData) {
+          setSelectedStartupData(selectedsSartupData);
+          console.log("Selected Startup Data", selectedsSartupData);
+        }
+      } else {
+        console.error('Selected startup ID is undefined:', selectedStartup);
+      }
+    } else {
+      console.error('No startup found for the selected value:', selectedValue);
+    }
   };
+  
+  
 
   if (isLoading) {
     return <Loading />;
@@ -99,30 +200,25 @@ const BankingPage = () => {
 
   return (
     <div className="relative">
-      {/* Top Bar with Dropdown at the Right */}
       <div className="flex justify-between items-center ">
-        <div></div> {/* Placeholder for other elements on the left side */}
-        
-        {/* Dropdown for selecting assigned startups */}
+        <div></div>
         <select
           className="border border-gray-300 p-2 rounded focus:outline-none focus:border-blue-500"
-          value={selectedStartup}
+          value={selectedStartup?.id || ''}
           onChange={handleStartupChange}
         >
           <option value="">Select Startup</option>
-          {assignedStartups.map((startup, index) => (
-            <option key={index} value={startup}>
-              {startup}
+          {assignedStartups.map((startup) => (
+            <option key={startup.id} value={startup.id}>
+              {startup.company_name}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Main content */}
       <main className="p-4 transition-all duration-300">
         <div className="grid grid-cols-12 gap-5 mb-5 h-full">
           <div className="2xl:col-span-3 lg:col-span-4 col-span-12">
-            {/* Pass the companyName and selectedStartup as props */}
             <ImageBlock2 selectedStartup={selectedStartup} companyName={companyName} />
           </div>
           <div className={`2xl:col-span-9 lg:col-span-8 col-span-12 relative ${!selectedStartup ? 'filter grayscale' : ''}`}>
@@ -137,7 +233,6 @@ const BankingPage = () => {
           </div>
         </div>
         <div className="grid grid-cols-12 gap-6">
-          {/* Captable Card */}
           <div className={`col-span-12 md:col-span-3 relative ${!selectedStartup ? 'filter grayscale' : ''}`}>
             <CaptableCard />
             {!selectedStartup && (
@@ -147,19 +242,13 @@ const BankingPage = () => {
             )}
           </div>
 
-          {/* Financials Card */}
           <div className={`col-span-12 md:col-span-6 relative ${!selectedStartup ? 'filter grayscale opacity-75' : ''}`}>
-            <Card title="Financials">
-              <MixedChart />
-            </Card>
-            {!selectedStartup && (
-              <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
-                <span className="font-semibold">Select your portfolio startup to avail this feature</span>
-              </div>
-            )}
+            <StartupFinancials
+            selectedStartup={selectedStartup}
+            />
           </div>
 
-          {/* Fair Market Value Card */}
+
           <div className={`col-span-12 md:col-span-3 relative ${!selectedStartup ? 'filter grayscale' : ''}`}>
             <FairMarketValueCard />
             {!selectedStartup && (
@@ -169,16 +258,20 @@ const BankingPage = () => {
             )}
           </div>
 
-          {/* Activity Cards with Scrollable Container */}
           <div className={`col-span-12 overflow-x-auto ${!selectedStartup ? 'filter grayscale' : ''}`}>
             <div className="flex space-x-6 w-max relative" ref={scrollRef}>
               {cards.map((card, index) => (
                 <div key={index} className="relative">
-                  <ActivityCard
-                    title={card.title}
-                    imageSrc={card.imageSrc}
-                    onClick={card.title === "Series wise Documents" ? handleOpenSeriesModal : undefined}
-                  />
+                  <Card
+                    className="w-64 h-64 flex flex-col items-center justify-center bg-white"
+                    
+                  >
+                    <div className="flex justify-center mb-4">
+                      <img src={card.imageSrc} alt={card.title} className="h-24 w-auto object-cover" onClick={() => handleOpenModal(card.title)}/>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-4 text-center">{card.title}</h3>
+                  </Card>
+                  
                   {!selectedStartup && (
                     <div className="absolute inset-0 flex items-center justify-center text-center text-gray-900 bg-white bg-opacity-90 z-10">
                       <span className="font-semibold">Select your portfolio startup to avail this feature</span>
@@ -186,9 +279,8 @@ const BankingPage = () => {
                   )}
                 </div>              
               ))}
-              {/* "+" Button to Open Modal */}
               <button
-                onClick={handleOpenModal}
+                onClick={() => setIsAddFilesModalOpen(true)}
                 className="flex justify-center items-center w-64 h-64 bg-gray-200 text-2xl font-bold text-gray-600 rounded-lg hover:bg-gray-300 transition duration-500 ease-in-out transform hover:scale-105 relative"
               >
                 +
@@ -198,66 +290,67 @@ const BankingPage = () => {
                   </div>
                 )}
               </button>
+
               <SeriesModal isOpen={isSeriesModalOpen} onClose={handleCloseSeriesModal} />
             </div>
           </div>
         </div>
       </main>
 
-      {/* Modal for Adding New Card */}
-      {isModalOpen && (
-        <>
-          {/* Background Blur */}
-          <div className="fixed inset-0 bg-black bg-opacity-40 z-10"></div>
+      <AddFiles 
+        isOpen={isAddFilesModalOpen}
+        onClose={() => setIsAddFilesModalOpen(false)}
+        investorId={profile.id}
+        startupId={selectedStartup?.id}
+      />
 
-          {/* Modal Content */}
-          <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
-            <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full z-30 relative transition-transform transform duration-300 ease-out">
-              <button
-                onClick={handleCloseModal}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <h3 className="text-2xl font-semibold mb-6 text-center text-gray-900">Create New Card</h3>
-              <input
-                type="text"
-                className="border border-gray-300 p-3 rounded-lg w-full mb-6 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition duration-300"
-                value={newCardTitle}
-                onChange={(e) => setNewCardTitle(e.target.value)}
-                placeholder="Enter card name"
-              />
-              <div className="flex justify-between space-x-4">
-                <button
-                  onClick={handleCloseModal}
-                  className="bg-gray-200 text-gray-600 px-5 py-2 rounded-lg hover:bg-gray-100 focus:outline-none transition duration-200 ease-in-out"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddCard}
-                  className="bg-blue-500 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200 ease-in-out"
-                >
-                  OK
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
+
+      {/* Modals for Each Card */}
+      {activeCardModal === "Company and Founder's Information" && (
+        <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
+          {/* Modal Content for Company and Founder's Information */}
+          <FounderInforModal
+          selectedStartup={selectedStartupsData}
+          handleCloseModal={handleCloseModal}
+          />
+        </div>
       )}
+
+      {activeCardModal === "Series wise Documents" && (
+        <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
+          {/* Modal Content for Series wise Documents */}
+          <DocumentModal
+          startupId={selectedStartupsData.id}
+          allowedDocumentTypes={seriesWiseDocuments}
+          isOpen={activeCardModal}
+          handleCloseModal={handleCloseModal}
+          />
+        </div>
+      )}
+      {activeCardModal === "Approvals" && (
+        <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
+          {/* Modal Content for Series wise Documents */}
+          <DocumentModal
+          startupId={selectedStartupsData.id}
+          allowedDocumentTypes={approvalsDocuments}
+          isOpen={activeCardModal}
+          handleCloseModal={handleCloseModal}
+          />
+        </div>
+      )}
+      {activeCardModal === "Information Rights" && (
+        <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
+          {/* Modal Content for Series wise Documents */}
+          <DocumentModal
+          startupId={selectedStartupsData.id}
+          allowedDocumentTypes={informationRightsDocuments}
+          isOpen={activeCardModal}
+          handleCloseModal={handleCloseModal}
+          />
+        </div>
+      )}
+
+      {/* Add more modals for other cards here... */}
     </div>
   );
 };

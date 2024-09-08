@@ -1,27 +1,77 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation'; // Ensure correct import path based on Next.js 14.2.5 setup
+import React, { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Loading from '@/app/loading';
 import useDocumentsForStartup from '@/hooks/useDocumentsForStartup';
 import Link from 'next/link';
 import { FaFileAlt, FaFolder, FaFolderOpen, FaArrowLeft } from 'react-icons/fa';
 import DocumentSubmissionModal from '@/components/documentModal';
+import StageDocumentUpload from '@/components/documents-vault/stageDocumentUpload';
+import { supabase } from '@/lib/supabaseclient';
+import { toast } from 'react-toastify';
+
 
 const DocumentPage = () => {
-  const { id } = useParams(); // Extract the `id` from the URL parameters
-  const router = useRouter(); // Use Next.js router for navigation
-
-  if (!id) return <p>No startup ID provided.</p>;
-
-  const { files, loading, error } = useDocumentsForStartup(id);
-  // console.log('files', files);
-
+  const { id } = useParams();
+  const router = useRouter();
+  const [stages, setStages] = useState([]);
+  const [documentsByStage, setDocumentsByStage] = useState({});
   const [openFolders, setOpenFolders] = useState({
     founder_information: false,
     CTO_info: false,
-    company_documents: false, // This can be set to true by default if you want it open
+    company_documents: false,
   });
+  const [openFolderStage, setOpenFolderStage] = useState(null);
+
+  const fetchDocuments = async () => {
+    if (!id) return;
+
+    console.log('Startup id: ', id);
+
+    const { data: profileData, error: profileError } = await supabase
+      .from('company_profile')
+      .select('profile_id')
+      .eq('id', id)
+      .single();
+
+    if (profileError) {
+      console.error('Error fetching profile:', profileError.message);
+      return;
+    }
+
+    const sId = profileData?.profile_id;
+
+    if (!sId) {
+      console.error('No profile ID found for the given startup ID.');
+      return;
+    }
+
+    console.log('Startup Profile id: ', sId);
+
+    const { data, error } = await supabase
+      .from('company_stage_documents')
+      .select('*')
+      .eq('startup_id', sId);
+
+    if (error) {
+      console.error('Error fetching documents:', error.message);
+    } else {
+      const grouped = data.reduce((acc, doc) => {
+        acc[doc.stage] = doc;
+        return acc;
+      }, {});
+
+      setStages(Object.keys(grouped));
+      setDocumentsByStage(grouped);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [id]);
+
+  const { files, loading, error } = useDocumentsForStartup(id);
 
   if (loading) return <Loading />;
 
@@ -38,20 +88,24 @@ const DocumentPage = () => {
     }));
   };
 
+  const toggleFolderStage = (folderName) => {
+    setOpenFolderStage(openFolderStage === folderName ? null : folderName);
+  };
+
   const renderDocumentList = (documents) => {
     const sortedDocuments = Object.entries(documents).sort(
       ([keyA, urlA], [keyB, urlB]) => {
         const isAvailableA = urlA && urlA.trim() !== '';
         const isAvailableB = urlB && urlB.trim() !== '';
-        return isAvailableB - isAvailableA; // Sort: available (1) comes before unavailable (0)
+        return isAvailableB - isAvailableA;
       }
     );
 
     return sortedDocuments.map(([key, url]) => {
       if (!['id', 'company_id', 'created_at'].includes(key)) {
-        const isAvailable = url && url.trim() !== ''; // Check if the document has a value
+        const isAvailable = url && url.trim() !== '';
         return (
-          <div className='cursor-pointer text-center' key={key}>
+          <div className="cursor-pointer text-center p-2" key={key}>
             <Link href={isAvailable ? url : '#'} passHref>
               <div
                 className={`p-4 rounded-lg shadow-md ${
@@ -68,11 +122,9 @@ const DocumentPage = () => {
                   className={`text-sm truncate ${
                     isAvailable ? '' : 'cursor-not-allowed'
                   }`}
-                  onClick={(e) => !isAvailable && e.preventDefault()} // Prevent click if no URL
+                  onClick={(e) => !isAvailable && e.preventDefault()}
                 >
-                  {key
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                  {key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                 </span>
               </div>
             </Link>
@@ -83,13 +135,60 @@ const DocumentPage = () => {
     });
   };
 
+  const renderStageDocuments = (documents) => (
+    <div className="grid grid-cols-4 gap-4 mt-4">
+      {Object.entries(documents).map(([docType, filePathText]) => {
+        if (!filePathText || ['id', 'startup_id', 'stage', 'created_at'].includes(docType)) return null;
+
+        let filePaths;
+        try {
+          filePaths = JSON.parse(filePathText);
+        } catch (error) {
+          console.error('Error parsing file paths:', error.message);
+          filePaths = [];
+        }
+
+        if (Array.isArray(filePaths)) {
+          return filePaths.map((path, index) => (
+            <div
+              key={`${docType}-${index}`}
+              onClick={() => openModal(path)}
+              className="cursor-pointer text-center p-2"
+            >
+              <div className="p-4 rounded-lg shadow-md bg-green-200 hover:bg-green-300">
+                <FaFileAlt size={40} className="mx-auto mb-2 text-green-500" />
+                <p className="text-sm truncate">
+                  {filePaths.length > 1
+                    ? `${docType.replace(/_/g, ' ').toUpperCase()} ${index + 1}`
+                    : `${docType.replace(/_/g, ' ').toUpperCase()}`}
+                </p>
+              </div>
+            </div>
+          ));
+        } else {
+          return (
+            <div
+              key={docType}
+              onClick={() => openModal(filePathText)}
+              className="cursor-pointer text-center p-2"
+            >
+              <div className="p-4 rounded-lg shadow-md bg-green-200 hover:bg-green-300">
+                <FaFileAlt size={40} className="mx-auto mb-2 text-green-500" />
+                <p className="text-sm truncate">{docType.replace(/_/g, ' ')}</p>
+              </div>
+            </div>
+          );
+        }
+      })}
+    </div>
+  );
+
   return (
-    <div className='p-6'>
-      {/* Back Button */}
-      <div className='mb-4 flex justify-between'>
+    <div className="p-6">
+      <div className="mb-4 flex justify-between">
         <button
           onClick={() => router.back()}
-          className='flex items-center space-x-2 text-blue-500 hover:text-blue-700'
+          className="flex items-center space-x-2 text-blue-500 hover:text-blue-700"
         >
           <FaArrowLeft size={20} />
           <span>Back</span>
@@ -97,66 +196,48 @@ const DocumentPage = () => {
         <DocumentSubmissionModal id={id} />
       </div>
 
-      <h2 className='text-2xl font-bold mb-4 text-center'>Startup Documents</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Startup Documents</h2>
+
       {/* Founder Information Folder */}
-      <div className='mb-4'>
-        <div
-          className='cursor-pointer flex items-center space-x-2'
-          onClick={() => toggleFolder('founder_information')}
-        >
-          {openFolders.founder_information ? (
-            <FaFolderOpen size={40} className='text-yellow-500' />
-          ) : (
-            <FaFolder size={40} className='text-yellow-500' />
-          )}
-          <span className='text-xl font-semibold'>Founder Information</span>
-        </div>
-        {openFolders.founder_information && (
-          <div className='grid grid-cols-4 gap-4 mt-4'>
-            {files?.founder_information &&
-              renderDocumentList(files.founder_information)}
+      {['founder_information', 'CTO_info', 'company_documents'].map((folder) => (
+        <div className="mb-4" key={folder}>
+          <div
+            className="cursor-pointer flex items-center space-x-2"
+            onClick={() => toggleFolder(folder)}
+          >
+            {openFolders[folder] ? (
+              <FaFolderOpen size={40} className="text-yellow-500" />
+            ) : (
+              <FaFolder size={40} className="text-yellow-500" />
+            )}
+            <span className="text-xl font-semibold capitalize">{folder.replace(/_/g, ' ')}</span>
           </div>
-        )}
-      </div>
-      {/* CTO Information Folder */}
-      <div className='mb-4'>
-        <div
-          className='cursor-pointer flex items-center space-x-2'
-          onClick={() => toggleFolder('CTO_info')}
-        >
-          {openFolders.CTO_info ? (
-            <FaFolderOpen size={40} className='text-yellow-500' />
-          ) : (
-            <FaFolder size={40} className='text-yellow-500' />
+          {openFolders[folder] && (
+            <div className="grid grid-cols-4 gap-4 mt-4">
+              {files?.[folder] && renderDocumentList(files[folder])}
+            </div>
           )}
-          <span className='text-xl font-semibold'>CTO Information</span>
         </div>
-        {openFolders.CTO_info && (
-          <div className='grid grid-cols-4 gap-4 mt-4'>
-            {files?.CTO_info && renderDocumentList(files.CTO_info)}
+      ))}
+
+      {/* Stage-wise Documents */}
+      {stages.map((stage) => (
+        <div key={stage} className="mb-4">
+          <div
+            onClick={() => toggleFolderStage(stage)}
+            className="cursor-pointer flex items-center space-x-2"
+          >
+            {openFolderStage === stage ? (
+              <FaFolderOpen size={40} className="text-yellow-500" />
+            ) : (
+              <FaFolder size={40} className="text-yellow-500" />
+            )}
+            <span className="text-xl font-semibold">{stage}</span>
           </div>
-        )}
-      </div>
-      {/* Company Documents Folder */}
-      <div className='mb-4'>
-        <div
-          className='cursor-pointer flex items-center space-x-2'
-          onClick={() => toggleFolder('company_documents')}
-        >
-          {openFolders.company_documents ? (
-            <FaFolderOpen size={40} className='text-yellow-500' />
-          ) : (
-            <FaFolder size={40} className='text-yellow-500' />
-          )}
-          <span className='text-xl font-semibold'>Company Documents</span>
+          {openFolderStage === stage &&
+            renderStageDocuments(documentsByStage[stage] || {})}
         </div>
-        {openFolders.company_documents && (
-          <div className='grid grid-cols-4 gap-4 mt-4'>
-            {files?.company_documents &&
-              renderDocumentList(files.company_documents[0])}
-          </div>
-        )}
-      </div>
+      ))}
     </div>
   );
 };

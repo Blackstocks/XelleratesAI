@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import useWidth from '@/hooks/useWidth';
 import ProjectList from '@/components/partials/app/projects/ProjectList';
@@ -16,27 +16,39 @@ import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
 import ConnectedStartupsFilesGrid from '@/components/partials/app/projects/ConnectedStartupsFolder';
 import useStartupFiles from '@/hooks/useStartupFiles';
 
+
 const DocumentManagement = () => {
   const [filler, setFiller] = useState('grid');
   const { width, breakpoints } = useWidth();
   const { user } = useUserDetails();
   const { investorSignup } = useCompleteUserDetails();
   const [isProfileLoading, setIsProfileLoading] = useState(true);
-  const { files: startups, loading: startupsLoading } = useStartupFiles(
-    user?.id
-  );
-
-  // console.log('startups', startups);
-
+  const { files: startups, loading: startupsLoading } = useStartupFiles(user?.id);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredStartups, setFilteredStartups] = useState([]);
+  
   const dispatch = useDispatch();
-
   const { documents, isLoaded } = useFetchDocuments(user?.id);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       setIsProfileLoading(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    // Filter startups by the search term
+    if (startups) {
+      if (searchTerm.trim() === '') {
+        setFilteredStartups(startups);
+      } else {
+        const filtered = startups.filter((startup) =>
+          startup.name && startup.name.toLowerCase().includes(searchTerm.toLowerCase()) // Ensure name is not undefined
+        );
+        setFilteredStartups(filtered);
+      }
+    }
+  }, [searchTerm, startups]);
 
   if (isProfileLoading) {
     return <Loading />;
@@ -45,79 +57,39 @@ const DocumentManagement = () => {
   return (
     <div>
       <div className='flex flex-wrap justify-between items-center mb-4'>
-        {/* <h4 className='font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4'>
-          Document Management
-        </h4> */}
-        <div
-          className={`${
-            width < breakpoints.md ? 'space-x-rb' : ''
-          } md:flex md:space-x-4 md:justify-end items-center rtl:space-x-reverse`}
-        >
-          {/* <Button
-            icon='heroicons:list-bullet'
-            text='List view'
-            disabled={isLoaded}
-            className={`${
-              filler === 'list'
-                ? 'bg-slate-950 dark:bg-slate-700  text-white'
-                : ' bg-white dark:bg-slate-900 dark:text-slate-300'
-            }   h-min text-sm font-normal`}
-            iconClass=' text-lg'
-            onClick={() => setFiller('list')}
+        {/* Search Input */}
+        {/* <div className="flex-grow md:flex-grow-0 md:w-1/3">
+          <input
+            type='text'
+            placeholder='Search startup by name...'
+            className='p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 w-full'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button
-            icon='heroicons-outline:view-grid'
-            text='Grid view'
-            disabled={isLoaded}
-            className={`${
-              filler === 'grid'
-                ? 'bg-slate-950 dark:bg-slate-700 text-white'
-                : ' bg-white dark:bg-slate-900 dark:text-slate-300'
-            }   h-min text-sm font-normal`}
-            iconClass=' text-lg'
-            onClick={() => setFiller('grid')}
-          />
+        </div> */}
 
-          <Button
-            icon='heroicons-outline:plus'
-            text='Add Documents'
-            className='btn-dark dark:bg-slate-900  h-min text-sm font-normal'
-            iconClass=' text-lg'
-            onClick={() => dispatch(toggleAddModal(true))}
-          /> */}
+        <div className='flex justify-between items-center w-full md:w-auto'>
+          {/* Other Buttons Here */}
         </div>
       </div>
-      {isLoaded && filler === 'grid' && (
-        <GridLoading count={documents.length} />
-      )}
-      {isLoaded && filler === 'list' && (
-        <TableLoading count={documents.length} />
-      )}
+
+      <div className='flex items-center justify-between mb-4'>
+        <h4 className='font-medium lg:text-2xl text-xl capitalize text-slate-900'>
+          Startup Documents
+        </h4>
+      </div>
+      
+      {isLoaded && filler === 'grid' && <GridLoading count={documents.length} />}
+      {isLoaded && filler === 'list' && <TableLoading count={documents.length} />}
 
       {filler === 'grid' && (
         <div className='flex flex-col h-full gap-5'>
-          {/* Upper half: ProjectGrid Section */}
-          {/* {!isLoaded && Array.isArray(documents) && (
-            <div className='flex-grow overflow-y-auto'>
-              <div className='grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5'>
-                {documents.map((document) => (
-                  <ProjectGrid project={document} key={document.id} />
-                ))}
-              </div>
-            </div>
-          )} */}
-
-          <h4 className='font-medium lg:text-2xl text-xl capitalize text-slate-900 inline-block ltr:pr-4 rtl:pl-4'>
-            Startup Documents
-          </h4>
-
-          {/* Lower half: ConnectedStartupsFilesGrid Section */}
           <div className='flex-grow overflow-y-auto'>
             {startupsLoading ? (
               <Loading />
             ) : (
               <div className='grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5'>
-                {startups.map((startup) => (
+                {filteredStartups.map((startup) => (
                   <ConnectedStartupsFilesGrid
                     project={startup}
                     key={startup.id}

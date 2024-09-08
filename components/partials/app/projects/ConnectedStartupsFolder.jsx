@@ -9,6 +9,8 @@ const ConnectedStartupsFilesGrid = ({ project }) => {
   const company_logo = profiles?.company_logo;
   const router = useRouter();
 
+  console.log("project: ", project);
+
   const handleClick = () => {
     router.push(`/tools/document-management/${id}`);
   };
