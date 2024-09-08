@@ -77,7 +77,7 @@ const AddStartupsPage = () => {
     <div className="p-6">
       {/* Header with "Add Startup" button */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Startups Mapped to Investor</h2>
+        <h2 className="text-xl font-bold">Startups Added</h2>
         <button className="btn btn-primary" onClick={handleAddStartup}>
           Add Startup
         </button>

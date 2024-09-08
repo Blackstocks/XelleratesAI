@@ -457,7 +457,7 @@ const VerticalNavTabs = (props) => {
               customer_AcquisitionCost: data.customer_AcquisitionCost || null,
               customer_Lifetime_Value: data.customer_Lifetime_Value || null,
             };
-
+            console.log(businessDetailsData);
             let businessDetailsResponse;
             if (!businessDetailsLoc?.id) {
               businessDetailsResponse = await insertBusinessDetails(
