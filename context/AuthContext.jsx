@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabaseclient';
 import useSWR from 'swr';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
-import jwt from 'jsonwebtoken'; // Import JWT library
+// import jwt from 'jsonwebtoken'; Import JWT library
 
 const AuthContext = createContext();
 
@@ -150,17 +150,17 @@ const AuthProvider = ({ children }) => {
           dispatch({ type: 'SET_TOAST', payload: id });
         }
 
-        // Generate JWT for the Pitch Deck
-        const token = jwt.sign(
-          { userId: data.user.id },
-          process.env.NEXT_PUBLIC_JWT_SECRET,
-          { expiresIn: '10m' }
-        );
-        Cookies.set('pitchdeck_token', token, {
-          secure: process.env.NODE_ENV === 'production',
-          path: '/',
-          sameSite: 'None', // Important for cross-site cookies
-        });
+        // // Generate JWT for the Pitch Deck
+        // const token = jwt.sign(
+        //   { userId: data.user.id },
+        //   process.env.NEXT_PUBLIC_JWT_SECRET,
+        //   { expiresIn: '10m' }
+        // );
+        // Cookies.set('pitchdeck_token', token, {
+        //   secure: process.env.NODE_ENV === 'production',
+        //   path: '/',
+        //   sameSite: 'None', // Important for cross-site cookies
+        // });
 
         return true; // Return true to indicate the login was successful
       } catch (err) {
