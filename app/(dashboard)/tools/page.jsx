@@ -7,6 +7,7 @@ import Loading from '@/app/loading';
 import ComingSoonModal from '@/components/ComingSoonModal';
 import Link from 'next/link';
 import Chatbot from '@/components/chatbot';
+import { toast } from 'react-toastify';
 
 const Tools = () => {
   const { user, loading: userLoading } = useUserDetails();
@@ -184,6 +185,37 @@ const Tools = () => {
     </div>
   );
 
+  const generateJwtAndRedirect = async () => {
+    if (!user) {
+      toast.error('You need to log in first.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/generateJwt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: user?.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate token');
+      }
+
+      const pitchDeckUrl = `https://xellerates-pitch-deck.vercel.app/?token=${encodeURIComponent(
+        data.token
+      )}`;
+
+      window.open(pitchDeckUrl, '_blank');
+    } catch (error) {
+      toast.error('Failed to generate token. Please try again.');
+    }
+  };
+
   return (
     <div className='w-full relative'>
       {isModalOpen && (
@@ -206,8 +238,13 @@ const Tools = () => {
                   {cardContent(
                     'DIY Pitch Deck',
                     '/assets/images/tools/2.svg',
-                    '#'
+                    'https://xellerates-pitch-deck.vercel.app/',
+                    (e) => {
+                      e.preventDefault();
+                      generateJwtAndRedirect();
+                    }
                   )}
+
                   {cardContent(
                     'Financial Insights',
                     '/assets/images/tools/3.svg',
