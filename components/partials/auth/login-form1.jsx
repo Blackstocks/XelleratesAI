@@ -25,10 +25,8 @@ const LoginForm1 = () => {
 
   // Effect to handle redirection and approval check
   useEffect(() => {
-    if (user) {
-      if (user.status === 'approved') {
-        router.push('/dashboard'); // Redirect to the dashboard if the user is approved
-      }
+    if (user && user.status === 'approved') {
+      router.push('/dashboard'); // Redirect to the dashboard if the user is approved
     }
   }, [user, router]);
 
@@ -44,17 +42,18 @@ const LoginForm1 = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const loginError = await login(data.email, data.password);
+      const isLoginSuccessful = await login(data.email, data.password);
 
-      if (loginError) {
+      if (isLoginSuccessful) {
+        router.push('/profile'); // Redirect to the profile page if login is successful
+      } else {
         if (!toast.isActive('login-error-toast')) {
-          toast.error(loginError.message || 'Invalid credentials', {
+          toast.error('Invalid credentials or account not approved', {
             position: 'top-right',
             autoClose: 3000,
             toastId: 'login-error-toast',
           });
         }
-        throw new Error(loginError.message || 'Invalid credentials');
       }
     } catch (error) {
       console.error('Login submission error:', error);

@@ -122,6 +122,7 @@ const AuthProvider = ({ children }) => {
           sameSite: 'Strict',
         });
 
+        // Fetch the user's profile to check approval status
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -136,7 +137,7 @@ const AuthProvider = ({ children }) => {
           Cookies.remove('access_token');
           Cookies.remove('refresh_token');
           mutate(undefined, false);
-          return; // Prevent returning a message to avoid duplicate toasts
+          return false; // Return false to indicate the login was not successful
         }
 
         mutate(fetcher, false); // Immediately update user state
@@ -160,9 +161,12 @@ const AuthProvider = ({ children }) => {
           path: '/',
           sameSite: 'None', // Important for cross-site cookies
         });
+
+        return true; // Return true to indicate the login was successful
       } catch (err) {
         console.error('Login error:', err);
         dispatch({ type: 'SET_ERROR', payload: err });
+        return false; // Return false to indicate the login was not successful
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false });
       }
