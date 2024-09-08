@@ -57,7 +57,7 @@ const StartupFinancials = ({ selectedStartup }) => {
   };
 
   
-  console.log("startup stages: ", stages);
+  // console.log("startup stages: ", stages);
   const handleStageChange = (event) => {
     const stage = event.target.value;
     setSelectedStage(stage);

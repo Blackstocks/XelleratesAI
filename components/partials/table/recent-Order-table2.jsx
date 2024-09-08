@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import Icon from '@/components/ui/Icon';
 import { useTable, useRowSelect, useSortBy, useGlobalFilter, usePagination } from 'react-table';
-import useInvestorStartupMeets from '@/hooks/useInvestorStartupMeets'; // Adjust the path as needed
+import useInvestorStartupMeets from '@/hooks/useInvestorStartupMeets'; 
 import { supabase } from '@/lib/supabaseclient';
 
 // Define INVESTOR_COLUMNS
@@ -75,7 +75,6 @@ const INVESTOR_COLUMNS = [
 
 // Define STARTUP_COLUMNS
 const STARTUP_COLUMNS = [
-  // Define the columns as needed
   {
     Header: 'Startup Name',
     accessor: 'startup_logo',
@@ -136,8 +135,8 @@ const STARTUP_COLUMNS = [
 ];
 
 const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
-  const [statusMap, setStatusMap] = useState({}); // State to store status for each entry
-  const [errorMap, setErrorMap] = useState({}); // State to store errors for each entry
+  const [statusMap, setStatusMap] = useState({}); 
+  const [errorMap, setErrorMap] = useState({}); 
   const { meetings, loading: meetingsLoading, error: meetingsError } = useInvestorStartupMeets(userId, companyProfileId);
 
   // Function to fetch status for a specific entry
@@ -146,36 +145,31 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
       console.error('Investor ID or Startup ID is undefined');
       return;
     }
-
+  
     console.log("User ID:", userId);
     console.log("Inv ID:", investorId);
     console.log("Startup ID:", startupId);
   
     try {
-      let statusData = [];
+      let statusData = null;
       let error = null;
   
       if (userType === 'investor') {
-        // Investor flow: Match both startupId and investorId with the investor_startup_assignments table
         const { data, error: investorError } = await supabase
           .from('investor_startup_assignments')
           .select('status, startup_id')
           .eq('investor_id', investorId)
-          .eq('startup_id', startupId);  // Match both investor and startup IDs
+          .eq('startup_id', startupId);
   
-        statusData = data;
-        console.log("New startup status data:", statusData);
+        statusData = data && data.length > 0 ? data[0] : null;
+        console.log("Fetched investor status data:", statusData);
         error = investorError;
-        
       } else {
-        // Startup flow: Fetch new IDs and then fetch status
         const { data: startupData, error: startupError } = await supabase
           .from('connected_startup_equity')
           .select('id')
           .eq('user_id', userId)
           .single();
-
-          console.log("New startup ID:", startupData.id);
   
         if (startupError || !startupData) {
           console.error('Error fetching connected startup ID:', startupError);
@@ -188,8 +182,7 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
           .select('id')
           .eq('profile_id', investorId)
           .single();
-        
-          console.log("New investor ID:", investorData.id);
+  
         if (investorError || !investorData) {
           console.error('Error fetching connected investor ID:', investorError);
           setErrorMap((prev) => ({ ...prev, [startupId]: investorError?.message || 'No connected investor found' }));
@@ -205,57 +198,50 @@ const RecentOrderTable2 = ({ userId, companyProfileId, userType }) => {
           .eq('startup_id', newStartupId)
           .eq('investor_id', newInvestorId);
   
-        statusData = dealflowData[0];
+        statusData = dealflowData && dealflowData.length > 0 ? dealflowData[0] : null;
+        console.log("Fetched startup status data:", statusData);
         error = dealflowError;
-        console.log("New startup status data:", statusData);
       }
   
       if (error) {
         console.error('Error fetching status data:', error);
-        setErrorMap((prev) => ({ ...prev, [startupId]: error.message })); // Store error for specific entry
-      } else {
-        // Find the entry where startup_id matches the provided startupId
-        const matchingEntry = statusData;
+        setErrorMap((prev) => ({ ...prev, [startupId]: error.message }));
+        return;
+      }
   
-        // Define a mapping for status values
+      if (statusData && statusData.status) {
+        const normalizedStatus = (statusData.status || '').toLowerCase().replace(/\s+/g, '_');
+  
         const statusMapping = {
           moving_forward: 'Moving Forward',
           evaluated: 'Evaluated',
           meeting_done: 'Meeting Done',
           curated_deal: 'Curated Deal',
-          NULL: 'Curated Deal',
+          rejected: 'Rejected',
+          meeting: 'Meeting',
+          deal_closed_won: 'Deal Closed Won',
+          transaction: 'Transaction',
+          deal_closed_lost: 'Deal Closed Lost',
+          deal_lost: 'Deal Lost',
         };
   
-        // Update the logic to map status values correctly
-        if (matchingEntry) {
-          if (userType === 'investor'){
-            console.log("matching entry status", matchingEntry.status);
-            setStatusMap((prev) => ({
-              ...prev,
-              [startupId]: statusMapping[matchingEntry.status] || 'Curated Deal'  // Use the mapping for the status
-            }));}
-
-            else{
-              {setStatusMap((prev) => ({
-                ...prev,
-                [startupId]: matchingEntry.status || 'Curated Deal'  // Use the mapping for the status
-              }));}
-            }
-
-          
-        } else {
-          setStatusMap((prev) => ({
-            ...prev,
-            [startupId]: 'Not Found'  // Handle case where no matching entry is found
-          }));
-        }
+        const mappedStatus = statusMapping[normalizedStatus] || statusData.status;
+  
+        setStatusMap((prev) => ({
+          ...prev,
+          [startupId]: mappedStatus,
+        }));
+      } else if (!statusMap[startupId]) {
+        setStatusMap((prev) => ({
+          ...prev,
+          [startupId]: 'Not Found',
+        }));
       }
     } catch (err) {
       console.error('Unexpected error fetching status:', err);
       setErrorMap((prev) => ({ ...prev, [startupId]: 'Error fetching status' }));
     }
   };
-  
 
   // Fetch status data for each row when the component mounts or when data changes
   useEffect(() => {

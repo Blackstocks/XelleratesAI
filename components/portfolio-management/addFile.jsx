@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseclient';
 import { FaTrashAlt, FaEye, FaUpload, FaTimes } from 'react-icons/fa';
 
-const AddFiles = ({ isOpen, onClose, investorId, startupId }) => {
+const AddFiles = ({ isOpen, onClose, investorId, startupId, cardTitle }) => { // Use cardTitle instead of cardId
   const [file, setFile] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [viewFileUrl, setViewFileUrl] = useState(null); // State for file view modal
-  const [confirmDelete, setConfirmDelete] = useState({ open: false, fileName: '' }); // State for delete confirmation
+  const [viewFileUrl, setViewFileUrl] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, fileName: '' });
 
   useEffect(() => {
     if (isOpen) {
@@ -18,19 +18,17 @@ const AddFiles = ({ isOpen, onClose, investorId, startupId }) => {
     }
   }, [isOpen]);
 
-  // Handle file selection
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
-    setUploadSuccess(false); // Reset success message
+    setUploadSuccess(false);
   };
 
-  // Fetch uploaded files from the bucket
   const fetchUploadedFiles = async () => {
     try {
-      const path = `${investorId}/${startupId}/`;
+      const path = `${investorId}/${startupId}/${cardTitle}/`;
       const { data, error } = await supabase.storage
         .from('investor_startup_documents')
-        .list(path, { limit: 100 }); // Adjust limit as needed
+        .list(path, { limit: 100 });
 
       if (error) {
         console.error('Error fetching files:', error.message);
@@ -42,15 +40,13 @@ const AddFiles = ({ isOpen, onClose, investorId, startupId }) => {
     }
   };
 
-  // Handle file upload
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
     setUploadSuccess(false);
 
-    const filePath = `${investorId}/${startupId}/${file.name}`;
+    const filePath = `${investorId}/${startupId}/${cardTitle}/${file.name}`;
     
-    // Upload file to Supabase bucket
     const { error: uploadError } = await supabase.storage
       .from('investor_startup_documents')
       .upload(filePath, file);
@@ -60,16 +56,15 @@ const AddFiles = ({ isOpen, onClose, investorId, startupId }) => {
     } else {
       console.log('File uploaded successfully.');
       setUploadSuccess(true);
-      fetchUploadedFiles(); // Refresh uploaded files list
-      setFile(null); // Clear the file input
+      fetchUploadedFiles();
+      setFile(null);
     }
 
     setLoading(false);
   };
 
-  // Handle file deletion
   const handleDelete = async (fileName) => {
-    const filePath = `${investorId}/${startupId}/${fileName}`;
+    const filePath = `${investorId}/${startupId}/${cardTitle}/${fileName}`;
     
     const { error } = await supabase.storage
       .from('investor_startup_documents')
@@ -79,17 +74,15 @@ const AddFiles = ({ isOpen, onClose, investorId, startupId }) => {
       console.error('Error deleting file:', error.message);
     } else {
       console.log('File deleted successfully.');
-      fetchUploadedFiles(); // Refresh uploaded files list
-      setConfirmDelete({ open: false, fileName: '' }); // Close confirmation
+      fetchUploadedFiles();
+      setConfirmDelete({ open: false, fileName: '' });
     }
   };
 
-  // Open file view modal
   const handleViewFile = (filePath) => {
     setViewFileUrl(filePath);
   };
 
-  // Confirm delete action
   const confirmDeleteFile = (fileName) => {
     setConfirmDelete({ open: true, fileName });
   };
@@ -142,7 +135,7 @@ const AddFiles = ({ isOpen, onClose, investorId, startupId }) => {
                     <td className="px-4 py-2 text-right">
                       <div className="flex space-x-4">
                         <button
-                          onClick={() => handleViewFile(`https://xgusxcqoddybgdkkndvn.supabase.co/storage/v1/object/public/investor_startup_documents/${investorId}/${startupId}/${file.name}`)}
+                          onClick={() => handleViewFile(`https://xgusxcqoddybgdkkndvn.supabase.co/storage/v1/object/public/investor_startup_documents/${investorId}/${startupId}/${cardTitle}/${file.name}`)}
                           className="text-blue-500 hover:text-blue-700"
                         >
                           <FaEye />
@@ -161,7 +154,6 @@ const AddFiles = ({ isOpen, onClose, investorId, startupId }) => {
             </table>
           </div>
 
-          {/* File View Modal */}
           {viewFileUrl && (
             <div className="fixed inset-0 flex items-center justify-center z-30 bg-black bg-opacity-75">
               <div className="bg-white p-4 rounded-md shadow-md max-w-2xl w-full relative">
@@ -176,7 +168,6 @@ const AddFiles = ({ isOpen, onClose, investorId, startupId }) => {
             </div>
           )}
 
-          {/* Delete Confirmation Modal */}
           {confirmDelete.open && (
             <div className="fixed inset-0 flex items-center justify-center z-30 bg-black bg-opacity-75">
               <div className="bg-white p-4 rounded-md shadow-md max-w-sm w-full relative">

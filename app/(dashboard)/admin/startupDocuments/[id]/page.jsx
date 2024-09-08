@@ -24,13 +24,17 @@ const DocumentPage = () => {
   const [openFolderStage, setOpenFolderStage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null); // State for selected document
+  const [openFolder, setOpenFolder] = useState(null);
+  const [startupProfileId, setStartupProfileId]= useState(null);
+  const [selectedStage, setSelectedStage] = useState('');
+  const [companyName, setCompanyName] = useState('');
 
   const fetchDocuments = async () => {
     if (!id) return;
 
     const { data: profileData, error: profileError } = await supabase
       .from('company_profile')
-      .select('profile_id')
+      .select('profile_id, company_name')
       .eq('id', id)
       .single();
 
@@ -40,13 +44,15 @@ const DocumentPage = () => {
     }
 
     const sId = profileData?.profile_id;
+    setStartupProfileId(sId);
+    setCompanyName(profileData?.company_name);
 
     if (!sId) {
       console.error('No profile ID found for the given startup ID.');
       return;
     }
 
-    console.log('Startup Profile id: ', sId);
+    console.log('Startup Profile id: ', profileData);
 
     const { data, error } = await supabase
       .from('company_stage_documents')
@@ -99,6 +105,20 @@ const DocumentPage = () => {
   const closeModal = () => {
     setSelectedDocument(null); // Clear the selected document
     setIsModalOpen(false); // Close the modal
+  };
+
+  const handleUploadComplete = (newStage) => {
+    setStages((prevStages) => [...new Set([...prevStages, newStage])]);
+    setOpenFolder(null); // Collapse the table by closing any open folder
+    setSelectedStage(''); // Reset the dropdown to "Select Stage"
+    fetchDocuments(); // Re-fetch documents to update state after new uploads
+  };
+
+  // New callback to handle changes after document upload
+  const handleDocumentUpload = () => {
+    setOpenFolder(null); // Collapse the table
+    setSelectedStage(''); // Reset the dropdown to "Select Stage"
+    toast.success('Documents uploaded successfully'); // Show success toast
   };
 
   const renderDocumentList = (documents) => {
@@ -203,11 +223,20 @@ const DocumentPage = () => {
         <DocumentSubmissionModal id={id} />
       </div>
 
-      <h2 className="text-2xl font-bold mb-4 text-center">Startup Documents</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">{`${companyName}'s Documents`}</h2>
+
+      <StageDocumentUpload
+            startupId={startupProfileId}
+            companyName={null}
+            onUploadComplete={handleUploadComplete}
+        onDocumentUpload={handleDocumentUpload} // Pass the new callback to handle upload changes
+        selectedStage={selectedStage} // Pass the dropdown state to control it
+        setSelectedStage={setSelectedStage}
+          />
 
       {/* Founder Information Folder */}
       {['founder_information', 'CTO_info', 'company_documents'].map((folder) => (
-        <div className="mb-4" key={folder}>
+        <div className="mb-4 mt-4" key={folder}>
           <div
             className="cursor-pointer flex items-center space-x-2"
             onClick={() => toggleFolder(folder)}

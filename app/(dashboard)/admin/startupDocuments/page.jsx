@@ -13,7 +13,7 @@ import Loading from '@/app/loading';
 import useFetchDocuments from '@/hooks/useFetchDocuments';
 import useUserDetails from '@/hooks/useUserDetails';
 import useCompleteUserDetails from '@/hooks/useCompleUserDetails';
-import ConnectedStartupsFilesGrid from '@/components/partials/app/projects/ConnectedStartupsFolder';
+import ConnectedStartupsFilesGrid from '@/components/partials/app/projects/ConnectedStartupsFolderAdmin';
 import useStartupsRawApproved from '@/hooks/useStartupsId';
 
 const DocumentManagement = () => {
@@ -22,7 +22,7 @@ const DocumentManagement = () => {
   const { user } = useUserDetails();
   const { investorSignup } = useCompleteUserDetails();
   const [isProfileLoading, setIsProfileLoading] = useState(true);
-  const { files: startups, loading: startupsLoading } = useStartupsRawApproved();
+  const { startups: startups, loading: startupsLoading } = useStartupsRawApproved();
   console.log("startups fetched: ", startups);
   
   const dispatch = useDispatch();
