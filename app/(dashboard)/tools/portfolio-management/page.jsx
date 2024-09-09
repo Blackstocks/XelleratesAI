@@ -41,12 +41,32 @@ const BankingPage = () => {
   const [companyName, setCompanyName] = useState('');
   const { startups, loading: startupsLoading } = useStartups(user?.id);
   const [selectedStartupsData, setSelectedStartupData] = useState(null);
+  const [selectedStartupsId, setSelectedStartupId] = useState(null);
   const [isAddFilesModalOpen, setIsAddFilesModalOpen] = useState(false);
   const [isCardCreationModalOpen, setIsCardCreationModalOpen] = useState(false);
   const [newCardLogo, setNewCardLogo] = useState(null);
   const [selectedCardTitle, setSelectedCardTitle] = useState('');
   const scrollRef = useRef(null);
   const [activeCardModal, setActiveCardModal] = useState(null); // Add this line to declare the state
+
+
+
+  const seriesWiseDocuments = [
+    'termsheet',
+    'ddr',
+    'condition_precedent',
+    'closing_docs',
+    'condition_subsequent',
+    'transaction_spa',
+    'transaction_shd',
+    'transaction_ssa',
+    'transaction_mou',
+    'transaction_nda',
+    'transaction_safe_notes'
+  ];
+
+  const approvalsDocuments = ['abm', 'shareholder_meeting', 'board_meeting'];
+  const informationRightsDocuments = ['unaudited_financials', 'audited_financials', 'mis'];
 
 
   const handleOpenModal = (cardTitle) => {
@@ -242,7 +262,7 @@ const BankingPage = () => {
 
         if (selectedsSartupData) {
           setSelectedStartupData(selectedsSartupData);
-          console.log("Selected Startup Data", selectedsSartupData);
+          // console.log("Selected Startup Data", selectedStartupsData);
         }
       } else {
         console.error('Selected startup ID is undefined:', selectedStartup);
@@ -251,6 +271,8 @@ const BankingPage = () => {
       console.error('No startup found for the selected value:', selectedValue);
     }
   };
+
+  console.log("Selected Startup Data", selectedStartupsData);
 
   if (isLoading) {
     return <Loading />;
@@ -377,7 +399,7 @@ const BankingPage = () => {
         <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
           {/* Modal Content for Series wise Documents */}
           <DocumentModal
-          startupId={selectedStartupsData.id}
+          startupId={selectedStartupsData?.id}
           allowedDocumentTypes={seriesWiseDocuments}
           isOpen={activeCardModal}
           handleCloseModal={handleCloseModal}
@@ -388,7 +410,7 @@ const BankingPage = () => {
         <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
           {/* Modal Content for Series wise Documents */}
           <DocumentModal
-          startupId={selectedStartupsData.id}
+          startupId={selectedStartupsData?.id}
           allowedDocumentTypes={approvalsDocuments}
           isOpen={activeCardModal}
           handleCloseModal={handleCloseModal}
@@ -399,7 +421,7 @@ const BankingPage = () => {
         <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
           {/* Modal Content for Series wise Documents */}
           <DocumentModal
-          startupId={selectedStartupsData.id}
+          startupId={selectedStartupsData?.id}
           allowedDocumentTypes={informationRightsDocuments}
           isOpen={activeCardModal}
           handleCloseModal={handleCloseModal}
