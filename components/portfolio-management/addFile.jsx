@@ -11,33 +11,45 @@ const AddFiles = ({ isOpen, onClose, investorId, startupId, cardTitle }) => { //
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [viewFileUrl, setViewFileUrl] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, fileName: '' });
+  
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchUploadedFiles();
+  const [loadingDocuments, setLoadingDocuments] = useState(true); // New loading state
+
+useEffect(() => {
+  if (isOpen) {
+    fetchUploadedFiles();
+  }
+}, [isOpen]);
+
+const fetchUploadedFiles = async () => {
+  setLoadingDocuments(true); // Start loading when fetching documents
+  try {
+    const path = `${investorId}/${startupId}/${cardTitle}/`;
+    const { data, error } = await supabase.storage
+      .from('investor_startup_documents')
+      .list(path, { limit: 100 });
+
+    if (error) {
+      console.error('Error fetching files:', error.message);
+    } else {
+      setUploadedFiles(data || []);
     }
-  }, [isOpen]);
+  } catch (err) {
+    console.error('Unexpected Error:', err.message);
+  } finally {
+    setLoadingDocuments(false); // Stop loading after fetching
+  }
+};
+
+if (loadingDocuments) {
+  return <div className="text-center">Loading documents...</div>;
+}
+
+
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
     setUploadSuccess(false);
-  };
-
-  const fetchUploadedFiles = async () => {
-    try {
-      const path = `${investorId}/${startupId}/${cardTitle}/`;
-      const { data, error } = await supabase.storage
-        .from('investor_startup_documents')
-        .list(path, { limit: 100 });
-
-      if (error) {
-        console.error('Error fetching files:', error.message);
-      } else {
-        setUploadedFiles(data || []);
-      }
-    } catch (err) {
-      console.error('Unexpected Error:', err.message);
-    }
   };
 
   const handleUpload = async () => {

@@ -33,6 +33,12 @@ const StageDocumentUpload = ({ startupId, onUploadComplete, onDocumentUpload }) 
     condition_precedent: [],
     closing_docs: [],
     condition_subsequent: [],
+    share_purchase_agreement: [],
+    shareholder_document : [],
+    share_subscription_agreement: [],
+    mou: [],
+    nda: [],
+    safe_notes: [],
   });
   
 
@@ -43,20 +49,32 @@ const StageDocumentUpload = ({ startupId, onUploadComplete, onDocumentUpload }) 
     'termsheet',
     'cap_table',
     'due_diligence',
-    'transaction_docs',
+    'share_purchase_agreement',
+    'shareholder_document',
+    'share_subscription_agreement',
+    'mou',
+    'nda',
+    'safe_notes',
     'condition_pre',
     'closing_docs',
     'condition_subseq',
   ]);
+  
   const multipleFileDocuments = new Set([
     'termsheet',
     'cap_table',
     'due_diligence',
-    'transaction_docs',
+    'share_purchase_agreement',
+    'shareholder_document',
+    'share_subscription_agreement',
+    'mou',
+    'nda',
+    'safe_notes',
     'condition_pre',
     'closing_docs',
     'condition_subseq',
   ]);
+  
 
   const handleFileChange = (event, documentType) => {
     const files = Array.from(event.target.files);

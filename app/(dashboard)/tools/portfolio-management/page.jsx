@@ -92,7 +92,7 @@ const BankingPage = () => {
 
   const fetchAssignedStartups = async () => {
     try {
-      console.log('Profile ID:', profile.id);
+      // console.log('Profile ID:', profile.id);
 
       const { data, error } = await supabase
         .from('investor_startup_assignments')
@@ -133,7 +133,7 @@ const BankingPage = () => {
         .from('investor_startup_documents')
         .list(path, { limit: 100, offset: 0 });
   
-      console.log('files: ', data);
+      // console.log('files: ', data);
   
       if (error) {
         console.error('Error fetching cards from storage:', error.message);
@@ -179,7 +179,7 @@ const BankingPage = () => {
           ),
         ];
         setCards(updatedCards);
-        console.log('added cards: ', updatedCards);
+        // console.log('added cards: ', updatedCards);
       }
     } catch (err) {
       console.error('Unexpected Error fetching cards:', err.message);
@@ -231,7 +231,7 @@ const BankingPage = () => {
 
     // Log the IDs to check for hidden or unexpected characters
     startups.forEach((startup) => {
-      console.log(`Checking startup ID: '${startup.id}' against selected ID: '${selectedId}'`);
+      // console.log(`Checking startup ID: '${startup.id}' against selected ID: '${selectedId}'`);
     });
 
     // Perform the find operation
@@ -244,7 +244,7 @@ const BankingPage = () => {
 
   const handleStartupChange = (event) => {
     const selectedValue = event.target.value;
-    console.log('Selected value:', selectedValue); // Debugging line
+    // console.log('Selected value:', selectedValue); // Debugging line
 
     // Ensure assignedStartups is defined and is an array
     if (!Array.isArray(assignedStartups) || assignedStartups.length === 0) {
@@ -258,7 +258,7 @@ const BankingPage = () => {
     if (selectedStartup) {
       setSelectedStartup(selectedStartup);
       setCompanyName(selectedStartup.company_name || '');
-      console.log('Selected Startup:', selectedStartup.id);
+      // console.log('Selected Startup:', selectedStartup.id);
 
       // Check if selectedStartup.id is defined before calling getSelectedStartupData
       if (selectedStartup.id) {
@@ -409,7 +409,7 @@ const BankingPage = () => {
           investorId={profile.id}
           startupId={selectedStartupsData?.id}
           allowedDocumentTypes={seriesWiseDocuments}
-          cardTitle={'series_wise'}
+          cardTitle={'series_wise_documents'}
           isOpen={activeCardModal}
           handleCloseModal={handleCloseModal}
           />

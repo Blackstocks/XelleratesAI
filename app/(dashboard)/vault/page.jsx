@@ -258,7 +258,7 @@ const Vault = () => {
               className="cursor-pointer flex items-center space-x-2 mt-2"
             >
               <FaFolder size={24} className="text-blue-400" />
-              <span className="text-md font-medium text-gray-600">
+              <span className="text-md font-medium text-gray-600 capitalize">
                 {docType.replace(/_/g, ' ')}
               </span>
             </div>
@@ -286,22 +286,25 @@ const Vault = () => {
 
     return (
       <div className="space-y-4">
-        {Object.entries(seriesDocuments).map(([series, docTypes]) => (
-          <div key={series}>
-            <div
-              onClick={() => toggleFolder(`${profile.id}/series_wise/${series}/`)}
-              className="cursor-pointer flex items-center space-x-2"
-            >
-              <FaFolder size={30} className="text-yellow-500" />
-              <span className="text-xl font-semibold">{series}</span>
-            </div>
-            {openFolders[`${profile.id}/series_wise/${series}/`] && (
-              <div className="ml-4">
-                {renderFolderContents(series, docTypes)}
-              </div>
-            )}
-          </div>
-        ))}
+        {seriesDocuments && Object.entries(seriesDocuments).map(([series, docTypes]) => (
+  <div key={series}>
+  <div
+    onClick={() => toggleFolder(`${profile.id}/series_wise/${series}/`)}
+    className="cursor-pointer flex items-center space-x-2 ml-4"
+  >
+    <FaFolder size={30} className="text-yellow-500" />
+    <span className="text-xl font-semibold">{series}</span>
+  </div>
+  {openFolders[`${profile.id}/series_wise/${series}/`] && (
+    <div className="ml-4">
+      {renderFolderContents(series, docTypes)}
+    </div>
+  )}
+</div>
+))}
+
+{!seriesDocuments && <p>Loading series documents...</p>}
+
       </div>
     );
   };
