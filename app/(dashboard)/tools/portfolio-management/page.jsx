@@ -16,7 +16,9 @@ import { supabase } from '@/lib/supabaseclient';
 import SeriesModal from '@/components/portfolio-management/seriesDocuments';
 import useStartups from '@/hooks/useStartups';
 import FounderInforModal from '@/components/portfolio-management/founderInformation';
+import FounderInforModal1 from '@/components/portfolio-management/founderInformation1';
 import DocumentModal from '@/components/portfolio-management/startupStageDocuments';
+import DocumentModal1 from '@/components/portfolio-management/startupStageDocuments1';
 import FinancialChart from '@/components/portfolio-management/financialsChart';
 import StartupFinancials from '@/components/portfolio-management/startupFinancials';
 import AddFiles from '@/components/portfolio-management/addFile';
@@ -67,6 +69,7 @@ const BankingPage = () => {
 
   const approvalsDocuments = ['abm', 'shareholder_meeting', 'board_meeting'];
   const informationRightsDocuments = ['unaudited_financials', 'audited_financials', 'mis'];
+  const founderDocuments = ['coi', 'aoa', 'moa', 'pitch_deck'];
 
 
   const handleOpenModal = (cardTitle) => {
@@ -272,7 +275,7 @@ const BankingPage = () => {
     }
   };
 
-  console.log("Selected Startup Data", selectedStartupsData);
+  // console.log("Selected Startup Data", selectedStartupsData);
 
   if (isLoading) {
     return <Loading />;
@@ -386,13 +389,16 @@ const BankingPage = () => {
 
       {/* Modals for Each Card */}
       {activeCardModal === "Company and Founder's Information" && (
-        <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
-          {/* Modal Content for Company and Founder's Information */}
-          <FounderInforModal
-          selectedStartup={selectedStartupsData}
-          handleCloseModal={handleCloseModal}
-          />
-        </div>
+         <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
+         {/* Modal Content for Series wise Documents */}
+         <DocumentModal1
+         startupId={selectedStartupsData?.id}
+         allowedDocumentTypes={founderDocuments}
+         isOpen={activeCardModal}
+         cardTitle={'company_info'}
+         handleCloseModal={handleCloseModal}
+         />
+       </div>
       )}
 
       {activeCardModal === "Series wise Documents" && (

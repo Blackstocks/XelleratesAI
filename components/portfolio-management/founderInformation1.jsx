@@ -90,7 +90,7 @@ const DocumentModal = ({ startupId, allowedDocumentTypes, isOpen, handleCloseMod
   };
 
   const renderStageDocuments = (documents) => (
-    <ul className="overflow-y-auto max-h-60">
+    <div className="grid grid-cols-4 gap-4 mt-4">
       {Object.entries(documents).map(([docType, filePathText]) => {
         if (
           !allowedDocumentTypes.includes(docType) ||
@@ -107,114 +107,116 @@ const DocumentModal = ({ startupId, allowedDocumentTypes, isOpen, handleCloseMod
         }
 
         if (Array.isArray(filePaths)) {
+          console.log(filePaths);
           return filePaths.map((path, index) => (
-            <li
+            <div
               key={`${docType}-${index}`}
-              className="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200"
-              onClick={() => handleDocumentClick(path)}
+              className={`text-center p-2 ${path ? 'cursor-pointer' : 'cursor-not-allowed'}`} // Conditionally set the cursor style
+              onClick={path ? () => handleDocumentClick(path) : null} // Only set onClick if path exists
             >
-              <FaFileAlt className="text-blue-500 mr-3" />
-              <span className="text-sm">{filePaths.length > 1
-                ? `${docType.replace(/_/g, ' ').toUpperCase()} ${index + 1}`
-                : `${docType.replace(/_/g, ' ').toUpperCase()}`}
-              </span>
-            </li>
+              <div className={`p-4 rounded-lg shadow-md ${path ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-200'}`}>
+                <FaFileAlt size={40} className={`mx-auto mb-2 ${path ? 'text-green-500' : 'text-gray-500'}`} />
+                <p className="text-sm truncate">
+                  {filePaths.length > 1
+                    ? `${docType.replace(/_/g, ' ').toUpperCase()} ${index + 1}`
+                    : `${docType.replace(/_/g, ' ').toUpperCase()}`}
+                </p>
+              </div>
+            </div>
           ));
         } else {
-          const clickable = Boolean(filePaths);
+          const clickable = Boolean(filePaths); // Check if there is a valid file path
           return (
-            <li
+            <div
               key={docType}
-              className={`flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 ${clickable ? '' : 'opacity-50 cursor-not-allowed'}`}
-              onClick={clickable ? () => handleDocumentClick(filePaths) : null}
+              className={`text-center p-2 ${clickable ? 'cursor-pointer' : 'cursor-not-allowed'}`} // Conditionally set the cursor style
+              onClick={clickable ? () => handleDocumentClick(filePaths) : null} // Only set onClick if file path is present
             >
-              <FaFileAlt className={`${clickable ? 'text-blue-500' : 'text-gray-400'} mr-3`} />
-              <span className="text-sm">{docType.replace(/_/g, ' ').toUpperCase()}</span>
-            </li>
+              <div className={`p-4 rounded-lg shadow-md ${clickable ? 'bg-green-200 hover:bg-green-300' : 'bg-gray-200'}`}>
+                <FaFileAlt size={40} className={`mx-auto mb-2 ${clickable ? 'text-green-500' : 'text-gray-500'}`} />
+                <p className="text-sm truncate">{docType.replace(/_/g, ' ').toUpperCase()}</p>
+              </div>
+            </div>
           );
         }
       })}
-    </ul>
+    </div>
   );
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-  <div
-    className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-6 relative"
-    style={{ height: '60vh', overflow: 'hidden' }} // Ensure the modal has fixed height and hidden overflow for outer container
-  >
-    <div className="absolute top-4 right-4">
-      <button
-        onClick={handleCloseModal}
-        className="text-gray-600 hover:text-gray-800"
-      >
-        ✕
-      </button>
-    </div>
-    <div className="mb-4 flex justify-between">
-      <button
-        onClick={handleCloseModal}
-        className="flex items-center space-x-2 text-blue-500 hover:text-blue-700"
-      >
-        <FaArrowLeft size={20} />
-        <span>Back</span>
-      </button>
-    </div>
-
-    <h2 className="text-2xl font-bold mb-4 text-center">Startup Documents</h2>
-
-    <div className="overflow-y-auto h-[calc(60vh-120px)]"> {/* Make content scrollable */}
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loading />
-        </div>
-      ) : !hasDocuments ? (
-        <div className="text-center text-gray-500">No documents present</div>
-      ) : (
-        stages.map((stage) => (
-          <div key={stage} className="mb-4">
-            <div
-              onClick={() => toggleFolderStage(stage)}
-              className="cursor-pointer flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 shadow-sm transition-all duration-300"
-            >
-              {openFolderStage === stage ? (
-                <FaFolderOpen size={20} className="text-blue-600" />
-              ) : (
-                <FaFolder size={20} className="text-blue-600" />
-              )}
-              <span className="text-lg font-semibold">{stage}</span>
-            </div>
-            {openFolderStage === stage && renderStageDocuments(documentsByStage[stage] || {})}
-          </div>
-        ))
-      )}
-    </div>
-  </div>
-
-  {isDocumentViewerOpen && (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-6 relative">
         <div className="absolute top-4 right-4">
           <button
-            onClick={() => setDocumentViewerOpen(false)}
+            onClick={handleCloseModal}
             className="text-gray-600 hover:text-gray-800"
           >
             ✕
           </button>
         </div>
-        <h2 className="text-2xl font-bold mb-4 text-center">View Document</h2>
-        <iframe
-          src={selectedDocument}
-          title="Document Viewer"
-          className="w-full h-[60vh]"
-        />
-      </div>
-    </div>
-  )}
-</div>
+        <div className="mb-4 flex justify-between">
+          <button
+            onClick={handleCloseModal}
+            className="flex items-center space-x-2 text-blue-500 hover:text-blue-700"
+          >
+            <FaArrowLeft size={20} />
+            <span>Back</span>
+          </button>
+        </div>
 
+        <h2 className="text-2xl font-bold mb-4 text-center">Startup Documents</h2>
+
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loading />
+          </div>
+        ) : !hasDocuments ? (
+          <div className="text-center text-gray-500">No documents present</div>
+        ) : (
+          stages.map((stage) => (
+            <div key={stage} className="mb-4">
+              <div
+                onClick={() => toggleFolderStage(stage)}
+                className="cursor-pointer flex items-center space-x-2"
+              >
+                {openFolderStage === stage ? (
+                  <FaFolderOpen size={40} className="text-yellow-500" />
+                ) : (
+                  <FaFolder size={40} className="text-yellow-500" />
+                )}
+                <span className="text-xl font-semibold">{stage}</span>
+              </div>
+              {openFolderStage === stage &&
+                renderStageDocuments(documentsByStage[stage] || {})}
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Second Modal for Viewing Document */}
+      {isDocumentViewerOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-6 relative">
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => setDocumentViewerOpen(false)} // Close the second modal
+                className="text-gray-600 hover:text-gray-800"
+              >
+                ✕
+              </button>
+            </div>
+            <h2 className="text-2xl font-bold mb-4 text-center">View Document</h2>
+            <iframe
+              src={selectedDocument}
+              title="Document Viewer"
+              className="w-full h-[60vh]"
+            />
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
