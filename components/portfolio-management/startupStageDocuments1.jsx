@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FaFileAlt, FaFolder, FaFolderOpen, FaArrowLeft } from 'react-icons/fa';
+import { FaFileAlt, FaFolder, FaArrowLeft, FaTimes } from 'react-icons/fa';
 import { supabase } from '@/lib/supabaseclient';
 import Loading from '@/components/Loading'; // Ensure you have a Loading component
 
-const DocumentModal1 = ({ startupId, cardTitle, isOpen, handleCloseModal }) => {
+const DocumentModal = ({ startupId, cardTitle, isOpen, handleCloseModal }) => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasDocuments, setHasDocuments] = useState(false);
   const [currentPath, setCurrentPath] = useState('');
   const [folderStack, setFolderStack] = useState([]);
+  const [selectedDocument, setSelectedDocument] = useState(null); // State to store selected document URL
 
   useEffect(() => {
     if (isOpen) {
@@ -69,6 +70,10 @@ const DocumentModal1 = ({ startupId, cardTitle, isOpen, handleCloseModal }) => {
     fetchDocuments();
   };
 
+  const handleFileClick = (fileUrl) => {
+    setSelectedDocument(fileUrl); // Open the document viewer modal
+  };
+
   const handleBackClick = () => {
     const newStack = [...folderStack];
     newStack.pop();
@@ -81,13 +86,17 @@ const DocumentModal1 = ({ startupId, cardTitle, isOpen, handleCloseModal }) => {
   const renderDocuments = () => (
     <div className="space-y-4">
       {documents.map((item) => (
-        <div key={item.name} className="flex items-center space-x-2 p-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 rounded">
+        <div
+          key={item.name}
+          className="flex items-center space-x-3 p-2 border-b border-gray-200 cursor-pointer hover:bg-blue-50 rounded-md"
+          onClick={() => item.type === 'folder' ? handleFolderClick(item.name) : handleFileClick(`https://xgusxcqoddybgdkkndvn.supabase.co/storage/v1/object/public/startup_stage_documents/${currentPath}/${item.name}`)}
+        >
           {item.type === 'folder' ? (
             <FaFolder className="text-blue-500" />
           ) : (
-            <FaFileAlt className="text-gray-700" />
+            <FaFileAlt className="text-blue-500" />
           )}
-          <span className="text-sm">{item.name}</span>
+          <span className="text-sm font-medium text-gray-800">{item.name.replace(/_/g, ' ').toUpperCase()}</span>
         </div>
       ))}
     </div>
@@ -97,13 +106,12 @@ const DocumentModal1 = ({ startupId, cardTitle, isOpen, handleCloseModal }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-4xl">
+      <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-4xl relative">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold">Documents - {cardTitle.replace(/_/g, ' ').toUpperCase()}</h2>
           <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
-            <FaArrowLeft className="text-lg" />
+            <FaTimes className="text-lg" />
           </button>
-          <h2 className="text-lg font-semibold">Documents - {cardTitle}</h2>
-          <div></div>
         </div>
         <div className="p-4">
           {loading ? (
@@ -122,12 +130,31 @@ const DocumentModal1 = ({ startupId, cardTitle, isOpen, handleCloseModal }) => {
               {renderDocuments()}
             </>
           ) : (
-            <p>No documents found.</p>
+            <p className="text-center text-gray-500">No documents found.</p>
           )}
         </div>
       </div>
+
+      {/* Document Viewer Modal */}
+      {selectedDocument && (
+        <div className="fixed inset-0 flex items-center justify-center z-60 bg-black bg-opacity-75">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 relative">
+            <button
+              onClick={() => setSelectedDocument(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <FaTimes size={24} />
+            </button>
+            <iframe
+              src={selectedDocument}
+              className="w-full h-96"
+              title="Document Viewer"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default DocumentModal1;
+export default DocumentModal;

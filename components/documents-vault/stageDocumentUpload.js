@@ -14,29 +14,30 @@ const StageDocumentUpload = ({ startupId, onUploadComplete, onDocumentUpload }) 
     aoa: null,
     moa: null,
     pitchdeck: null,
-
+  
     // Approvals
     board_meeting: null,
-    share_holder_meeting: null,
+    shareholder_meeting: null,
     avm: null,
-
+  
     // Information Rights
     mis: null,
     audited_financials: null,
     unaudited_financials: null,
-
-    // Series Wise Documents
+  
+    // Series Wise Documents (Ensure these match your table column names)
     termsheet: [],
-    cap_table: [],
-    due_diligence: [],
-    transaction_docs: [],
-    condition_pre: [],
+    cap_table: [], // Adjust this if Supabase has a different name like 'capTable'
+    ddr: [],
+    transaction_spa: [],
+    condition_precedent: [],
     closing_docs: [],
-    condition_subseq: [],
+    condition_subsequent: [],
   });
+  
 
   const companyInfoDocuments = new Set(['coi', 'aoa', 'moa', 'pitchdeck']);
-  const approvalsDocuments = new Set(['board_meeting', 'share_holder_meeting', 'avm']);
+  const approvalsDocuments = new Set(['board_meeting', 'shareholder_meeting', 'avm']);
   const informationRightsDocuments = new Set(['mis', 'audited_financials', 'unaudited_financials']);
   const seriesWiseDocuments = new Set([
     'termsheet',
@@ -81,7 +82,7 @@ const StageDocumentUpload = ({ startupId, onUploadComplete, onDocumentUpload }) 
 
   const handleUpload = async () => {
     setUploading(true);
-
+  
     const uploadPromises = Object.keys(documents).map(async (docType) => {
       const doc = documents[docType];
       if (doc) {
@@ -89,76 +90,80 @@ const StageDocumentUpload = ({ startupId, onUploadComplete, onDocumentUpload }) 
           // Multiple files
           const multipleUploadPromises = doc.map(async (file) => {
             const filePath = getFilePath(docType, file.name);
+            const folderPath = filePath.substring(0, filePath.lastIndexOf('/')); // Extract folder path
             const { error: uploadError } = await supabase.storage
               .from('startup_stage_documents')
               .upload(filePath, file, { upsert: true });
-
+  
             if (uploadError) {
               console.error(`Error uploading ${docType}:`, uploadError.message);
               return { success: false, docType };
             }
-
-            return { success: true, docType, filePath };
+  
+            return { success: true, docType, folderPath, series: seriesWiseDocuments.has(docType) ? selectedSeries : null }; // Include series only if it's a series-wise document
           });
           return Promise.all(multipleUploadPromises);
         } else {
           // Single file
           const filePath = getFilePath(docType, doc.name);
+          const folderPath = filePath.substring(0, filePath.lastIndexOf('/')); // Extract folder path
           const { error: uploadError } = await supabase.storage
             .from('startup_stage_documents')
             .upload(filePath, doc, { upsert: true });
-
+  
           if (uploadError) {
             console.error(`Error uploading ${docType}:`, uploadError.message);
             return { success: false, docType };
           }
-
-          return { success: true, docType, filePath };
+  
+          return { success: true, docType, folderPath, series: seriesWiseDocuments.has(docType) ? selectedSeries : null }; // Include series only if it's a series-wise document
         }
       }
-      return { success: true, docType, filePath: null };
+      return { success: true, docType, folderPath: null, series: null };
     });
-
+  
     const results = await Promise.all(uploadPromises.flat());
-
+  
     // Process results to prepare fileData for upsert
     const fileData = {};
     results.forEach((result) => {
       if (Array.isArray(result)) {
         result.forEach((item) => {
-          if (item.success && item.filePath) {
+          if (item.success && item.folderPath) {
             if (!fileData[item.docType]) {
               fileData[item.docType] = [];
             }
-            fileData[item.docType].push(item.filePath);
+            fileData[item.docType].push(`https://xgusxcqoddybgdkkndvn.supabase.co/storage/v1/object/public/startup_stage_documents/${item.folderPath}`);
           }
         });
-      } else if (result.success && result.filePath) {
-        fileData[result.docType] = result.filePath;
+      } else if (result.success && result.folderPath) {
+        fileData[result.docType] = `https://xgusxcqoddybgdkkndvn.supabase.co/storage/v1/object/public/startup_stage_documents/${result.folderPath}`;
       }
     });
-
+  
     // Upsert into database (adjust the table and columns as necessary)
     const { data, error: upsertError } = await supabase
       .from('company_stage_documents')
       .upsert(
         {
           startup_id: startupId,
-          series: selectedSeries,
+          stage: selectedSeries || null, // Use series from dropdown or null if not applicable
           ...fileData,
         },
-        { onConflict: ['startup_id', 'series'] }
+        { onConflict: ['startup_id', 'stage'] }
       );
-
+  
     if (!upsertError) {
       onUploadComplete(selectedSeries);
       onDocumentUpload();
       setSelectedSeries('');
       setShowUploadModal(false);
     }
-
+  
     setUploading(false);
   };
+  
+  
 
   const handleDeleteFile = async (documentType) => {
     const isMultiple = multipleFileDocuments.has(documentType);
@@ -273,7 +278,7 @@ const StageDocumentUpload = ({ startupId, onUploadComplete, onDocumentUpload }) 
         {/* Close button */}
         <button
           onClick={closeUploadModal}
-          className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
+          className="absolute top-2 right-2 text-gray-500 hover:text-red-500 mr-4"
         >
           X
         </button>

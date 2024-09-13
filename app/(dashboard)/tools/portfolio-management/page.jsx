@@ -19,6 +19,7 @@ import FounderInforModal from '@/components/portfolio-management/founderInformat
 import FounderInforModal1 from '@/components/portfolio-management/founderInformation1';
 import DocumentModal from '@/components/portfolio-management/startupStageDocuments';
 import DocumentModal1 from '@/components/portfolio-management/startupStageDocuments1';
+import DocumentModal2 from '@/components/portfolio-management/startupStageDocuments2';
 import FinancialChart from '@/components/portfolio-management/financialsChart';
 import StartupFinancials from '@/components/portfolio-management/startupFinancials';
 import AddFiles from '@/components/portfolio-management/addFile';
@@ -404,9 +405,11 @@ const BankingPage = () => {
       {activeCardModal === "Series wise Documents" && (
         <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
           {/* Modal Content for Series wise Documents */}
-          <DocumentModal
+          <DocumentModal2
+          investorId={profile.id}
           startupId={selectedStartupsData?.id}
           allowedDocumentTypes={seriesWiseDocuments}
+          cardTitle={'series_wise'}
           isOpen={activeCardModal}
           handleCloseModal={handleCloseModal}
           />
@@ -415,23 +418,25 @@ const BankingPage = () => {
       {activeCardModal === "Approvals" && (
         <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
           {/* Modal Content for Series wise Documents */}
-          <DocumentModal
-          startupId={selectedStartupsData?.id}
-          allowedDocumentTypes={approvalsDocuments}
-          isOpen={activeCardModal}
-          handleCloseModal={handleCloseModal}
-          />
+          <DocumentModal1
+         startupId={selectedStartupsData?.id}
+         allowedDocumentTypes={founderDocuments}
+         isOpen={activeCardModal}
+         cardTitle={'approvals'}
+         handleCloseModal={handleCloseModal}
+         />
         </div>
       )}
       {activeCardModal === "Information Rights" && (
         <div className="fixed inset-0 flex items-center justify-center z-20 bg-black bg-opacity-50 backdrop-blur-sm">
           {/* Modal Content for Series wise Documents */}
-          <DocumentModal
-          startupId={selectedStartupsData?.id}
-          allowedDocumentTypes={informationRightsDocuments}
-          isOpen={activeCardModal}
-          handleCloseModal={handleCloseModal}
-          />
+          <DocumentModal1
+         startupId={selectedStartupsData?.id}
+         allowedDocumentTypes={founderDocuments}
+         isOpen={activeCardModal}
+         cardTitle={'information_rights'}
+         handleCloseModal={handleCloseModal}
+         />
         </div>
       )}
 
